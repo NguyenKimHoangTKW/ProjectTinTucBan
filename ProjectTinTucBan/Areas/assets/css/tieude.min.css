@@ -1,0 +1,93 @@
+﻿.parent-title {
+    margin-bottom: 20px;
+    padding: 10px 0;
+}
+
+    .parent-title h2 {
+        margin: 0;
+        font-size: 18px;
+        color: #333;
+        font-weight: bold;
+        text-align: left;
+    }
+
+.child-titles {
+    margin-top: 10px;
+    padding-left: 20px;
+}
+
+.child-title {
+    margin-bottom: 15px;
+}
+
+.child-header {
+    font-size: 16px;
+    color: #007bff;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.child-attributes {
+    margin: 0;
+    padding-left: 20px;
+    list-style-type: square;
+    color: #555;
+}
+
+    .child-attributes li {
+        font-size: 14px;
+        margin-bottom: 5px;
+    }
+
+.btn-edit {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+.btn-delete {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+.btn-edit:hover {
+    background-color: #0056b3;
+}
+
+.btn-delete:hover {
+    background-color: #a71d2a;
+}
+.main-content {
+    position: relative;
+    min-height: 100vh; /* Đảm bảo nội dung chiếm toàn bộ chiều cao */
+    display: flex;
+    flex-direction: column; /* Sắp xếp nội dung theo cột */
+}
+
+.card-body {
+    flex: 1; /* Chiếm khoảng trống còn lại để đẩy footer xuống */
+}
+
+.small-banner {
+    position: sticky;
+    bottom: 0;
+    background-color: #f8f9fa; /* Màu nền nhạt */
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1); /* Tạo bóng cho footer */
+    padding: 10px 15px;
+    border-top: 1px solid #ddd; /* Đường viền trên */
+    text-align: center;
+}
+
+    .small-banner button {
+        margin: 5px;
+    }
+    
