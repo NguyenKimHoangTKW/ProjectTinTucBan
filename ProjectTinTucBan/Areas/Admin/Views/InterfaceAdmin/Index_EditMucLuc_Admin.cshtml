@@ -1,0 +1,160 @@
+﻿@{
+    ViewBag.Title = "Sửa mục lục";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="main-content">
+    <div class="container-fluid">
+        <!-- Header và breadcrumb -->
+        <div class="page-header">
+            <h2 class="header-title">Sửa mục lục</h2>
+            <div class="header-sub-title">
+                <nav class="breadcrumb breadcrumb-dash">
+                    <a href="/Admin" class="breadcrumb-item"><i class="anticon anticon-home m-r-5"></i>Trang chủ</a>
+                    <a href="/Admin/InterfaceAdmin/Index_MucLuc_Admin" class="breadcrumb-item">Quản lý mục lục</a>
+                    <span class="breadcrumb-item active">Sửa mục lục</span>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Card chứa form -->
+        <div class="card">
+            <div class="card-body">
+                <h4>Thông tin mục lục</h4>
+                <p>Vui lòng cập nhật thông tin bên dưới</p>
+                <div class="m-t-25">
+                    <form id="form-edit-mucluc">
+                        <input type="hidden" id="mucLucId" name="mucLucId" value="" />
+                        
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="tenMucLuc">Tên mục lục <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="tenMucLuc" name="tenMucLuc" placeholder="Nhập tên mục lục" required>
+                                    <small class="form-text text-muted">Tên hiển thị của mục lục trên website</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="link">Link URL <i class="text-muted">(Tự động tạo)</i></label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control bg-light" id="link" name="link" placeholder="Đường dẫn URL sẽ được tự động tạo" readonly>
+                                        <div class="input-group-append">
+                                            <span class="input-group-text"><i class="anticon anticon-link"></i></span>
+                                        </div>
+                                    </div>
+                                    <small class="form-text text-muted">Đường dẫn URL được tự động tạo từ tên mục lục</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="thuTuShow">Vị trí hiển thị <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="thuTuShow" name="thuTuShow" min="1" placeholder="Nhập số thứ tự hiển thị" required>
+                                    <small class="form-text text-muted">Số thứ tự hiển thị của mục lục (số nhỏ hiển thị trước)</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="thuTuShow">Thông tin thời gian</label>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <input type="text" class="form-control" id="ngayDang" name="ngayDang" readonly placeholder="Ngày đăng">
+                                            <small class="form-text text-muted">Ngày tạo</small>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="text" class="form-control" id="ngayCapNhat" name="ngayCapNhat" readonly placeholder="Ngày cập nhật">
+                                            <small class="form-text text-muted">Cập nhật gần nhất</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row m-t-30">
+                            <div class="col-md-12 text-right">
+                                <button type="button" class="btn btn-default m-r-10" id="btnCancel">Hủy</button>
+                                <button type="submit" class="btn btn-primary" id="btnSaveEdit">
+                                    <i class="anticon anticon-save m-r-5"></i>
+                                    <span>Lưu thay đổi</span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .main-content {
+        padding: calc(70px + -25px) 25px 25px;
+    }
+    
+    .form-group label {
+        font-weight: 500;
+    }
+
+    .radio label {
+        font-weight: normal;
+    }
+
+    .form-control {
+        padding: 10px 15px;
+        border: 1px solid #e8e8e8;
+        border-radius: 4px;
+    }
+
+    .form-control:focus {
+        border-color: #5a8dee;
+        box-shadow: 0 0 0 0.1rem rgba(90, 141, 238, 0.25);
+    }
+    
+    .form-control[readonly] {
+        background-color: #f8f9fa;
+        cursor: not-allowed;
+    }
+
+    .input-group-text {
+        background-color: #f8f9fa;
+        border-color: #e8e8e8;
+    }
+
+    .btn {
+        padding: 8px 16px;
+    }
+
+    .btn-primary {
+        background-color: #5a8dee;
+        border-color: #5a8dee;
+    }
+
+    .btn-default {
+        background-color: #fff;
+        border-color: #e8e8e8;
+    }
+
+    /* Cải thiện hiển thị di động */
+    @@media screen and (max-width: 767px) {
+        .row {
+            margin-bottom: -15px;
+        }
+
+        .col-md-6 {
+            margin-bottom: 15px;
+        }
+    }
+
+    .bg-light {
+        background-color: #f8f9fa !important;
+    }
+</style>
+
+@section scriptsAdmin {
+    <script src="~/Scripts/sweetalert2.all.min.js"></script>
+    <script src="~/Areas/Admin/Scripts/DanhSachMucLuc.js"></script>
+}
