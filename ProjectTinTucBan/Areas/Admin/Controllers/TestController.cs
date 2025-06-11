@@ -42,5 +42,30 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             };
             return Ok();
         }
+
+
+        [HttpGet]
+        [Route("get-all-mucluc")]
+        public async Task<IHttpActionResult> GetAllMucLuc(MucLuc items)
+        {
+            // truy vấn lấy dữ liệu của table mục lục
+            var data = await db.MucLucs
+                .OrderBy(x => x.ThuTuShow)
+                .Select(x => new
+                {
+                    x.ID,
+                    x.TenMucLuc,
+                    x.Link
+                })
+                 .ToListAsync();
+            if (data.Count > 0) // nếu có giá trị thì trả về data
+            {
+                return Ok(new { data = data, success = true });
+            }
+            else // không có giá trị thì trả về đoạn thông báo
+            {
+                return Ok(new { message = "Không có thông tin mục lục", success = false });
+            }
+        }
     }
 }
