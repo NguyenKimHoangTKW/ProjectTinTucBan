@@ -1086,8 +1086,6 @@
     <Content Include="Areas\Admin\Views\Shared\_AdminHeaderPartial.cshtml" />
     <Content Include="Areas\Admin\Views\Shared\_AdminFooterPartial.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_MucLuc_Admin.cshtml" />
-    <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_AddMucLuc_Admin.cshtml" />
-    <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_EditMucLuc_Admin.cshtml" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />

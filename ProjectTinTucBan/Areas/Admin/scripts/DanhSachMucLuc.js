@@ -18,24 +18,103 @@ $(document).ready(function () {
         }, 300); // Delay nhỏ để đảm bảo DOM đã sẵn sàng
     }
 
-    // Initialize auto-generate slug on add/edit pages
-    if (window.location.pathname.toLowerCase().includes('index_addmucluc_admin') ||
-        window.location.pathname.toLowerCase().includes('index_editmucluc_admin')) {
-        console.log("Initializing slug generation");
-        initSlugGeneration();
+    // Các sự kiện cho modal
+    setupMucLucModalEvents();
+});
+
+// Thiết lập các sự kiện cho modal
+function setupMucLucModalEvents() {
+    // Mở modal để thêm mới
+    $(document).on("click", "#btnAddMucLuc", function () {
+        openMucLucModalForAdd();
+    });
+
+    // Mở modal để chỉnh sửa
+    $(document).on("click", "#btnEdit", function () {
+        const id = $(this).data("id");
+        openMucLucModalForEdit(id);
+    });
+
+    // Xử lý khi nhấn nút lưu
+    $(document).on("click", "#btnSaveMucLuc", function () {
+        saveMucLuc();
+    });
+
+    // Thiết lập slug generation khi nhập tên mục lục
+    $(document).on("input", "#tenMucLuc", function () {
+        const tenMucLuc = $(this).val();
+        if (tenMucLuc) {
+            const linkSuggest = convertToSlug(tenMucLuc);
+            $("#link").val('/' + linkSuggest);
+        } else {
+            $("#link").val('');
+        }
+    });
+}
+
+// Mở modal ở chế độ thêm mới
+function openMucLucModalForAdd() {
+    // Reset form và thiết lập chế độ
+    $("#mucLucForm")[0].reset();
+    $("#mucLucId").val("");
+    $("#formMode").val("add");
+
+    // Ẩn phần chỉ hiển thị khi sửa
+    $("#editOnlyFields").hide();
+
+    // Cập nhật tiêu đề và nút lưu
+    $("#mucLucModalLabel").text("Thêm mục lục mới");
+    $("#btnSaveText").text("Thêm mới");
+
+    // Mở modal
+    $("#mucLucModal").modal("show");
+}
+
+// Mở modal ở chế độ chỉnh sửa
+function openMucLucModalForEdit(id) {
+    // Reset form và thiết lập chế độ
+    $("#mucLucForm")[0].reset();
+    $("#mucLucId").val(id);
+    $("#formMode").val("edit");
+
+    // Cập nhật tiêu đề và nút lưu
+    $("#mucLucModalLabel").text("Chỉnh sửa mục lục");
+    $("#btnSaveText").text("Lưu thay đổi");
+
+    // Hiển thị phần chỉ dành cho chỉnh sửa
+    $("#editOnlyFields").show();
+
+    // Lấy dữ liệu và điền vào form
+    get_muc_luc_by_id(id);
+
+    // Mở modal
+    $("#mucLucModal").modal("show");
+}
+
+// Lưu mục lục (xử lý cả thêm mới và chỉnh sửa)
+function saveMucLuc() {
+    const mode = $("#formMode").val();
+    const tenMucLuc = $("#tenMucLuc").val();
+
+    if (!tenMucLuc) {
+        Sweet_Alert("error", "Vui lòng nhập tên mục lục");
+        return;
     }
-});
 
-// Add new button click
-$(document).on("click", "#addnew", function () {
-    window.location.href = '/Admin/InterfaceAdmin/Index_AddMucLuc_Admin';
-});
+    // Generate link từ tên
+    const link = '/' + convertToSlug(tenMucLuc);
+    $("#link").val(link);
 
-// Edit button click
-$(document).on("click", "#btnEdit", function () {
-    const id = $(this).data("id");
-    window.location.href = '/Admin/InterfaceAdmin/Index_EditMucLuc_Admin?id=' + id;
-});
+    const thuTuShow = $("#thuTuShow").val();
+
+    if (mode === "add") {
+        // Thêm mới
+        add_new_in_modal();
+    } else {
+        // Chỉnh sửa
+        update_muc_luc_in_modal();
+    }
+}
 
 // Delete button click
 $(document).on("click", "#btnDelete", function () {
@@ -55,50 +134,6 @@ $(document).on("click", "#btnDelete", function () {
         }
     });
 });
-
-// Form submit for add new
-$(document).on("click", "#btnSave", function (e) {
-    e.preventDefault();
-    add_new();
-});
-
-// Form submit for edit
-$(document).on("click", "#btnSaveEdit", function (e) {
-    e.preventDefault();
-    update_muc_luc();
-});
-
-// Cancel button handler
-$(document).on("click", "#btnCancel", function () {
-    if (confirm("Bạn có chắc chắn muốn hủy thao tác?")) {
-        window.location.href = '/Admin/InterfaceAdmin/Index_MucLuc_Admin';
-    }
-});
-
-// Initialize slug generation for title input
-function initSlugGeneration() {
-    // Apply initial slug generation if title already has content
-    const tenMucLuc = $("#tenMucLuc").val();
-    if (tenMucLuc) {
-        const linkSuggest = convertToSlug(tenMucLuc);
-        $("#link").val('/' + linkSuggest);
-    }
-
-    // Set up event listener for auto-generation
-    $("#tenMucLuc").on('input', function () {
-        const tenMucLuc = $(this).val();
-        if (tenMucLuc) {
-            const linkSuggest = convertToSlug(tenMucLuc);
-            $("#link").val('/' + linkSuggest);
-
-            // Make the link input read-only to indicate it's auto-generated
-            $("#link").prop('readonly', true);
-        } else {
-            // If title is empty, clear the link
-            $("#link").val('');
-        }
-    });
-}
 
 // Delete muc luc
 async function delete_muc_luc(id) {
@@ -124,21 +159,10 @@ async function delete_muc_luc(id) {
     }
 }
 
-// Add new muc luc
-async function add_new() {
-    // Always generate the link from the title before submission
+// Add new muc luc từ modal
+async function add_new_in_modal() {
     const tenMucLuc = $("#tenMucLuc").val();
-    if (!tenMucLuc) {
-        Sweet_Alert("error", "Vui lòng nhập tên mục lục");
-        return;
-    }
-
-    // Generate link from title
-    const link = '/' + convertToSlug(tenMucLuc);
-
-    // Update link input value for visual consistency
-    $("#link").val(link);
-
+    const link = $("#link").val();
     const thuTuShow = $("#thuTuShow").val();
 
     try {
@@ -154,10 +178,9 @@ async function add_new() {
         });
 
         if (res.success) {
+            $("#mucLucModal").modal("hide");
             Sweet_Alert("success", res.message);
-            setTimeout(function () {
-                window.location.href = '/Admin/InterfaceAdmin/Index_MucLuc_Admin';
-            }, 1500);
+            load_data();
         } else {
             Sweet_Alert("error", res.message);
         }
@@ -167,22 +190,11 @@ async function add_new() {
     }
 }
 
-// Update muc luc
-async function update_muc_luc() {
+// Update muc luc từ modal
+async function update_muc_luc_in_modal() {
     const id = $("#mucLucId").val();
     const tenMucLuc = $("#tenMucLuc").val();
-
-    if (!tenMucLuc) {
-        Sweet_Alert("error", "Vui lòng nhập tên mục lục");
-        return;
-    }
-
-    // Generate link from title
-    const link = '/' + convertToSlug(tenMucLuc);
-
-    // Update link input value for visual consistency
-    $("#link").val(link);
-
+    const link = $("#link").val();
     const thuTuShow = $("#thuTuShow").val();
 
     try {
@@ -199,10 +211,9 @@ async function update_muc_luc() {
         });
 
         if (res.success) {
+            $("#mucLucModal").modal("hide");
             Sweet_Alert("success", res.message);
-            setTimeout(function () {
-                window.location.href = '/Admin/InterfaceAdmin/Index_MucLuc_Admin';
-            }, 1500);
+            load_data();
         } else {
             Sweet_Alert("error", res.message);
         }
@@ -212,8 +223,6 @@ async function update_muc_luc() {
     }
 }
 
-
-// Load data table
 // Load data table
 async function load_data() {
     try {
@@ -383,27 +392,12 @@ async function get_muc_luc_by_id(id) {
             } else {
                 $("#ngayCapNhat").val(res.data.NgayCapNhat || "");
             }
-
-            // Set radio button for status if applicable (nếu có)
-            if ($("#trangThai-1").length && $("#trangThai-0").length) {
-                if (res.data.TrangThai) {
-                    $("#trangThai-1").prop("checked", true);
-                } else {
-                    $("#trangThai-0").prop("checked", true);
-                }
-            }
         } else {
             Sweet_Alert("error", res.message || "Không tìm thấy thông tin mục lục");
-            setTimeout(function () {
-                window.location.href = '/Admin/InterfaceAdmin/Index_MucLuc_Admin';
-            }, 1500);
         }
     } catch (error) {
         Sweet_Alert("error", "Đã xảy ra lỗi khi lấy thông tin mục lục");
         console.error(error);
-        setTimeout(function () {
-            window.location.href = '/Admin/InterfaceAdmin/Index_MucLuc_Admin';
-        }, 1500);
     }
 }
 
@@ -436,23 +430,6 @@ function convertToSlug(text) {
 
     return slug;
 }
-
-// Initialize edit page if URL contains edit parameter
-$(document).ready(function () {
-    if (window.location.href.includes('Index_EditMucLuc_Admin')) {
-        const urlParams = new URLSearchParams(window.location.search);
-        const mucLucId = urlParams.get('id');
-        if (mucLucId) {
-            $("#mucLucId").val(mucLucId);
-            get_muc_luc_by_id(mucLucId);
-        } else {
-            Sweet_Alert("error", "Không tìm thấy ID mục lục");
-            setTimeout(function () {
-                window.location.href = '/Admin/InterfaceAdmin/Index_MucLuc_Admin';
-            }, 1500);
-        }
-    }
-});
 
 function unixTimestampToDate(unixTimestamp) {
     var date = new Date(unixTimestamp * 1000);

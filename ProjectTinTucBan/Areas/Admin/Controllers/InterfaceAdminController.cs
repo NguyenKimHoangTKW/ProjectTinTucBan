@@ -18,15 +18,6 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         {
             return View();
         }
-        // Gọi hàm thiết kế giao diện thêm mục lục
-        public ActionResult Index_AddMucLuc_Admin()
-        {
-            return View();
-        }
-        // Gọi hàm thiết kế giao diện sửa mục lục
-        public ActionResult Index_EditMucLuc_Admin()
-        {
-            return View();
-        }
+    
     }
 }  

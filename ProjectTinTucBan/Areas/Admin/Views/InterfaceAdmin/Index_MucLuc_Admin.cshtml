@@ -24,7 +24,7 @@
                         <h4>Danh sách mục lục</h4>
                     </div>
                     <div class="col-lg-4 text-right">
-                        <button class="btn btn-primary" id="addnew">
+                        <button class="btn btn-primary" id="btnAddMucLuc">
                             <i class="anticon anticon-plus-circle m-r-5"></i>
                             <span>Thêm mục lục mới</span>
                         </button>
@@ -48,6 +48,84 @@
                         <!-- Data will be loaded here -->
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Quản lý Mục Lục (dùng chung cho cả thêm và sửa) -->
+<div class="modal fade" id="mucLucModal" tabindex="-1" role="dialog" aria-labelledby="mucLucModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mucLucModalLabel">Quản lý mục lục</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="mucLucForm">
+                    <input type="hidden" id="mucLucId" value="" />
+                    <input type="hidden" id="formMode" value="add" /> <!-- 'add' hoặc 'edit' -->
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="tenMucLuc">Tên mục lục <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="tenMucLuc" name="tenMucLuc" placeholder="Nhập tên mục lục" required>
+                                <small class="form-text text-muted">Tên hiển thị của mục lục trên website</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="link">Link URL <i class="text-muted">(Tự động tạo)</i></label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control bg-light" id="link" name="link" placeholder="Đường dẫn URL sẽ được tự động tạo" readonly>
+                                    <div class="input-group-append">
+                                        <span class="input-group-text"><i class="anticon anticon-link"></i></span>
+                                    </div>
+                                </div>
+                                <small class="form-text text-muted">Đường dẫn URL được tự động tạo từ tên mục lục</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="thuTuShow">Vị trí hiển thị <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="thuTuShow" name="thuTuShow" min="1" value="1" placeholder="Nhập số thứ tự hiển thị" required>
+                                <small class="form-text text-muted">Số thứ tự hiển thị của mục lục (số nhỏ hiển thị trước)</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chỉ hiển thị khi ở chế độ sửa -->
+                    <div id="editOnlyFields" class="row" style="display:none">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Thông tin thời gian</label>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <input type="text" class="form-control" id="ngayDang" name="ngayDang" readonly placeholder="Ngày đăng">
+                                        <small class="form-text text-muted">Ngày tạo</small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input type="text" class="form-control" id="ngayCapNhat" name="ngayCapNhat" readonly placeholder="Ngày cập nhật">
+                                        <small class="form-text text-muted">Cập nhật gần nhất</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" id="btnSaveMucLuc">
+                    <i class="anticon anticon-save m-r-5"></i>
+                    <span id="btnSaveText">Lưu</span>
+                </button>
             </div>
         </div>
     </div>
@@ -191,10 +269,49 @@
     .main-content {
         padding: calc(70px + -25px) 25px 25px;
     }
+
+    /* Modal styling */
+    .modal-header {
+        border-bottom: 1px solid #e8e8e8;
+        padding: 15px 20px;
+    }
+
+    .modal-footer {
+        border-top: 1px solid #e8e8e8;
+        padding: 15px 20px;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .form-group label {
+        font-weight: 500;
+    }
+
+    .form-control {
+        padding: 10px 15px;
+        border: 1px solid #e8e8e8;
+        border-radius: 4px;
+    }
+
+        .form-control:focus {
+            border-color: #5a8dee;
+            box-shadow: 0 0 0 0.1rem rgba(90, 141, 238, 0.25);
+        }
+
+        .form-control[readonly] {
+            background-color: #f8f9fa;
+            cursor: not-allowed;
+        }
+
+    .input-group-text {
+        background-color: #f8f9fa;
+        border-color: #e8e8e8;
+    }
 </style>
 
 @section scriptsAdmin {
     <script src="~/Scripts/sweetalert2.all.min.js"></script>
     <script src="~/Areas/Admin/Scripts/DanhSachMucLuc.js"></script>
-    
 }
