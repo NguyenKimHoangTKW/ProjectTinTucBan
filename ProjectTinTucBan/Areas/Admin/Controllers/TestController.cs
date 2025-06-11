@@ -46,7 +46,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
         [HttpGet]
         [Route("get-all-mucluc")]
-        public async Task<IHttpActionResult> GetAllMucLuc(MucLuc items)
+        public async Task<IHttpActionResult> GetAllMucLuc()
         {
             // truy vấn lấy dữ liệu của table mục lục
             var data = await db.MucLucs
