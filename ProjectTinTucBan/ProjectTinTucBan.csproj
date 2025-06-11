@@ -1080,6 +1080,8 @@
     <Content Include="Areas\Admin\Views\Shared\_AdminNavPartial.cshtml" />
     <Content Include="Areas\Admin\Views\Shared\_AdminHeaderPartial.cshtml" />
     <Content Include="Areas\Admin\Views\Shared\_AdminFooterPartial.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\Login.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\Register.cshtml" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />
