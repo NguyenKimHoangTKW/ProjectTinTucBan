@@ -46,6 +46,7 @@
             <div class="alert alert-danger">@ViewBag.Error</div>
         }
         <form method="post" action="/Admin/InterfaceAdmin/Login">
+            @Html.AntiForgeryToken() @* <-- THÊM DÒNG NÀY VÀO ĐÂY *@
             <div class="form-group mb-3">
                 <label for="username">Tên đăng nhập</label>
                 <div class="input-group">
