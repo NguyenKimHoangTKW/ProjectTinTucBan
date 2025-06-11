@@ -12,11 +12,16 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
     <style>
         body {
-            background: #f0f2f5;
+            background-image: url('~/Areas/assets/nen.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100vh;
+            margin: 0;
         }
 
         .login-form {
-            background: #fff;
+            background: rgba(255, 255, 255, 0.85);
             border-radius: 12px;
             box-shadow: 0 4px 24px rgba(0,0,0,0.10);
             padding: 32px 24px;
@@ -36,6 +41,22 @@
             .login-form h2 {
                 font-weight: 600;
             }
+
+        .or-separator {
+            text-align: center;
+            margin: 15px 0;
+            color: #6c757d; /* text-muted color */
+        }
+
+        .btn-google {
+            background-color: #DB4437; /* Google Red */
+            color: white;
+        }
+
+            .btn-google:hover {
+                background-color: #c23321;
+                color: white;
+            }
     </style>
 </head>
 <body>
@@ -46,7 +67,7 @@
             <div class="alert alert-danger">@ViewBag.Error</div>
         }
         <form method="post" action="/Admin/InterfaceAdmin/Login">
-            @Html.AntiForgeryToken() @* <-- THÊM DÒNG NÀY VÀO ĐÂY *@
+            @Html.AntiForgeryToken()
             <div class="form-group mb-3">
                 <label for="username">Tên đăng nhập</label>
                 <div class="input-group">
@@ -71,6 +92,19 @@
             </div>
             <button type="submit" class="btn btn-primary btn-block">Đăng nhập</button>
         </form>
+
+        <div class="or-separator">
+            <small>HOẶC ĐĂNG NHẬP BẰNG</small>
+        </div>
+
+        <a href="#" class="btn btn-google btn-block mb-3">
+            <i class="fab fa-google mr-2"></i> Đăng nhập với Google
+        </a>
+
+        <div class="text-center mt-2">
+            <a href="/Admin/InterfaceAdmin/Register">Chưa có tài khoản? Đăng ký ngay</a>
+        </div>
+
     </div>
     <!-- Font Awesome CDN for icons -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>

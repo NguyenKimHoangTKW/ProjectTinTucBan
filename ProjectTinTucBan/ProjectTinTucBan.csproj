@@ -270,6 +270,7 @@
     <Content Include="Areas\assets\images\logo\logo-white.png" />
     <Content Include="Areas\assets\images\logo\logo.png" />
     <Content Include="Areas\assets\images\logo\logo_test_2.png" />
+    <Content Include="Areas\assets\images\nen.jpg" />
     <Content Include="Areas\assets\images\others\adobe-thumb.png" />
     <Content Include="Areas\assets\images\others\amazon-thumb.png" />
     <Content Include="Areas\assets\images\others\cambridge-thumb.png" />
