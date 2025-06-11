@@ -1,0 +1,30 @@
+﻿@{
+    ViewBag.Title = "BaiViet";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="main-content">
+    <h2>Bài Viết</h2>
+
+    <table id="table_load_baiviet" class="table table-bordered table-striped">
+        <thead>
+            @*<tr>
+                <th>ID</th>
+                <th>Tiêu Đề</th>
+                <th>Nội Dung</th>
+                <th>Ngày Đăng</th>
+                <th>Ngày Cập Nhật</th>
+                <th>Link Thumbnail</th>
+                <th>Link PDF</th>
+                <th>Lượt Xem</th>
+            </tr>*@
+        </thead>
+        <tbody>
+            <!-- Dữ liệu sẽ được load bằng JavaScript -->
+        </tbody>
+    </table>
+</div>
+
+@section scriptsAdmin {
+    <script src="~/Areas/Admin/Scripts/BaiViet.js"></script>
+}

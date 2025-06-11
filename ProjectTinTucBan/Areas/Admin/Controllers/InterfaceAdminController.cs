@@ -13,5 +13,9 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         {
             return View();
         }
+        public ActionResult BaiViet()
+        {
+            return View();
+        }
     }
 }

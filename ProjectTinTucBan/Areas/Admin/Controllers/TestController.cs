@@ -19,8 +19,14 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("test")] // tên của api ví dụ (api/v1/admin/test)
         public async Task<IHttpActionResult> test()
         {
-            var get = db.BaiViets.ToListAsync(); // lấy ra toàn bộ record trong table BaiViets
-            return Ok();
+            var aaaa = await db.MucLucs
+                .Select(x => new
+                {
+                    x.ThuTuShow
+                })
+                .ToListAsync(); // lấy ra toàn bộ record trong table BaiViets
+            return Ok(new { data = aaaa });
         }
+
     }
 }
