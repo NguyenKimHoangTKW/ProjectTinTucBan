@@ -12,12 +12,19 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
     <style>
         body {
-            background: #f0f2f5;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
+         background-image: url('@Url.Content("~/Areas/assets/images/nen.jpg")');
+         background-size: cover;
+         background-position: center center; /* Thêm center thứ hai để căn giữa cả chiều dọc */
+         background-repeat: no-repeat;
+ /* background-attachment: fixed; */ /* Bạn có thể bật lại nếu muốn nền cố định khi cuộn */
+         min-height: 100vh; /* Đảm bảo body chiếm ít nhất toàn bộ chiều cao màn hình */
+         margin: 0;
+ /* Thêm các thuộc tính để căn giữa form nếu cần */
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         padding: 15px; /* Thêm padding nhỏ cho body */
+         box-sizing: border-box;
         }
 
         .register-form {

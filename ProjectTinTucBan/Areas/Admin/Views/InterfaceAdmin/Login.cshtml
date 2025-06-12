@@ -12,21 +12,30 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
     <style>
         body {
-            background-image: url('~/Areas/assets/nen.jpg');
+            /* SỬA LỖI ĐƯỜNG DẪN HÌNH ẢNH Ở ĐÂY */
+            background-image: url('@Url.Content("~/Areas/assets//nen.jpg")');
             background-size: cover;
-            background-position: center;
+            background-position: center center; /* Thêm center thứ hai để căn giữa cả chiều dọc */
             background-repeat: no-repeat;
-            height: 100vh;
+            /* background-attachment: fixed; */ /* Bạn có thể bật lại nếu muốn nền cố định khi cuộn */
+            min-height: 100vh; /* Đảm bảo body chiếm ít nhất toàn bộ chiều cao màn hình */
             margin: 0;
+            /* Thêm các thuộc tính để căn giữa form nếu cần */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px; /* Thêm padding nhỏ cho body */
+            box-sizing: border-box;
         }
 
         .login-form {
             background: rgba(255, 255, 255, 0.85);
             border-radius: 12px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.15); /* Tăng nhẹ shadow */
             padding: 32px 24px;
-            margin: 60px auto;
+            /* margin: 60px auto; -- không cần nữa nếu body dùng flex */
             max-width: 400px;
+            width: 100%; /* Để form co giãn tốt hơn trên màn hình nhỏ */
         }
 
             .login-form .form-control {
@@ -40,12 +49,13 @@
 
             .login-form h2 {
                 font-weight: 600;
+                color: #333; /* Đảm bảo màu chữ tiêu đề dễ đọc */
             }
 
         .or-separator {
             text-align: center;
             margin: 15px 0;
-            color: #6c757d; /* text-muted color */
+            color: #6c757d;
         }
 
         .btn-google {
@@ -66,7 +76,7 @@
         {
             <div class="alert alert-danger">@ViewBag.Error</div>
         }
-        <form method="post" action="/Admin/InterfaceAdmin/Login">
+        <form method="post" action="@Url.Action("Login", "InterfaceAdmin", new { Area = "Admin" })">
             @Html.AntiForgeryToken()
             <div class="form-group mb-3">
                 <label for="username">Tên đăng nhập</label>
@@ -102,7 +112,7 @@
         </a>
 
         <div class="text-center mt-2">
-            <a href="/Admin/InterfaceAdmin/Register">Chưa có tài khoản? Đăng ký ngay</a>
+            <a href="@Url.Action("Register", "InterfaceAdmin", new { Area = "Admin" })">Chưa có tài khoản? Đăng ký ngay</a>
         </div>
 
     </div>
