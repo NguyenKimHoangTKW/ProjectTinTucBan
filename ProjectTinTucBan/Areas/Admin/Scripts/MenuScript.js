@@ -19,7 +19,7 @@ $(function () {
                 const $right = $('<div>').append(
                     $('<button class="btn btn-sm btn-link add-submenu-btn mb-3">')
                         .text('Thêm menu con').attr('data-menu-id', menu.MenuId),
-                    $('<button class="btn btn-sm btn-primary edit-menu-btn ml-2">')
+                    $('<button class="btn btn-sm btn-warning edit-menu-btn ml-2">')
                         .text('Sửa').attr('data-menu-id', menu.MenuId)
                         .attr('data-menu-name', menu.MenuName)
                         .attr('data-menu-link', menu.MenuLink || ''),
@@ -35,17 +35,34 @@ $(function () {
                 if (menu.SubMenus?.length > 0) {
                     const $subList = $('<ul class="list-group mt-2 mb-2">');
                     menu.SubMenus.forEach(sub => {
-                        const $left  = $('<li class="list-group-item py-1 px-3 d-flex justify-content-between align-items-center">')
-                            .append(
-                                $('<span>').text(sub.SubMenuName),
-                        );
+                        // Show submenu name and link (as clickable link if exists)
+                        const $name = $('<span>').text(sub.SubMenuName);
+                        let $link = '';
+                        if (sub.SubMenuLink) {
+                            $link = $('<a>')
+                                .attr('href', sub.SubMenuLink)
+                                .attr('target', '_blank')
+                                .addClass('ml-2 text-primary')
+                                .text(sub.SubMenuLink);
+                        }
+                        const $left = $('<div class="d-flex align-items-center">')
+                            .append($name)
+                            .append($link);
+
                         const $right = $('<div>').append(
+                            $('<button class="btn btn-sm btn-warning edit-submenu-btn">')
+                                .text('Sửa').attr('data-submenu-id', sub.SubMenuId)
+                                .attr('data-menu-name', sub.SubMenuName)
+                                .attr('data-menu-link', sub.SubMenuLink || ''),
                             $('<button class="btn btn-sm btn-danger delete-submenu-btn">')
                                 .text('Xóa').attr('data-submenu-id', sub.SubMenuId)
                         );
-                        const $subItem = $('<div class="d-flex justify-content-between align-items-center">')
-                            .append($left)
-                            .append($right);
+                        const $subItem = $('<li class="list-group-item py-1 px-3">')
+                            .append(
+                                $('<div class="d-flex justify-content-between align-items-center">')
+                                    .append($left)
+                                    .append($right)
+                            );
                         $subList.append($subItem);
                     });
                     $menuItem.append($subList);
@@ -55,7 +72,6 @@ $(function () {
             });
         });
     }
-
     loadMenus();
 
     $('#openAddMenuModal').click(() => $('#addMenuModal').modal('show'));
@@ -166,35 +182,6 @@ $(function () {
         });
     });
 
-    $('#menu-list').on('click', '.delete-submenu-btn', function () {
-        const subMenuId = $(this).data('submenu-id');
-        Swal.fire({
-            title: 'Bạn có chắc chắn muốn xóa menu con này?',
-            icon: 'warning',
-            showCancelButton: true,
-            cancelButtonText: 'Hủy',
-            confirmButtonText: 'Xóa'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: '/api/v1/admin/delete-submenu',
-                    method: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify(subMenuId),
-                    success: (res) => {
-                        if (res.success) {
-                            showSwal('Xóa menu con thành công!', 'success');
-                            loadMenus();
-                        } else {
-                            showSwal('Xóa thất bại: ' + (res.message || ''), 'error');
-                        }
-                    },
-                    error: () => showSwal('Có lỗi xảy ra khi xóa menu con!', 'error')
-                });
-            }
-        });
-    });
-
     $('#menu-list').on('click', '.add-submenu-btn', function () {
         const menuId = $(this).data('menu-id');
         $('#parentMenuId').val(menuId);
@@ -233,4 +220,86 @@ $(function () {
             }
         });
     });
+
+    // Sửa submenu
+    $('#menu-list').on('click', '.edit-submenu-btn', function () {
+        const subMenuId = $(this).data('submenu-id');
+        // Lấy tên submenu hiện tại từ DOM
+        const $subItem = $(this).closest('.d-flex').find('span').first();
+        const currentName = $subItem.text();
+
+        Swal.fire({
+            title: 'Chỉnh sửa Menu Con',
+            html:
+                `<input id="swal-submenu-name" class="swal2-input" placeholder="Tên menu con" value="${currentName}">` +
+                `<input id="swal-submenu-link" class="swal2-input" placeholder="Link" value="">`,
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: 'Lưu',
+            cancelButtonText: 'Hủy',
+            preConfirm: () => {
+                const name = $('#swal-submenu-name').val().trim();
+                const link = $('#swal-submenu-link').val().trim();
+                if (!name) {
+                    Swal.showValidationMessage('Tên menu con không được để trống!');
+                    return false;
+                }
+                return { name, link };
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '/api/v1/admin/edit-sub-menu',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        ID: subMenuId,
+                        Ten: result.value.name,
+                        Link: result.value.link
+                    }),
+                    success: function (res) {
+                        if (res.success) {
+                            showSwal('Cập nhật menu con thành công!', 'success');
+                            loadMenus();
+                        } else {
+                            showSwal('Cập nhật thất bại: ' + (res.message || ''), 'error');
+                        }
+                    },
+                    error: function (xhr) {
+                        showSwal('Lỗi: ' + xhr.responseText, 'error');
+                    }
+                });
+            }
+        });
+    });
+
+    $('#menu-list').on('click', '.delete-submenu-btn', function () {
+        const subMenuId = $(this).data('submenu-id');
+        Swal.fire({
+            title: 'Bạn có chắc chắn muốn xóa menu con này?',
+            icon: 'warning',
+            showCancelButton: true,
+            cancelButtonText: 'Hủy',
+            confirmButtonText: 'Xóa'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '/api/v1/admin/delete-submenu',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(subMenuId),
+                    success: (res) => {
+                        if (res.success) {
+                            showSwal('Xóa menu con thành công!', 'success');
+                            loadMenus();
+                        } else {
+                            showSwal('Xóa thất bại: ' + (res.message || ''), 'error');
+                        }
+                    },
+                    error: () => showSwal('Có lỗi xảy ra khi xóa menu con!', 'error')
+                });
+            }
+        });
+    });
+
 });
