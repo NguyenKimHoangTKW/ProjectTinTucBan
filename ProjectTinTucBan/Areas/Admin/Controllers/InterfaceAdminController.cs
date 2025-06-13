@@ -6,6 +6,7 @@ using System.Web.Mvc;
 
 namespace ProjectTinTucBan.Areas.Admin.Controllers
 {
+
     public class InterfaceAdminController : Controller
     {
         // Gọi hàm thiết kế giao diện tại đây
@@ -18,6 +19,11 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         {
             return View();
         }
-    
+        // Gọi hàm thiết kế giao diện quản lý quyền Admin
+        public ActionResult Index_Roles_Admin()
+        {
+            return View();
+        }
+
     }
 }  

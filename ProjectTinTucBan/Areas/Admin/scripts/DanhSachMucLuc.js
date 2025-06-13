@@ -185,7 +185,16 @@ async function add_new_in_modal() {
             Sweet_Alert("error", res.message);
         }
     } catch (error) {
-        Sweet_Alert("error", "Đã xảy ra lỗi khi thêm mục lục");
+        // Trích xuất thông báo lỗi từ response
+        console.log("Error object:", error);
+
+        // Hiển thị thông báo lỗi chi tiết từ máy chủ nếu có
+        if (error.responseJSON) {
+            Sweet_Alert("error", error.responseJSON.message || "Đã xảy ra lỗi khi thêm mục lục");
+        } else {
+            Sweet_Alert("error", "Đã xảy ra lỗi khi thêm mục lục");
+        }
+
         console.error(error);
     }
 }
@@ -218,7 +227,16 @@ async function update_muc_luc_in_modal() {
             Sweet_Alert("error", res.message);
         }
     } catch (error) {
-        Sweet_Alert("error", "Đã xảy ra lỗi khi cập nhật mục lục");
+        // Trích xuất thông báo lỗi từ response
+        console.log("Error object:", error);
+
+        // Hiển thị thông báo lỗi chi tiết từ máy chủ nếu có
+        if (error.responseJSON) {
+            Sweet_Alert("error", error.responseJSON.message || "Đã xảy ra lỗi khi thêm mục lục");
+        } else {
+            Sweet_Alert("error", "Đã xảy ra lỗi khi thêm mục lục");
+        }
+
         console.error(error);
     }
 }
@@ -303,18 +321,20 @@ async function load_data() {
                             orderable: false,
                             render: function (data) {
                                 return `
-                                    <button class="btn btn-icon btn-hover btn-sm btn-rounded mr-2" id="btnEdit" data-id="${data.ID || ''}" data-ten="${(data.TenMucLuc || '').replace(/"/g, '&quot;')}">
-                                        <i class="anticon anticon-edit"></i>
-                                    </button>
-                                    <button class="btn btn-icon btn-hover btn-sm btn-rounded" id="btnDelete" data-id="${data.ID || ''}" data-ten="${(data.TenMucLuc || '').replace(/"/g, '&quot;')}">
-                                        <i class="anticon anticon-delete"></i>
-                                    </button>
+                                      <div class="d-flex">
+                                        <button class="btn-action btn-edit mr-2" id="btnEdit" data-id="${data.ID || ''}" data-ten="${(data.TenMucLuc || '').replace(/"/g, '&quot;')}">
+                                            <i class="anticon anticon-edit"></i>
+                                        </button>
+                                        <button class="btn-action btn-delete" id="btnDelete" data-id="${data.ID || ''}" data-ten="${(data.TenMucLuc || '').replace(/"/g, '&quot;')}">
+                                            <i class="anticon anticon-delete"></i>
+                                        </button>
+                                      </div>
                                 `;
                             }
                         }
                     ],
-                    pageLength: 7,
-                    lengthMenu: [5, 7, 10, 25, 50],
+                    pageLength: 5,
+                    lengthMenu: [5, 10, 15, 25, 50],
                     language: {
                         paginate: {
                             next: "Tiếp",

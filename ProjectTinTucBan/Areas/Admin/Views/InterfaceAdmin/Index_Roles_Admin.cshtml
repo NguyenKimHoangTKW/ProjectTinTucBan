@@ -1,5 +1,5 @@
 ﻿@{
-    ViewBag.Title = "Quản lý mục lục";
+    ViewBag.Title = "Quản lý quyền Admin";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
@@ -7,11 +7,11 @@
     <div class="container-fluid">
         <!-- Header và breadcrumb -->
         <div class="page-header">
-            <h2 class="header-title">Quản lý mục lục</h2>
+            <h2 class="header-title">Quản lý quyền Admin</h2>
             <div class="header-sub-title">
                 <nav class="breadcrumb breadcrumb-dash">
                     <a href="/Admin/InterfaceAdmin/Index" class="breadcrumb-item"><i class="anticon anticon-home m-r-5"></i>Trang chủ</a>
-                    <span class="breadcrumb-item active">Quản lý mục lục</span>
+                    <span class="breadcrumb-item active">Quản lý quyền Admin</span>
                 </nav>
             </div>
         </div>
@@ -21,12 +21,12 @@
             <div class="card-body">
                 <div class="row m-b-30">
                     <div class="col-lg-8">
-                        <h4>Danh sách mục lục</h4>
+                        <h4>Danh sách quyền Admin</h4>
                     </div>
                     <div class="col-lg-4 text-right">
-                        <button class="btn btn-primary" id="btnAddMucLuc">
+                        <button class="btn btn-primary" id="btnAddRoles">
                             <i class="anticon anticon-plus-circle m-r-5"></i>
-                            <span>Thêm mục lục mới</span>
+                            <span>Thêm quyền admin mới</span>
                         </button>
                     </div>
                 </div>
@@ -36,9 +36,8 @@
                     <thead>
                         <tr>
                             <th>STT</th>
-                            <th>Tên mục lục</th>
-                            <th>Link</th>
-                            <th>Vị trí hiển thị</th>
+                            <th>Tên quyền</th>
+                            <th>Mô tả</th>
                             <th>Ngày đăng</th>
                             <th>Ngày cập nhật</th>
                             <th>Thao tác</th>
@@ -53,49 +52,38 @@
     </div>
 </div>
 
-<!-- Modal Quản lý Mục Lục (dùng chung cho cả thêm và sửa) -->
-<div class="modal fade" id="mucLucModal" tabindex="-1" role="dialog" aria-labelledby="mucLucModalLabel" aria-hidden="true">
+
+<!-- Modal Quản lý Quyền Admin (dùng chung cho cả thêm và sửa) -->
+<div class="modal fade" id="RolesModal" tabindex="-1" role="dialog" aria-labelledby="RolesModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="mucLucModalLabel">Quản lý mục lục</h5>
+                <h5 class="modal-title" id="RolesModalLabel">Quản lý quyền Admin</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <form id="mucLucForm">
-                    <input type="hidden" id="mucLucId" value="" />
+                <form id="RolesForm">
+                    <input type="hidden" id="roleId" value="" />
                     <input type="hidden" id="formMode" value="add" /> <!-- 'add' hoặc 'edit' -->
 
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label for="tenMucLuc">Tên mục lục <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="tenMucLuc" name="tenMucLuc" placeholder="Nhập tên mục lục" required>
-                                <small class="form-text text-muted">Tên hiển thị của mục lục trên website</small>
+                                <label for="tenRole">Tên quyền <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="tenRole" name="tenRole" placeholder="Nhập tên quyền admin" required>
+                                <small class="form-text text-muted">Tên quyền trong hệ thống</small>
                             </div>
                         </div>
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <div class="form-group">
-                                <label for="link">Link URL <i class="text-muted">(Tự động tạo)</i></label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control bg-light" id="link" name="link" placeholder="Đường dẫn URL sẽ được tự động tạo" readonly>
-                                    <div class="input-group-append">
-                                        <span class="input-group-text"><i class="anticon anticon-link"></i></span>
-                                    </div>
-                                </div>
-                                <small class="form-text text-muted">Đường dẫn URL được tự động tạo từ tên mục lục</small>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="thuTuShow">Vị trí hiển thị <span class="text-danger">*</span></label>
-                                <input type="number" class="form-control" id="thuTuShow" name="thuTuShow" min="1" value="1" placeholder="Nhập số thứ tự hiển thị" required>
-                                <small class="form-text text-muted">Số thứ tự hiển thị của mục lục (số nhỏ hiển thị trước)</small>
+                                <label for="moTa">Mô tả <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="moTa" name="moTa" rows="3" placeholder="Nhập mô tả quyền admin" required></textarea>
+                                <small class="form-text text-muted">Mô tả chi tiết về quyền này</small>
                             </div>
                         </div>
                     </div>
@@ -107,7 +95,7 @@
                                 <label>Thông tin thời gian</label>
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" id="ngayDang" name="ngayDang" readonly placeholder="Ngày đăng">
+                                        <input type="text" class="form-control" id="ngayTao" name="ngayTao" readonly placeholder="Ngày tạo">
                                         <small class="form-text text-muted">Ngày tạo</small>
                                     </div>
                                     <div class="col-md-6">
@@ -122,7 +110,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-primary" id="btnSaveMucLuc">
+                <button type="button" class="btn btn-primary" id="btnSaveRole">
                     <i class="anticon anticon-save m-r-5"></i>
                     <span id="btnSaveText">Lưu</span>
                 </button>
@@ -130,6 +118,7 @@
         </div>
     </div>
 </div>
+
 
 <style>
     /* Định dạng DataTable giống như mẫu */
@@ -340,12 +329,8 @@
             background-color: #c82333;
             color: white;
         }
-
-
-
 </style>
-
 @section scriptsAdmin {
     <script src="~/Scripts/sweetalert2.all.min.js"></script>
-    <script src="~/Areas/Admin/Scripts/DanhSachMucLuc.js"></script>
+    <script src="~/Areas/Admin/Scripts/DanhSachRoles.js"></script>
 }

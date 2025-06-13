@@ -93,14 +93,18 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             {
                 if (Item == null)
                 {
+                    // Trả về chuỗi thông báo lỗi đơn giản
                     return BadRequest("Dữ liệu không hợp lệ");
                 }
+
                 // Kiểm tra xem mục lục đã tồn tại chưa
                 var existingMucLuc = await db.MucLucs.FirstOrDefaultAsync(x => x.TenMucLuc == Item.TenMucLuc);
                 if (existingMucLuc != null)
                 {
-                    return BadRequest("Mục lục đã tồn tại");
+                    // Sử dụng Content để trả về JSON với mã trạng thái BadRequest
+                    return Content(HttpStatusCode.BadRequest, new { message = "Thư mục đã tồn tại trong dữ liệu", success = false });
                 }
+
                 // Thêm mới mục lục
                 unixTimestamp = (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
@@ -139,6 +143,15 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 {
                     return NotFound();
                 }
+
+                // Kiểm tra xem tên mục lục đã tồn tại trong cơ sở dữ liệu với ID khác
+                var duplicateName = await db.MucLucs
+                    .FirstOrDefaultAsync(x => x.TenMucLuc == Item.TenMucLuc && x.ID != Item.ID);
+                if (duplicateName != null)
+                {
+                    return Content(HttpStatusCode.BadRequest, new { message = "Tên mục lục đã tồn tại trong dữ liệu", success = false });
+                }
+
                 // Cập nhật thông tin mục lục
                 existingMucLuc.TenMucLuc = Item.TenMucLuc;
                 existingMucLuc.Link = Item.Link;
@@ -169,6 +182,12 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 if (existingMucLuc == null)
                 {
                     return NotFound();
+                }
+                // Kiểm tra bài viết có liên kết với mục lục này không
+                var baiVietCount = await db.BaiViets.CountAsync(bv => bv.ID_MucLuc == existingMucLuc.ID);
+                if (baiVietCount > 0)
+                {
+                    return Content(HttpStatusCode.BadRequest, new { message = "Không thể xóa mục lục vì có bài viết liên kết", success = false });
                 }
                 // Xóa mục lục
                 db.MucLucs.Remove(existingMucLuc);
