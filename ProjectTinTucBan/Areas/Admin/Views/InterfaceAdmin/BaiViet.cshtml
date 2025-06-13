@@ -1,23 +1,63 @@
-﻿@{
+﻿<!--@{
     ViewBag.Title = "BaiViet";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
 <div class="main-content">
     <h2>Bài Viết</h2>
+    <button id="btnThemBaiViet" class="btn btn-success mb-3">+ Thêm bài viết</button>
 
     <table id="table_load_baiviet" class="table table-bordered table-striped">
         <thead>
-            @*<tr>
+            <tr>
                 <th>ID</th>
-                <th>Tiêu Đề</th>
-                <th>Nội Dung</th>
-                <th>Ngày Đăng</th>
-                <th>Ngày Cập Nhật</th>
-                <th>Link Thumbnail</th>
-                <th>Link PDF</th>
-                <th>Lượt Xem</th>
-            </tr>*@
+                <th>Tiêu đề</th>
+                <th>Nội dung</th>
+                <th>Ngày đăng</th>
+                <th>Ngày cập nhật</th>
+                <th>Thumbnail</th>
+                <th>PDF</th>
+                <th>Lượt xem</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>-->
+<!-- Dữ liệu sẽ được load bằng JavaScript -->
+<!--</tbody>
+    </table>
+</div>-->
+@*@section scriptsAdmin {
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css" />
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+        <script src="~/Areas/Admin/Scripts/BaiViet.js"></script>
+        <script src=" /Areas/Admin/Scripts/SuaBaiViet.js"></script>
+    }*@
+
+@{
+    ViewBag.Title = "BaiViet";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="main-content">
+    <h2>Bài Viết</h2>
+    <button id="btnThemBaiViet" class="btn btn-success mb-3">+ Thêm bài viết</button>
+
+    <table id="table_load_baiviet" class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tiêu đề</th>
+                <th>Nội dung</th>
+                <th>Ngày đăng</th>
+                <th>Ngày cập nhật</th>
+                <th>Thumbnail</th>
+                <th>PDF</th>
+                <th>Lượt xem</th>
+                <th>Hành động</th> <!-- Nút sửa + xóa -->
+            </tr>
         </thead>
         <tbody>
             <!-- Dữ liệu sẽ được load bằng JavaScript -->
@@ -25,6 +65,37 @@
     </table>
 </div>
 
+<!-- Modal xác nhận xóa -->
+<div class="modal fade" id="modalXacNhanXoa" tabindex="-1" role="dialog" aria-labelledby="modalXoaLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="modalXoaLabel">Xác nhận xóa bài viết</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Tiêu đề:</strong> <span id="modalTieuDe"></span></p>
+                <p><strong>Nội dung:</strong> <span id="modalNoiDung"></span></p>
+                <p>Bạn có chắc chắn muốn <strong>xóa</strong> bài viết này không?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="btnXacNhanXoa">Xóa</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section scriptsAdmin {
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
     <script src="~/Areas/Admin/Scripts/BaiViet.js"></script>
+    <script src="~/Areas/Admin/Scripts/SuaBaiViet.js"></script>
+    <script src="~/Areas/Admin/Scripts/XoaBaiViet.js"></script>
 }

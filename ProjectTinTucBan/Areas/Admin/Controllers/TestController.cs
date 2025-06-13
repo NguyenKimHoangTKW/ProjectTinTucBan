@@ -27,6 +27,5 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 .ToListAsync(); // lấy ra toàn bộ record trong table BaiViets
             return Ok(new { data = aaaa });
         }
-
     }
 }
