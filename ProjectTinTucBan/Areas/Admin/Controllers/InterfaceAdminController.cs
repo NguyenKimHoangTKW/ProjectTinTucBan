@@ -36,7 +36,24 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         {
             return View();
         }
-        public ActionResult Slider() {
+        public ActionResult Slider()
+        {
+            return View();
+        }
+        public ActionResult BaiViet()
+        {
+            return View();
+        }
+        public ActionResult ThemBaiViet()
+        {
+            return View();
+        }
+        public ActionResult SuaBaiViet()
+        {
+            return View();
+        }
+        public ActionResult XoaBaiViet()
+        {
             return View();
         }
     }

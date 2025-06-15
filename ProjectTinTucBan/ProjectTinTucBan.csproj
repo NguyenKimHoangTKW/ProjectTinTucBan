@@ -136,12 +136,19 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Areas\Admin\AdminAreaRegistration.cs" />
+    <Compile Include="Areas\Admin\Controllers\BaiVietAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\InterfaceAdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\MucLucAdminAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\RolesAdminAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\MenuApiAdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\TestController.cs" />
     <Content Include="Areas\Admin\Scripts\DanhSachMucLuc.js" />
+    <Compile Include="Areas\Admin\Controllers\SuaBaiVietController.cs" />
+    <Compile Include="Areas\Admin\Controllers\TestController.cs" />
+    <Compile Include="Areas\Admin\Controllers\ThemBaiVietAPIController.cs" />
+    <Compile Include="Areas\Admin\Controllers\UploadPDFAPIController.cs" />
+    <Compile Include="Areas\Admin\Controllers\UploadThumbnailAPIController.cs" />
+    <Compile Include="Areas\Admin\Controllers\XoaBaiVietAPIController.cs" />
     <Compile Include="Areas\HelpPage\ApiDescriptionExtensions.cs" />
     <Compile Include="Areas\HelpPage\App_Start\HelpPageConfig.cs" />
     <Compile Include="Areas\HelpPage\Controllers\HelpController.cs" />
@@ -230,6 +237,12 @@
     <Content Include="Areas\Admin\Scripts\MenuScript.js" />
     <Content Include="Areas\Admin\Scripts\SliderAdminScript.js" />
     <Content Include="Areas\Admin\Scripts\TopMenuShowScript.js" />
+    <Content Include="Areas\Admin\Scripts\BaiViet.js" />
+    <Content Include="Areas\Admin\Scripts\SuaBaiViet.js" />
+    <Content Include="Areas\Admin\Scripts\ThemBaiViet.js" />
+    <Content Include="Areas\Admin\Scripts\UploadPDF.js" />
+    <Content Include="Areas\Admin\Scripts\UploadThumbnail.js" />
+    <Content Include="Areas\Admin\Scripts\XoaBaiViet.js" />
     <Content Include="Areas\assets\css\app.min.css" />
     <Content Include="Areas\assets\css\buttons.dataTables.min.css" />
     <Content Include="Areas\assets\css\sweetalert2.min.css" />
@@ -1096,6 +1109,10 @@
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Menu.cshtml" />
     <Content Include="Areas\Admin\Views\Shared\TopMenuPartial.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Slider.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\BaiViet.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\ThemBaiViet.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\SuaBaiViet.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\XoaBaiViet.cshtml" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />
@@ -1121,6 +1138,8 @@
     <Folder Include="App_Data\" />
     <Folder Include="Areas\Admin\Data\" />
     <Folder Include="Areas\Admin\Uploads\Slider\" />
+    <Folder Include="Areas\Admin\Uploads\PDFs\" />
+    <Folder Include="Areas\Admin\Uploads\Thumbnails\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Scripts\bootstrap.min.js.map" />

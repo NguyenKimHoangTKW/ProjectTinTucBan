@@ -1,0 +1,40 @@
+﻿
+@{
+    ViewBag.Title = "ThemBaiViet";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>Thêm Bài Viết</h2>
+<form id="form_them_baiviet">
+    <div class="form-group">
+        <label for="TieuDe">Tiêu đề</label>
+        <input type="text" class="form-control" id="TieuDe" required>
+    </div>
+
+    <div class="form-group">
+        <label for="NoiDung">Nội dung</label>
+        <textarea class="form-control" id="NoiDung" rows="10"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label for="LinkThumbnail">Link Thumbnail</label>
+        @*<input type="text" class="form-control" id="LinkThumbnail">*@
+        <input type="file" id="ThumbnailFile" accept="image/*" />
+
+    </div>
+
+    <div class="form-group">
+        <label for="LinkPDF">Link PDF</label>
+        @*<input type="text" class="form-control" id="LinkPDF">*@
+        <input type="file" id="PdfFile" accept="application/pdf" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Thêm bài viết</button>
+</form>
+
+@section scriptsAdmin {
+    <script src="https://cdn.ckeditor.com/4.21.0/standard/ckeditor.js"></script>
+    <script src="~/Areas/Admin/Scripts/ThemBaiViet.js"></script>
+    <script src="~/Areas/Admin/Scripts/UploadPDF.js"></script>
+    <script src="~/Areas/Admin/Scripts/UploadThumbnail.js"></script>
+}
