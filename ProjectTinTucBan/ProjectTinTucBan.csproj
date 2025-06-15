@@ -139,6 +139,7 @@
     <Compile Include="Areas\Admin\Controllers\InterfaceAdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\MucLucAdminAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\RolesAdminAPIController.cs" />
+    <Compile Include="Areas\Admin\Controllers\MenuApiAdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\TestController.cs" />
     <Content Include="Areas\Admin\Scripts\DanhSachMucLuc.js" />
     <Compile Include="Areas\HelpPage\ApiDescriptionExtensions.cs" />
@@ -226,6 +227,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\Admin\Scripts\DanhSachRoles.js" />
+    <Content Include="Areas\Admin\Scripts\MenuScript.js" />
+    <Content Include="Areas\Admin\Scripts\SliderAdminScript.js" />
+    <Content Include="Areas\Admin\Scripts\TopMenuShowScript.js" />
     <Content Include="Areas\assets\css\app.min.css" />
     <Content Include="Areas\assets\css\buttons.dataTables.min.css" />
     <Content Include="Areas\assets\css\sweetalert2.min.css" />
@@ -1089,6 +1093,9 @@
     <Content Include="Areas\Admin\Views\Shared\_AdminFooterPartial.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_MucLuc_Admin.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Roles_Admin.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\Menu.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\TopMenuPartial.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\Slider.cshtml" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />
@@ -1113,6 +1120,7 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Areas\Admin\Data\" />
+    <Folder Include="Areas\Admin\Uploads\Slider\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Scripts\bootstrap.min.js.map" />
