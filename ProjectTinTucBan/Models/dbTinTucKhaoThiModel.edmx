@@ -113,16 +113,6 @@
           <Property Name="version" Type="int" />
           <Property Name="definition" Type="varbinary(max)" />
         </EntityType>
-        <EntityType Name="sysdiagrams">
-          <Key>
-            <PropertyRef Name="diagram_id" />
-          </Key>
-          <Property Name="name" Type="nvarchar" MaxLength="128" Nullable="false" />
-          <Property Name="principal_id" Type="int" Nullable="false" />
-          <Property Name="diagram_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="version" Type="int" />
-          <Property Name="definition" Type="varbinary(max)" />
-        </EntityType>
         <EntityType Name="TaiKhoan">
           <Key>
             <PropertyRef Name="ID" />
@@ -392,10 +382,7 @@
           <Property Name="name_sub" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
           <Property Name="time_create" Type="Int32" />
           <Property Name="time_update" Type="Int32" />
-<<<<<<< HEAD
-=======
           <Property Name="Link" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
->>>>>>> Khiem
           <NavigationProperty Name="Menu_by_sub" Relationship="WebTinTucTDMUModel.FK_Menu_by_sub_Sub_Menu" FromRole="Sub_Menu" ToRole="Menu_by_sub" />
         </EntityType>
         <EntityType Name="sysdiagram">
@@ -601,10 +588,7 @@
           <EntitySetMapping Name="Sub_Menu">
             <EntityTypeMapping TypeName="WebTinTucTDMUModel.Sub_Menu">
               <MappingFragment StoreEntitySet="Sub_Menu">
-<<<<<<< HEAD
-=======
                 <ScalarProperty Name="Link" ColumnName="Link" />
->>>>>>> Khiem
                 <ScalarProperty Name="time_update" ColumnName="time_update" />
                 <ScalarProperty Name="time_create" ColumnName="time_create" />
                 <ScalarProperty Name="name_sub" ColumnName="name_sub" />

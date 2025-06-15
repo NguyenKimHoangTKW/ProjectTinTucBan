@@ -141,6 +141,7 @@
     <Compile Include="Areas\Admin\Controllers\MucLucAdminAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\RolesAdminAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\MenuApiAdminController.cs" />
+    <Compile Include="Areas\Admin\Controllers\SliderApiAdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\TestController.cs" />
     <Content Include="Areas\Admin\Scripts\DanhSachMucLuc.js" />
     <Compile Include="Areas\Admin\Controllers\SuaBaiVietController.cs" />
@@ -1122,6 +1123,9 @@
     <Content Include="Scripts\jquery-3.7.0.slim.js" />
     <Content Include="Scripts\jquery-3.7.0.slim.min.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
+    <Content Include="Uploads\Slider\0d79ed64-f935-4a1e-8193-74756d1d356f.png" />
+    <Content Include="Uploads\Thumbnails\BrainDmgPika.jpg" />
+    <Content Include="Uploads\Thumbnails\BrainDmgPika_20250612142043.jpg" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -1136,12 +1140,13 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Uploads\PDFs\test.pdf" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Areas\Admin\Data\" />
-    <Folder Include="Areas\Admin\Uploads\Slider\" />
     <Folder Include="Areas\Admin\Uploads\PDFs\" />
+    <Folder Include="Areas\Admin\Uploads\Slider\" />
     <Folder Include="Areas\Admin\Uploads\Thumbnails\" />
   </ItemGroup>
   <ItemGroup>
