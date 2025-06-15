@@ -34,6 +34,7 @@ namespace ProjectTinTucBan.Models
         public virtual DbSet<Role> Roles { get; set; }
         public virtual DbSet<Slider> Sliders { get; set; }
         public virtual DbSet<Sub_Menu> Sub_Menu { get; set; }
+        public virtual DbSet<sysdiagram> sysdiagrams { get; set; }
         public virtual DbSet<TaiKhoan> TaiKhoans { get; set; }
     }
 }
