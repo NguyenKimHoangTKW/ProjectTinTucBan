@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="WebTinTucTDMUModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="WebTinTucTDMUModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="BaiViet">
           <Key>
             <PropertyRef Name="ID" />
@@ -53,11 +53,19 @@
           <Property Name="NgayDang" Type="int" />
           <Property Name="NgayCapNhat" Type="int" />
         </EntityType>
+        <EntityType Name="Menu by role">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_menu" Type="int" />
+          <Property Name="id_roles" Type="int" />
+        </EntityType>
         <EntityType Name="Menu_by_sub">
           <Key>
             <PropertyRef Name="id" />
           </Key>
-          <Property Name="id" Type="int" Nullable="false" />
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="id_menu" Type="int" />
           <Property Name="id_sub" Type="int" />
         </EntityType>
@@ -71,6 +79,7 @@
           <Property Name="ThuTuShow" Type="int" />
           <Property Name="NgayDang" Type="int" />
           <Property Name="NgayCapNhat" Type="int" />
+          <Property Name="IsActive" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="Roles">
           <Key>
@@ -97,17 +106,28 @@
           <Key>
             <PropertyRef Name="id_sub" />
           </Key>
-          <Property Name="id_sub" Type="int" Nullable="false" />
+          <Property Name="id_sub" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="name_sub" Type="nvarchar" MaxLength="200" />
           <Property Name="time_create" Type="int" />
           <Property Name="time_update" Type="int" />
+          <Property Name="Link" Type="nvarchar(max)" />
+          <Property Name="ThuTuShow" Type="int" />
+        </EntityType>
+        <EntityType Name="sysdiagrams">
+          <Key>
+            <PropertyRef Name="diagram_id" />
+          </Key>
+          <Property Name="name" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="principal_id" Type="int" Nullable="false" />
+          <Property Name="diagram_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="version" Type="int" />
+          <Property Name="definition" Type="varbinary(max)" />
         </EntityType>
         <EntityType Name="TaiKhoan">
           <Key>
             <PropertyRef Name="ID" />
           </Key>
           <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="ID_role" Type="int" />
           <Property Name="TenTaiKhoan" Type="nvarchar" MaxLength="100" />
           <Property Name="MatKhau" Type="nvarchar" MaxLength="255" />
           <Property Name="Gmail" Type="nvarchar" MaxLength="255" />
@@ -115,6 +135,14 @@
           <Property Name="IsBanned" Type="bit" />
           <Property Name="NgayTao" Type="int" />
           <Property Name="NgayCapNhat" Type="int" />
+        </EntityType>
+        <EntityType Name="TaiKhoan by roles">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_roles" Type="int" />
+          <Property Name="id_taikhoan" Type="int" />
         </EntityType>
         <Association Name="FK__BaiViet__ID_MucL__49C3F6B7">
           <End Role="MucLuc" Type="Self.MucLuc" Multiplicity="0..1" />
@@ -152,15 +180,27 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__TaiKhoan__ID_rol__5165187F">
+        <Association Name="FK_Menu by role_Menu">
+          <End Role="Menu" Type="Self.Menu" Multiplicity="0..1" />
+          <End Role="Menu by role" Type="Self.Menu by role" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Menu">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Menu by role">
+              <PropertyRef Name="id_menu" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Menu by role_Roles">
           <End Role="Roles" Type="Self.Roles" Multiplicity="0..1" />
-          <End Role="TaiKhoan" Type="Self.TaiKhoan" Multiplicity="*" />
+          <End Role="Menu by role" Type="Self.Menu by role" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Roles">
               <PropertyRef Name="ID" />
             </Principal>
-            <Dependent Role="TaiKhoan">
-              <PropertyRef Name="ID_role" />
+            <Dependent Role="Menu by role">
+              <PropertyRef Name="id_roles" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -188,17 +228,44 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_TaiKhoan by roles_Roles">
+          <End Role="Roles" Type="Self.Roles" Multiplicity="0..1" />
+          <End Role="TaiKhoan by roles" Type="Self.TaiKhoan by roles" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Roles">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="TaiKhoan by roles">
+              <PropertyRef Name="id_roles" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_TaiKhoan by roles_TaiKhoan">
+          <End Role="TaiKhoan" Type="Self.TaiKhoan" Multiplicity="0..1" />
+          <End Role="TaiKhoan by roles" Type="Self.TaiKhoan by roles" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TaiKhoan">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="TaiKhoan by roles">
+              <PropertyRef Name="id_taikhoan" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <EntityContainer Name="WebTinTucTDMUModelStoreContainer">
           <EntitySet Name="BaiViet" EntityType="Self.BaiViet" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DonViTrucThuoc" EntityType="Self.DonViTrucThuoc" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Khoi" EntityType="Self.Khoi" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Menu" EntityType="Self.Menu" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Menu by role" EntityType="Self.Menu by role" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Menu_by_sub" EntityType="Self.Menu_by_sub" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="MucLuc" EntityType="Self.MucLuc" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Roles" EntityType="Self.Roles" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Slider" EntityType="Self.Slider" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Sub_Menu" EntityType="Self.Sub_Menu" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="TaiKhoan" EntityType="Self.TaiKhoan" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="TaiKhoan by roles" EntityType="Self.TaiKhoan by roles" Schema="dbo" store:Type="Tables" />
           <AssociationSet Name="FK__BaiViet__ID_MucL__49C3F6B7" Association="Self.FK__BaiViet__ID_MucL__49C3F6B7">
             <End Role="MucLuc" EntitySet="MucLuc" />
             <End Role="BaiViet" EntitySet="BaiViet" />
@@ -211,9 +278,13 @@
             <End Role="Khoi" EntitySet="Khoi" />
             <End Role="DonViTrucThuoc" EntitySet="DonViTrucThuoc" />
           </AssociationSet>
-          <AssociationSet Name="FK__TaiKhoan__ID_rol__5165187F" Association="Self.FK__TaiKhoan__ID_rol__5165187F">
+          <AssociationSet Name="FK_Menu by role_Menu" Association="Self.FK_Menu by role_Menu">
+            <End Role="Menu" EntitySet="Menu" />
+            <End Role="Menu by role" EntitySet="Menu by role" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Menu by role_Roles" Association="Self.FK_Menu by role_Roles">
             <End Role="Roles" EntitySet="Roles" />
-            <End Role="TaiKhoan" EntitySet="TaiKhoan" />
+            <End Role="Menu by role" EntitySet="Menu by role" />
           </AssociationSet>
           <AssociationSet Name="FK_Menu_by_sub_Menu" Association="Self.FK_Menu_by_sub_Menu">
             <End Role="Menu" EntitySet="Menu" />
@@ -223,12 +294,70 @@
             <End Role="Sub_Menu" EntitySet="Sub_Menu" />
             <End Role="Menu_by_sub" EntitySet="Menu_by_sub" />
           </AssociationSet>
+          <AssociationSet Name="FK_TaiKhoan by roles_Roles" Association="Self.FK_TaiKhoan by roles_Roles">
+            <End Role="Roles" EntitySet="Roles" />
+            <End Role="TaiKhoan by roles" EntitySet="TaiKhoan by roles" />
+          </AssociationSet>
+          <AssociationSet Name="FK_TaiKhoan by roles_TaiKhoan" Association="Self.FK_TaiKhoan by roles_TaiKhoan">
+            <End Role="TaiKhoan" EntitySet="TaiKhoan" />
+            <End Role="TaiKhoan by roles" EntitySet="TaiKhoan by roles" />
+          </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="WebTinTucTDMUModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityContainer Name="WebTinTucTDMUEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="BaiViets" EntityType="WebTinTucTDMUModel.BaiViet" />
+          <EntitySet Name="DonViTrucThuocs" EntityType="WebTinTucTDMUModel.DonViTrucThuoc" />
+          <EntitySet Name="Khois" EntityType="WebTinTucTDMUModel.Khoi" />
+          <EntitySet Name="Menus" EntityType="WebTinTucTDMUModel.Menu" />
+          <EntitySet Name="Menu_by_roles" EntityType="WebTinTucTDMUModel.Menu_by_role" />
+          <EntitySet Name="Menu_by_sub" EntityType="WebTinTucTDMUModel.Menu_by_sub" />
+          <EntitySet Name="MucLucs" EntityType="WebTinTucTDMUModel.MucLuc" />
+          <EntitySet Name="Roles" EntityType="WebTinTucTDMUModel.Role" />
+          <EntitySet Name="Sliders" EntityType="WebTinTucTDMUModel.Slider" />
+          <EntitySet Name="Sub_Menu" EntityType="WebTinTucTDMUModel.Sub_Menu" />
+          <EntitySet Name="sysdiagrams" EntityType="WebTinTucTDMUModel.sysdiagram" />
+          <EntitySet Name="TaiKhoans" EntityType="WebTinTucTDMUModel.TaiKhoan" />
+          <EntitySet Name="TaiKhoan_by_roles" EntityType="WebTinTucTDMUModel.TaiKhoan_by_role" />
+          <AssociationSet Name="FK__BaiViet__ID_MucL__49C3F6B7" Association="WebTinTucTDMUModel.FK__BaiViet__ID_MucL__49C3F6B7">
+            <End Role="MucLuc" EntitySet="MucLucs" />
+            <End Role="BaiViet" EntitySet="BaiViets" />
+          </AssociationSet>
+          <AssociationSet Name="FK__BaiViet__ID_Nguo__4AB81AF0" Association="WebTinTucTDMUModel.FK__BaiViet__ID_Nguo__4AB81AF0">
+            <End Role="TaiKhoan" EntitySet="TaiKhoans" />
+            <End Role="BaiViet" EntitySet="BaiViets" />
+          </AssociationSet>
+          <AssociationSet Name="FK__DonViTruc__ID_Kh__4E88ABD4" Association="WebTinTucTDMUModel.FK__DonViTruc__ID_Kh__4E88ABD4">
+            <End Role="Khoi" EntitySet="Khois" />
+            <End Role="DonViTrucThuoc" EntitySet="DonViTrucThuocs" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Menu_by_role_Menu" Association="WebTinTucTDMUModel.FK_Menu_by_role_Menu">
+            <End Role="Menu" EntitySet="Menus" />
+            <End Role="Menu_by_role" EntitySet="Menu_by_roles" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Menu_by_sub_Menu" Association="WebTinTucTDMUModel.FK_Menu_by_sub_Menu">
+            <End Role="Menu" EntitySet="Menus" />
+            <End Role="Menu_by_sub" EntitySet="Menu_by_sub" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Menu_by_role_Roles" Association="WebTinTucTDMUModel.FK_Menu_by_role_Roles">
+            <End Role="Role" EntitySet="Roles" />
+            <End Role="Menu_by_role" EntitySet="Menu_by_roles" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Menu_by_sub_Sub_Menu" Association="WebTinTucTDMUModel.FK_Menu_by_sub_Sub_Menu">
+            <End Role="Sub_Menu" EntitySet="Sub_Menu" />
+            <End Role="Menu_by_sub" EntitySet="Menu_by_sub" />
+          </AssociationSet>
+          <AssociationSet Name="FK_TaiKhoan_by_roles_Roles" Association="WebTinTucTDMUModel.FK_TaiKhoan_by_roles_Roles">
+            <End Role="Role" EntitySet="Roles" />
+            <End Role="TaiKhoan_by_role" EntitySet="TaiKhoan_by_roles" />
+          </AssociationSet>
+          <AssociationSet Name="FK_TaiKhoan_by_roles_TaiKhoan" Association="WebTinTucTDMUModel.FK_TaiKhoan_by_roles_TaiKhoan">
+            <End Role="TaiKhoan" EntitySet="TaiKhoans" />
+            <End Role="TaiKhoan_by_role" EntitySet="TaiKhoan_by_roles" />
+          </AssociationSet>
+        </EntityContainer>
         <EntityType Name="BaiViet">
           <Key>
             <PropertyRef Name="ID" />
@@ -243,8 +372,8 @@
           <Property Name="NgayDang" Type="Int32" />
           <Property Name="LinkPDF" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="NgayCapNhat" Type="Int32" />
-          <NavigationProperty Name="MucLuc" Relationship="Self.FK__BaiViet__ID_MucL__49C3F6B7" FromRole="BaiViet" ToRole="MucLuc" />
-          <NavigationProperty Name="TaiKhoan" Relationship="Self.FK__BaiViet__ID_Nguo__4AB81AF0" FromRole="BaiViet" ToRole="TaiKhoan" />
+          <NavigationProperty Name="MucLuc" Relationship="WebTinTucTDMUModel.FK__BaiViet__ID_MucL__49C3F6B7" FromRole="BaiViet" ToRole="MucLuc" />
+          <NavigationProperty Name="TaiKhoan" Relationship="WebTinTucTDMUModel.FK__BaiViet__ID_Nguo__4AB81AF0" FromRole="BaiViet" ToRole="TaiKhoan" />
         </EntityType>
         <EntityType Name="DonViTrucThuoc">
           <Key>
@@ -257,7 +386,7 @@
           <Property Name="Link" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="NgayDang" Type="Int32" />
           <Property Name="NgayCapNhat" Type="Int32" />
-          <NavigationProperty Name="Khoi" Relationship="Self.FK__DonViTruc__ID_Kh__4E88ABD4" FromRole="DonViTrucThuoc" ToRole="Khoi" />
+          <NavigationProperty Name="Khoi" Relationship="WebTinTucTDMUModel.FK__DonViTruc__ID_Kh__4E88ABD4" FromRole="DonViTrucThuoc" ToRole="Khoi" />
         </EntityType>
         <EntityType Name="Khoi">
           <Key>
@@ -268,7 +397,7 @@
           <Property Name="ThuTuShow" Type="Int32" />
           <Property Name="NgayDang" Type="Int32" />
           <Property Name="NgayCapNhat" Type="Int32" />
-          <NavigationProperty Name="DonViTrucThuocs" Relationship="Self.FK__DonViTruc__ID_Kh__4E88ABD4" FromRole="Khoi" ToRole="DonViTrucThuoc" />
+          <NavigationProperty Name="DonViTrucThuocs" Relationship="WebTinTucTDMUModel.FK__DonViTruc__ID_Kh__4E88ABD4" FromRole="Khoi" ToRole="DonViTrucThuoc" />
         </EntityType>
         <EntityType Name="Menu">
           <Key>
@@ -280,17 +409,28 @@
           <Property Name="ThuTuShow" Type="Int32" />
           <Property Name="NgayDang" Type="Int32" />
           <Property Name="NgayCapNhat" Type="Int32" />
-          <NavigationProperty Name="Menu_by_sub" Relationship="Self.FK_Menu_by_sub_Menu" FromRole="Menu" ToRole="Menu_by_sub" />
+          <NavigationProperty Name="Menu_by_role" Relationship="WebTinTucTDMUModel.FK_Menu_by_role_Menu" FromRole="Menu" ToRole="Menu_by_role" />
+          <NavigationProperty Name="Menu_by_sub" Relationship="WebTinTucTDMUModel.FK_Menu_by_sub_Menu" FromRole="Menu" ToRole="Menu_by_sub" />
+        </EntityType>
+        <EntityType Name="Menu_by_role">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_menu" Type="Int32" />
+          <Property Name="id_roles" Type="Int32" />
+          <NavigationProperty Name="Menu" Relationship="WebTinTucTDMUModel.FK_Menu_by_role_Menu" FromRole="Menu_by_role" ToRole="Menu" />
+          <NavigationProperty Name="Role" Relationship="WebTinTucTDMUModel.FK_Menu_by_role_Roles" FromRole="Menu_by_role" ToRole="Role" />
         </EntityType>
         <EntityType Name="Menu_by_sub">
           <Key>
             <PropertyRef Name="id" />
           </Key>
-          <Property Name="id" Type="Int32" Nullable="false" />
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="id_menu" Type="Int32" />
           <Property Name="id_sub" Type="Int32" />
-          <NavigationProperty Name="Menu" Relationship="Self.FK_Menu_by_sub_Menu" FromRole="Menu_by_sub" ToRole="Menu" />
-          <NavigationProperty Name="Sub_Menu" Relationship="Self.FK_Menu_by_sub_Sub_Menu" FromRole="Menu_by_sub" ToRole="Sub_Menu" />
+          <NavigationProperty Name="Menu" Relationship="WebTinTucTDMUModel.FK_Menu_by_sub_Menu" FromRole="Menu_by_sub" ToRole="Menu" />
+          <NavigationProperty Name="Sub_Menu" Relationship="WebTinTucTDMUModel.FK_Menu_by_sub_Sub_Menu" FromRole="Menu_by_sub" ToRole="Sub_Menu" />
         </EntityType>
         <EntityType Name="MucLuc">
           <Key>
@@ -302,7 +442,8 @@
           <Property Name="ThuTuShow" Type="Int32" />
           <Property Name="NgayDang" Type="Int32" />
           <Property Name="NgayCapNhat" Type="Int32" />
-          <NavigationProperty Name="BaiViets" Relationship="Self.FK__BaiViet__ID_MucL__49C3F6B7" FromRole="MucLuc" ToRole="BaiViet" />
+          <Property Name="IsActive" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="BaiViets" Relationship="WebTinTucTDMUModel.FK__BaiViet__ID_MucL__49C3F6B7" FromRole="MucLuc" ToRole="BaiViet" />
         </EntityType>
         <EntityType Name="Role">
           <Key>
@@ -313,7 +454,8 @@
           <Property Name="MoTa" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="NgayTao" Type="Int32" />
           <Property Name="NgayCapNhat" Type="Int32" />
-          <NavigationProperty Name="TaiKhoans" Relationship="Self.FK__TaiKhoan__ID_rol__5165187F" FromRole="Roles" ToRole="TaiKhoan" />
+          <NavigationProperty Name="Menu_by_role" Relationship="WebTinTucTDMUModel.FK_Menu_by_role_Roles" FromRole="Role" ToRole="Menu_by_role" />
+          <NavigationProperty Name="TaiKhoan_by_roles" Relationship="WebTinTucTDMUModel.FK_TaiKhoan_by_roles_Roles" FromRole="Role" ToRole="TaiKhoan_by_role" />
         </EntityType>
         <EntityType Name="Slider">
           <Key>
@@ -330,18 +472,29 @@
           <Key>
             <PropertyRef Name="id_sub" />
           </Key>
-          <Property Name="id_sub" Type="Int32" Nullable="false" />
+          <Property Name="id_sub" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="name_sub" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
           <Property Name="time_create" Type="Int32" />
           <Property Name="time_update" Type="Int32" />
-          <NavigationProperty Name="Menu_by_sub" Relationship="Self.FK_Menu_by_sub_Sub_Menu" FromRole="Sub_Menu" ToRole="Menu_by_sub" />
+          <Property Name="Link" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="ThuTuShow" Type="Int32" />
+          <NavigationProperty Name="Menu_by_sub" Relationship="WebTinTucTDMUModel.FK_Menu_by_sub_Sub_Menu" FromRole="Sub_Menu" ToRole="Menu_by_sub" />
+        </EntityType>
+        <EntityType Name="sysdiagram">
+          <Key>
+            <PropertyRef Name="diagram_id" />
+          </Key>
+          <Property Name="name" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="principal_id" Type="Int32" Nullable="false" />
+          <Property Name="diagram_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="version" Type="Int32" />
+          <Property Name="definition" Type="Binary" MaxLength="Max" FixedLength="false" />
         </EntityType>
         <EntityType Name="TaiKhoan">
           <Key>
             <PropertyRef Name="ID" />
           </Key>
           <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="ID_role" Type="Int32" />
           <Property Name="TenTaiKhoan" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
           <Property Name="MatKhau" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
           <Property Name="Gmail" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
@@ -349,12 +502,22 @@
           <Property Name="IsBanned" Type="Boolean" />
           <Property Name="NgayTao" Type="Int32" />
           <Property Name="NgayCapNhat" Type="Int32" />
-          <NavigationProperty Name="BaiViets" Relationship="Self.FK__BaiViet__ID_Nguo__4AB81AF0" FromRole="TaiKhoan" ToRole="BaiViet" />
-          <NavigationProperty Name="Role" Relationship="Self.FK__TaiKhoan__ID_rol__5165187F" FromRole="TaiKhoan" ToRole="Roles" />
+          <NavigationProperty Name="BaiViets" Relationship="WebTinTucTDMUModel.FK__BaiViet__ID_Nguo__4AB81AF0" FromRole="TaiKhoan" ToRole="BaiViet" />
+          <NavigationProperty Name="TaiKhoan_by_roles" Relationship="WebTinTucTDMUModel.FK_TaiKhoan_by_roles_TaiKhoan" FromRole="TaiKhoan" ToRole="TaiKhoan_by_role" />
+        </EntityType>
+        <EntityType Name="TaiKhoan_by_role">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_roles" Type="Int32" />
+          <Property Name="id_taikhoan" Type="Int32" />
+          <NavigationProperty Name="Role" Relationship="WebTinTucTDMUModel.FK_TaiKhoan_by_roles_Roles" FromRole="TaiKhoan_by_role" ToRole="Role" />
+          <NavigationProperty Name="TaiKhoan" Relationship="WebTinTucTDMUModel.FK_TaiKhoan_by_roles_TaiKhoan" FromRole="TaiKhoan_by_role" ToRole="TaiKhoan" />
         </EntityType>
         <Association Name="FK__BaiViet__ID_MucL__49C3F6B7">
-          <End Role="MucLuc" Type="Self.MucLuc" Multiplicity="0..1" />
-          <End Role="BaiViet" Type="Self.BaiViet" Multiplicity="*" />
+          <End Type="WebTinTucTDMUModel.MucLuc" Role="MucLuc" Multiplicity="0..1" />
+          <End Type="WebTinTucTDMUModel.BaiViet" Role="BaiViet" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="MucLuc">
               <PropertyRef Name="ID" />
@@ -365,8 +528,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK__BaiViet__ID_Nguo__4AB81AF0">
-          <End Role="TaiKhoan" Type="Self.TaiKhoan" Multiplicity="0..1" />
-          <End Role="BaiViet" Type="Self.BaiViet" Multiplicity="*" />
+          <End Type="WebTinTucTDMUModel.TaiKhoan" Role="TaiKhoan" Multiplicity="0..1" />
+          <End Type="WebTinTucTDMUModel.BaiViet" Role="BaiViet" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="TaiKhoan">
               <PropertyRef Name="ID" />
@@ -377,8 +540,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK__DonViTruc__ID_Kh__4E88ABD4">
-          <End Role="Khoi" Type="Self.Khoi" Multiplicity="0..1" />
-          <End Role="DonViTrucThuoc" Type="Self.DonViTrucThuoc" Multiplicity="*" />
+          <End Type="WebTinTucTDMUModel.Khoi" Role="Khoi" Multiplicity="0..1" />
+          <End Type="WebTinTucTDMUModel.DonViTrucThuoc" Role="DonViTrucThuoc" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Khoi">
               <PropertyRef Name="ID" />
@@ -388,9 +551,21 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Menu_by_role_Menu">
+          <End Type="WebTinTucTDMUModel.Menu" Role="Menu" Multiplicity="0..1" />
+          <End Type="WebTinTucTDMUModel.Menu_by_role" Role="Menu_by_role" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Menu">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Menu_by_role">
+              <PropertyRef Name="id_menu" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_Menu_by_sub_Menu">
-          <End Role="Menu" Type="Self.Menu" Multiplicity="0..1" />
-          <End Role="Menu_by_sub" Type="Self.Menu_by_sub" Multiplicity="*" />
+          <End Type="WebTinTucTDMUModel.Menu" Role="Menu" Multiplicity="0..1" />
+          <End Type="WebTinTucTDMUModel.Menu_by_sub" Role="Menu_by_sub" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Menu">
               <PropertyRef Name="ID" />
@@ -400,9 +575,21 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Menu_by_role_Roles">
+          <End Type="WebTinTucTDMUModel.Role" Role="Role" Multiplicity="0..1" />
+          <End Type="WebTinTucTDMUModel.Menu_by_role" Role="Menu_by_role" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Role">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Menu_by_role">
+              <PropertyRef Name="id_roles" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_Menu_by_sub_Sub_Menu">
-          <End Role="Sub_Menu" Type="Self.Sub_Menu" Multiplicity="0..1" />
-          <End Role="Menu_by_sub" Type="Self.Menu_by_sub" Multiplicity="*" />
+          <End Type="WebTinTucTDMUModel.Sub_Menu" Role="Sub_Menu" Multiplicity="0..1" />
+          <End Type="WebTinTucTDMUModel.Menu_by_sub" Role="Menu_by_sub" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Sub_Menu">
               <PropertyRef Name="id_sub" />
@@ -412,54 +599,30 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__TaiKhoan__ID_rol__5165187F">
-          <End Role="Roles" Type="Self.Role" Multiplicity="0..1" />
-          <End Role="TaiKhoan" Type="Self.TaiKhoan" Multiplicity="*" />
+        <Association Name="FK_TaiKhoan_by_roles_Roles">
+          <End Type="WebTinTucTDMUModel.Role" Role="Role" Multiplicity="0..1" />
+          <End Type="WebTinTucTDMUModel.TaiKhoan_by_role" Role="TaiKhoan_by_role" Multiplicity="*" />
           <ReferentialConstraint>
-            <Principal Role="Roles">
+            <Principal Role="Role">
               <PropertyRef Name="ID" />
             </Principal>
-            <Dependent Role="TaiKhoan">
-              <PropertyRef Name="ID_role" />
+            <Dependent Role="TaiKhoan_by_role">
+              <PropertyRef Name="id_roles" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityContainer Name="WebTinTucTDMUEntities" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="BaiViets" EntityType="Self.BaiViet" />
-          <EntitySet Name="DonViTrucThuocs" EntityType="Self.DonViTrucThuoc" />
-          <EntitySet Name="Khois" EntityType="Self.Khoi" />
-          <EntitySet Name="Menus" EntityType="Self.Menu" />
-          <EntitySet Name="Menu_by_sub" EntityType="Self.Menu_by_sub" />
-          <EntitySet Name="MucLucs" EntityType="Self.MucLuc" />
-          <EntitySet Name="Roles" EntityType="Self.Role" />
-          <EntitySet Name="Sliders" EntityType="Self.Slider" />
-          <EntitySet Name="Sub_Menu" EntityType="Self.Sub_Menu" />
-          <EntitySet Name="TaiKhoans" EntityType="Self.TaiKhoan" />
-          <AssociationSet Name="FK__BaiViet__ID_MucL__49C3F6B7" Association="Self.FK__BaiViet__ID_MucL__49C3F6B7">
-            <End Role="MucLuc" EntitySet="MucLucs" />
-            <End Role="BaiViet" EntitySet="BaiViets" />
-          </AssociationSet>
-          <AssociationSet Name="FK__BaiViet__ID_Nguo__4AB81AF0" Association="Self.FK__BaiViet__ID_Nguo__4AB81AF0">
-            <End Role="TaiKhoan" EntitySet="TaiKhoans" />
-            <End Role="BaiViet" EntitySet="BaiViets" />
-          </AssociationSet>
-          <AssociationSet Name="FK__DonViTruc__ID_Kh__4E88ABD4" Association="Self.FK__DonViTruc__ID_Kh__4E88ABD4">
-            <End Role="Khoi" EntitySet="Khois" />
-            <End Role="DonViTrucThuoc" EntitySet="DonViTrucThuocs" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Menu_by_sub_Menu" Association="Self.FK_Menu_by_sub_Menu">
-            <End Role="Menu" EntitySet="Menus" />
-            <End Role="Menu_by_sub" EntitySet="Menu_by_sub" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Menu_by_sub_Sub_Menu" Association="Self.FK_Menu_by_sub_Sub_Menu">
-            <End Role="Sub_Menu" EntitySet="Sub_Menu" />
-            <End Role="Menu_by_sub" EntitySet="Menu_by_sub" />
-          </AssociationSet>
-          <AssociationSet Name="FK__TaiKhoan__ID_rol__5165187F" Association="Self.FK__TaiKhoan__ID_rol__5165187F">
-            <End Role="Roles" EntitySet="Roles" />
-            <End Role="TaiKhoan" EntitySet="TaiKhoans" />
-          </AssociationSet>
-        </EntityContainer>
+        <Association Name="FK_TaiKhoan_by_roles_TaiKhoan">
+          <End Type="WebTinTucTDMUModel.TaiKhoan" Role="TaiKhoan" Multiplicity="0..1" />
+          <End Type="WebTinTucTDMUModel.TaiKhoan_by_role" Role="TaiKhoan_by_role" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TaiKhoan">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="TaiKhoan_by_role">
+              <PropertyRef Name="id_taikhoan" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -469,121 +632,152 @@
           <EntitySetMapping Name="BaiViets">
             <EntityTypeMapping TypeName="WebTinTucTDMUModel.BaiViet">
               <MappingFragment StoreEntitySet="BaiViet">
-                <ScalarProperty Name="ID" ColumnName="ID" />
-                <ScalarProperty Name="ID_MucLuc" ColumnName="ID_MucLuc" />
-                <ScalarProperty Name="ID_NguoiDang" ColumnName="ID_NguoiDang" />
-                <ScalarProperty Name="TieuDe" ColumnName="TieuDe" />
-                <ScalarProperty Name="ViewCount" ColumnName="ViewCount" />
-                <ScalarProperty Name="NoiDung" ColumnName="NoiDung" />
-                <ScalarProperty Name="LinkThumbnail" ColumnName="LinkThumbnail" />
-                <ScalarProperty Name="NgayDang" ColumnName="NgayDang" />
-                <ScalarProperty Name="LinkPDF" ColumnName="LinkPDF" />
                 <ScalarProperty Name="NgayCapNhat" ColumnName="NgayCapNhat" />
+                <ScalarProperty Name="LinkPDF" ColumnName="LinkPDF" />
+                <ScalarProperty Name="NgayDang" ColumnName="NgayDang" />
+                <ScalarProperty Name="LinkThumbnail" ColumnName="LinkThumbnail" />
+                <ScalarProperty Name="NoiDung" ColumnName="NoiDung" />
+                <ScalarProperty Name="ViewCount" ColumnName="ViewCount" />
+                <ScalarProperty Name="TieuDe" ColumnName="TieuDe" />
+                <ScalarProperty Name="ID_NguoiDang" ColumnName="ID_NguoiDang" />
+                <ScalarProperty Name="ID_MucLuc" ColumnName="ID_MucLuc" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="DonViTrucThuocs">
             <EntityTypeMapping TypeName="WebTinTucTDMUModel.DonViTrucThuoc">
               <MappingFragment StoreEntitySet="DonViTrucThuoc">
-                <ScalarProperty Name="ID" ColumnName="ID" />
-                <ScalarProperty Name="ID_Khoi" ColumnName="ID_Khoi" />
-                <ScalarProperty Name="TenDonVi" ColumnName="TenDonVi" />
-                <ScalarProperty Name="ThuTuShow" ColumnName="ThuTuShow" />
-                <ScalarProperty Name="Link" ColumnName="Link" />
-                <ScalarProperty Name="NgayDang" ColumnName="NgayDang" />
                 <ScalarProperty Name="NgayCapNhat" ColumnName="NgayCapNhat" />
+                <ScalarProperty Name="NgayDang" ColumnName="NgayDang" />
+                <ScalarProperty Name="Link" ColumnName="Link" />
+                <ScalarProperty Name="ThuTuShow" ColumnName="ThuTuShow" />
+                <ScalarProperty Name="TenDonVi" ColumnName="TenDonVi" />
+                <ScalarProperty Name="ID_Khoi" ColumnName="ID_Khoi" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Khois">
             <EntityTypeMapping TypeName="WebTinTucTDMUModel.Khoi">
               <MappingFragment StoreEntitySet="Khoi">
-                <ScalarProperty Name="ID" ColumnName="ID" />
-                <ScalarProperty Name="TenKhoi" ColumnName="TenKhoi" />
-                <ScalarProperty Name="ThuTuShow" ColumnName="ThuTuShow" />
-                <ScalarProperty Name="NgayDang" ColumnName="NgayDang" />
                 <ScalarProperty Name="NgayCapNhat" ColumnName="NgayCapNhat" />
+                <ScalarProperty Name="NgayDang" ColumnName="NgayDang" />
+                <ScalarProperty Name="ThuTuShow" ColumnName="ThuTuShow" />
+                <ScalarProperty Name="TenKhoi" ColumnName="TenKhoi" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Menus">
             <EntityTypeMapping TypeName="WebTinTucTDMUModel.Menu">
               <MappingFragment StoreEntitySet="Menu">
-                <ScalarProperty Name="ID" ColumnName="ID" />
-                <ScalarProperty Name="Ten" ColumnName="Ten" />
-                <ScalarProperty Name="Link" ColumnName="Link" />
-                <ScalarProperty Name="ThuTuShow" ColumnName="ThuTuShow" />
-                <ScalarProperty Name="NgayDang" ColumnName="NgayDang" />
                 <ScalarProperty Name="NgayCapNhat" ColumnName="NgayCapNhat" />
+                <ScalarProperty Name="NgayDang" ColumnName="NgayDang" />
+                <ScalarProperty Name="ThuTuShow" ColumnName="ThuTuShow" />
+                <ScalarProperty Name="Link" ColumnName="Link" />
+                <ScalarProperty Name="Ten" ColumnName="Ten" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Menu_by_roles">
+            <EntityTypeMapping TypeName="WebTinTucTDMUModel.Menu_by_role">
+              <MappingFragment StoreEntitySet="Menu by role">
+                <ScalarProperty Name="id_roles" ColumnName="id_roles" />
+                <ScalarProperty Name="id_menu" ColumnName="id_menu" />
+                <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Menu_by_sub">
             <EntityTypeMapping TypeName="WebTinTucTDMUModel.Menu_by_sub">
               <MappingFragment StoreEntitySet="Menu_by_sub">
-                <ScalarProperty Name="id" ColumnName="id" />
-                <ScalarProperty Name="id_menu" ColumnName="id_menu" />
                 <ScalarProperty Name="id_sub" ColumnName="id_sub" />
+                <ScalarProperty Name="id_menu" ColumnName="id_menu" />
+                <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="MucLucs">
             <EntityTypeMapping TypeName="WebTinTucTDMUModel.MucLuc">
               <MappingFragment StoreEntitySet="MucLuc">
-                <ScalarProperty Name="ID" ColumnName="ID" />
-                <ScalarProperty Name="TenMucLuc" ColumnName="TenMucLuc" />
-                <ScalarProperty Name="Link" ColumnName="Link" />
-                <ScalarProperty Name="ThuTuShow" ColumnName="ThuTuShow" />
-                <ScalarProperty Name="NgayDang" ColumnName="NgayDang" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
                 <ScalarProperty Name="NgayCapNhat" ColumnName="NgayCapNhat" />
+                <ScalarProperty Name="NgayDang" ColumnName="NgayDang" />
+                <ScalarProperty Name="ThuTuShow" ColumnName="ThuTuShow" />
+                <ScalarProperty Name="Link" ColumnName="Link" />
+                <ScalarProperty Name="TenMucLuc" ColumnName="TenMucLuc" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Roles">
             <EntityTypeMapping TypeName="WebTinTucTDMUModel.Role">
               <MappingFragment StoreEntitySet="Roles">
-                <ScalarProperty Name="ID" ColumnName="ID" />
-                <ScalarProperty Name="TenRole" ColumnName="TenRole" />
-                <ScalarProperty Name="MoTa" ColumnName="MoTa" />
-                <ScalarProperty Name="NgayTao" ColumnName="NgayTao" />
                 <ScalarProperty Name="NgayCapNhat" ColumnName="NgayCapNhat" />
+                <ScalarProperty Name="NgayTao" ColumnName="NgayTao" />
+                <ScalarProperty Name="MoTa" ColumnName="MoTa" />
+                <ScalarProperty Name="TenRole" ColumnName="TenRole" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Sliders">
             <EntityTypeMapping TypeName="WebTinTucTDMUModel.Slider">
               <MappingFragment StoreEntitySet="Slider">
-                <ScalarProperty Name="ID" ColumnName="ID" />
-                <ScalarProperty Name="LinkHinh" ColumnName="LinkHinh" />
-                <ScalarProperty Name="NgayDang" ColumnName="NgayDang" />
-                <ScalarProperty Name="NgayCapNhat" ColumnName="NgayCapNhat" />
-                <ScalarProperty Name="ThuTuShow" ColumnName="ThuTuShow" />
                 <ScalarProperty Name="isActive" ColumnName="isActive" />
+                <ScalarProperty Name="ThuTuShow" ColumnName="ThuTuShow" />
+                <ScalarProperty Name="NgayCapNhat" ColumnName="NgayCapNhat" />
+                <ScalarProperty Name="NgayDang" ColumnName="NgayDang" />
+                <ScalarProperty Name="LinkHinh" ColumnName="LinkHinh" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Sub_Menu">
             <EntityTypeMapping TypeName="WebTinTucTDMUModel.Sub_Menu">
               <MappingFragment StoreEntitySet="Sub_Menu">
-                <ScalarProperty Name="id_sub" ColumnName="id_sub" />
-                <ScalarProperty Name="name_sub" ColumnName="name_sub" />
-                <ScalarProperty Name="time_create" ColumnName="time_create" />
+                <ScalarProperty Name="ThuTuShow" ColumnName="ThuTuShow" />
+                <ScalarProperty Name="Link" ColumnName="Link" />
                 <ScalarProperty Name="time_update" ColumnName="time_update" />
+                <ScalarProperty Name="time_create" ColumnName="time_create" />
+                <ScalarProperty Name="name_sub" ColumnName="name_sub" />
+                <ScalarProperty Name="id_sub" ColumnName="id_sub" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="sysdiagrams">
+            <EntityTypeMapping TypeName="WebTinTucTDMUModel.sysdiagram">
+              <MappingFragment StoreEntitySet="sysdiagrams">
+                <ScalarProperty Name="definition" ColumnName="definition" />
+                <ScalarProperty Name="version" ColumnName="version" />
+                <ScalarProperty Name="diagram_id" ColumnName="diagram_id" />
+                <ScalarProperty Name="principal_id" ColumnName="principal_id" />
+                <ScalarProperty Name="name" ColumnName="name" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="TaiKhoans">
             <EntityTypeMapping TypeName="WebTinTucTDMUModel.TaiKhoan">
               <MappingFragment StoreEntitySet="TaiKhoan">
-                <ScalarProperty Name="ID" ColumnName="ID" />
-                <ScalarProperty Name="ID_role" ColumnName="ID_role" />
-                <ScalarProperty Name="TenTaiKhoan" ColumnName="TenTaiKhoan" />
-                <ScalarProperty Name="MatKhau" ColumnName="MatKhau" />
-                <ScalarProperty Name="Gmail" ColumnName="Gmail" />
-                <ScalarProperty Name="SDT" ColumnName="SDT" />
-                <ScalarProperty Name="IsBanned" ColumnName="IsBanned" />
-                <ScalarProperty Name="NgayTao" ColumnName="NgayTao" />
                 <ScalarProperty Name="NgayCapNhat" ColumnName="NgayCapNhat" />
+                <ScalarProperty Name="NgayTao" ColumnName="NgayTao" />
+                <ScalarProperty Name="IsBanned" ColumnName="IsBanned" />
+                <ScalarProperty Name="SDT" ColumnName="SDT" />
+                <ScalarProperty Name="Gmail" ColumnName="Gmail" />
+                <ScalarProperty Name="MatKhau" ColumnName="MatKhau" />
+                <ScalarProperty Name="TenTaiKhoan" ColumnName="TenTaiKhoan" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TaiKhoan_by_roles">
+            <EntityTypeMapping TypeName="WebTinTucTDMUModel.TaiKhoan_by_role">
+              <MappingFragment StoreEntitySet="TaiKhoan by roles">
+                <ScalarProperty Name="id_taikhoan" ColumnName="id_taikhoan" />
+                <ScalarProperty Name="id_roles" ColumnName="id_roles" />
+                <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

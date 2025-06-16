@@ -29,11 +29,14 @@ namespace ProjectTinTucBan.Models
         public virtual DbSet<DonViTrucThuoc> DonViTrucThuocs { get; set; }
         public virtual DbSet<Khoi> Khois { get; set; }
         public virtual DbSet<Menu> Menus { get; set; }
+        public virtual DbSet<Menu_by_role> Menu_by_roles { get; set; }
         public virtual DbSet<Menu_by_sub> Menu_by_sub { get; set; }
         public virtual DbSet<MucLuc> MucLucs { get; set; }
         public virtual DbSet<Role> Roles { get; set; }
         public virtual DbSet<Slider> Sliders { get; set; }
         public virtual DbSet<Sub_Menu> Sub_Menu { get; set; }
+        public virtual DbSet<sysdiagram> sysdiagrams { get; set; }
         public virtual DbSet<TaiKhoan> TaiKhoans { get; set; }
+        public virtual DbSet<TaiKhoan_by_role> TaiKhoan_by_roles { get; set; }
     }
 }
