@@ -1,0 +1,57 @@
+﻿@model IEnumerable<ProjectTinTucBan.Models.TaiKhoan>
+@{
+    ViewBag.Title = "Danh sách tài khoản";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+<!-- page css -->
+<link href="~/assets/vendors/datatables/dataTables.bootstrap.min.css" rel="stylesheet" />
+
+<style>
+    /* Áp dụng cho các hàng trong tbody của bảng có id 'data-table' */
+    #data-table tbody tr {
+        background-color: #ffffff !important; /* Nền màu trắng */
+        color: #212529 !important; /* Chữ màu đen (màu văn bản mặc định của Bootstrap) */
+    }
+
+        /* Đảm bảo màu chữ trong các ô cũng được áp dụng */
+        #data-table tbody tr td {
+            color: #212529 !important; /* Chữ màu đen */
+        }
+</style>
+
+<h2>Danh sách tài khoản</h2>
+<table id="data-table" class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Tên đăng nhập</th>
+            <th>Email</th>
+            <th>Số điện thoại</th>
+            <th>Trạng thái</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var acc in Model)
+        {
+            <tr>
+                <td>@acc.ID</td>
+                <td>@acc.TenTaiKhoan</td>
+                <td>@acc.Gmail</td>
+                <td>@acc.SDT</td>
+                <td>
+                    @(acc.IsBanned == true ? "Bị khóa" : "Hoạt động")
+                </td>
+            </tr>
+        }
+    </tbody>
+    @* Đã xóa bỏ phần tfoot từ đây *@
+</table>
+
+<!-- page js -->
+<script src="~/assets/vendors/datatables/jquery.dataTables.min.js"></script>
+<script src="~/assets/vendors/datatables/dataTables.bootstrap.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#data-table').DataTable();
+    });
+</script>       

@@ -266,6 +266,12 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             }
         }
 
+        public ActionResult AccountList()
+        {
+            var accounts = db.TaiKhoans.ToList();
+            return View(accounts);
+        }
+
         #region Helpers
         private IAuthenticationManager AuthenticationManager
         {
