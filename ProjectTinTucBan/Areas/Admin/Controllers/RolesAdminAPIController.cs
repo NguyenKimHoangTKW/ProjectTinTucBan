@@ -181,10 +181,17 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     return NotFound();
                 }
                 // Kiểm tra xem Roles có đang được sử dụng trong các tài khoản không
-                var isRoleInUse = await db.TaiKhoans.AnyAsync(x => x.ID_role == Item.ID);
-                if (isRoleInUse)
+                var isRoleInUseInTaiKhoan = await db.TaiKhoan_by_roles.AnyAsync(x => x.id_taikhoan == Item.ID);
+                if (isRoleInUseInTaiKhoan)
                 {
                     return Content(HttpStatusCode.BadRequest, new { message = "Quyền này đang được sử dụng trong các tài khoản khác", success = false });
+                }
+
+                // Kiểm tra xem Roles có đang được sử dụng trong các tài khoản không
+                var isRoleInUseInMenu = await db.Menu_by_roles.AnyAsync(x => x.id_roles == Item.ID);
+                if (isRoleInUseInMenu)
+                {
+                    return Content(HttpStatusCode.BadRequest, new { message = "Quyền này đang được sử dụng trong các MENU khác", success = false });
                 }
 
                 // Xóa Roles

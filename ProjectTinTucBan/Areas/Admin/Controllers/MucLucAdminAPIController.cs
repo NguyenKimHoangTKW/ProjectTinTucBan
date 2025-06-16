@@ -34,7 +34,8 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                        x.Link,
                        x.ThuTuShow,
                        x.NgayCapNhat,
-                       x.NgayDang
+                       x.NgayDang,
+                       x.IsActive
   
                    })
                    .ToListAsync();
@@ -50,6 +51,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 return Ok(new { message = "Không có thông tin mục lục", data = new object[0], success = false });
             }
         }
+
         // GET: api/v1/admin/Get-Muc-Luc-By-Id/{id}
         [HttpGet]
         [Route("Get-Muc-Luc-By-Id/{id}")]
@@ -57,31 +59,43 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         {
             try
             {
-                var GetMucLucById = await db.MucLucs
-                     .Where(x => x.ID == id)
-                     .Select(x => new
-                     {
-                         x.ID,
-                         x.TenMucLuc,
-                         x.Link,
-                         x.ThuTuShow,
-                         x.NgayCapNhat,
-                         x.NgayDang
-                     })
-                     .FirstOrDefaultAsync();
+                // Sử dụng FindAsync thay vì truy vấn LINQ phức tạp
+                var mucLuc = await db.MucLucs.FindAsync(id);
 
-                if (GetMucLucById != null) // nếu có giá trị thì trả về data
+                if (mucLuc != null)
                 {
-                    return Ok(new { data = GetMucLucById, success = true });
+                    // Tạo đối tượng kết quả thủ công để tránh vấn đề với mapping
+                    var result = new
+                    {
+                        ID = mucLuc.ID,
+                        TenMucLuc = mucLuc.TenMucLuc,
+                        Link = mucLuc.Link,
+                        ThuTuShow = mucLuc.ThuTuShow,
+                        NgayCapNhat = mucLuc.NgayCapNhat,
+                        NgayDang = mucLuc.NgayDang,
+                        // Sử dụng chuyển đổi rõ ràng cho IsActive (bit -> boolean)
+                        IsActive = (bool)mucLuc.IsActive
+                    };
+
+                    return Ok(new { data = result, success = true });
                 }
-                else // không có giá trị thì trả về đoạn thông báo
+                else
                 {
                     return Ok(new { message = "Không tìm thấy mục lục", success = false });
                 }
             }
             catch (Exception ex)
             {
-                return InternalServerError(ex);
+                // Ghi chi tiết lỗi để dễ dàng xác định nguyên nhân
+                System.Diagnostics.Debug.WriteLine("Lỗi trong GetMucLucById: " + ex.ToString());
+
+                return Content(HttpStatusCode.InternalServerError, new
+                {
+                    message = "Lỗi khi truy vấn dữ liệu",
+                    error = ex.Message,
+                    innerError = ex.InnerException?.Message,
+                    success = false
+                });
             }
         }
 
@@ -114,7 +128,8 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     Link = Item.Link,
                     ThuTuShow = Item.ThuTuShow,
                     NgayDang = unixTimestamp,
-                    NgayCapNhat = unixTimestamp
+                    NgayCapNhat = unixTimestamp,
+                    IsActive = Item.IsActive // Đã được gửi lên như một số (1 hoặc 0)
                 };
 
                 db.MucLucs.Add(newMucLuc);
@@ -156,10 +171,52 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 existingMucLuc.TenMucLuc = Item.TenMucLuc;
                 existingMucLuc.Link = Item.Link;
                 existingMucLuc.ThuTuShow = Item.ThuTuShow;
+                existingMucLuc.IsActive = Item.IsActive; // Đã được gửi lên như một số (1 hoặc 0)
                 unixTimestamp = (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
                 existingMucLuc.NgayCapNhat = unixTimestamp;
                 await db.SaveChangesAsync();
                 return Ok(new { message = "Cập nhật mục lục thành công", success = true });
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        [HttpPost]
+        [Route("Update-Muc-Luc-Status")]
+        public async Task<IHttpActionResult> UpdateMucLucStatus(MucLuc item)
+        {
+            try
+            {
+                if (item == null || item.ID <= 0)
+                {
+                    return BadRequest("Dữ liệu không hợp lệ");
+                }
+
+                // Kiểm tra xem mục lục có tồn tại không
+                var existingMucLuc = await db.MucLucs.FindAsync(item.ID);
+                if (existingMucLuc == null)
+                {
+                    return NotFound();
+                }
+
+                // Cập nhật trạng thái kích hoạt
+                existingMucLuc.IsActive = item.IsActive; // IsActive là kiểu boolean
+                unixTimestamp = (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                existingMucLuc.NgayCapNhat = unixTimestamp;
+
+                await db.SaveChangesAsync();
+
+                // Message dựa vào giá trị IsActive (boolean)
+                string message = item.IsActive ? "Đã kích hoạt mục lục" : "Đã tắt kích hoạt mục lục";
+            
+
+                return Ok(new
+                {
+                    message = message,
+                    success = true
+                });
             }
             catch (Exception ex)
             {

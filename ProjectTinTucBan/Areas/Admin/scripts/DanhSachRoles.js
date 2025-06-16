@@ -4,15 +4,11 @@
         $(".select2").select2();
     }
 
+
+    load_data();
+
     console.log("Document ready - Checking path: " + window.location.pathname);
 
-    // Chỉ gọi load_data() trên trang danh sách quyền admin
-    if (window.location.pathname.toLowerCase().includes('index_roles_admin')) {
-        console.log("Loading data for Index_Roles_Admin page");
-        setTimeout(function () {
-            load_data();
-        }, 300); // Delay nhỏ để đảm bảo DOM đã sẵn sàng
-    }
 
     // Event handlers for the "Add Role" button
     $("#btnAddRoles").on("click", function () {
