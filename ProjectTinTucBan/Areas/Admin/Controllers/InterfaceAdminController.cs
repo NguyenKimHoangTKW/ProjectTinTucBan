@@ -63,6 +63,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             }
 
             // 2. Kiểm tra trong CSDL
+            // QUAN TRỌNG: Trong thực tế, bạn NÊN MÃ HÓA MẬT KHẨU trước khi so sánh.
             var userFromDb = db.TaiKhoans
                                .FirstOrDefault(u => u.TenTaiKhoan == username && u.MatKhau == password);
 
@@ -80,9 +81,14 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 // Lấy vai trò thông qua bảng TaiKhoan_by_role
                 var userRoleMapping = db.TaiKhoan_by_roles
                                         .Include(tbr => tbr.Role) // Tải thông tin Role liên quan
-                                        .FirstOrDefault(tbr => tbr.id_taikhoan == userFromDb.ID); // Giả sử mỗi user chỉ có 1 role hoặc lấy role đầu tiên
+                                        .FirstOrDefault(tbr => tbr.id_taikhoan == userFromDb.ID);
 
-                Session["UserRole"] = userRoleMapping?.Role?.TenRole;
+                string currentUserRole = "DefaultUser"; // Giá trị mặc định nếu không có vai trò
+                if (userRoleMapping != null && userRoleMapping.Role != null)
+                {
+                    currentUserRole = userRoleMapping.Role.TenRole;
+                }
+                Session["UserRole"] = currentUserRole;
                 return RedirectToAction("Index");
             }
 
@@ -94,7 +100,6 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [HttpGet]
         public ActionResult Register()
         {
-            // Nếu đã đăng nhập, chuyển hướng về trang Index
             if (Session["AdminUser"] != null)
             {
                 return RedirectToAction("Index");
@@ -105,7 +110,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         // Xử lý đăng ký (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Register(string username, string password, string confirmPassword, string email)
+        public ActionResult Register(string username, string password, string confirmPassword, string email, string sdt)
         {
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
             {
@@ -131,32 +136,34 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 return View();
             }
 
+            string hashedPassword = System.Web.Helpers.Crypto.HashPassword(password); // Sử dụng Crypto trực tiếp
+
             TaiKhoan newUser = new TaiKhoan
             {
                 TenTaiKhoan = username,
-                MatKhau = password, // NÊN MÃ HÓA MẬT KHẨU
+                MatKhau = hashedPassword,
                 Gmail = email,
+                SDT = sdt,
                 IsBanned = false,
-                NgayTao = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds // Ví dụ
+                NgayTao = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds,
+                NgayCapNhat = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds
             };
 
             db.TaiKhoans.Add(newUser);
             try
             {
-                db.SaveChanges(); // Lưu newUser để có newUser.ID
+                db.SaveChanges();
 
-                // (Tùy chọn) Gán vai trò mặc định cho người dùng mới
-                // Ví dụ: gán Role có ID là 2 (bạn cần thay ID này cho phù hợp)
-                var defaultRoleId = db.Roles.FirstOrDefault(r => r.TenRole == "User")?.ID; // Hoặc ID cố định nếu biết
-                if (defaultRoleId != null && defaultRoleId != 0)
+                var defaultRole = db.Roles.FirstOrDefault(r => r.TenRole == "User");
+                if (defaultRole != null)
                 {
                     TaiKhoan_by_role newUserRole = new TaiKhoan_by_role
                     {
                         id_taikhoan = newUser.ID,
-                        id_roles = defaultRoleId
+                        id_roles = defaultRole.ID
                     };
                     db.TaiKhoan_by_roles.Add(newUserRole);
-                    db.SaveChanges(); // Lưu thông tin vai trò
+                    db.SaveChanges();
                 }
 
                 ViewBag.SuccessMessage = "Đăng ký tài khoản thành công! Bạn có thể đăng nhập ngay bây giờ.";
@@ -167,13 +174,12 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 var errorMessages = ex.EntityValidationErrors
                     .SelectMany(x => x.ValidationErrors)
                     .Select(x => $"{x.PropertyName}: {x.ErrorMessage}");
-                ViewBag.Error = "Lỗi validation: " + string.Join("; ", errorMessages);
+                ViewBag.Error = "Lỗi validation khi đăng ký: " + string.Join("; ", errorMessages);
                 return View(newUser);
             }
             catch (Exception ex)
             {
-                // Ghi log lỗi chi tiết ở đây (ví dụ: using Serilog, NLog)
-                ViewBag.Error = "Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại." + ex.Message;
+                ViewBag.Error = "Đã xảy ra lỗi trong quá trình đăng ký: " + ex.Message;
                 return View(newUser);
             }
         }
@@ -209,29 +215,47 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             if (emailClaim != null && !string.IsNullOrEmpty(emailClaim.Value))
             {
                 email = emailClaim.Value;
-                var userFromDb = db.TaiKhoans
-                                   .FirstOrDefault(u => u.Gmail == email);
+                var userFromDb = db.TaiKhoans.FirstOrDefault(u => u.Gmail == email);
 
                 if (userFromDb != null)
                 {
+                    // Tài khoản đã tồn tại trong CSDL
                     if (userFromDb.IsBanned == true)
                     {
                         ViewBag.Error = "Tài khoản Google (" + email + ") của bạn đã bị khóa trong hệ thống.";
                         return View("Login");
                     }
+
+                    // Tiến hành đăng nhập người dùng
                     Session["AdminUser"] = userFromDb.TenTaiKhoan;
                     Session["UserID"] = userFromDb.ID;
 
-                    // Lấy vai trò thông qua bảng TaiKhoan_by_role
                     var userRoleMapping = db.TaiKhoan_by_roles
                                             .Include(tbr => tbr.Role)
                                             .FirstOrDefault(tbr => tbr.id_taikhoan == userFromDb.ID);
-                    Session["UserRole"] = userRoleMapping?.Role?.TenRole;
+
+                    string currentUserRole = "DefaultUser"; // Giá trị mặc định nếu không tìm thấy vai trò
+                    if (userRoleMapping != null && userRoleMapping.Role != null)
+                    {
+                        currentUserRole = userRoleMapping.Role.TenRole;
+                    }
+                    else
+                    {
+                        // Ghi log hoặc xử lý trường hợp người dùng không có vai trò được gán
+                        // Ví dụ: có thể không cho đăng nhập nếu vai trò là bắt buộc
+                        // ViewBag.Error = "Tài khoản của bạn chưa được gán vai trò. Vui lòng liên hệ quản trị viên.";
+                        // return View("Login");
+                    }
+                    Session["UserRole"] = currentUserRole;
+
+                    System.Diagnostics.Debug.WriteLine($"Existing Google User Login: User: {Session["AdminUser"]}, Role: {Session["UserRole"]}, UserID: {Session["UserID"]}");
                     return RedirectToLocal(returnUrl);
                 }
                 else
                 {
-                    ViewBag.Error = "Không tìm thấy tài khoản nào được liên kết với email Google: " + email + ". Vui lòng đăng ký.";
+                    // Tài khoản Google chưa có trong CSDL
+                    // Theo yêu cầu "back lại chức năng cũ", sẽ không tự động đăng ký
+                    ViewBag.Error = "Tài khoản Google này chưa được đăng ký trong hệ thống. Vui lòng đăng ký tài khoản trước.";
                     return View("Login");
                 }
             }

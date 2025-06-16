@@ -12,6 +12,8 @@ namespace ProjectTinTucBan.Models
     using System;
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
+    using System.Web.Security; // For Membership.GeneratePassword
+    using System.Web.Helpers;  // For Crypto.HashPassword
     
     public partial class WebTinTucTDMUEntities : DbContext
     {
