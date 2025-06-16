@@ -9,7 +9,7 @@ $(function () {
         });
     }
     function loadMenus() {
-        $.getJSON('/api/v1/admin/menus-with-submenus', function (data) {
+        $.getJSON(`${BASE_URL}/menus-with-submenus`, function (data) {
             const $menuList = $('#menu-list').empty();
             data.forEach(menu => {
                 const $left = $('<div >').append(
@@ -85,7 +85,7 @@ $(function () {
         const thuTuShow = $('#thuTuShow').val();
 
         $.ajax({
-            url: '/api/v1/admin/add-menu',
+            url: `${BASE_URL}/add-menu`,
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({
@@ -114,7 +114,7 @@ $(function () {
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: '/api/v1/admin/delete-menu',
+                    url: `${BASE_URL}/delete-menu`,
                     method: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify(menuId),
@@ -158,7 +158,7 @@ $(function () {
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: '/api/v1/admin/edit-menu',
+                    url: `${BASE_URL}/edit-menu`,
                     method: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify({
@@ -202,7 +202,7 @@ $(function () {
         }
 
         $.ajax({
-            url: '/api/v1/admin/add-submenu',
+            url: `${BASE_URL}/add-submenu`,
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({
@@ -249,7 +249,7 @@ $(function () {
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: '/api/v1/admin/edit-sub-menu',
+                    url: `${BASE_URL}/edit-sub-menu`,
                     method: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify({
@@ -284,7 +284,7 @@ $(function () {
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: '/api/v1/admin/delete-submenu',
+                    url: `${BASE_URL}/delete-submenu`,
                     method: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify(subMenuId),

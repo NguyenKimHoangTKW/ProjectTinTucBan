@@ -2,7 +2,9 @@
     ViewBag.Title = "Quản lý Slider";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
-
+<script src="~/Scripts/jquery-3.7.0.min.js"></script>
+<script src="~/Areas/Admin/Scripts/SliderAdminScript.js"></script>
+<script src="~/Areas/assets/js/OptionPhanQuyen.js"></script>
 <!-- Breadcrumb -->
 <div class="header-sub-title">
     <nav class="breadcrumb breadcrumb-dash">
@@ -12,41 +14,31 @@
     </nav>
 </div>
 
-<div class="mb-3">
-    <button id="openAddSlideModal" type="button" class="btn btn-primary" data-toggle="modal" data-target="#addSlideModal">
-        Thêm Slide
-    </button>
+
+<div class="main-content">
+    <div class="mb-3">
+        <button id="openAddSlideModal" type="button" class="btn btn-primary" data-toggle="modal" data-target="#addSlideModal">
+            Thêm Slide
+        </button>
+    </div>
+    <div class="card">
+        <!-- DataTable -->
+        <table id="data-table" class="table table-bordered">
+            <thead>
+                <tr>
+                    <th class="text-center">STT</th>
+                    <th class="text-center">Hình ảnh</th>
+                    <th class="text-center">Thứ tự hiển thị</th>
+                    <th class="text-center">Trạng thái</th>
+                    <th class="text-center">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody id="slider-list">
+            </tbody>
+        </table>
+    </div>
 </div>
 
-<!-- DataTable -->
-<table id="data-table" class="table table-bordered">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Hình ảnh</th>
-            <th>Thứ tự hiển thị</th>
-            <th>Trạng thái</th>
-            <th>Thao tác</th>
-        </tr>
-    </thead>
-    <tbody id="slider-list">
-        <!-- Dữ liệu sẽ được render bởi SliderAdminScript.js -->
-    </tbody>
-    <tfoot>
-        <tr>
-            <th>ID</th>
-            <th>Hình ảnh</th>
-            <th>Thứ tự hiển thị</th>
-            <th>Trạng thái</th>
-            <th>Thao tác</th>
-        </tr>
-    </tfoot>
-</table>
-
-<script>
-    $(document).ready(function () {
-        $('#data-table').DataTable();
-    });</script>
 
 <!-- Modal Thêm Slide -->
 <div class="modal fade" id="addSlideModal" tabindex="-1" role="dialog">
@@ -117,9 +109,4 @@
     </div>
 </div>
 
-@section sliderScript {
-    <script src="~/Areas/Admin/Scripts/SliderAdminScript.js"></script>
-    <link href="~/Areas/assets/vendors/datatables/dataTables.bootstrap.min.css" rel="stylesheet" />
-    <script src="~/Areas/assets/vendors/datatables/jquery.dataTables.min.js"></script>
-    <script src="~/Areas/assets/vendors/datatables/dataTables.bootstrap.min.js"></script>
-}
+
