@@ -98,6 +98,16 @@
 </style>
 
 <h2>Danh sách tài khoản</h2>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
 <div class="dataTables_wrapper dt-bootstrap4">
     <table id="data-table" class="table table-bordered table-striped">
         <thead>
@@ -107,6 +117,7 @@
                 <th>Email</th>
                 <th>Số điện thoại</th>
                 <th>Trạng thái</th>
+                <th>Hành động</th> @* Thêm cột mới *@
             </tr>
         </thead>
         <tbody>
@@ -118,7 +129,29 @@
                     <td>@acc.Gmail</td>
                     <td>@acc.SDT</td>
                     <td>
-                        @(acc.IsBanned == true ? "Bị khóa" : "Hoạt động")
+                        @if (acc.IsBanned == true)
+                        {
+                            <span class="badge badge-danger">Bị khóa</span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-success">Hoạt động</span>
+                        }
+                    </td>
+                    <td>
+                        @using (Html.BeginForm("ToggleBanStatus", "InterfaceAdmin", new { id = acc.ID }, FormMethod.Post, new { @style = "display:inline;" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            if (acc.IsBanned == true)
+                            {
+                                <button type="submit" class="btn btn-xs btn-success">Mở khóa</button>
+                            }
+                            else
+                            {
+                                <button type="submit" class="btn btn-xs btn-danger">Khóa</button>
+                            }
+                        }
+                        @* Bạn có thể thêm các nút khác ở đây, ví dụ: Sửa, Xóa, Xem chi tiết *@
                     </td>
                 </tr>
             }
@@ -126,7 +159,7 @@
     </table>
 </div>
 
-@section scriptsAdmin { // Đổi tên section thành scriptsAdmin
+@section scriptsAdmin {
     <!-- page js -->
     <script src="~/assets/vendors/datatables/jquery.dataTables.min.js"></script>
     <script src="~/assets/vendors/datatables/dataTables.bootstrap.min.js"></script>
@@ -144,7 +177,11 @@
                     "pageLength": 10,
                     "dom": "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
                         "<'row'<'col-sm-12'tr>>" +
-                        "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
+                        "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+                    "columnDefs": [ // Đảm bảo cột Hành động không được sắp xếp hoặc tìm kiếm nếu không muốn
+                        { "orderable": false, "targets": 5 }, // Giả sử cột Hành động là cột thứ 6 (index 5)
+                        { "searchable": false, "targets": 5 }
+                    ]
                 });
             } catch (e) {
                 console.error("Lỗi khi khởi tạo DataTable: ", e);

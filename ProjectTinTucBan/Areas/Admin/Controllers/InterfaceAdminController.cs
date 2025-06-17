@@ -272,6 +272,32 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             return View(accounts);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ToggleBanStatus(int id)
+        {
+            var account = db.TaiKhoans.Find(id);
+            if (account != null)
+            {
+                account.IsBanned = !account.IsBanned; // Đảo ngược trạng thái IsBanned
+                try
+                {
+                    db.SaveChanges();
+                    TempData["SuccessMessage"] = "Cập nhật trạng thái tài khoản thành công!";
+                }
+                catch (Exception ex)
+                {
+                    // Ghi log lỗi ở đây nếu cần
+                    TempData["ErrorMessage"] = "Có lỗi xảy ra khi cập nhật trạng thái: " + ex.Message;
+                }
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy tài khoản!";
+            }
+            return RedirectToAction("AccountList");
+        }
+
         #region Helpers
         private IAuthenticationManager AuthenticationManager
         {
