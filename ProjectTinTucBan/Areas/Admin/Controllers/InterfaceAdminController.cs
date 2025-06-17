@@ -298,6 +298,14 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             return RedirectToAction("AccountList");
         }
 
+        public ActionResult ManageRoles()
+        {
+            // Logic để lấy danh sách vai trò hoặc các thông tin liên quan đến vai trò
+            // var roles = db.Roles.ToList(); // Ví dụ
+            // return View(roles);
+            return View(); // Hoặc trả về view rỗng nếu chưa có logic cụ thể
+        }
+
         #region Helpers
         private IAuthenticationManager AuthenticationManager
         {

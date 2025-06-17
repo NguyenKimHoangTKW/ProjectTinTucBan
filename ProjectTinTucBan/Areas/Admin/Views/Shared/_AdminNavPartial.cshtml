@@ -146,12 +146,28 @@
             </li>
             <!-- Phân quyền tài khoản -->
             <li class="nav-item dropdown">
-                <a href="@Url.Action("AccountList", "InterfaceAdmin", new { Area = "Admin" })">
+                @* Thay đổi ở đây *@
+                <a class="dropdown-toggle" href="javascript:void(0);">
+                    @* Thay đổi ở đây *@
                     <span class="icon-holder">
                         <i class="fas fa-user-shield"></i>
                     </span>
                     <span class="title">Phân quyền tài khoản</span>
+                    <span class="arrow">
+                        @* Thêm mũi tên *@
+                        <i class="fas fa-chevron-down"></i>
+                    </span>
                 </a>
+                <ul class="dropdown-menu">
+                    @* Thêm danh sách con *@
+                    <li>
+                        <a href="@Url.Action("AccountList", "InterfaceAdmin", new { Area = "Admin" })">Danh sách tài khoản</a>
+                    </li>
+                    <li>
+                        <a href="@Url.Action("ManageRoles", "InterfaceAdmin", new { Area = "Admin" })">Quản lý vai trò</a> @* Mục mới *@
+                    </li>
+                    @* Bạn có thể thêm các mục khác liên quan đến phân quyền ở đây *@
+                </ul>
             </li>
         </ul>
     </div>
