@@ -73,7 +73,6 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                         ThuTuShow = mucLuc.ThuTuShow,
                         NgayCapNhat = mucLuc.NgayCapNhat,
                         NgayDang = mucLuc.NgayDang,
-                        // Sử dụng chuyển đổi rõ ràng cho IsActive (bit -> boolean)
                         IsActive = (bool)mucLuc.IsActive
                     };
 
@@ -129,7 +128,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     ThuTuShow = Item.ThuTuShow,
                     NgayDang = unixTimestamp,
                     NgayCapNhat = unixTimestamp,
-                    IsActive = Item.IsActive // Đã được gửi lên như một số (1 hoặc 0)
+                    IsActive = Item.IsActive 
                 };
 
                 db.MucLucs.Add(newMucLuc);

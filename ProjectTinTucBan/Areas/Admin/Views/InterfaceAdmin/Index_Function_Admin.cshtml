@@ -1,5 +1,5 @@
 ﻿@{
-    ViewBag.Title = "Quản lý quyền Admin";
+    ViewBag.Title = "Quản lý chức năng admin";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
@@ -7,11 +7,11 @@
     <div class="container-fluid">
         <!-- Header và breadcrumb -->
         <div class="page-header">
-            <h2 class="header-title">Quản lý quyền Admin</h2>
+            <h2 class="header-title">Quản lý chức năng Admin</h2>
             <div class="header-sub-title">
                 <nav class="breadcrumb breadcrumb-dash">
                     <a href="/Admin/InterfaceAdmin/Index" class="breadcrumb-item"><i class="anticon anticon-home m-r-5"></i>Trang chủ</a>
-                    <span class="breadcrumb-item active">Quản lý quyền Admin</span>
+                    <span class="breadcrumb-item active">Quản lý chức năng admin</span>
                 </nav>
             </div>
         </div>
@@ -19,15 +19,14 @@
         <!-- Card chứa bảng dữ liệu -->
         <div class="card">
             <div class="card-body">
-
                 <div class="row m-b-30">
                     <div class="col-lg-8">
-                        <h4>Danh sách quyền Admin</h4>
+                        <h4>Danh sách chức năng admin</h4>
                     </div>
                     <div class="col-lg-4 text-right">
-                        <button class="btn btn-primary" id="btnAddRoles">
+                        <button class="btn btn-primary" id="btnAddFunction">
                             <i class="anticon anticon-plus-circle m-r-5"></i>
-                            <span>Thêm quyền admin mới</span>
+                            <span>Thêm chức năng admin mới</span>
                         </button>
                     </div>
                 </div>
@@ -37,7 +36,8 @@
                     <thead>
                         <tr>
                             <th>STT</th>
-                            <th>Tên quyền</th>
+                            <th>Tên chức năng</th>
+                            <th>Mã chức năng</th>
                             <th>Mô tả</th>
                             <th>Ngày tạo</th>
                             <th>Ngày cập nhật</th>
@@ -54,27 +54,37 @@
 </div>
 
 
-<!-- Modal Quản lý Quyền Admin (dùng chung cho cả thêm và sửa) -->
-<div class="modal fade" id="RolesModal" tabindex="-1" role="dialog" aria-labelledby="RolesModalLabel" aria-hidden="true">
+<!-- Modal Quản lý Chức năng Admin (dùng chung cho cả thêm và sửa) -->
+<div class="modal fade" id="FunctionModal" tabindex="-1" role="dialog" aria-labelledby="FunctionModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="RolesModalLabel">Quản lý quyền Admin</h5>
+                <h5 class="modal-title" id="FunctionModalLabel">Quản lý chức năng Admin</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <form id="RolesForm">
-                    <input type="hidden" id="roleId" value="" />
+                <form id="FunctionForm">
+                    <input type="hidden" id="functionId" value="" />
                     <input type="hidden" id="formMode" value="add" /> <!-- 'add' hoặc 'edit' -->
 
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label for="tenRole">Tên quyền <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="tenRole" name="tenRole" placeholder="Nhập tên quyền admin" required>
-                                <small class="form-text text-muted">Tên quyền trong hệ thống</small>
+                                <label for="tenFunction">Tên chức năng <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="tenFunction" name="tenFunction" placeholder="Nhập tên chức năng admin" required>
+                                <small class="form-text text-muted">Tên chức năng trong hệ thống</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="maFunction">Mã chức năng <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="maFunction" name="maFunction" placeholder="Nhập mã chức năng admin" required>
+                                <small class="form-text text-muted">Mã nhận dạng chức năng trong hệ thống</small>
                             </div>
                         </div>
                     </div>
@@ -83,8 +93,8 @@
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="moTa">Mô tả <span class="text-danger">*</span></label>
-                                <textarea class="form-control" id="moTa" name="moTa" rows="3" placeholder="Nhập mô tả quyền admin" required></textarea>
-                                <small class="form-text text-muted">Mô tả chi tiết về quyền này</small>
+                                <textarea class="form-control" id="moTa" name="moTa" rows="3" placeholder="Nhập mô tả chức năng admin" required></textarea>
+                                <small class="form-text text-muted">Mô tả chi tiết về chức năng này</small>
                             </div>
                         </div>
                     </div>
@@ -111,7 +121,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-primary" id="btnSaveRole">
+                <button type="button" class="btn btn-primary" id="btnSaveFunction">
                     <i class="anticon anticon-save m-r-5"></i>
                     <span id="btnSaveText">Lưu</span>
                 </button>
@@ -353,5 +363,5 @@
 
 @section scriptsAdmin {
     <script src="~/Scripts/sweetalert2.all.min.js"></script>
-    <script src="~/Areas/Admin/Scripts/DanhSachRoles.js"></script>
+    <script src="~/Areas/Admin/Scripts/DanhSachChucNang.js"></script>
 }

@@ -136,8 +136,10 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Areas\Admin\AdminAreaRegistration.cs" />
+    <Compile Include="Areas\Admin\Controllers\FunctionAdminAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\InterfaceAdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\MucLucAdminAPIController.cs" />
+    <Compile Include="Areas\Admin\Controllers\UserAdminAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\RolesAdminAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\TestController.cs" />
     <Compile Include="Areas\HelpPage\ApiDescriptionExtensions.cs" />
@@ -176,6 +178,9 @@
     <Compile Include="Models\BaiViet.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\ChucNangQuyenUser.cs">
+      <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\dbTinTucKhaoThiModel.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -194,22 +199,31 @@
     <Compile Include="Models\DonViTrucThuoc.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\Group_By_Menu.cs">
+      <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\Khoi.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Menu.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\Menu_by_role.cs">
+    <Compile Include="Models\Menu_by_sub.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\Menu_by_sub.cs">
+    <Compile Include="Models\Menu_Group.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\MucLuc.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\PhanQuyenUser.cs">
+      <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\Role.cs">
+      <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Roles_By_Group.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Slider.cs">
@@ -224,14 +238,13 @@
     <Compile Include="Models\TaiKhoan.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\TaiKhoan_by_role.cs">
-      <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Areas\Admin\Scripts\DanhSachChucNang.js" />
     <Content Include="Areas\Admin\Scripts\DanhSachMucLuc.js" />
     <Content Include="Areas\Admin\Scripts\DanhSachRoles.js" />
+    <Content Include="Areas\Admin\Scripts\DanhSachUser.js" />
     <Content Include="Areas\assets\css\app.min.css" />
     <Content Include="Areas\assets\css\buttons.dataTables.min.css" />
     <Content Include="Areas\assets\css\sweetalert2.min.css" />
@@ -1300,6 +1313,8 @@
     <Content Include="assets\fonts\line-awesome.ttf" />
     <Content Include="assets\fonts\line-awesome.woff" />
     <Content Include="assets\fonts\line-awesome.woff2" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Function_Admin.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Users_Admin.cshtml" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />

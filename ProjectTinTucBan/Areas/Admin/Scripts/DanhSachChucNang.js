@@ -8,31 +8,31 @@
     setupAdvancedSearch();
     load_data();
 
-    // Event handlers for the "Add Role" button
-    $("#btnAddRoles").on("click", function () {
-        openAddRoleModal();
+    // Event handlers for the "Add Function" button
+    $("#btnAddFunction").on("click", function () {
+        openAddFunctionModal();
     });
 
     // Event handler for the "Save" button in the modal
-    $("#btnSaveRole").on("click", function () {
+    $("#btnSaveFunction").on("click", function () {
         const formMode = $("#formMode").val();
         if (formMode === "add") {
-            add_new_Role_in_modal();
+            add_new_Function_in_modal();
         } else {
-            update_Role_in_modal();
+            update_Function_in_modal();
         }
     });
 
     // Edit button click event
     $(document).on("click", ".btn-edit", function () {
         const id = $(this).data("id");
-        openEditRoleModal(id);
+        openEditFunctionModal(id);
     });
 
     // Delete button click event
     $(document).on("click", ".btn-delete", function () {
         const id = $(this).data("id");
-        deleteRole(id);
+        deleteFunction(id);
     });
 });
 
@@ -51,7 +51,7 @@ function setupAdvancedSearch() {
     });
 
     // Sự kiện nhấn Enter trong các trường tìm kiếm
-    $('#searchTenRole, #searchMoTa').on('keypress', function (e) {
+    $('#searchTenFunction, #searchMaFunction, #searchMoTa').on('keypress', function (e) {
         if (e.which === 13) {
             applyAdvancedSearch();
         }
@@ -60,21 +60,24 @@ function setupAdvancedSearch() {
 
 // Áp dụng tìm kiếm nâng cao
 function applyAdvancedSearch() {
-    const searchTenRole = $('#searchTenRole').val().trim().toLowerCase();
+    const searchTenFunction = $('#searchTenFunction').val().trim().toLowerCase();
+    const searchMaFunction = $('#searchMaFunction').val().trim().toLowerCase();
     const searchMoTa = $('#searchMoTa').val().trim().toLowerCase();
 
     if (dataTableInstance) {
         // Định nghĩa hàm tìm kiếm tùy chỉnh
         $.fn.dataTable.ext.search.push(function (settings, data, dataIndex, rowData) {
-            // Data[1] = Tên quyền, Data[2] = Mô tả
-            const tenRole = data[1].toLowerCase();
-            const moTa = data[2].toLowerCase();
+            // Data[1] = Tên chức năng, Data[2] = Mã chức năng, Data[3] = Mô tả
+            const tenFunction = data[1].toLowerCase();
+            const maFunction = data[2].toLowerCase();
+            const moTa = data[3].toLowerCase();
 
             // Kiểm tra điều kiện tìm kiếm
-            const matchTen = searchTenRole === '' || tenRole.includes(searchTenRole);
+            const matchTen = searchTenFunction === '' || tenFunction.includes(searchTenFunction);
+            const matchMa = searchMaFunction === '' || maFunction.includes(searchMaFunction);
             const matchMoTa = searchMoTa === '' || moTa.includes(searchMoTa);
 
-            return matchTen && matchMoTa;
+            return matchTen && matchMa && matchMoTa;
         });
 
         // Áp dụng tìm kiếm và vẽ lại bảng
@@ -93,7 +96,8 @@ function applyAdvancedSearch() {
 
 // Đặt lại tìm kiếm nâng cao
 function resetAdvancedSearch() {
-    $('#searchTenRole').val('');
+    $('#searchTenFunction').val('');
+    $('#searchMaFunction').val('');
     $('#searchMoTa').val('');
 
     if (dataTableInstance) {
@@ -109,7 +113,7 @@ async function load_data() {
 
         // Gọi API
         $.ajax({
-            url: '/api/v1/admin/Get-All-Roles',
+            url: '/api/v1/admin/Get-All-Functions',
             type: 'GET',
             dataType: 'json',
             cache: false,
@@ -124,7 +128,8 @@ async function load_data() {
                     <thead>
                         <tr>
                             <th>STT</th>
-                            <th>Tên quyền</th>
+                            <th>Tên chức năng</th>
+                            <th>Mã chức năng</th>
                             <th>Mô tả</th>
                             <th>Ngày tạo</th>
                             <th>Ngày cập nhật</th>
@@ -168,7 +173,8 @@ async function load_data() {
                                 return meta.row + 1;
                             }
                         },
-                        { data: 'TenRole' },
+                        { data: 'TenChucNang' },
+                        { data: 'MaChucNang' },
                         { data: 'MoTa' },
                         {
                             data: 'NgayTao',
@@ -202,7 +208,7 @@ async function load_data() {
                             next: "Tiếp",
                             previous: "Trước"
                         },
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           search: "Tìm nhanh:",
+                        search: "Tìm nhanh:",
                         lengthMenu: "Hiển thị _MENU_ mục",
                         emptyTable: "Không có dữ liệu",
                         zeroRecords: "Không tìm thấy kết quả phù hợp",
@@ -223,7 +229,8 @@ async function load_data() {
                     <thead>
                         <tr>
                             <th>STT</th>
-                            <th>Tên quyền</th>
+                            <th>Tên chức năng</th>
+                            <th>Mã chức năng</th>
                             <th>Mô tả</th>
                             <th>Ngày tạo</th>
                             <th>Ngày cập nhật</th>
@@ -232,7 +239,7 @@ async function load_data() {
                     </thead>
                     <tbody>
                         <tr>
-                            <td colspan="6" class="text-center">Đã xảy ra lỗi: ${xhr.status} - ${xhr.statusText}</td>
+                            <td colspan="7" class="text-center">Đã xảy ra lỗi: ${xhr.status} - ${xhr.statusText}</td>
                         </tr>
                     </tbody>
                 `);
@@ -264,94 +271,110 @@ function unixTimestampToDate(unixTimestamp) {
     return formattedDate;
 }
 
-// Open modal for adding a new role
-function openAddRoleModal() {
+// Open modal for adding a new function
+function openAddFunctionModal() {
     // Reset the form
-    $("#RolesForm")[0].reset();
-    $("#roleId").val("");
+    $("#FunctionForm")[0].reset();
+    $("#functionId").val("");
     $("#formMode").val("add");
-    $("#RolesModalLabel").text("Thêm quyền admin mới");
+    $("#FunctionModalLabel").text("Thêm chức năng admin mới");
     $("#btnSaveText").text("Thêm mới");
     $("#editOnlyFields").hide();
 
     // Show the modal
-    $("#RolesModal").modal("show");
+    $("#FunctionModal").modal("show");
 }
 
-// Open modal for editing an existing role
-async function openEditRoleModal(roleId) {
+// Open modal for editing an existing function
+async function openEditFunctionModal(functionId) {
     try {
+        // Since there's no dedicated endpoint for getting a function by ID,
+        // we'll get all functions and find the one we need
         const response = await $.ajax({
-            url: `/api/v1/admin/Get-Roles-By-Id/${roleId}`,
+            url: `/api/v1/admin/Get-All-Functions`,
             type: 'GET'
         });
 
         if (response.success && response.data) {
-            const role = response.data;
+            // Find the function with the matching ID
+            const functionData = response.data.find(item => item.ID === functionId);
+
+            if (!functionData) {
+                Sweet_Alert("error", "Không tìm thấy thông tin chức năng admin");
+                return;
+            }
 
             // Set form mode and ID
             $("#formMode").val("edit");
-            $("#roleId").val(role.ID);
+            $("#functionId").val(functionData.ID);
 
             // Fill in form fields
-            $("#tenRole").val(role.TenRole);
-            $("#moTa").val(role.MoTa);
+            $("#tenFunction").val(functionData.TenChucNang);
+            $("#maFunction").val(functionData.MaChucNang);
+            $("#moTa").val(functionData.MoTa);
 
             // Handle both case variations for timestamps
-            let ngayTao = role.NgayTao || role.ngayTao;
-            let ngayCapNhat = role.NgayCapNhat || role.ngayCapNhat;
+            let ngayTao = functionData.NgayTao || functionData.ngayTao;
+            let ngayCapNhat = functionData.NgayCapNhat || functionData.ngayCapNhat;
 
             // Format and display timestamps using our custom function
             $("#ngayTao").val(ngayTao ? unixTimestampToDate(parseInt(ngayTao)) : "N/A");
             $("#ngayCapNhat").val(ngayCapNhat ? unixTimestampToDate(parseInt(ngayCapNhat)) : "N/A");
 
             // Update modal title and button text
-            $("#RolesModalLabel").text("Cập nhật quyền admin");
+            $("#FunctionModalLabel").text("Cập nhật chức năng admin");
             $("#btnSaveText").text("Cập nhật");
 
             // Show the time fields
             $("#editOnlyFields").show();
 
             // Show the modal
-            $("#RolesModal").modal("show");
+            $("#FunctionModal").modal("show");
         } else {
-            Sweet_Alert("error", "Không tìm thấy thông tin quyền admin");
+            Sweet_Alert("error", "Không tìm thấy thông tin chức năng admin");
         }
     } catch (error) {
-        console.error("Error loading role data:", error);
-        Sweet_Alert("error", "Không thể tải thông tin quyền admin");
+        console.error("Error loading function data:", error);
+        Sweet_Alert("error", "Không thể tải thông tin chức năng admin");
     }
 }
 
-// Add new role using modal data
-async function add_new_Role_in_modal() {
-    const tenRole = $("#tenRole").val().trim();
+// Add new function using modal data
+async function add_new_Function_in_modal() {
+    const tenFunction = $("#tenFunction").val().trim();
+    const maFunction = $("#maFunction").val().trim();
     const moTa = $("#moTa").val().trim();
 
     // Validate inputs
-    if (!tenRole) {
-        Sweet_Alert("warning", "Vui lòng nhập tên quyền admin");
+    if (!tenFunction) {
+        Sweet_Alert("warning", "Vui lòng nhập tên chức năng admin");
+        return;
+    }
+
+    if (!maFunction) {
+        Sweet_Alert("warning", "Vui lòng nhập mã chức năng");
         return;
     }
 
     if (!moTa) {
-        Sweet_Alert("warning", "Vui lòng nhập mô tả cho quyền admin");
+        Sweet_Alert("warning", "Vui lòng nhập mô tả cho chức năng admin");
         return;
     }
 
     try {
         const res = await $.ajax({
-            url: '/api/v1/admin/Create-Roles',
+            url: '/api/v1/admin/Create-Function',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({
-                TenRole: tenRole,
+                TenChucNang: tenFunction,
+                MaChucNang: maFunction,
                 MoTa: moTa
             })
         });
 
         if (res.success) {
-            $("#RolesModal").modal("hide");
+            $("#FunctionModal").modal("hide");
             Sweet_Alert("success", res.message);
             load_data();
         } else {
@@ -360,45 +383,52 @@ async function add_new_Role_in_modal() {
     } catch (error) {
         // Extract error message from response if available
         if (error.responseJSON) {
-            Sweet_Alert("error", error.responseJSON.message || "Đã xảy ra lỗi khi thêm quyền admin");
+            Sweet_Alert("error", error.responseJSON.message || "Đã xảy ra lỗi khi thêm chức năng admin");
         } else {
-            Sweet_Alert("error", "Đã xảy ra lỗi khi thêm quyền admin");
+            Sweet_Alert("error", "Đã xảy ra lỗi khi thêm chức năng admin");
         }
         console.error(error);
     }
 }
 
-// Update existing role using modal data
-async function update_Role_in_modal() {
-    const roleId = $("#roleId").val();
-    const tenRole = $("#tenRole").val().trim();
+// Update existing function using modal data
+async function update_Function_in_modal() {
+    const functionId = $("#functionId").val();
+    const tenFunction = $("#tenFunction").val().trim();
+    const maFunction = $("#maFunction").val().trim();
     const moTa = $("#moTa").val().trim();
 
     // Validate inputs
-    if (!tenRole) {
-        Sweet_Alert("warning", "Vui lòng nhập tên quyền admin");
+    if (!tenFunction) {
+        Sweet_Alert("warning", "Vui lòng nhập tên chức năng admin");
+        return;
+    }
+
+    if (!maFunction) {
+        Sweet_Alert("warning", "Vui lòng nhập mã chức năng");
         return;
     }
 
     if (!moTa) {
-        Sweet_Alert("warning", "Vui lòng nhập mô tả cho quyền admin");
+        Sweet_Alert("warning", "Vui lòng nhập mô tả cho chức năng admin");
         return;
     }
 
     try {
         const res = await $.ajax({
-            url: '/api/v1/admin/Update-Roles',
-            type: 'POST',
+            url: `/api/v1/admin/Update-Function/${functionId}`,
+            type: 'PUT',
             contentType: 'application/json',
             data: JSON.stringify({
-                ID: parseInt(roleId),
-                TenRole: tenRole,
+                ID: parseInt(functionId),
+                TenChucNang: tenFunction,
+                MaChucNang: maFunction,
                 MoTa: moTa
             })
         });
 
         if (res.success) {
-            $("#RolesModal").modal("hide");
+            $("#FunctionModal").modal("hide");
             Sweet_Alert("success", res.message);
             load_data();
         } else {
@@ -406,19 +436,19 @@ async function update_Role_in_modal() {
         }
     } catch (error) {
         if (error.responseJSON) {
-            Sweet_Alert("error", error.responseJSON.message || "Đã xảy ra lỗi khi cập nhật quyền admin");
+            Sweet_Alert("error", error.responseJSON.message || "Đã xảy ra lỗi khi cập nhật chức năng admin");
         } else {
-            Sweet_Alert("error", "Đã xảy ra lỗi khi cập nhật quyền admin");
+            Sweet_Alert("error", "Đã xảy ra lỗi khi cập nhật chức năng admin");
         }
         console.error(error);
     }
 }
 
-// Delete a role
-function deleteRole(roleId) {
+// Delete a function
+function deleteFunction(functionId) {
     Swal.fire({
         title: 'Xác nhận xóa?',
-        text: "Bạn có chắc chắn muốn xóa quyền admin này?",
+        text: "Bạn có chắc chắn muốn xóa chức năng admin này?",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
@@ -429,10 +459,9 @@ function deleteRole(roleId) {
         if (result.isConfirmed) {
             try {
                 const res = await $.ajax({
-                    url: '/api/v1/admin/Delete-Roles',
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify({ ID: parseInt(roleId) })
+                    url: `/api/v1/admin/Delete-Function/${functionId}`,
+                    type: 'DELETE',
+                    contentType: 'application/json'
                 });
 
                 if (res.success) {
@@ -443,9 +472,9 @@ function deleteRole(roleId) {
                 }
             } catch (error) {
                 if (error.responseJSON) {
-                    Sweet_Alert("error", error.responseJSON.message || "Đã xảy ra lỗi khi xóa quyền admin");
+                    Sweet_Alert("error", error.responseJSON.message || "Đã xảy ra lỗi khi xóa chức năng admin");
                 } else {
-                    Sweet_Alert("error", "Đã xảy ra lỗi khi xóa quyền admin");
+                    Sweet_Alert("error", "Đã xảy ra lỗi khi xóa chức năng admin");
                 }
                 console.error(error);
             }

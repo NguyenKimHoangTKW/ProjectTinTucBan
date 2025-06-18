@@ -24,6 +24,15 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         {
             return View();
         }
-
+        // Gọi hàm thiết kế giao diện quản lý người dùng Admin
+        public ActionResult Index_Users_Admin()
+        {
+            return View();
+        }
+        // Gọi hàm thiết kế giao diện quản lý chức năng admin
+        public ActionResult Index_Function_Admin()
+        {
+            return View();
+        }
     }
 }  

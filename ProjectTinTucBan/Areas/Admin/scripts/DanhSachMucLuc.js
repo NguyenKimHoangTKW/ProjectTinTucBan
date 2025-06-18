@@ -251,21 +251,22 @@ async function update_muc_luc_in_modal() {
 // Load data table
 async function load_data() {
     try {
-        // Hiển thị loading và xóa table hiện tại
+        // Hiển thị loading
         $('#data-table').empty().html('<div class="text-center my-4"><p>Đang tải dữ liệu...</p></div>');
 
-        // Gọi API với tham số cache: false để đảm bảo không sử dụng cache
+        // Gọi API
         $.ajax({
             url: '/api/v1/admin/Get-All-Muc-Luc',
             type: 'GET',
             dataType: 'json',
             cache: false,
             success: function (response) {
+                // Xóa DataTable cũ nếu đã tồn tại
+                if ($.fn.DataTable.isDataTable('#data-table')) {
+                    $('#data-table').DataTable().destroy();
+                }
 
-                // Xóa nội dung loading
-                $('#data-table').empty();
-
-                // Tạo lại cấu trúc table với cột Trạng thái
+                // Xóa nội dung loading và tạo cấu trúc table
                 $('#data-table').html(`
                     <thead>
                         <tr>
@@ -282,24 +283,17 @@ async function load_data() {
                     <tbody></tbody>
                 `);
 
-                // Khởi tạo DataTable với dữ liệu
-                if ($.fn.DataTable.isDataTable('#data-table')) {
-                    $('#data-table').DataTable().destroy();
-                }
-
-                // Chuyển đổi dữ liệu timestamp thành định dạng ngày tháng
+                // Xử lý dữ liệu cho hiển thị
                 let processedData = [];
                 if (response.data && Array.isArray(response.data)) {
                     processedData = response.data.map(item => {
-                        // Tạo một object mới với các thuộc tính của item
                         const newItem = { ...item };
 
-                        // Nếu NgayDang và NgayCapNhat là số int (unix timestamp), chuyển đổi chúng
-                        if (item.NgayDang && !isNaN(parseInt(item.NgayDang))) {
+                        // Chuyển đổi timestamp thành định dạng ngày tháng
+                        if (item.NgayDang) {
                             newItem.NgayDang = unixTimestampToDate(parseInt(item.NgayDang));
                         }
-
-                        if (item.NgayCapNhat && !isNaN(parseInt(item.NgayCapNhat))) {
+                        if (item.NgayCapNhat) {
                             newItem.NgayCapNhat = unixTimestampToDate(parseInt(item.NgayCapNhat));
                         }
 
@@ -307,6 +301,7 @@ async function load_data() {
                     });
                 }
 
+                // Khởi tạo DataTable với dữ liệu
                 $('#data-table').DataTable({
                     data: processedData || [],
                     columns: [
@@ -319,10 +314,9 @@ async function load_data() {
                         { data: 'TenMucLuc' },
                         { data: 'Link' },
                         { data: 'ThuTuShow' },
-                        // In the load_data function, update the IsActive column rendering:
-                        { data: 'IsActive',
+                        {
+                            data: 'IsActive',
                             render: function (data, type, row) {
-                                // Handle both boolean and numeric representations
                                 const isChecked = (data === 1 || data === true) ? 'checked' : '';
                                 return `
                                     <label class="switch">
@@ -339,14 +333,14 @@ async function load_data() {
                             orderable: false,
                             render: function (data) {
                                 return `
-                                      <div class="d-flex">
-                                        <button class="btn-action btn-edit mr-2" id="btnEdit" data-id="${data.ID || ''}" data-ten="${(data.TenMucLuc || '').replace(/"/g, '&quot;')}">
+                                    <div class="d-flex">
+                                        <button class="btn-action btn-edit mr-2" id="btnEdit" data-id="${data.ID}" data-ten="${(data.TenMucLuc || '').replace(/"/g, '&quot;')}">
                                             <i class="anticon anticon-edit"></i>
                                         </button>
-                                        <button class="btn-action btn-delete" id="btnDelete" data-id="${data.ID || ''}" data-ten="${(data.TenMucLuc || '').replace(/"/g, '&quot;')}">
+                                        <button class="btn-action btn-delete" id="btnDelete" data-id="${data.ID}" data-ten="${(data.TenMucLuc || '').replace(/"/g, '&quot;')}">
                                             <i class="anticon anticon-delete"></i>
                                         </button>
-                                      </div>
+                                    </div>
                                 `;
                             }
                         }
@@ -358,13 +352,17 @@ async function load_data() {
                             next: "Tiếp",
                             previous: "Trước"
                         },
-                        search: "Tìm kiếm:",
+                        search: "Tìm nhanh:",
                         lengthMenu: "Hiển thị _MENU_ mục",
                         emptyTable: "Không có dữ liệu",
-                        zeroRecords: "Không tìm thấy kết quả phù hợp"
+                        zeroRecords: "Không tìm thấy kết quả phù hợp",
+                        info: "Hiển thị _START_ đến _END_ của _TOTAL_ mục",
+                        infoEmpty: "Hiển thị 0 đến 0 của 0 mục",
+                        infoFiltered: "(lọc từ _MAX_ mục)"
                     }
                 });
 
+                // Hiển thị thông báo nếu không có dữ liệu
                 if (!response.success) {
                     Sweet_Alert("info", response.message || "Không có dữ liệu");
                 }
@@ -390,7 +388,6 @@ async function load_data() {
                         </tr>
                     </tbody>
                 `);
-
                 Sweet_Alert("error", "Không thể tải danh sách: " + xhr.statusText);
             }
         });
