@@ -2,9 +2,13 @@
     ViewBag.Title = "Quản lý Slider";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
-<script src="~/Scripts/jquery-3.7.0.min.js"></script>
-<script src="~/Areas/Admin/Scripts/SliderAdminScript.js"></script>
-<script src="~/Areas/assets/js/OptionPhanQuyen.js"></script>
+
+@section scriptsAdmin{
+    <script src="~/Scripts/jquery-3.7.0.min.js"></script>
+    <script src="~/Areas/assets/js/OptionPhanQuyen.js"></script>
+    <script src="~/Areas/Admin/Scripts/SliderAdminScript.js"></script>
+    <script src="~/Areas/assets/js/vendors.min.js"></script>
+}
 <!-- Breadcrumb -->
 <div class="header-sub-title">
     <nav class="breadcrumb breadcrumb-dash">
@@ -23,7 +27,7 @@
     </div>
     <div class="card">
         <!-- DataTable -->
-        <table id="data-table" class="table table-bordered">
+        <table id="data-table" class="table table-bordered" style="max-width:100%">
             <thead>
                 <tr>
                     <th class="text-center">STT</th>
@@ -57,10 +61,6 @@
                     <img id="addPreviewImg" src="#" alt="" style="display:none;max-width:100%;margin-top:10px;" />
                 </div>
                 <div class="form-group">
-                    <label>Thứ tự hiển thị</label>
-                    <input type="number" class="form-control" id="addThuTuShow" />
-                </div>
-                <div class="form-group">
                     <label>
                         <input type="checkbox" id="addIsActive" /> Hiển thị
                     </label>
@@ -90,10 +90,6 @@
                     <label>Chọn hình ảnh (bỏ qua nếu không đổi)</label>
                     <input type="file" class="form-control" id="editLinkHinh" accept="image/*" />
                     <img id="editPreviewImg" src="#" alt="" style="display:none;max-width:100%;margin-top:10px;" />
-                </div>
-                <div class="form-group">
-                    <label>Thứ tự hiển thị</label>
-                    <input type="number" class="form-control" id="editThuTuShow" />
                 </div>
                 <div class="form-group">
                     <label>

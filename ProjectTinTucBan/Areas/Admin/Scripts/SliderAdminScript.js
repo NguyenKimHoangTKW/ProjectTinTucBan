@@ -22,12 +22,12 @@
                         <td class="text-center">${idx + 1}</td>
                         <td class="text-center"><img src="${slide.LinkHinh}" alt="slide" style="max-width:120px;max-height:60px"></td>
                         <td class="text-center">
-                            <button class="btn btn-sm btn-light btn-decrease-order" data-id="${slide.ID}" title="Giảm">
-                                <i class="fa fa-arrow-down"></i>
-                            </button>
-                            <span class="mx-2">${slide.ThuTuShow ?? ''}</span>
                             <button class="btn btn-sm btn-light btn-increase-order" data-id="${slide.ID}" title="Tăng">
                                 <i class="fa fa-arrow-up"></i>
+                            </button>
+                            <span class="mx-2">${slide.ThuTuShow ?? ''}</span>
+                            <button class="btn btn-sm btn-light btn-decrease-order" data-id="${slide.ID}" title="Giảm">
+                                <i class="fa fa-arrow-down"></i>
                             </button>
                         </td>
                         <td class="text-center">
@@ -37,8 +37,8 @@
                             <button class="btn btn-warning btn-sm edit-slide-btn" 
                                 data-id="${slide.ID}" 
                                 data-linkhinh="${slide.LinkHinh}" 
-                                data-thutushow="${slide.ThuTuShow ?? ''}" 
-                                data-isactive="${slide.isActive}">
+                                data-isactive="${slide.isActive}"
+                                data-target="editSlideModal">
                                 Sửa
                             </button>
                             <button class="btn btn-danger btn-sm delete-slide-btn" data-id="${slide.ID}">Xóa</button>
@@ -99,7 +99,6 @@
             success: function (res) {
                 if (res.success && res.link) {
                     // Sau khi upload thành công, gọi API thêm slide
-                    const thuTuShow = $('#addThuTuShow').val();
                     const isActive = $('#addIsActive').is(':checked');
                     $.ajax({
                         url: `${BASE_URL}/add-slide`,
@@ -107,7 +106,6 @@
                         contentType: 'application/json',
                         data: JSON.stringify({
                             LinkHinh: res.link,
-                            ThuTuShow: thuTuShow ? parseInt(thuTuShow) : null,
                             isActive: isActive
                         }),
                         success: function (res2) {
@@ -139,11 +137,9 @@
     $('#slider-list').on('click', '.edit-slide-btn', function () {
         const id = $(this).data('id');
         const linkHinh = $(this).data('linkhinh');
-        const thuTuShow = $(this).data('thutushow');
         const isActive = $(this).data('isactive');
 
         $('#editSlideId').val(id);
-        $('#editThuTuShow').val(thuTuShow);
         $('#editIsActive').prop('checked', isActive ? true : false);
 
         // Reset file input
@@ -165,7 +161,6 @@
     $('#edit-slide-form').submit(function (e) {
         e.preventDefault();
         const id = $('#editSlideId').val();
-        const thuTuShow = $('#editThuTuShow').val();
         const isActive = $('#editIsActive').is(':checked');
         const fileInput = $('#editLinkHinh')[0];
 
@@ -177,7 +172,6 @@
                 data: JSON.stringify({
                     ID: parseInt(id),
                     LinkHinh: linkHinh,
-                    ThuTuShow: thuTuShow ? parseInt(thuTuShow) : null,
                     isActive: isActive
                 }),
                 success: function (res2) {

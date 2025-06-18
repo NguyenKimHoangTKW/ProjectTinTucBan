@@ -15,7 +15,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
     [RoutePrefix("api/v1/admin")]
     public class SliderApiAdminController : ApiController
     {
-        WebTinTucTDMUEntities db = new WebTinTucTDMUEntities();
+        private WebTinTucTDMUEntities db = new WebTinTucTDMUEntities();
         private int unixTimestamp;
         public SliderApiAdminController()
         {
@@ -101,8 +101,14 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
             slide.NgayDang = unixTimestamp;
             slide.NgayCapNhat = unixTimestamp;
+
+            // Tự động lấy thứ tự lớn nhất + 1
+            int maxOrder = await db.Sliders.MaxAsync(s => (int?)s.ThuTuShow) ?? 0;
+            slide.ThuTuShow = maxOrder + 1;
+
             db.Sliders.Add(slide);
             await db.SaveChangesAsync();
+
             return Ok(new { success = true, message = "Thêm slide thành công." });
         }
 
@@ -120,7 +126,6 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
             if (!string.IsNullOrWhiteSpace(slide.LinkHinh))
                 existing.LinkHinh = slide.LinkHinh;
-            existing.ThuTuShow = slide.ThuTuShow;
             existing.isActive = slide.isActive;
             existing.NgayCapNhat = unixTimestamp;
 

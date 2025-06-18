@@ -18,21 +18,23 @@ namespace ProjectTinTucBan.Models
         public TaiKhoan()
         {
             this.BaiViets = new HashSet<BaiViet>();
-            this.TaiKhoan_by_roles = new HashSet<TaiKhoan_by_role>();
+            this.PhanQuyenUsers = new HashSet<PhanQuyenUser>();
         }
     
         public int ID { get; set; }
+        public Nullable<int> ID_role { get; set; }
         public string TenTaiKhoan { get; set; }
         public string MatKhau { get; set; }
         public string Gmail { get; set; }
         public string SDT { get; set; }
-        public Nullable<bool> IsBanned { get; set; }
+        public Nullable<int> IsBanned { get; set; }
         public Nullable<int> NgayTao { get; set; }
         public Nullable<int> NgayCapNhat { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<BaiViet> BaiViets { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<TaiKhoan_by_role> TaiKhoan_by_roles { get; set; }
+        public virtual ICollection<PhanQuyenUser> PhanQuyenUsers { get; set; }
+        public virtual Role Role { get; set; }
     }
 }
