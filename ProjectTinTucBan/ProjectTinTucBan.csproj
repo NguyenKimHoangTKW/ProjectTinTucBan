@@ -138,12 +138,9 @@
     <Compile Include="Areas\Admin\AdminAreaRegistration.cs" />
     <Compile Include="Areas\Admin\Controllers\BaiVietAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\InterfaceAdminController.cs" />
-    <Compile Include="Areas\Admin\Controllers\SuaBaiVietController.cs" />
     <Compile Include="Areas\Admin\Controllers\TestController.cs" />
-    <Compile Include="Areas\Admin\Controllers\ThemBaiVietAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\UploadPDFAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\UploadThumbnailAPIController.cs" />
-    <Compile Include="Areas\Admin\Controllers\XoaBaiVietAPIController.cs" />
     <Compile Include="Areas\HelpPage\ApiDescriptionExtensions.cs" />
     <Compile Include="Areas\HelpPage\App_Start\HelpPageConfig.cs" />
     <Compile Include="Areas\HelpPage\Controllers\HelpController.cs" />
@@ -180,6 +177,9 @@
     <Compile Include="Models\BaiViet.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\ChucNangQuyenUser.cs">
+      <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\dbTinTucKhaoThiModel.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -198,6 +198,9 @@
     <Compile Include="Models\DonViTrucThuoc.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\Group_By_Menu.cs">
+      <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\Khoi.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
@@ -207,16 +210,28 @@
     <Compile Include="Models\Menu_by_sub.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\Menu_Group.cs">
+      <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\MucLuc.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\PhanQuyenUser.cs">
+      <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\Role.cs">
+      <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Roles_By_Group.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Slider.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Sub_Menu.cs">
+      <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\sysdiagram.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\TaiKhoan.cs">
@@ -226,11 +241,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\Admin\Scripts\BaiViet.js" />
-    <Content Include="Areas\Admin\Scripts\SuaBaiViet.js" />
-    <Content Include="Areas\Admin\Scripts\ThemBaiViet.js" />
-    <Content Include="Areas\Admin\Scripts\UploadPDF.js" />
-    <Content Include="Areas\Admin\Scripts\UploadThumbnail.js" />
-    <Content Include="Areas\Admin\Scripts\XoaBaiViet.js" />
+    <Content Include="Areas\Admin\Scripts\ThuVienAnh.js" />
+    <Content Include="Areas\Admin\Scripts\Upload.js" />
     <Content Include="Areas\assets\css\app.min.css" />
     <Content Include="Areas\assets\css\buttons.dataTables.min.css" />
     <Content Include="Areas\assets\css\sweetalert2.min.css" />
@@ -1093,9 +1105,6 @@
     <Content Include="Areas\Admin\Views\Shared\_AdminHeaderPartial.cshtml" />
     <Content Include="Areas\Admin\Views\Shared\_AdminFooterPartial.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\BaiViet.cshtml" />
-    <Content Include="Areas\Admin\Views\InterfaceAdmin\ThemBaiViet.cshtml" />
-    <Content Include="Areas\Admin\Views\InterfaceAdmin\SuaBaiViet.cshtml" />
-    <Content Include="Areas\Admin\Views\InterfaceAdmin\XoaBaiViet.cshtml" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />
@@ -1120,8 +1129,8 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Areas\Admin\Data\" />
-    <Folder Include="Areas\Admin\Uploads\PDFs\" />
-    <Folder Include="Areas\Admin\Uploads\Thumbnails\" />
+    <Folder Include="Uploads\PDFs\" />
+    <Folder Include="Uploads\Thumbnails\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Scripts\bootstrap.min.js.map" />

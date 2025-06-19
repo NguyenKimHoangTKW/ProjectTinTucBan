@@ -1,101 +1,159 @@
-﻿<!--@{
+﻿@{
     ViewBag.Title = "BaiViet";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
-<div class="main-content">
+<div class="container-fluid main-content py-3">
+    <!-- ========== Danh sách Bài Viết ========== -->
     <h2>Bài Viết</h2>
-    <button id="btnThemBaiViet" class="btn btn-success mb-3">+ Thêm bài viết</button>
+    <button id="btnThemBaiViet" class="btn btn-success mb-3">Thêm bài viết</button>
 
-    <table id="table_load_baiviet" class="table table-bordered table-striped">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Tiêu đề</th>
-                <th>Nội dung</th>
-                <th>Ngày đăng</th>
-                <th>Ngày cập nhật</th>
-                <th>Thumbnail</th>
-                <th>PDF</th>
-                <th>Lượt xem</th>
-                <th>Hành động</th>
-            </tr>
-        </thead>
-        <tbody>-->
-<!-- Dữ liệu sẽ được load bằng JavaScript -->
-<!--</tbody>
-    </table>
-</div>-->
-@*@section scriptsAdmin {
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
-        <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css" />
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-        <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
-        <script src="~/Areas/Admin/Scripts/BaiViet.js"></script>
-        <script src=" /Areas/Admin/Scripts/SuaBaiViet.js"></script>
-    }*@
-
-@{
-    ViewBag.Title = "BaiViet";
-    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
-}
-
-<div class="main-content">
-    <h2>Bài Viết</h2>
-    <button id="btnThemBaiViet" class="btn btn-success mb-3">+ Thêm bài viết</button>
-
-    <table id="table_load_baiviet" class="table table-bordered table-striped">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Tiêu đề</th>
-                <th>Nội dung</th>
-                <th>Ngày đăng</th>
-                <th>Ngày cập nhật</th>
-                <th>Thumbnail</th>
-                <th>PDF</th>
-                <th>Lượt xem</th>
-                <th>Hành động</th> <!-- Nút sửa + xóa -->
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Dữ liệu sẽ được load bằng JavaScript -->
-        </tbody>
-    </table>
+    <div class="table-responsive p-3">
+        <table id="table_load_baiviet" class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th class="d-none">ID</th>
+                    <th class="text-center">STT</th>
+                    <th>Tiêu đề</th>
+                    <th>Nội dung</th>
+                    <th>Ngày đăng</th>
+                    <th>Ngày cập nhật</th>
+                    <th>Thumbnail</th>
+                    <th>PDF</th>
+                    <th>Lượt xem</th>
+                    <th class="text-center" style="width: 120px;">Hành động</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
 </div>
 
-<!-- Modal xác nhận xóa -->
-<div class="modal fade" id="modalXacNhanXoa" tabindex="-1" role="dialog" aria-labelledby="modalXoaLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title" id="modalXoaLabel">Xác nhận xóa bài viết</h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+<!-- ========== Modal Thêm / Sửa Bài Viết ========== -->
+<div class="modal fade" id="modalBaiViet" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <form id="form_baiviet" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalLabel">Thêm/Sửa Bài Viết</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Đóng">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <p><strong>Tiêu đề:</strong> <span id="modalTieuDe"></span></p>
-                <p><strong>Nội dung:</strong> <span id="modalNoiDung"></span></p>
-                <p>Bạn có chắc chắn muốn <strong>xóa</strong> bài viết này không?</p>
+                <input type="hidden" id="BaiVietID" />
+
+                <div class="form-group">
+                    <label for="TieuDe">Tiêu đề</label>
+                    <input type="text" class="form-control" id="TieuDe">
+                </div>
+
+                <div class="form-group">
+                    <label for="NoiDung">Nội dung</label>
+                    <textarea id="NoiDung" class="form-control" rows="10"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="ThumbnailFile">Thumbnail</label>
+                    <div class="input-group mb-2">
+                        <input type="file" id="ThumbnailFile" class="form-control-file" accept="image/*" />
+                        <div class="input-group-append">
+                            <button type="button" class="btn btn-outline-secondary" id="btnChonThumbnail">Chọn từ thư viện</button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="LinkThumbnail" />
+                    <div id="previewThumbnail" class="mt-2"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="PdfFile">Upload PDF</label>
+                    <input type="file" id="PdfFile" class="form-control-file" accept="application/pdf" />
+                    <input type="hidden" id="LinkPDF" />
+                    <div id="previewPDF" class="mt-2"></div>
+                </div>
             </div>
             <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Lưu</button>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-danger" id="btnXacNhanXoa">Xóa</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Thư viện ảnh -->
+<div class="modal fade" id="modalThuVienAnh" tabindex="-1" role="dialog" aria-labelledby="modalThuVienAnhLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chọn ảnh từ thư viện</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Đóng">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="thuVienAnh" class="d-flex flex-wrap"></div>
             </div>
         </div>
     </div>
 </div>
 
+
 @section scriptsAdmin {
+    <!-- Bootstrap & DataTables -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css" />
+
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+    <!-- jQuery, Bootstrap JS, SweetAlert2, DataTables -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+
+    <!-- CKEditor -->
+    <script src="https://cdn.ckeditor.com/4.21.0/standard/ckeditor.js"></script>
+
+    <!-- Custom Scripts -->
     <script src="~/Areas/Admin/Scripts/BaiViet.js"></script>
-    <script src="~/Areas/Admin/Scripts/SuaBaiViet.js"></script>
-    <script src="~/Areas/Admin/Scripts/XoaBaiViet.js"></script>
+    <script src="~/Areas/Admin/Scripts/Upload.js"></script>
+    <script src="~/Areas/Admin/Scripts/ThuVienAnh.js"></script>
 }
+
+<style>
+    .main-content {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+    }
+
+        .main-content .table-responsive {
+            padding-left: 15px !important;
+            padding-right: 15px !important;
+        }
+
+    #table_load_baiviet th,
+    #table_load_baiviet td {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+        vertical-align: middle;
+        border: 1px solid #dee2e6 !important;
+    }
+
+        /* Căn giữa và đảm bảo border trái cột STT hiển thị */
+        #table_load_baiviet th:nth-child(2),
+        #table_load_baiviet td:nth-child(2) {
+            text-align: center !important;
+            border-left: 1px solid #dee2e6 !important;
+        }
+
+        /* Căn giữa nút Sửa/Xóa trong cột Hành động */
+        #table_load_baiviet th:nth-child(10),
+        #table_load_baiviet td:nth-child(10) {
+            text-align: center !important;
+            vertical-align: middle !important;
+        }
+</style>
+
+
+
