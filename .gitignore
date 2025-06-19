@@ -72,5 +72,3 @@ secrets.json
 # Local config
 *.local.json
 
-# Bỏ qua Models folder
-ProjectTinTucBan/Models/
