@@ -4,91 +4,7 @@ function loadGroupMenus() {
         renderGroupMenuTabs(data);
     });
 }
-//old render
- /*
- function renderGroupMenuTabs(groupMenus) {
-        var tabList = '';
-        var tabContent = '';
-        var first = true;
 
-        groupMenus.forEach(function (group) {
-            var tabId = 'groupmenu-tab-' + group.ID;
-            var paneId = 'groupmenu-pane-' + group.ID;
-
-            tabList += `
-            <li class="nav-item">
-                <a class="nav-link${first ? ' active' : ''}" id="${tabId}" data-toggle="tab" href="#${paneId}" role="tab" aria-controls="${paneId}" aria-selected="${first}">
-                    ${group.Ten}
-                </a>
-                <span style="position: absolute; right: 0; top: 0; height: 100%; display: flex; align-items: center; z-index: 2;">
-                    <button class="btn btn-sm btn-success add-menu-to-group-btn" data-id="${group.ID}" title="Thêm menu vào group" style="margin-right: 5px;">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                    <button class="btn btn-sm btn-info edit-groupmenu-btn" data-id="${group.ID}" data-ten="${group.Ten}" title="Sửa group menu" style="margin-right: 5px;">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-sm btn-danger delete-groupmenu-btn" data-id="${group.ID}" title="Xóa group menu">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </span>
-            </li>
-        `;
-
-        // Render menu và submenu
-        var menuHtml = '';
-        if (group.Menus && group.Menus.length > 0) {
-            menuHtml += '<ul class="list-group mt-2">';
-            group.Menus.forEach(function (menu) {
-                menuHtml += `<li class="list-group-item">
-                    <strong>${menu.MenuName}</strong> ${menu.MenuLink ? `<span class="text-muted">(${menu.MenuLink})</span>` : ''}
-                    `;
-                // SubMenus
-                if (menu.SubMenus && menu.SubMenus.length > 0) {
-                    menuHtml += '<ul class="list-group mt-2">';
-                    menu.SubMenus.forEach(function (sub) {
-                        menuHtml += `<li class="list-group-item py-1 px-3">
-                            <span>${sub.SubMenuName}</span>
-                            ${sub.SubMenuLink ? `<a href="${sub.SubMenuLink}" target="_blank" class="ml-2 text-primary">${sub.SubMenuLink}</a>` : ''}
-                        </li>`;
-                    });
-                    menuHtml += '</ul>';
-                }
-                menuHtml += '</li>';
-            });
-            menuHtml += '</ul>';
-        } else {
-            menuHtml = '<p class="text-muted">Chưa có menu nào trong group này.</p>';
-        }
-
-        tabContent += `
-            <div class="tab-pane fade${first ? ' show active' : ''}" id="${paneId}" role="tabpanel" aria-labelledby="${tabId}">
-                <p>ID: ${group.ID}</p>
-                <p>Ngày tạo: ${formatUnixToDate(group.NgayTao)}</p>
-                <p>Ngày cập nhật: ${formatUnixToDate(group.NgayCapNhat)}</p>
-                <div>
-                    <h6>Menus:</h6>
-                    ${menuHtml}
-                </div>
-            </div>
-        `;
-
-        first = false;
-    });
-
-    var html = `
-        <div class="d-flex">
-            <ul class="nav nav-tabs flex-column" id="myTabVertical" role="tablist" style="min-width:180px;">
-                ${tabList}
-            </ul>
-            <div class="tab-content m-l-15 flex-grow-1" id="myTabContentVertical">
-                ${tabContent}
-            </div>
-        </div>
-    `;
-
-    $('#groupMenuTabsContainer').html(html);
-}
- */
 function renderGroupMenuTabs(groupMenus) {
     var tabList = '';
     var tabContent = '';
@@ -98,23 +14,35 @@ function renderGroupMenuTabs(groupMenus) {
         var tabId = 'groupmenu-tab-' + group.ID;
         var paneId = 'groupmenu-pane-' + group.ID;
 
+        var isActive = false;
+        if (currentActiveTabId && tabId === currentActiveTabId) {
+            isActive = true;
+            foundActive = true;
+        } else if (!currentActiveTabId && first) {
+            isActive = true;
+        }
+
         tabList += `
-            <li class="nav-item" style="position:relative;">
-                <a class="nav-link${first ? ' active' : ''}" id="${tabId}" data-toggle="tab" href="#${paneId}" role="tab" aria-controls="${paneId}" aria-selected="${first}">
-                    ${group.Ten}
-                </a>
+            <li class="nav-item" style="position:relative; padding-right:120px;">
+                <div style="display:flex; align-items:center;">
+                    <a class="nav-link${first ? ' active' : ''}" id="${tabId}" data-toggle="tab"
+                        href="#${paneId}" role="tab" aria-controls="${paneId}" aria-selected="${first}"
+                        style="flex:1 1 auto;">
+                        ${group.Ten}
+                    </a>
+                    <div style="position:absolute; padding-top:200px; right:8px; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:4px; z-index:2;">
+                        <button class="btn btn-sm btn-success add-menu-to-group-btn" data-id="${group.ID}" title="Thêm menu vào group">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <button class="btn btn-sm btn-info edit-groupmenu-btn" data-id="${group.ID}" data-ten="${group.Ten}" title="Sửa group menu">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger delete-groupmenu-btn" data-id="${group.ID}" title="Xóa group menu">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
             </li>
-            <div style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); display: flex; gap: 4px; z-index: 2;">
-                    <button class="btn btn-sm btn-success add-menu-to-group-btn" data-id="${group.ID}" title="Thêm menu vào group">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                    <button class="btn btn-sm btn-info edit-groupmenu-btn" data-id="${group.ID}" data-ten="${group.Ten}" title="Sửa group menu">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-sm btn-danger delete-groupmenu-btn" data-id="${group.ID}" title="Xóa group menu">
-                        <i class="fas fa-times"></i>
-                    </button>
-            </div>
         `;
 
         // Render menu và submenu
@@ -122,16 +50,25 @@ function renderGroupMenuTabs(groupMenus) {
         if (group.Menus && group.Menus.length > 0) {
             menuHtml += '<ul class="list-group mt-2">';
             group.Menus.forEach(function (menu) {
-                menuHtml += `<li class="list-group-item">
-                    <strong>${menu.MenuName}</strong> ${menu.MenuLink ? `<span class="text-muted">(${menu.MenuLink})</span>` : ''}
-                    `;
-                // SubMenus
+                menuHtml += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>${menu.MenuName}</strong> ${menu.MenuLink ? `<span class="text-muted">(${menu.MenuLink})</span>` : ''}
+                    </div>
+                    <button class="btn btn-xs btn-danger delete-menu-from-group-btn" data-menuid="${menu.MenuId}" data-groupid="${group.ID}" title="Xóa menu khỏi group">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
                 if (menu.SubMenus && menu.SubMenus.length > 0) {
                     menuHtml += '<ul class="list-group mt-2">';
                     menu.SubMenus.forEach(function (sub) {
-                        menuHtml += `<li class="list-group-item py-1 px-3">
-                            <span>${sub.SubMenuName}</span>
-                            ${sub.SubMenuLink ? `<a href="${sub.SubMenuLink}" target="_blank" class="ml-2 text-primary">${sub.SubMenuLink}</a>` : ''}
+                        menuHtml += `<li class="list-group-item py-1 px-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <span>${sub.SubMenuName}</span>
+                                ${sub.SubMenuLink ? `<a href="${sub.SubMenuLink}" target="_blank" class="ml-2 text-primary">${sub.SubMenuLink}</a>` : ''}
+                            </div>
+                            <button class="btn btn-xs btn-danger delete-submenu-from-group-btn" data-submenuid="${sub.SubMenuId}" data-menuid="${menu.MenuId}" data-groupid="${group.ID}" title="Xóa submenu khỏi group">
+                                <i class="fas fa-times"></i>
+                            </button>
                         </li>`;
                     });
                     menuHtml += '</ul>';
@@ -253,7 +190,7 @@ function addExistingMenuToGroup(menuId, groupMenuId) {
                 timer: 1500,
                 showConfirmButton: false
             });
-            // Optionally reload group menus or group details here
+            loadGroupMenus();
         }
     });
 }
@@ -297,6 +234,7 @@ $('#add-menu-to-group-form').submit(function (e) {
     var menuId = $('#selectExistingMenu').val();
     if (menuId) {
         addExistingMenuToGroup(menuId, groupMenuId);
+        loadGroupMenus();
         $('#addMenuToGroupModal').modal('hide');
     }
 });
@@ -312,6 +250,7 @@ $('#add-new-menu-to-group-form').submit(function (e) {
         return;
     }
     addNewMenuToGroup(menuName, menuLink, groupMenuId);
+    loadGroupMenus();
     $('#addMenuToGroupModal').modal('hide');
 });
 
@@ -349,8 +288,15 @@ $(document).ready(function () {
             return;
         }
         addGroupMenu(ten);
+        loadGroupMenus();
         $('#addGroupMenuModal').modal('hide');
     });
+
+    $(document).on('shown.bs.tab', 'a[data-toggle="tab"]', function (e) {
+    var activeTabId = $(e.target).attr('id'); // e.g., groupmenu-tab-1
+    $('.tab-action-buttons').hide(); // Hide all button groups
+    $('.tab-pane.active .tab-action-buttons').show(); // Show for active tab
+});
 
     // Xử lý click nút xóa group menu  
     $(document).on('click', '.delete-groupmenu-btn', function (e) {
@@ -366,6 +312,7 @@ $(document).ready(function () {
         }).then((result) => {
             if (result.isConfirmed) {
                 deleteGroupMenu(id, btn);
+                loadGroupMenus();
             }
         });
     });
@@ -384,18 +331,104 @@ $(document).ready(function () {
         e.stopPropagation();
         var groupMenuId = $(this).data('id');
         openAddMenuToGroupModal(groupMenuId);
+        loadGroupMenus();
     });
 
     // Xử lý submit form sửa group menu
     $('#edit-groupmenu-form').submit(function (e) {
         e.preventDefault();
-        var id = $('#editGroupMenuId').val();
+        var id = $('#editGroupMenuId').val(); 
         var ten = $('#editGroupMenuName').val().trim();
         if (!ten) {
             alert('Tên group không được để trống!');
             return;
         }
         editGroupMenu(id, ten);
+        loadGroupMenus();
         $('#editGroupMenuModal').modal('hide');
+    });
+
+    // Xóa menu khỏi group
+    function deleteMenuFromGroup(menuId, groupMenuId, btn) {
+        if (btn) $(btn).prop('disabled', true);
+        $.ajax({
+            url: `${BASE_URL}/delete-menu-from-group`,
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ MenuId: menuId, GroupMenuId: groupMenuId }),
+            success: function (res) {
+                Swal.fire({
+                    icon: res.success ? 'success' : 'error',
+                    title: res.message || (res.success ? 'Xóa menu thành công' : 'Xóa menu thất bại'),
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+                loadGroupMenus();
+            },
+            complete: function () {
+                if (btn) $(btn).prop('disabled', false);
+            }
+        });
+    }
+
+    // Xóa submenu khỏi group
+    function deleteSubMenuFromGroup(subMenuId, menuId, groupMenuId, btn) {
+        if (btn) $(btn).prop('disabled', true);
+        $.ajax({
+            url: `${BASE_URL}/delete-submenu-from-group`,
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ SubMenuId: subMenuId, MenuId: menuId, GroupMenuId: groupMenuId }),
+            success: function (res) {
+                Swal.fire({
+                    icon: res.success ? 'success' : 'error',
+                    title: res.message || (res.success ? 'Xóa submenu thành công' : 'Xóa submenu thất bại'),
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+                loadGroupMenus();
+            },
+            complete: function () {
+                if (btn) $(btn).prop('disabled', false);
+            }
+        });
+    }
+
+    // Event handlers
+    $(document).on('click', '.delete-menu-from-group-btn', function (e) {
+        e.stopPropagation();
+        var menuId = $(this).data('menuid');
+        var groupId = $(this).data('groupid');
+        var btn = this;
+        Swal.fire({
+            title: 'Bạn có chắc muốn xóa menu này khỏi group?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Xóa',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                deleteMenuFromGroup(menuId, groupId, btn);
+            }
+        });
+    });
+
+    $(document).on('click', '.delete-submenu-from-group-btn', function (e) {
+        e.stopPropagation();
+        var subMenuId = $(this).data('submenuid');
+        var menuId = $(this).data('menuid');
+        var groupId = $(this).data('groupid');
+        var btn = this;
+        Swal.fire({
+            title: 'Bạn có chắc muốn xóa submenu này khỏi group?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Xóa',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                deleteSubMenuFromGroup(subMenuId, menuId, groupId, btn);
+            }
+        });
     });
 });

@@ -302,6 +302,13 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             if (group == null)
                 return Ok(new { success = false, message = "Không tìm thấy group menu." });
 
+            // Xóa các liên kết Group_By_Menu của group này
+            var groupLinks = db.Group_By_Menu.Where(x => x.ID_GROUP == id).ToList();
+            foreach (var link in groupLinks)
+            {
+                db.Group_By_Menu.Remove(link);
+            }
+             
             db.Menu_Group.Remove(group);
             await db.SaveChangesAsync();
             return Ok(new { success = true });
