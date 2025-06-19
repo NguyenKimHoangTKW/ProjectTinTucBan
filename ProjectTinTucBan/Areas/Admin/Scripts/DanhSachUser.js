@@ -278,7 +278,7 @@ async function load_data() {
                                 return `
                                     <div class="d-flex justify-content-center">
                                         <button class="btn-action btn-permissions mr-1" data-id="${data.ID}" data-username="${data.TenTaiKhoan}" title="Phân quyền">
-                                            <i class="anticon anticon-key"></i>
+                                            <i class="anticon anticon-unordered-list"></i>
                                         </button>
                                         <button class="btn-action btn-edit mr-1" data-id="${data.ID}" title="Sửa">
                                             <i class="anticon anticon-edit"></i>
@@ -465,7 +465,86 @@ async function openEditUserModal(userId) {
     }
 }
 
+// Function to update user information
+async function update_User_in_modal() {
+    try {
+        // Get values from form
+        const userId = $("#userId").val();
+        const tenTaiKhoan = $("#tenTaiKhoan").val().trim();
+        const email = $("#Gmail").val().trim();
+        const sdt = $("#SDT").val().trim();
+        const roleId = $("#ID_role").val();
+        const isBanned = $("#IsBanned").val();
 
+        // Basic validation
+        if (!tenTaiKhoan) {
+            Sweet_Alert("error", "Vui lòng nhập tên tài khoản");
+            return;
+        }
+
+        if (!email) {
+            Sweet_Alert("error", "Vui lòng nhập địa chỉ Gmail");
+            return;
+        }
+
+        if (!roleId) {
+            Sweet_Alert("error", "Vui lòng chọn vai trò");
+            return;
+        }
+
+        // Email validation using regex
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            Sweet_Alert("error", "Định dạng Gmail không hợp lệ");
+            return;
+        }
+
+        // Disable button during API call
+        $("#btnSaveUser").prop('disabled', true);
+        $("#btnSaveText").html('<i class="anticon anticon-loading"></i> Đang xử lý...');
+
+        // Create update data
+        const updateData = {
+            ID: parseInt(userId),
+            TenTaiKhoan: tenTaiKhoan,
+            Gmail: email,
+            SDT: sdt || null,
+            ID_role: parseInt(roleId),
+            IsBanned: parseInt(isBanned)
+        };
+
+        // Call API to update user
+        const response = await $.ajax({
+            url: '/api/v1/admin/Update-User',
+            type: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify(updateData)
+        });
+
+        // Re-enable button
+        $("#btnSaveUser").prop('disabled', false);
+        $("#btnSaveText").html('Cập nhật');
+
+        if (response.success) {
+            // Close modal and refresh data
+            $("#UserModal").modal("hide");
+            Sweet_Alert("success", response.message || "Cập nhật tài khoản thành công");
+            load_data();
+        } else {
+            Sweet_Alert("error", response.message || "Có lỗi xảy ra khi cập nhật tài khoản");
+        }
+    } catch (error) {
+        $("#btnSaveUser").prop('disabled', false);
+        $("#btnSaveText").html('Cập nhật');
+
+        if (error.responseJSON && error.responseJSON.message) {
+            Sweet_Alert("error", error.responseJSON.message);
+        } else {
+            Sweet_Alert("error", "Có lỗi xảy ra khi cập nhật tài khoản");
+        }
+        console.error("Error updating user:", error);
+    }
+}
 
 // Delete a user
 function deleteUser(userId) {
@@ -482,24 +561,30 @@ function deleteUser(userId) {
         if (result.isConfirmed) {
             try {
                 const res = await $.ajax({
-                    url: `/api/v1/admin/Delete-User/${userId}`,
-                    type: 'DELETE',
-                    contentType: 'application/json'
+                    url: '/api/v1/admin/Delete-User',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        ID: parseInt(userId)
+                    })
                 });
 
                 if (res.success) {
-                    Sweet_Alert("success", res.message);
-                    load_data();
+                    Sweet_Alert("success", res.message || "Xóa tài khoản thành công");
+                    load_data(); // Reload the data table
                 } else {
-                    Sweet_Alert("error", res.message);
+                    Sweet_Alert("error", res.message || "Không thể xóa tài khoản");
                 }
             } catch (error) {
-                if (error.responseJSON) {
-                    Sweet_Alert("error", error.responseJSON.message || "Đã xảy ra lỗi khi xóa tài khoản");
+                console.error("Delete error:", error);
+                // Show detailed error from server if available
+                if (error.responseJSON && error.responseJSON.message) {
+                    Sweet_Alert("error", error.responseJSON.message);
+                } else if (error.statusText) {
+                    Sweet_Alert("error", `Lỗi: ${error.status} - ${error.statusText}`);
                 } else {
                     Sweet_Alert("error", "Đã xảy ra lỗi khi xóa tài khoản");
                 }
-                console.error(error);
             }
         }
     });
