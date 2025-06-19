@@ -25,7 +25,6 @@ namespace ProjectTinTucBan.Models
         public Nullable<int> time_create { get; set; }
         public Nullable<int> time_update { get; set; }
         public string Link { get; set; }
-        public Nullable<int> ThuTuShow { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Menu_by_sub> Menu_by_sub { get; set; }
