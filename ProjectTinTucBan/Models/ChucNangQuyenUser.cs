@@ -12,24 +12,22 @@ namespace ProjectTinTucBan.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class Role
+    public partial class ChucNangQuyenUser
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public Role()
+        public ChucNangQuyenUser()
         {
-            this.Roles_By_Group = new HashSet<Roles_By_Group>();
-            this.TaiKhoans = new HashSet<TaiKhoan>();
+            this.PhanQuyenUsers = new HashSet<PhanQuyenUser>();
         }
     
         public int ID { get; set; }
-        public string TenRole { get; set; }
+        public string MaChucNang { get; set; }
+        public string TenChucNang { get; set; }
         public string MoTa { get; set; }
         public Nullable<int> NgayTao { get; set; }
         public Nullable<int> NgayCapNhat { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Roles_By_Group> Roles_By_Group { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<TaiKhoan> TaiKhoans { get; set; }
+        public virtual ICollection<PhanQuyenUser> PhanQuyenUsers { get; set; }
     }
 }

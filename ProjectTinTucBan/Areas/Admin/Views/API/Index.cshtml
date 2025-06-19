@@ -1,0 +1,20 @@
+﻿@{
+    ViewBag.Title = "Trang quản trị";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>@ViewBag.Title</h2>
+
+@if (ViewBag.Message != null)
+{
+    <p class="lead">@ViewBag.Message</p>
+}
+@if (Session["AdminUser"] != null)
+{
+    <p>Xin chào, <strong>@Session["AdminUser"].ToString()</strong>!</p>
+    <p>Vai trò của bạn: <strong>@(Session["UserRole"]?.ToString() ?? "Chưa xác định")</strong></p>
+}
+else
+{
+    <p>Vui lòng đăng nhập để tiếp tục.</p>
+}

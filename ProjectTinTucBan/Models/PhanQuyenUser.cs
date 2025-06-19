@@ -12,13 +12,13 @@ namespace ProjectTinTucBan.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class Menu_by_role
+    public partial class PhanQuyenUser
     {
-        public int id { get; set; }
-        public Nullable<int> id_menu { get; set; }
-        public Nullable<int> id_roles { get; set; }
+        public int ID { get; set; }
+        public Nullable<int> ID_Function { get; set; }
+        public Nullable<int> ID_TaiKhoan { get; set; }
     
-        public virtual Menu Menu { get; set; }
-        public virtual Role Role { get; set; }
+        public virtual ChucNangQuyenUser ChucNangQuyenUser { get; set; }
+        public virtual TaiKhoan TaiKhoan { get; set; }
     }
 }
