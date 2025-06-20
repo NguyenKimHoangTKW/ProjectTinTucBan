@@ -26,7 +26,7 @@
     <_SelectedScaffolderID>MvcViewScaffolder</_SelectedScaffolderID>
     <_SelectedScaffolderCategoryPath>root/Common/MVC/View</_SelectedScaffolderCategoryPath>
     <WebStackScaffolding_DbContextTypeFullName>ProjectTinTucBan.Models.WebTinTucTDMUEntities</WebStackScaffolding_DbContextTypeFullName>
-    <ProjectView>ShowAllFiles</ProjectView>
+    <ProjectView>ProjectFiles</ProjectView>
   </PropertyGroup>
   <ProjectExtensions>
     <VisualStudio>

@@ -17,6 +17,7 @@ namespace ProjectTinTucBan.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Role()
         {
+            this.Roles_By_Group = new HashSet<Roles_By_Group>();
             this.TaiKhoans = new HashSet<TaiKhoan>();
         }
     
@@ -26,6 +27,8 @@ namespace ProjectTinTucBan.Models
         public Nullable<int> NgayTao { get; set; }
         public Nullable<int> NgayCapNhat { get; set; }
     
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Roles_By_Group> Roles_By_Group { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TaiKhoan> TaiKhoans { get; set; }
     }

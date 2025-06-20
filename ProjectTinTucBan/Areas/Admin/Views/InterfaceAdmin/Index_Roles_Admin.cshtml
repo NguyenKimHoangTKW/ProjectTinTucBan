@@ -19,6 +19,7 @@
         <!-- Card chứa bảng dữ liệu -->
         <div class="card">
             <div class="card-body">
+
                 <div class="row m-b-30">
                     <div class="col-lg-8">
                         <h4>Danh sách quyền Admin</h4>
@@ -38,7 +39,7 @@
                             <th>STT</th>
                             <th>Tên quyền</th>
                             <th>Mô tả</th>
-                            <th>Ngày đăng</th>
+                            <th>Ngày tạo</th>
                             <th>Ngày cập nhật</th>
                             <th>Thao tác</th>
                         </tr>
@@ -202,6 +203,39 @@
             background-color: rgba(0, 0, 0, 0.05);
         }
 
+    /* Định dạng nút thao tác */
+    .btn-action {
+        width: 40px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-right: 5px;
+    }
+
+    .btn-edit {
+        background-color: #ffc107; /* Màu vàng */
+        color: #212529;
+    }
+
+        .btn-edit:hover {
+            background-color: #e0a800;
+            color: #212529;
+        }
+
+    .btn-delete {
+        background-color: #dc3545; /* Màu đỏ */
+        color: white;
+    }
+
+        .btn-delete:hover {
+            background-color: #c82333;
+            color: white;
+        }
+
     /* Cải thiện hiển thị di động */
     @@media screen and (max-width: 767px) {
         #data-table {
@@ -299,37 +333,24 @@
         border-color: #e8e8e8;
     }
 
-    .btn-action {
-        width: 40px;
-        height: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: none;
-        cursor: pointer;
-        transition: all 0.3s;
+    /* Style cho card tìm kiếm */
+    #advancedSearchCard .card-title {
+        color: #333;
+        font-size: 1.1rem;
     }
 
-    .btn-edit {
-        background-color: #ffc107; /* Màu vàng */
-        color: #212529;
+    #advancedSearchCard {
+        background-color: #f8f9fa;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
     }
 
-        .btn-edit:hover {
-            background-color: #e0a800;
-            color: #212529;
-        }
-
-    .btn-delete {
-        background-color: #dc3545; /* Màu đỏ */
-        color: white;
-    }
-
-        .btn-delete:hover {
-            background-color: #c82333;
-            color: white;
+        #advancedSearchCard label {
+            font-weight: 500;
+            color: #555;
         }
 </style>
+
 @section scriptsAdmin {
     <script src="~/Scripts/sweetalert2.all.min.js"></script>
     <script src="~/Areas/Admin/Scripts/DanhSachRoles.js"></script>

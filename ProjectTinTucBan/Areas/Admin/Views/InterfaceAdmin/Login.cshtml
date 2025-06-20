@@ -1,6 +1,7 @@
-﻿@{
+﻿﻿@{
     ViewBag.Title = "Đăng nhập";
     Layout = null;
+    var returnUrl = ViewBag.ReturnUrl ?? Request.QueryString["ReturnUrl"];
 }
 
 <!DOCTYPE html>
@@ -8,115 +9,62 @@
 <head>
     <meta charset="utf-8" />
     <title>@ViewBag.Title</title>
-    <!-- Bootstrap 4 CDN -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body {
-            /* SỬA LỖI ĐƯỜNG DẪN HÌNH ẢNH Ở ĐÂY */
-            background-image: url('@Url.Content("~/Areas/assets/images/nen.jpg")');
-            background-size: cover;
-            background-position: center center; /* Thêm center thứ hai để căn giữa cả chiều dọc */
-            background-repeat: no-repeat;
-            /* background-attachment: fixed; */ /* Bạn có thể bật lại nếu muốn nền cố định khi cuộn */
-            min-height: 100vh; /* Đảm bảo body chiếm ít nhất toàn bộ chiều cao màn hình */
-            margin: 0;
-            /* Thêm các thuộc tính để căn giữa form nếu cần */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 15px; /* Thêm padding nhỏ cho body */
-            box-sizing: border-box;
+            background-image: url('@Url.Content("~/Areas/assets/images/nen.jpg")'); /* Đảm bảo đường dẫn này đúng */
+            background-size: cover; background-position: center center; background-repeat: no-repeat;
+            min-height: 100vh; margin: 0; display: flex; align-items: center; justify-content: center;
+            padding: 15px; box-sizing: border-box;
         }
-
         .login-form {
-            background: rgba(255, 255, 255, 0.85);
-            border-radius: 12px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.15); /* Tăng nhẹ shadow */
-            padding: 32px 24px;
-            /* margin: 60px auto; -- không cần nữa nếu body dùng flex */
-            max-width: 400px;
-            width: 100%; /* Để form co giãn tốt hơn trên màn hình nhỏ */
+            background: rgba(255, 255, 255, 0.85); border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.15); padding: 32px 24px;
+            max-width: 400px; width: 100%;
         }
-
-            .login-form .form-control {
-                border-radius: 8px;
-            }
-
-            .login-form .input-group-text {
-                background: #f8f9fa;
-                border-radius: 8px 0 0 8px;
-            }
-
-            .login-form h2 {
-                font-weight: 600;
-                color: #333; /* Đảm bảo màu chữ tiêu đề dễ đọc */
-            }
-
-        .or-separator {
-            text-align: center;
-            margin: 15px 0;
-            color: #6c757d;
-        }
-
-        .btn-google {
-            background-color: #DB4437; /* Google Red */
-            color: white;
-        }
-
-            .btn-google:hover {
-                background-color: #c23321;
-                color: white;
-            }
+        .login-form .form-control { border-radius: 8px; }
+        .login-form .input-group-text { background: #f8f9fa; border-radius: 8px 0 0 8px; }
+        .login-form h2 { font-weight: 600; color: #333; }
+        .or-separator { text-align: center; margin: 15px 0; color: #6c757d; }
+        .btn-google { background-color: #DB4437; color: white; }
+        .btn-google:hover { background-color: #c23321; color: white; }
     </style>
 </head>
 <body>
     <div class="login-form">
         <h2 class="text-center mb-4">Đăng nhập quản trị</h2>
-        @if (ViewBag.Error != null)
-        {
-            <div class="alert alert-danger">@ViewBag.Error</div>
-        }
-        <form method="post" action="@Url.Action("Login", "InterfaceAdmin", new { Area = "Admin" })">
-            @Html.AntiForgeryToken()
+        <form id="loginForm" method="post">
+            <input type="hidden" name="ReturnUrl" value="@returnUrl" />
             <div class="form-group mb-3">
                 <label for="username">Tên đăng nhập</label>
                 <div class="input-group">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text">
-                            <span class="fa fa-user"></span>
-                        </span>
-                    </div>
+                    <div class="input-group-prepend"><span class="input-group-text"><i class="fas fa-user"></i></span></div>
                     <input type="text" class="form-control" id="username" name="username" placeholder="Nhập tên đăng nhập" required />
                 </div>
             </div>
             <div class="form-group mb-4">
                 <label for="password">Mật khẩu</label>
                 <div class="input-group">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text">
-                            <span class="fa fa-lock"></span>
-                        </span>
-                    </div>
+                    <div class="input-group-prepend"><span class="input-group-text"><i class="fas fa-lock"></i></span></div>
                     <input type="password" class="form-control" id="password" name="password" placeholder="Nhập mật khẩu" required />
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary btn-block">Đăng nhập</button>
+            <button type="button" id="btnLogin" class="btn btn-primary btn-block">Đăng nhập</button>
         </form>
 
-        <div class="or-separator">
-            <small>HOẶC ĐĂNG NHẬP BẰNG</small>
-        </div>
-
-        <a href="#" class="btn btn-google btn-block mb-3">
+        <div class="or-separator"><small>HOẶC ĐĂNG NHẬP BẰNG</small></div>
+        <button type="button" onclick="signIn()" class="btn btn-google btn-block mb-3" name="provider" value="Google" title="Đăng nhập bằng tài khoản Google của bạn">
             <i class="fab fa-google mr-2"></i> Đăng nhập với Google
-        </a>
-
+        </button>
         <div class="text-center mt-2">
-            <a href="@Url.Action("Register", "InterfaceAdmin", new { Area = "Admin" })">Chưa có tài khoản? Đăng ký ngay</a>
+            <a href="#">Chưa có tài khoản? Đăng ký ngay</a>
         </div>
-
     </div>
-    <!-- Font Awesome CDN for icons -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+
+    <script src="https://accounts.google.com/gsi/client"></script>
+    <script src="~/Areas/Admin/Scripts/LoginWithGoogle.js"></script>
 </body>
 </html>

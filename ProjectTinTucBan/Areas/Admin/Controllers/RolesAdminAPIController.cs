@@ -163,7 +163,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             }
         }
 
-        // DELETE: api/v1/admin/Delete-Roles
+        // DELETE: api/v1/admin/Delete-Roles  tạm thời không dùng đến
         [HttpPost]
         [Route("Delete-Roles")]
         public async Task<IHttpActionResult> DeleteRole(Role Item) // Đổi tên từ DeleteMucLuc sang DeleteRole
@@ -180,13 +180,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 {
                     return NotFound();
                 }
-                // Kiểm tra xem Roles có đang được sử dụng trong các tài khoản không
-                var isRoleInUse = await db.TaiKhoans.AnyAsync(x => x.ID_role == Item.ID);
-                if (isRoleInUse)
-                {
-                    return Content(HttpStatusCode.BadRequest, new { message = "Quyền này đang được sử dụng trong các tài khoản khác", success = false });
-                }
-
+                
                 // Xóa Roles
                 db.Roles.Remove(existingRole);
                 await db.SaveChangesAsync();
@@ -197,6 +191,32 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 return InternalServerError(ex);
             }
         }
+
+        /*//Http Delete: api/v1/admin/Delete-Roles/{id}
+        [HttpDelete]
+        [Route("Delete-Roles/{id}")]
+        public async Task<IHttpActionResult> DeleteRoleById(int id)
+        {
+            try
+            {
+                //Kiểm tra role có tồn tại không
+                var ExittingRole = await db.Roles.FindAsync(id);
+                if (ExittingRole == null)
+                {
+                    return NotFound(); // Trả về NotFound nếu không tìm thấy role
+                }
+                
+                // Xoá role theo ID
+                db.Roles.Remove(ExittingRole);
+                await db.SaveChangesAsync();
+                return Ok(new { message = "Xóa quyền admin thành công", success = true }); 
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }*/
+
 
         protected override void Dispose(bool disposing)
         {

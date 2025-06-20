@@ -7,17 +7,10 @@ $(document).ready(function () {
 
 let value_check = null;
 
+
+load_data();
+
 $(document).ready(function () {
-    console.log("Document ready - Checking path: " + window.location.pathname);
-
-    // Chỉ gọi load_data() trên trang danh sách mục lục
-    if (window.location.pathname.toLowerCase().includes('index_mucluc_admin')) {
-        console.log("Loading data for Index_MucLuc_Admin page");
-        setTimeout(function () {
-            load_data();
-        }, 300); // Delay nhỏ để đảm bảo DOM đã sẵn sàng
-    }
-
     // Các sự kiện cho modal
     setupMucLucModalEvents();
 });
@@ -50,6 +43,13 @@ function setupMucLucModalEvents() {
             $("#link").val('');
         }
     });
+
+    // Xử lý khi chuyển đổi trạng thái
+    $(document).on("change", ".toggle-status", function() {
+        const id = $(this).data("id");
+        const isChecked = $(this).prop("checked");
+        toggleMucLucStatus(id, isChecked);
+    });
 }
 
 // Mở modal ở chế độ thêm mới
@@ -58,6 +58,9 @@ function openMucLucModalForAdd() {
     $("#mucLucForm")[0].reset();
     $("#mucLucId").val("");
     $("#formMode").val("add");
+    
+    // Mặc định IsActive là true
+    $("#isActive").prop("checked", true);
 
     // Ẩn phần chỉ hiển thị khi sửa
     $("#editOnlyFields").hide();
@@ -72,6 +75,12 @@ function openMucLucModalForAdd() {
 
 // Mở modal ở chế độ chỉnh sửa
 function openMucLucModalForEdit(id) {
+
+    if (!id) {
+        Sweet_Alert("error", "ID không hợp lệ");
+        return;
+    }
+
     // Reset form và thiết lập chế độ
     $("#mucLucForm")[0].reset();
     $("#mucLucId").val(id);
@@ -84,11 +93,14 @@ function openMucLucModalForEdit(id) {
     // Hiển thị phần chỉ dành cho chỉnh sửa
     $("#editOnlyFields").show();
 
-    // Lấy dữ liệu và điền vào form
-    get_muc_luc_by_id(id);
+    // Xóa loading indicator cũ nếu có
+    $("#formLoading").remove();
 
     // Mở modal
     $("#mucLucModal").modal("show");
+
+    // Lấy dữ liệu và điền vào form
+    get_muc_luc_by_id(id);
 }
 
 // Lưu mục lục (xử lý cả thêm mới và chỉnh sửa)
@@ -106,6 +118,7 @@ function saveMucLuc() {
     $("#link").val(link);
 
     const thuTuShow = $("#thuTuShow").val();
+    const isActive = $("#isActive").prop("checked");
 
     if (mode === "add") {
         // Thêm mới
@@ -139,7 +152,7 @@ $(document).on("click", "#btnDelete", function () {
 async function delete_muc_luc(id) {
     try {
         const res = await $.ajax({
-            url: '/api/v1/admin/Delete-Muc-Luc',
+            url: `/api/v1/admin/Delete-Muc-Luc`,
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({
@@ -155,7 +168,6 @@ async function delete_muc_luc(id) {
         }
     } catch (error) {
         Sweet_Alert("error", "Đã xảy ra lỗi khi xóa mục lục");
-        console.error(error);
     }
 }
 
@@ -164,6 +176,7 @@ async function add_new_in_modal() {
     const tenMucLuc = $("#tenMucLuc").val();
     const link = $("#link").val();
     const thuTuShow = $("#thuTuShow").val();
+    const isActive = $("#isActive").prop("checked"); // Boolean value
 
     try {
         const res = await $.ajax({
@@ -173,7 +186,8 @@ async function add_new_in_modal() {
             data: JSON.stringify({
                 TenMucLuc: tenMucLuc,
                 Link: link,
-                ThuTuShow: parseInt(thuTuShow)
+                ThuTuShow: parseInt(thuTuShow),
+                IsActive: isActive // Boolean value
             })
         });
 
@@ -185,17 +199,12 @@ async function add_new_in_modal() {
             Sweet_Alert("error", res.message);
         }
     } catch (error) {
-        // Trích xuất thông báo lỗi từ response
-        console.log("Error object:", error);
-
         // Hiển thị thông báo lỗi chi tiết từ máy chủ nếu có
         if (error.responseJSON) {
             Sweet_Alert("error", error.responseJSON.message || "Đã xảy ra lỗi khi thêm mục lục");
         } else {
             Sweet_Alert("error", "Đã xảy ra lỗi khi thêm mục lục");
         }
-
-        console.error(error);
     }
 }
 
@@ -205,6 +214,7 @@ async function update_muc_luc_in_modal() {
     const tenMucLuc = $("#tenMucLuc").val();
     const link = $("#link").val();
     const thuTuShow = $("#thuTuShow").val();
+    const isActive = $("#isActive").prop("checked"); // Boolean value
 
     try {
         const res = await $.ajax({
@@ -215,7 +225,8 @@ async function update_muc_luc_in_modal() {
                 ID: parseInt(id),
                 TenMucLuc: tenMucLuc,
                 Link: link,
-                ThuTuShow: parseInt(thuTuShow)
+                ThuTuShow: parseInt(thuTuShow),
+                IsActive: isActive // Boolean value
             })
         });
 
@@ -227,41 +238,35 @@ async function update_muc_luc_in_modal() {
             Sweet_Alert("error", res.message);
         }
     } catch (error) {
-        // Trích xuất thông báo lỗi từ response
-        console.log("Error object:", error);
 
         // Hiển thị thông báo lỗi chi tiết từ máy chủ nếu có
         if (error.responseJSON) {
-            Sweet_Alert("error", error.responseJSON.message || "Đã xảy ra lỗi khi thêm mục lục");
+            Sweet_Alert("error", error.responseJSON.message || "Đã xảy ra lỗi khi cập nhật mục lục");
         } else {
-            Sweet_Alert("error", "Đã xảy ra lỗi khi thêm mục lục");
+            Sweet_Alert("error", "Đã xảy ra lỗi khi cập nhật mục lục");
         }
-
-        console.error(error);
     }
 }
 
 // Load data table
 async function load_data() {
     try {
-        console.log("Bắt đầu tải danh sách mục lục");
-
-        // Hiển thị loading và xóa table hiện tại
+        // Hiển thị loading
         $('#data-table').empty().html('<div class="text-center my-4"><p>Đang tải dữ liệu...</p></div>');
 
-        // Gọi API với tham số cache: false để đảm bảo không sử dụng cache
+        // Gọi API
         $.ajax({
             url: '/api/v1/admin/Get-All-Muc-Luc',
             type: 'GET',
             dataType: 'json',
             cache: false,
             success: function (response) {
-                console.log("API trả về:", response);
+                // Xóa DataTable cũ nếu đã tồn tại
+                if ($.fn.DataTable.isDataTable('#data-table')) {
+                    $('#data-table').DataTable().destroy();
+                }
 
-                // Xóa nội dung loading
-                $('#data-table').empty();
-
-                // Tạo lại cấu trúc table
+                // Xóa nội dung loading và tạo cấu trúc table
                 $('#data-table').html(`
                     <thead>
                         <tr>
@@ -269,6 +274,7 @@ async function load_data() {
                             <th>Tên mục lục</th>
                             <th>Link</th>
                             <th>Vị trí hiển thị</th>
+                            <th>Trạng thái</th>
                             <th>Ngày đăng</th>
                             <th>Ngày cập nhật</th>
                             <th>Thao tác</th>
@@ -277,24 +283,17 @@ async function load_data() {
                     <tbody></tbody>
                 `);
 
-                // Khởi tạo DataTable với dữ liệu
-                if ($.fn.DataTable.isDataTable('#data-table')) {
-                    $('#data-table').DataTable().destroy();
-                }
-
-                // Chuyển đổi dữ liệu timestamp thành định dạng ngày tháng
+                // Xử lý dữ liệu cho hiển thị
                 let processedData = [];
                 if (response.data && Array.isArray(response.data)) {
                     processedData = response.data.map(item => {
-                        // Tạo một object mới với các thuộc tính của item
                         const newItem = { ...item };
 
-                        // Nếu NgayDang và NgayCapNhat là số int (unix timestamp), chuyển đổi chúng
-                        if (item.NgayDang && !isNaN(parseInt(item.NgayDang))) {
+                        // Chuyển đổi timestamp thành định dạng ngày tháng
+                        if (item.NgayDang) {
                             newItem.NgayDang = unixTimestampToDate(parseInt(item.NgayDang));
                         }
-
-                        if (item.NgayCapNhat && !isNaN(parseInt(item.NgayCapNhat))) {
+                        if (item.NgayCapNhat) {
                             newItem.NgayCapNhat = unixTimestampToDate(parseInt(item.NgayCapNhat));
                         }
 
@@ -302,6 +301,7 @@ async function load_data() {
                     });
                 }
 
+                // Khởi tạo DataTable với dữ liệu
                 $('#data-table').DataTable({
                     data: processedData || [],
                     columns: [
@@ -314,6 +314,18 @@ async function load_data() {
                         { data: 'TenMucLuc' },
                         { data: 'Link' },
                         { data: 'ThuTuShow' },
+                        {
+                            data: 'IsActive',
+                            render: function (data, type, row) {
+                                const isChecked = (data === 1 || data === true) ? 'checked' : '';
+                                return `
+                                    <label class="switch">
+                                        <input type="checkbox" class="toggle-status" data-id="${row.ID}" ${isChecked}>
+                                        <span class="slider"></span>
+                                    </label>
+                                `;
+                            }
+                        },
                         { data: 'NgayDang' },
                         { data: 'NgayCapNhat' },
                         {
@@ -321,14 +333,14 @@ async function load_data() {
                             orderable: false,
                             render: function (data) {
                                 return `
-                                      <div class="d-flex">
-                                        <button class="btn-action btn-edit mr-2" id="btnEdit" data-id="${data.ID || ''}" data-ten="${(data.TenMucLuc || '').replace(/"/g, '&quot;')}">
+                                    <div class="d-flex">
+                                        <button class="btn-action btn-edit mr-2" id="btnEdit" data-id="${data.ID}" data-ten="${(data.TenMucLuc || '').replace(/"/g, '&quot;')}">
                                             <i class="anticon anticon-edit"></i>
                                         </button>
-                                        <button class="btn-action btn-delete" id="btnDelete" data-id="${data.ID || ''}" data-ten="${(data.TenMucLuc || '').replace(/"/g, '&quot;')}">
+                                        <button class="btn-action btn-delete" id="btnDelete" data-id="${data.ID}" data-ten="${(data.TenMucLuc || '').replace(/"/g, '&quot;')}">
                                             <i class="anticon anticon-delete"></i>
                                         </button>
-                                      </div>
+                                    </div>
                                 `;
                             }
                         }
@@ -340,21 +352,22 @@ async function load_data() {
                             next: "Tiếp",
                             previous: "Trước"
                         },
-                        search: "Tìm kiếm:",
+                        search: "Tìm nhanh:",
                         lengthMenu: "Hiển thị _MENU_ mục",
                         emptyTable: "Không có dữ liệu",
-                        zeroRecords: "Không tìm thấy kết quả phù hợp"
+                        zeroRecords: "Không tìm thấy kết quả phù hợp",
+                        info: "Hiển thị _START_ đến _END_ của _TOTAL_ mục",
+                        infoEmpty: "Hiển thị 0 đến 0 của 0 mục",
+                        infoFiltered: "(lọc từ _MAX_ mục)"
                     }
                 });
 
+                // Hiển thị thông báo nếu không có dữ liệu
                 if (!response.success) {
                     Sweet_Alert("info", response.message || "Không có dữ liệu");
                 }
             },
             error: function (xhr, status, error) {
-                console.error("Lỗi khi tải dữ liệu:", error);
-                console.error("Chi tiết:", xhr);
-
                 // Hiển thị thông báo lỗi
                 $('#data-table').empty().html(`
                     <thead>
@@ -363,6 +376,7 @@ async function load_data() {
                             <th>Tên mục lục</th>
                             <th>Link</th>
                             <th>Vị trí hiển thị</th>
+                            <th>Trạng thái</th>
                             <th>Ngày đăng</th>
                             <th>Ngày cập nhật</th>
                             <th>Thao tác</th>
@@ -370,16 +384,14 @@ async function load_data() {
                     </thead>
                     <tbody>
                         <tr>
-                            <td colspan="7" class="text-center">Đã xảy ra lỗi: ${xhr.status} - ${xhr.statusText}</td>
+                            <td colspan="8" class="text-center">Đã xảy ra lỗi: ${xhr.status} - ${xhr.statusText}</td>
                         </tr>
                     </tbody>
                 `);
-
                 Sweet_Alert("error", "Không thể tải danh sách: " + xhr.statusText);
             }
         });
     } catch (error) {
-        console.error("Lỗi JS:", error);
         Sweet_Alert("error", "Lỗi JavaScript: " + error.message);
     }
 }
@@ -393,11 +405,25 @@ async function get_muc_luc_by_id(id) {
         });
 
         if (res.success && res.data) {
+
             // Fill form fields with data
             $("#tenMucLuc").val(res.data.TenMucLuc);
             $("#link").val(res.data.Link);
             $("#link").prop('readonly', true); // Make link read-only
             $("#thuTuShow").val(res.data.ThuTuShow);
+
+            // Set IsActive checkbox correctly based on the IsActive value from the server
+            // Handle different possible data types (boolean or numeric)
+            const isActive = res.data.IsActive;
+
+            if (typeof isActive === 'boolean') {
+                $("#isActive").prop('checked', isActive);
+            } else if (typeof isActive === 'number') {
+                $("#isActive").prop('checked', isActive === 1);
+            } else {
+                // If for some reason it's a string or other type
+                $("#isActive").prop('checked', isActive === true || isActive === 1 || isActive === "1" || isActive === "true");
+            }
 
             // Chuyển đổi timestamp ngày đăng sang định dạng ngày tháng
             if (res.data.NgayDang && !isNaN(parseInt(res.data.NgayDang))) {
@@ -417,7 +443,6 @@ async function get_muc_luc_by_id(id) {
         }
     } catch (error) {
         Sweet_Alert("error", "Đã xảy ra lỗi khi lấy thông tin mục lục");
-        console.error(error);
     }
 }
 
@@ -463,4 +488,37 @@ function unixTimestampToDate(unixTimestamp) {
     var seconds = ("0" + date.getSeconds()).slice(-2);
     var formattedDate = dayOfWeek + ', ' + day + "-" + month + "-" + year + " " + hours + ":" + minutes + ":" + seconds;
     return formattedDate;
+}
+
+// Thay đổi trạng thái mục lục
+async function toggleMucLucStatus(id, isActive) {
+    try {
+        const res = await $.ajax({
+            url: '/api/v1/admin/Update-Muc-Luc-Status',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                ID: parseInt(id),
+                IsActive: isActive // Boolean value
+            })
+        });
+
+        if (res.success) {
+            Sweet_Alert("success", res.message || "Đã cập nhật trạng thái");
+            load_data();
+        } else {
+            // Nếu thất bại, revert lại trạng thái của switch
+            $(`.toggle-status[data-id="${id}"]`).prop("checked", !isActive);
+            Sweet_Alert("error", res.message || "Không thể cập nhật trạng thái");
+        }
+    } catch (error) {
+        // Nếu có lỗi, revert lại trạng thái của switch
+        $(`.toggle-status[data-id="${id}"]`).prop("checked", !isActive);
+
+        if (error.responseJSON) {
+            Sweet_Alert("error", error.responseJSON.message || "Đã xảy ra lỗi khi cập nhật trạng thái");
+        } else {
+            Sweet_Alert("error", "Đã xảy ra lỗi khi cập nhật trạng thái");
+        }
+    }
 }

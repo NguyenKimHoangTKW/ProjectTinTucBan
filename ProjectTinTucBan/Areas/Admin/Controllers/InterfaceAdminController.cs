@@ -74,48 +74,6 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             return View();
         }
 
-        // Xử lý đăng nhập (POST)
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Login(string username, string password)
-        {
-            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
-            {
-                ViewBag.Error = "Tên đăng nhập và mật khẩu không được để trống.";
-                return View();
-            }
-
-            // 1. Kiểm tra tài khoản admin cứng (nếu vẫn muốn giữ)
-            if (username == "admin" && password == "123456")
-            {
-                Session["AdminUser"] = "admin_hardcoded";
-                Session["UserRole"] = "SuperAdmin"; // Ví dụ gán role cho admin cứng
-                return RedirectToAction("Index");
-            }
-
-            // 2. Kiểm tra trong CSDL
-            // QUAN TRỌNG: Trong thực tế, bạn NÊN MÃ HÓA MẬT KHẨU trước khi so sánh.
-            var userFromDb = db.TaiKhoans.FirstOrDefault(u => u.TenTaiKhoan == username && u.MatKhau == password);
-
-            if (userFromDb != null)
-            {
-                if (userFromDb.IsBanned == true)
-                {
-                    ViewBag.Error = "Tài khoản này đã bị khóa.";
-                    return View();
-                }
-
-                Session["AdminUser"] = userFromDb.TenTaiKhoan;
-                Session["UserID"] = userFromDb.ID;
-                // Giả sử model Role có thuộc tính TenRole và TaiKhoan có navigation property Role
-                // Session["UserRole"] = userFromDb.Role?.TenRole; 
-                return RedirectToAction("Index");
-            }
-
-            ViewBag.Error = "Tên đăng nhập hoặc mật khẩu không đúng!";
-            return View();
-        }
-
         // Trang đăng ký (GET)
         [HttpGet]
         public ActionResult Register()
@@ -128,69 +86,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             return View();
         }
 
-        // Xử lý đăng ký (POST)
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Register(string username, string password, string confirmPassword, string email)
-        {
-            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
-            {
-                ViewBag.Error = "Tên đăng nhập và mật khẩu không được để trống.";
-                return View();
-            }
-
-            if (password != confirmPassword)
-            {
-                ViewBag.Error = "Mật khẩu xác nhận không khớp.";
-                return View();
-            }
-
-            if (db.TaiKhoans.Any(u => u.TenTaiKhoan == username))
-            {
-                ViewBag.Error = "Tên đăng nhập đã tồn tại.";
-                return View();
-            }
-
-            if (!string.IsNullOrEmpty(email) && db.TaiKhoans.Any(u => u.Gmail == email))
-            {
-                ViewBag.Error = "Địa chỉ email này đã được sử dụng.";
-                return View();
-            }
-
-            TaiKhoan newUser = new TaiKhoan
-            {
-                TenTaiKhoan = username,
-                MatKhau = password, // QUAN TRỌNG: NÊN MÃ HÓA MẬT KHẨU.
-                Gmail = email,
-                IsBanned = false,
-                // NgayTao và ID_role sẽ được gán giá trị null (nếu CSDL cho phép)
-                // hoặc bạn cần logic cụ thể để gán giá trị cho chúng nếu chúng là bắt buộc
-                // hoặc có giá trị mặc định khác.
-                // Ví dụ: NgayTao = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds, // Unix timestamp
-                // ID_role = 1, // ID của role mặc định cho người dùng mới
-            };
-
-            db.TaiKhoans.Add(newUser);
-            try
-            {
-                db.SaveChanges();
-                ViewBag.SuccessMessage = "Đăng ký tài khoản thành công! Bạn có thể đăng nhập ngay bây giờ.";
-                return View();
-            }
-            catch (System.Data.Entity.Validation.DbEntityValidationException ex)
-            {
-                var errorMessages = ex.EntityValidationErrors
-                    .SelectMany(x => x.ValidationErrors)
-                    .Select(x => $"{x.PropertyName}: {x.ErrorMessage}");
-                ViewBag.Error = "Lỗi validation: " + string.Join("; ", errorMessages);
-                return View();
-            }
-            catch (Exception ex)
-            {
-                ViewBag.Error = "Đã xảy ra lỗi trong quá trình đăng ký: " + ex.Message;
-                return View();
-            }
-        }
+        
 
         public ActionResult Logout()
         {
@@ -206,5 +102,17 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             }
             base.Dispose(disposing);
         }
+        // Gọi hàm thiết kế giao diện quản lý người dùng Admin
+        public ActionResult Index_Users_Admin()
+        {
+            return View();
+        }
+        // Gọi hàm thiết kế giao diện quản lý chức năng admin
+        public ActionResult Index_Function_Admin()
+        {
+            return View();
+        }
+        // Gọi hàm thiết kế giao diện đăng nhập
+
     }
 }  

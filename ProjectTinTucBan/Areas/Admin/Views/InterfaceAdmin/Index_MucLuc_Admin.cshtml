@@ -39,6 +39,7 @@
                             <th>Tên mục lục</th>
                             <th>Link</th>
                             <th>Vị trí hiển thị</th>
+                            <th>Trạng thái</th>
                             <th>Ngày đăng</th>
                             <th>Ngày cập nhật</th>
                             <th>Thao tác</th>
@@ -96,6 +97,18 @@
                                 <label for="thuTuShow">Vị trí hiển thị <span class="text-danger">*</span></label>
                                 <input type="number" class="form-control" id="thuTuShow" name="thuTuShow" min="1" value="1" placeholder="Nhập số thứ tự hiển thị" required>
                                 <small class="form-text text-muted">Số thứ tự hiển thị của mục lục (số nhỏ hiển thị trước)</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="checkbox">
+                                    <input id="isActive" name="isActive" type="checkbox">
+                                    <label for="isActive">Kích hoạt</label>
+                                    <small class="form-text text-muted">Mục lục sẽ hiển thị trên website nếu được kích hoạt</small>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -180,21 +193,56 @@
             background-color: #f8f8f8;
         }
 
-    /* Định dạng badge */
-    .badge {
-        padding: 5px 10px;
-        border-radius: 4px;
-        font-weight: normal;
+
+
+    /* Styling for status toggle switch */
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 30px;
     }
 
-    .badge-success {
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 34px;
+    }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+    input:checked + .slider {
         background-color: #20c997;
-        color: #fff;
     }
 
-    .badge-danger {
-        background-color: #dc3545;
-        color: #fff;
+    input:focus + .slider {
+        box-shadow: 0 0 1px #20c997;
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(30px);
     }
 
     /* Định dạng nút hình vuông */
@@ -340,9 +388,6 @@
             background-color: #c82333;
             color: white;
         }
-
-
-
 </style>
 
 @section scriptsAdmin {
