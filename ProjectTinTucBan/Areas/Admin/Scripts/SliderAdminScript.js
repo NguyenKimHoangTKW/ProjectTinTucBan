@@ -10,25 +10,35 @@
 
     // Load danh sách slide
     function loadSlides() {
-        $.getJSON('/api/v1/admin/get-slides', function (data) {
+        $.getJSON(`${BASE_URL}/get-slides`, function (data) {
             const $list = $('#slider-list').empty();
             if (!data || !data.length) {
                 $list.append('<tr><td colspan="6" class="text-center">Không có dữ liệu</td></tr>');
                 return;
             }
-            data.forEach(slide => {
+            data.forEach((slide, idx) => {
                 $list.append(`
                     <tr>
-                        <td>${slide.ID}</td>
-                        <td><img src="${slide.LinkHinh}" alt="slide" style="max-width:120px;max-height:60px"></td>
-                        <td>${slide.ThuTuShow ?? ''}</td>
-                        <td>${slide.isActive ? 'Hiện' : 'Ẩn'}</td>
-                        <td>
+                        <td class="text-center">${idx + 1}</td>
+                        <td class="text-center"><img src="${slide.LinkHinh}" alt="slide" style="max-width:120px;max-height:60px"></td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-light btn-increase-order" data-id="${slide.ID}" title="Tăng">
+                                <i class="fa fa-arrow-up"></i>
+                            </button>
+                            <span class="mx-2">${slide.ThuTuShow ?? ''}</span>
+                            <button class="btn btn-sm btn-light btn-decrease-order" data-id="${slide.ID}" title="Giảm">
+                                <i class="fa fa-arrow-down"></i>
+                            </button>
+                        </td>
+                        <td class="text-center">
+                            <input type="checkbox" class="toggle-active" data-id="${slide.ID}" ${slide.isActive ? 'checked' : ''} />
+                        </td>
+                        <td class="text-center">
                             <button class="btn btn-warning btn-sm edit-slide-btn" 
                                 data-id="${slide.ID}" 
                                 data-linkhinh="${slide.LinkHinh}" 
-                                data-thutushow="${slide.ThuTuShow ?? ''}" 
-                                data-isactive="${slide.isActive}">
+                                data-isactive="${slide.isActive}"
+                                data-target="editSlideModal">
                                 Sửa
                             </button>
                             <button class="btn btn-danger btn-sm delete-slide-btn" data-id="${slide.ID}">Xóa</button>
@@ -81,7 +91,7 @@
         const formData = new FormData();
         formData.append('file', fileInput.files[0]);
         $.ajax({
-            url: '/api/v1/admin/upload-slide-image',
+            url: `${BASE_URL}/upload-slide-image`,
             type: 'POST',
             data: formData,
             processData: false,
@@ -89,15 +99,13 @@
             success: function (res) {
                 if (res.success && res.link) {
                     // Sau khi upload thành công, gọi API thêm slide
-                    const thuTuShow = $('#addThuTuShow').val();
                     const isActive = $('#addIsActive').is(':checked');
                     $.ajax({
-                        url: '/api/v1/admin/add-slide',
+                        url: `${BASE_URL}/add-slide`,
                         method: 'POST',
                         contentType: 'application/json',
                         data: JSON.stringify({
                             LinkHinh: res.link,
-                            ThuTuShow: thuTuShow ? parseInt(thuTuShow) : null,
                             isActive: isActive
                         }),
                         success: function (res2) {
@@ -129,17 +137,22 @@
     $('#slider-list').on('click', '.edit-slide-btn', function () {
         const id = $(this).data('id');
         const linkHinh = $(this).data('linkhinh');
-        const thuTuShow = $(this).data('thutushow');
         const isActive = $(this).data('isactive');
 
         $('#editSlideId').val(id);
-        $('#editLinkHinh').val(linkHinh);
-        $('#editThuTuShow').val(thuTuShow);
         $('#editIsActive').prop('checked', isActive ? true : false);
 
-        // Khi mở modal sửa, lưu link cũ vào data
+        // Reset file input
+        $('#editLinkHinh').val('');
+        // Lưu link cũ vào data để dùng khi không đổi ảnh
         $('#editLinkHinh').data('oldlink', linkHinh);
-        $('#editPreviewImg').attr('src', linkHinh).show();
+
+        // Hiển thị ảnh preview
+        if (linkHinh) {
+            $('#editPreviewImg').attr('src', linkHinh).show();
+        } else {
+            $('#editPreviewImg').hide();
+        }
 
         $('#editSlideModal').modal('show');
     });
@@ -148,19 +161,17 @@
     $('#edit-slide-form').submit(function (e) {
         e.preventDefault();
         const id = $('#editSlideId').val();
-        const thuTuShow = $('#editThuTuShow').val();
         const isActive = $('#editIsActive').is(':checked');
         const fileInput = $('#editLinkHinh')[0];
 
         function callEdit(linkHinh) {
             $.ajax({
-                url: '/api/v1/admin/edit-slide',
+                url: `${BASE_URL}/edit-slide`,
                 method: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({
                     ID: parseInt(id),
                     LinkHinh: linkHinh,
-                    ThuTuShow: thuTuShow ? parseInt(thuTuShow) : null,
                     isActive: isActive
                 }),
                 success: function (res2) {
@@ -184,7 +195,7 @@
             const formData = new FormData();
             formData.append('file', fileInput.files[0]);
             $.ajax({
-                url: '/api/v1/admin/upload-slide-image',
+                url: `${BASE_URL}/upload-slide-image`,
                 type: 'POST',
                 data: formData,
                 processData: false,
@@ -218,7 +229,7 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: '/api/v1/admin/delete-slide',
+                    url: `${BASE_URL}/delete-slide`,
                     method: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify(id),
@@ -234,6 +245,65 @@
                         showSwal('Có lỗi xảy ra khi xóa!', 'error');
                     }
                 });
+            }
+        });
+    });
+
+    // Tăng thứ tự
+    $('#slider-list').on('click', '.btn-increase-order', function () {
+        const id = $(this).data('id');
+        $.ajax({
+            url: `${BASE_URL}/change-slide-order`,
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ id: id, direction: 'up' }),
+            success: function (res) {
+                if (res.success) {
+                    loadSlides();
+                } else {
+                    showSwal(res.message || 'Không thể tăng thứ tự', 'error');
+                }
+            }
+        });
+    });
+
+    // Giảm thứ tự
+    $('#slider-list').on('click', '.btn-decrease-order', function () {
+        const id = $(this).data('id');
+        $.ajax({
+            url: `${BASE_URL}/change-slide-order`,
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ id: id, direction: 'down' }),
+            success: function (res) {
+                if (res.success) {
+                    loadSlides();
+                } else {
+                    showSwal(res.message || 'Không thể giảm thứ tự', 'error');
+                }
+            }
+        });
+    });
+
+    // Bật/tắt trạng thái hiển thị slide
+    $('#slider-list').on('change', '.toggle-active', function () {
+        const id = $(this).data('id');
+        const isActive = $(this).is(':checked');
+        $.ajax({
+            url: `${BASE_URL}/set-slide-active`,
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ id: id, isActive: isActive }),
+            success: function (res) {
+                if (res.success) {
+                    showSwal(res.message || 'Cập nhật trạng thái thành công', 'success');
+                    loadSlides();
+                } else {
+                    showSwal(res.message || 'Cập nhật trạng thái thất bại', 'error');
+                }
+            },
+            error: function () {
+                showSwal('Có lỗi khi cập nhật trạng thái!', 'error');
             }
         });
     });

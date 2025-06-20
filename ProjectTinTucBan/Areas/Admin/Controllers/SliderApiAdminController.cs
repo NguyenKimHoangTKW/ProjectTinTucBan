@@ -15,7 +15,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
     [RoutePrefix("api/v1/admin")]
     public class SliderApiAdminController : ApiController
     {
-        WebTinTucTDMUEntities db = new WebTinTucTDMUEntities();
+        private WebTinTucTDMUEntities db = new WebTinTucTDMUEntities();
         private int unixTimestamp;
         public SliderApiAdminController()
         {
@@ -39,13 +39,15 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 var filename = file.Headers.ContentDisposition.FileName.Trim('\"');
                 var ext = Path.GetExtension(filename);
                 var newFileName = Guid.NewGuid() + ext;
-                var folderPath = HttpContext.Current.Server.MapPath("~/Uploads/Slider/");
+                // Update the folder path to Areas/Admin/Uploads/Slider
+                var folderPath = HttpContext.Current.Server.MapPath("~/Areas/Admin/Uploads/Slider/");
                 if (!Directory.Exists(folderPath))
                     Directory.CreateDirectory(folderPath);
                 var filePath = Path.Combine(folderPath, newFileName);
                 var buffer = await file.ReadAsByteArrayAsync();
                 File.WriteAllBytes(filePath, buffer);
-                var link = "/Uploads/Slider/" + newFileName;
+                // Update the link to match the new path
+                var link = "/Areas/Admin/Uploads/Slider/" + newFileName;
                 return Ok(new { success = true, link });
             }
             return BadRequest("No file uploaded.");
@@ -70,6 +72,25 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             return Ok(slides);
         }
 
+        [HttpGet]
+        [Route("get-slides-show")]
+        public async Task<IHttpActionResult> GetSlidesShow()
+        {
+            var slides = await db.Sliders
+                .OrderBy(s => s.ThuTuShow)
+                .Select(s => new
+                {
+                    s.ID,
+                    s.LinkHinh,
+                    s.ThuTuShow,
+                    s.isActive
+                })
+                .Where(s => s.isActive == true)
+                .ToListAsync();
+
+            return Ok(slides);
+        }
+
         // Thêm slide mới
         [HttpPost]
         [Route("add-slide")]
@@ -80,8 +101,14 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
             slide.NgayDang = unixTimestamp;
             slide.NgayCapNhat = unixTimestamp;
+
+            // Tự động lấy thứ tự lớn nhất + 1
+            int maxOrder = await db.Sliders.MaxAsync(s => (int?)s.ThuTuShow) ?? 0;
+            slide.ThuTuShow = maxOrder + 1;
+
             db.Sliders.Add(slide);
             await db.SaveChangesAsync();
+
             return Ok(new { success = true, message = "Thêm slide thành công." });
         }
 
@@ -99,7 +126,6 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
             if (!string.IsNullOrWhiteSpace(slide.LinkHinh))
                 existing.LinkHinh = slide.LinkHinh;
-            existing.ThuTuShow = slide.ThuTuShow;
             existing.isActive = slide.isActive;
             existing.NgayCapNhat = unixTimestamp;
 
@@ -120,5 +146,79 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             await db.SaveChangesAsync();
             return Ok(new { success = true, message = "Xóa slide thành công." });
         }
+
+
+        // Thay đổi thứ tự hiển thị của slide
+        public class ChangeOrderRequest
+        {
+            public int id { get; set; }
+            public string direction { get; set; }
+        }
+
+        [HttpPost]
+        [Route("change-slide-order")]
+        public async Task<IHttpActionResult> ChangeSlideOrder([FromBody] ChangeOrderRequest req)
+        {
+            if (req == null || req.id <= 0 || string.IsNullOrEmpty(req.direction))
+                return BadRequest("Dữ liệu không hợp lệ.");
+
+            var slide = await db.Sliders.FindAsync(req.id);
+            if (slide == null)
+                return NotFound();
+
+            Slider swapSlide = null;
+            if (req.direction == "up")
+            {
+                swapSlide = db.Sliders
+                    .Where(s => s.ThuTuShow < slide.ThuTuShow)
+                    .OrderByDescending(s => s.ThuTuShow)
+                    .FirstOrDefault();
+            }
+            else if (req.direction == "down")
+            {
+                swapSlide = db.Sliders
+                    .Where(s => s.ThuTuShow > slide.ThuTuShow)
+                    .OrderBy(s => s.ThuTuShow)
+                    .FirstOrDefault();
+            }
+
+            if (swapSlide == null)
+                return Ok(new { success = false, message = "Không thể thay đổi thứ tự." });
+
+            // Hoán đổi thứ tự
+            int temp = slide.ThuTuShow ?? 0;
+            slide.ThuTuShow = swapSlide.ThuTuShow;
+            swapSlide.ThuTuShow = temp;
+
+            await db.SaveChangesAsync();
+            return Ok(new { success = true });
+        }
+
+        // Đặt trạng thái hoạt động của slide
+        public class SetSlideActiveRequest
+        {
+            public int id { get; set; }
+            public bool isActive { get; set; }
+        }
+
+        [HttpPost]
+        [Route("set-slide-active")]
+        public async Task<IHttpActionResult> SetSlideActive(SetSlideActiveRequest req)
+        {
+            if (req == null || req.id <= 0)
+                return BadRequest("Dữ liệu không hợp lệ.");
+
+            var slide = await db.Sliders.FindAsync(req.id);
+            if (slide == null)
+                return NotFound();
+
+            slide.isActive = req.isActive;
+            slide.NgayCapNhat = unixTimestamp;
+            await db.SaveChangesAsync();
+
+            return Ok(new { success = true, message = "Cập nhật trạng thái thành công." });
+        }
+
+        
     }
 }

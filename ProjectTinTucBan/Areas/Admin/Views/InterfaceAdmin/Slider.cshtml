@@ -1,52 +1,17 @@
-﻿@{
+﻿﻿@{
     ViewBag.Title = "Quản lý Slider";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
-<!-- Breadcrumb -->
-<div class="header-sub-title">
-    <nav class="breadcrumb breadcrumb-dash">
-        <a href="~/Admin" class="breadcrumb-item"><i class="anticon anticon-home m-r-5"></i>Home</a>
-        <a class="breadcrumb-item" href="#">Slider</a>
-        <span class="breadcrumb-item active">Quản lý</span>
-    </nav>
-</div>
+@section scriptsAdmin{
+    <script src="~/Scripts/jquery-3.7.0.min.js"></script>
+    <script src="~/Areas/assets/js/OptionPhanQuyen.js"></script>
+    <script src="~/Areas/Admin/Scripts/SliderAdminScript.js"></script>
+    <script src="~/Areas/assets/js/vendors.min.js"></script>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
 
-<div class="mb-3">
-    <button id="openAddSlideModal" type="button" class="btn btn-primary" data-toggle="modal" data-target="#addSlideModal">
-        Thêm Slide
-    </button>
-</div>
 
-<!-- DataTable -->
-<table id="data-table" class="table table-bordered">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Hình ảnh</th>
-            <th>Thứ tự hiển thị</th>
-            <th>Trạng thái</th>
-            <th>Thao tác</th>
-        </tr>
-    </thead>
-    <tbody id="slider-list">
-        <!-- Dữ liệu sẽ được render bởi SliderAdminScript.js -->
-    </tbody>
-    <tfoot>
-        <tr>
-            <th>ID</th>
-            <th>Hình ảnh</th>
-            <th>Thứ tự hiển thị</th>
-            <th>Trạng thái</th>
-            <th>Thao tác</th>
-        </tr>
-    </tfoot>
-</table>
-
-<script>
-    $(document).ready(function () {
-        $('#data-table').DataTable();
-    });</script>
+}
 
 <!-- Modal Thêm Slide -->
 <div class="modal fade" id="addSlideModal" tabindex="-1" role="dialog">
@@ -63,10 +28,6 @@
                     <label>Chọn hình ảnh</label>
                     <input type="file" class="form-control" id="addLinkHinh" accept="image/*" required />
                     <img id="addPreviewImg" src="#" alt="" style="display:none;max-width:100%;margin-top:10px;" />
-                </div>
-                <div class="form-group">
-                    <label>Thứ tự hiển thị</label>
-                    <input type="number" class="form-control" id="addThuTuShow" />
                 </div>
                 <div class="form-group">
                     <label>
@@ -100,10 +61,6 @@
                     <img id="editPreviewImg" src="#" alt="" style="display:none;max-width:100%;margin-top:10px;" />
                 </div>
                 <div class="form-group">
-                    <label>Thứ tự hiển thị</label>
-                    <input type="number" class="form-control" id="editThuTuShow" />
-                </div>
-                <div class="form-group">
                     <label>
                         <input type="checkbox" id="editIsActive" /> Hiển thị
                     </label>
@@ -117,6 +74,36 @@
     </div>
 </div>
 
-@section scriptsAdmin {
-    <script src="~/Areas/Admin/Scripts/SliderAdminScript.js"></script>
-}
+
+
+
+<div class="main-content">
+    <!-- Breadcrumb -->
+    <div class="header-sub-title">
+        <nav class="breadcrumb breadcrumb-dash">
+            <a href="~/Admin" class="breadcrumb-item"><i class="anticon anticon-home m-2"></i>Home</a>
+            <a class="breadcrumb-item" href="#">Quản lý Slider</a>
+        </nav>
+    </div>
+    <div class="mb-3">
+        <button id="openAddSlideModal" type="button" class="btn btn-success" data-toggle="modal" data-target="#addSlideModal">
+            Thêm Slide
+        </button>
+    </div>
+    <div class="card">
+        <!-- DataTable -->
+        <table id="data-table" class="table table-bordered" style="max-width:100%">
+            <thead>
+                <tr>
+                    <th class="text-center">STT</th>
+                    <th class="text-center">Hình ảnh</th>
+                    <th class="text-center">Thứ tự hiển thị</th>
+                    <th class="text-center">Trạng thái</th>
+                    <th class="text-center">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody id="slider-list">
+            </tbody>
+        </table>
+    </div>
+</div>

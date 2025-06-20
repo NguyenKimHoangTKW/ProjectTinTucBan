@@ -70,4 +70,9 @@ coverage/
 secrets.json
 
 # Local config
+<<<<<<< HEAD
 *.local.json
+=======
+*.local.json
+
+>>>>>>> Khiem
