@@ -34,5 +34,10 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         {
             return View();
         }
+        // Gọi hàm thiết kế giao diện đăng nhập
+        public ActionResult Login()
+        {
+            return View();
+        }
     }
 }  

@@ -138,6 +138,7 @@
     <Compile Include="Areas\Admin\AdminAreaRegistration.cs" />
     <Compile Include="Areas\Admin\Controllers\FunctionAdminAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\InterfaceAdminController.cs" />
+    <Compile Include="Areas\Admin\Controllers\LoginAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\MucLucAdminAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\UserAdminAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\RolesAdminAPIController.cs" />
@@ -245,6 +246,7 @@
     <Content Include="Areas\Admin\Scripts\DanhSachMucLuc.js" />
     <Content Include="Areas\Admin\Scripts\DanhSachRoles.js" />
     <Content Include="Areas\Admin\Scripts\DanhSachUser.js" />
+    <Content Include="Areas\Admin\Scripts\LoginWithGoogle.js" />
     <Content Include="Areas\assets\css\app.min.css" />
     <Content Include="Areas\assets\css\buttons.dataTables.min.css" />
     <Content Include="Areas\assets\css\sweetalert2.min.css" />
@@ -1315,6 +1317,7 @@
     <Content Include="assets\fonts\line-awesome.woff2" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Function_Admin.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Users_Admin.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\Login.cshtml" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />
