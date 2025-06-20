@@ -59,10 +59,10 @@
         if (!file) return;
 
         const imageExtension = file.name.split('.').pop().toLowerCase();
-        const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+        const allowedExtensions = ['jpg', 'jpeg', 'png'];
 
         if (!allowedExtensions.includes(imageExtension)) {
-            showToast('warning', 'Chỉ cho phép upload hình ảnh (jpg, jpeg, png, webp)!');
+            showToast('warning', 'Chỉ cho phép upload hình ảnh (jpg, jpeg, png)!');
             $(this).val('');
             return;
         }

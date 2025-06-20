@@ -14,9 +14,14 @@ function setupBaiVietTableEvents() {
         $('#modalBaiViet').modal('show');
     });
 
+    $(document).on('click', '.btn-xem-tieude', function () {
+        const tieuDe = decodeURIComponent($(this).data('tieude'));
+        $('#tieuDeDayDuContent').text(tieuDe);
+        $('#modalTieuDeDayDu').modal('show');
+    });
+
     $(document).on('click', '.btn-sua', async function () {
         const id = $(this).data('id');
-        resetModalForm();
 
         try {
             const res = await $.ajax({
@@ -26,14 +31,47 @@ function setupBaiVietTableEvents() {
 
             if (res.success) {
                 const b = res.data;
+
                 $('#modalBaiVietLabel').text('Sửa Bài Viết');
                 $('#BaiVietID').val(b.ID);
                 $('#TieuDe').val(b.TieuDe);
                 $('#LinkThumbnail').val(b.LinkThumbnail);
                 $('#LinkPDF').val(b.LinkPDF);
-                CKEDITOR.instances.NoiDung.setData(b.NoiDung || '');
 
-                $('#previewThumbnail').html(b.LinkThumbnail ? `<img src="${b.LinkThumbnail}" style="max-width: 200px;" />` : '');
+                // Khởi tạo lại CKEditor sau khi modal show
+                $('#modalBaiViet').off('shown.bs.modal').on('shown.bs.modal', function () {
+                    if (CKEDITOR.instances.NoiDung) {
+                        CKEDITOR.instances.NoiDung.destroy(true);
+                    }
+
+                    CKEDITOR.replace('NoiDung', {
+                        extraPlugins: 'justify',
+                        allowedContent: true,
+                        toolbar: [
+                            { name: 'clipboard', items: ['Cut', 'Copy', 'Paste', 'Undo', 'Redo'] },
+                            { name: 'styles', items: ['Format', 'Font', 'FontSize'] },
+                            { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', '-', 'RemoveFormat'] },
+                            { name: 'paragraph', items: ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'NumberedList', 'BulletedList'] },
+                            { name: 'links', items: ['Link', 'Unlink'] },
+                            { name: 'insert', items: ['Image', 'Table', 'HorizontalRule'] },
+                            { name: 'tools', items: ['Maximize'] }
+                        ]
+                    });
+
+                    CKEDITOR.instances.NoiDung.on('instanceReady', function () {
+                        CKEDITOR.instances.NoiDung.setData(b.NoiDung || '');
+                    });
+                });
+
+                // Ảnh & PDF
+                if (b.LinkThumbnail) {
+                    $('#previewThumbnail').html(`<img src="${b.LinkThumbnail}" style="max-width: 200px;" />`);
+                    $('#btnXoaThumbnail').removeClass('d-none');
+                } else {
+                    $('#previewThumbnail').html('');
+                    $('#btnXoaThumbnail').addClass('d-none');
+                }
+
                 $('#previewPDF').html(b.LinkPDF ? `<a href="${b.LinkPDF}" target="_blank">Xem PDF</a>` : '');
 
                 $('#modalBaiViet').modal('show');
@@ -44,6 +82,7 @@ function setupBaiVietTableEvents() {
             Swal.fire({ icon: 'error', title: 'Lỗi', text: 'Không thể kết nối đến server.' });
         }
     });
+
 
     $(document).on('click', '.btn-xoa', async function () {
         const baiVietID = $(this).data('id');
@@ -75,6 +114,13 @@ function setupBaiVietTableEvents() {
             }
         }
     });
+    $(document).on('click', '.btn-xem', function () {
+        const id = $(this).data('id');
+        const url = `/Admin/InterfaceAdmin/XemNoiDung?id=${id}`; // Đúng tên Controller + Action
+        window.open(url, '_blank');
+    });
+
+
 }
 
 async function GetAllBaiViet() {
@@ -88,27 +134,54 @@ async function GetAllBaiViet() {
     if (res.success) {
         let html = '';
         res.data.forEach((item, index) => {
+            const isTitleLong = item.TieuDe.length > 10;
+            const shortTitle = shortenTitle(item.TieuDe);
+            const infoIcon = isTitleLong
+                ? `<i class="anticon anticon-info-circle text-primary ml-1 btn-xem-tieude" style="cursor:pointer;" data-tieude="${encodeURIComponent(item.TieuDe)}"></i>`
+                : '';
+
             const linkThumb = item.LinkThumbnail
-                ? `<a href="${item.LinkThumbnail}" target="_blank">Xem</a>`
-                : `<span class="text-danger">Không có</span>`;
+                ? `<div class="text-center">
+                     <img src="${item.LinkThumbnail}" alt="Thumbnail" 
+                          class="img-thumbnail thumbnail-click" 
+                          data-img="${item.LinkThumbnail}" 
+                          style="max-width: 100px; max-height: 70px; cursor: pointer;" />
+                   </div>`
+                : `<div class="text-danger text-center"></div>`;
+
             const linkPDF = item.LinkPDF
-                ? `<a href="${item.LinkPDF}" target="_blank">Xem</a>`
-                : `<span class="text-danger">Không có</span>`;
+                ? `<div class="text-center d-flex flex-column align-items-center">
+                     <a href="${item.LinkPDF}" target="_blank" class="btn btn-sm btn-primary py-1 px-2 w-100 mt-1" style="max-width: 80px;">
+                        <i class="anticon anticon-eye"></i>
+                     </a>
+                     <button type="button" class="btn btn-sm btn-primary py-1 px-2 w-100 mt-1 btn-tai-pdf" data-link="${item.LinkPDF}" style="max-width: 80px;">
+                        <i class="anticon anticon-download"></i>
+                     </button>
+                   </div>`
+                : `<div class="text-danger text-center"></div>`;
 
             html += `
                 <tr>
                     <td class="d-none">${item.ID}</td>
                     <td>${index + 1}</td>
-                    <td>${item.TieuDe || ''}</td>
-                    <td>${item.NoiDung || ''}</td>
+                    <td>
+                        ${shortTitle}${infoIcon}
+                    </td>
+                    <td class="text-center">
+                        <button class="btn btn-sm btn-outline-info btn-xem" data-id="${item.ID}">
+                            Xem
+                        </button>
+                    </td>
                     <td>${formatDateFromInt(item.NgayDang)}</td>
                     <td>${formatDateFromInt(item.NgayCapNhat)}</td>
                     <td>${linkThumb}</td>
                     <td>${linkPDF}</td>
                     <td>${item.ViewCount ?? 0}</td>
                     <td>
-                        <button class="btn btn-warning btn-sm btn-sua" data-id="${item.ID}">Sửa</button>
-                        <button class="btn btn-danger btn-sm btn-xoa" data-id="${item.ID}">Xóa</button>
+                        <div class="text-center d-flex flex-column align-items-center">
+                            <button class="btn btn-warning btn-sm py-1 px-2 w-100 btn-sua" data-id="${item.ID}" style="max-width: 80px;">Sửa</button>
+                            <button class="btn btn-danger btn-sm py-1 px-2 w-100 mt-1 btn-xoa" data-id="${item.ID}" style="max-width: 80px;">Xóa</button>
+                        </div>
                     </td>
                 </tr>`;
         });
@@ -120,6 +193,11 @@ async function GetAllBaiViet() {
     }
 }
 
+function shortenTitle(title, maxLength = 10) {
+    if (!title) return '';
+    return title.length > maxLength ? `${title.substring(0, maxLength)}...` : title;
+}
+
 function formatDateFromInt(dateInt) {
     if (!dateInt) return '';
     const str = dateInt.toString();
@@ -128,9 +206,24 @@ function formatDateFromInt(dateInt) {
 
 // -------------------- [ Modal form logic ] --------------------
 function setupModalFormEvents() {
-    try {
-        CKEDITOR.replace('NoiDung');
-    } catch (err) { }
+    $('#modalBaiViet').on('shown.bs.modal', function () {
+        if (CKEDITOR.instances.NoiDung) {
+            CKEDITOR.instances.NoiDung.destroy(true);
+        }
+        CKEDITOR.replace('NoiDung', {
+            extraPlugins: 'justify',
+            allowedContent: true,
+            toolbar: [
+                { name: 'clipboard', items: ['Cut', 'Copy', 'Paste', 'Undo', 'Redo'] },
+                { name: 'styles', items: ['Format', 'Font', 'FontSize'] },
+                { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', '-', 'RemoveFormat'] },
+                { name: 'paragraph', items: ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'NumberedList', 'BulletedList'] },
+                { name: 'links', items: ['Link', 'Unlink'] },
+                { name: 'insert', items: ['Image', 'Table', 'HorizontalRule'] },
+                { name: 'tools', items: ['Maximize'] }
+            ]
+        });
+    });
 
     $('#form_baiviet').on('submit', async function (e) {
         e.preventDefault();
@@ -169,17 +262,12 @@ function setupModalFormEvents() {
         }
     });
 
-    // 👉 Sự kiện mở thư viện ảnh
     $('#btnChonThumbnail').on('click', async function () {
         $('#thuVienAnh').html('<p>Đang tải ảnh...</p>');
         $('#modalThuVienAnh').modal('show');
 
         try {
-            const res = await $.ajax({
-                url: `${BASE_URL}/thu-vien-anh`,
-                type: 'GET'
-            });
-
+            const res = await $.ajax({ url: `${BASE_URL}/thu-vien-anh`, type: 'GET' });
             if (res.success) {
                 const images = res.data;
                 const html = images.map(link => `
@@ -194,21 +282,88 @@ function setupModalFormEvents() {
             $('#thuVienAnh').html('<p class="text-danger">Lỗi khi tải ảnh.</p>');
         }
     });
+    $('#ThumbnailFile').on('change', function () {
+        const file = this.files[0];
+        if (!file) return;
 
-    // 👉 Sự kiện chọn ảnh từ thư viện
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const imageUrl = e.target.result;
+            $('#previewThumbnail').html(`<img src="${imageUrl}" style="max-width: 200px;" />`);
+            $('#btnXoaThumbnail').removeClass('d-none');
+            $('#LinkThumbnail').val(''); // Clear link để không nhầm với ảnh từ thư viện
+        };
+        reader.readAsDataURL(file);
+    });
+
+
     $(document).on('click', '.img-select', function () {
         const link = $(this).data('link');
         $('#LinkThumbnail').val(link);
         $('#previewThumbnail').html(`<img src="${link}" style="max-width: 200px;" />`);
+        $('#btnXoaThumbnail').removeClass('d-none');
         $('#modalThuVienAnh').modal('hide');
     });
+
+    $(document).on('click', '.thumbnail-click', function () {
+        const imageUrl = $(this).data('img');
+        Swal.fire({
+            title: 'Xem hình',
+            html: `<img src="${imageUrl}" style="max-width: 100%; max-height: 500px;" />`,
+            showCloseButton: true,
+            showConfirmButton: false,
+            width: 'auto',
+            background: '#fff'
+        });
+    });
+
+    $(document).on('click', '.btn-tai-pdf', function () {
+        const pdfLink = $(this).data('link');
+        Swal.fire({
+            title: 'Bạn có chắc chắn muốn tải xuống không?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Tải',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const link = document.createElement('a');
+                link.href = pdfLink;
+                link.download = '';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        });
+    });
+
+    $('#btnXoaThumbnail').on('click', async function () {
+        const confirm = await Swal.fire({
+            title: 'Bạn có chắc chắn muốn hủy upload ảnh không?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Có',
+            cancelButtonText: 'Không'
+        });
+
+        if (confirm.isConfirmed) {
+            $('#LinkThumbnail').val('');
+            $('#ThumbnailFile').val('');
+            $('#previewThumbnail').html('');
+            $(this).addClass('d-none');
+        }
+    });
+
 }
 
 function resetModalForm() {
     const form = $('#form_baiviet')[0];
     if (form) form.reset();
+
     $('#BaiVietID').val('');
-    CKEDITOR.instances.NoiDung.setData('');
+    $('#LinkThumbnail').val('');
+    $('#LinkPDF').val('');
     $('#previewThumbnail').html('');
     $('#previewPDF').html('');
+    $('#btnXoaThumbnail').addClass('d-none');
 }

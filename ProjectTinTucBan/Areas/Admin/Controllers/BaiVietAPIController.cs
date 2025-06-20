@@ -153,19 +153,31 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         {
             try
             {
-                string folderPath = HttpContext.Current.Server.MapPath("/Uploads/Thumbnails");
+                string folderPath = HttpContext.Current.Server.MapPath("~/Uploads/Thumbnails/");
                 string baseUrl = $"{Request.RequestUri.Scheme}://{Request.RequestUri.Authority}/Uploads/Thumbnails";
 
                 if (!Directory.Exists(folderPath))
                     return Ok(new { success = true, data = new string[0] });
 
-                var imageFiles = Directory.GetFiles(folderPath)
+                // Lấy file và gom nhóm theo tên gốc (bỏ timestamp)
+                var grouped = Directory.GetFiles(folderPath)
                     .Where(file => new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" }
                         .Contains(Path.GetExtension(file).ToLower()))
+                    .GroupBy(file =>
+                    {
+                        // Bỏ timestamp phía sau (nếu có dạng _yyyyMMddHHmmss)
+                        var fileName = Path.GetFileNameWithoutExtension(file);
+                        var baseName = fileName;
+                        int idx = fileName.LastIndexOf('_');
+                        if (idx != -1 && fileName.Length - idx >= 15) // có thể là timestamp
+                            baseName = fileName.Substring(0, idx);
+                        return baseName.ToLower(); // group key
+                    })
+                    .Select(g => g.OrderByDescending(f => f).First()) // chọn ảnh mới nhất mỗi nhóm
                     .Select(file => $"{baseUrl}/{Path.GetFileName(file)}")
                     .ToList();
 
-                return Ok(new { success = true, data = imageFiles });
+                return Ok(new { success = true, data = grouped });
             }
             catch (Exception ex)
             {

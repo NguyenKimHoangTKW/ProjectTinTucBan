@@ -14,13 +14,13 @@
                 <tr>
                     <th class="d-none">ID</th>
                     <th class="text-center">STT</th>
-                    <th>Tiêu đề</th>
-                    <th>Nội dung</th>
-                    <th>Ngày đăng</th>
-                    <th>Ngày cập nhật</th>
-                    <th>Thumbnail</th>
-                    <th>PDF</th>
-                    <th>Lượt xem</th>
+                    <th class="text-center">Tiêu đề</th>
+                    <th class="text-center">Nội dung</th>
+                    <th class="text-center">Ngày đăng</th>
+                    <th class="text-center">Ngày cập nhật</th>
+                    <th class="text-center">Thumbnail</th>
+                    <th class="text-center" style="width: 120px;">PDF</th>
+                    <th class="text-center">Lượt xem</th>
                     <th class="text-center" style="width: 120px;">Hành động</th>
                 </tr>
             </thead>
@@ -29,7 +29,6 @@
     </div>
 </div>
 
-<!-- ========== Modal Thêm / Sửa Bài Viết ========== -->
 <div class="modal fade" id="modalBaiViet" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <form id="form_baiviet" class="modal-content">
@@ -39,19 +38,23 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
+
             <div class="modal-body">
                 <input type="hidden" id="BaiVietID" />
 
+                <!-- Tiêu đề -->
                 <div class="form-group">
                     <label for="TieuDe">Tiêu đề</label>
                     <input type="text" class="form-control" id="TieuDe">
                 </div>
 
+                <!-- Nội dung -->
                 <div class="form-group">
                     <label for="NoiDung">Nội dung</label>
                     <textarea id="NoiDung" class="form-control" rows="10"></textarea>
                 </div>
 
+                <!-- Thumbnail -->
                 <div class="form-group">
                     <label for="ThumbnailFile">Thumbnail</label>
                     <div class="input-group mb-2">
@@ -60,10 +63,15 @@
                             <button type="button" class="btn btn-outline-secondary" id="btnChonThumbnail">Chọn từ thư viện</button>
                         </div>
                     </div>
+
+                    <!-- Nút hủy thumbnail -->
+                    <button type="button" id="btnXoaThumbnail" class="btn btn-sm btn-danger d-none mb-2">Hủy ảnh đã chọn</button>
+
                     <input type="hidden" id="LinkThumbnail" />
                     <div id="previewThumbnail" class="mt-2"></div>
                 </div>
 
+                <!-- PDF -->
                 <div class="form-group">
                     <label for="PdfFile">Upload PDF</label>
                     <input type="file" id="PdfFile" class="form-control-file" accept="application/pdf" />
@@ -71,6 +79,7 @@
                     <div id="previewPDF" class="mt-2"></div>
                 </div>
             </div>
+
             <div class="modal-footer">
                 <button type="submit" class="btn btn-primary">Lưu</button>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
@@ -79,9 +88,8 @@
     </div>
 </div>
 
-<!-- Modal Thư viện ảnh -->
 <div class="modal fade" id="modalThuVienAnh" tabindex="-1" role="dialog" aria-labelledby="modalThuVienAnhLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Chọn ảnh từ thư viện</h5>
@@ -89,13 +97,49 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
-                <div id="thuVienAnh" class="d-flex flex-wrap"></div>
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                <div id="thuVienAnh" class="d-flex flex-wrap gap-3 justify-content-start"></div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Modal Xem Nội Dung -->
+<div class="modal fade" id="modalXemNoiDung" tabindex="-1" role="dialog" aria-labelledby="modalXemNoiDungLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+        <!-- scrollable -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xem Nội Dung</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Đóng">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                <!-- giới hạn chiều cao -->
+                <div id="xemNoiDungContainer"
+                     style="padding: 10px; border: 1px solid #ddd; border-radius: 4px; background: #fff;
+                        white-space: normal; word-wrap: break-word; overflow-wrap: break-word;">
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalTieuDeDayDu" tabindex="-1" role="dialog" aria-labelledby="modalTieuDeLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Tiêu đề đầy đủ</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Đóng">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="tieuDeDayDuContent" style="word-break: break-word;"></div>
+        </div>
+    </div>
+</div>
 
 @section scriptsAdmin {
     <!-- Bootstrap & DataTables -->
@@ -113,7 +157,7 @@
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
 
     <!-- CKEditor -->
-    <script src="https://cdn.ckeditor.com/4.21.0/standard/ckeditor.js"></script>
+    <script src="https://cdn.ckeditor.com/4.21.0/full/ckeditor.js"></script>
 
     <!-- Custom Scripts -->
     <script src="~/Areas/Admin/Scripts/BaiViet.js"></script>
@@ -147,6 +191,11 @@
             border-left: 1px solid #dee2e6 !important;
         }
 
+        #table_load_baiviet td:nth-child(7),
+        #table_load_baiviet th:nth-child(7) {
+            text-align: center !important;
+            vertical-align: middle !important;
+        }
         /* Căn giữa nút Sửa/Xóa trong cột Hành động */
         #table_load_baiviet th:nth-child(10),
         #table_load_baiviet td:nth-child(10) {
@@ -154,6 +203,3 @@
             vertical-align: middle !important;
         }
 </style>
-
-
-
