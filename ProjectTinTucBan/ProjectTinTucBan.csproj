@@ -136,8 +136,18 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Areas\Admin\AdminAreaRegistration.cs" />
+    <Compile Include="Areas\Admin\Controllers\BaiVietAPIController.cs" />
+    <Compile Include="Areas\Admin\Controllers\FunctionAdminAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\InterfaceAdminController.cs" />
-    <Compile Include="Areas\Admin\Controllers\TestController.cs" />
+    <Compile Include="Areas\Admin\Controllers\LoginAPIController.cs" />
+    <Compile Include="Areas\Admin\Controllers\MucLucAdminAPIController.cs" />
+    <Compile Include="Areas\Admin\Controllers\UserAdminAPIController.cs" />
+    <Compile Include="Areas\Admin\Controllers\RolesAdminAPIController.cs" />
+    <Compile Include="Areas\Admin\Controllers\MenuApiAdminController.cs" />
+    <Compile Include="Areas\Admin\Controllers\SliderApiAdminController.cs" />
+    <Content Include="Areas\Admin\Scripts\DanhSachMucLuc.js" />
+    <Compile Include="Areas\Admin\Controllers\UploadPDFAPIController.cs" />
+    <Compile Include="Areas\Admin\Controllers\UploadThumbnailAPIController.cs" />
     <Compile Include="Areas\HelpPage\ApiDescriptionExtensions.cs" />
     <Compile Include="Areas\HelpPage\App_Start\HelpPageConfig.cs" />
     <Compile Include="Areas\HelpPage\Controllers\HelpController.cs" />
@@ -174,6 +184,9 @@
     <Compile Include="Models\BaiViet.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\ChucNangQuyenUser.cs">
+      <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\dbTinTucKhaoThiModel.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -192,6 +205,9 @@
     <Compile Include="Models\DonViTrucThuoc.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\Group_By_Menu.cs">
+      <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\Khoi.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
@@ -201,16 +217,28 @@
     <Compile Include="Models\Menu_by_sub.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\Menu_Group.cs">
+      <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\MucLuc.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\PhanQuyenUser.cs">
+      <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\Role.cs">
+      <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Roles_By_Group.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Slider.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Sub_Menu.cs">
+      <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\sysdiagram.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\TaiKhoan.cs">
@@ -220,6 +248,29 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\Admin\Scripts\test.js" />
+    <Content Include="Areas\Admin\Scripts\DanhSachChucNang.js" />
+    <Content Include="Areas\Admin\Scripts\DanhSachMucLuc.js" />
+    <Content Include="Areas\Admin\Scripts\DanhSachRoles.js" />
+    <Content Include="Areas\Admin\Scripts\GroupMenuAdminScript.js" />
+    <Content Include="Areas\Admin\Scripts\MenuScript.js" />
+    <Content Include="Areas\Admin\Scripts\SliderAdminScript.js" />
+    <Content Include="Areas\Admin\Scripts\SliderShowScript.js" />
+    <Content Include="Areas\Admin\Scripts\TopMenuShowScript.js" />
+    <Content Include="Areas\Admin\Scripts\BaiViet.js" />
+    <Content Include="Areas\Admin\Scripts\DanhSachUser.js" />
+    <Content Include="Areas\Admin\Scripts\LoginWithGoogle.js" />
+    <Content Include="Areas\Admin\Uploads\Slider\0dcd9495-dcb8-4fc7-b924-bc27c7ea3f57.jpeg" />
+    <Content Include="Areas\Admin\Uploads\Slider\19ffc442-085e-4f8f-84d8-4e2b7202a6ad.png" />
+    <Content Include="Areas\Admin\Uploads\Slider\2d0c6ee3-9230-454d-bab0-1884516b667c.jpg" />
+    <Content Include="Areas\Admin\Uploads\Slider\71e7bf3d-99aa-462c-b4b5-a21647f64f28.png" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\Login.cshtml" />
+    <Content Include="Areas\Admin\Uploads\Slider\141625ba-0db3-409b-bfc0-b2f0a385af00.png" />
+    <Content Include="Areas\Admin\Uploads\Slider\309fcdd3-789a-4048-8b75-9cf8322ccd03.jpg" />
+    <Content Include="Areas\Admin\Uploads\Slider\8c8f483f-368a-4e83-9028-357440a60a56.png" />
+    <Content Include="Areas\Admin\Uploads\Slider\b40763c9-5dd7-45a4-a048-fe9177e1e4ca.png" />
+    <Content Include="Areas\Admin\Uploads\Slider\bf59e30c-e56a-402d-a957-46e4084da858.png" />
+    <Content Include="Areas\Admin\Scripts\ThuVienAnh.js" />
+    <Content Include="Areas\Admin\Scripts\Upload.js" />
     <Content Include="Areas\assets\css\app.min.css" />
     <Content Include="Areas\assets\css\buttons.dataTables.min.css" />
     <Content Include="Areas\assets\css\sweetalert2.min.css" />
@@ -271,6 +322,7 @@
     <Content Include="Areas\assets\images\logo\logo-white.png" />
     <Content Include="Areas\assets\images\logo\logo.png" />
     <Content Include="Areas\assets\images\logo\logo_test_2.png" />
+    <Content Include="Areas\assets\images\nen.jpg" />
     <Content Include="Areas\assets\images\others\adobe-thumb.png" />
     <Content Include="Areas\assets\images\others\amazon-thumb.png" />
     <Content Include="Areas\assets\images\others\cambridge-thumb.png" />
@@ -780,6 +832,202 @@
     <Content Include="Areas\assets\vendors\select2\select2_locale_zh-CN.js" />
     <Content Include="Areas\assets\vendors\select2\select2_locale_zh-TW.js" />
     <Content Include="Areas\HelpPage\HelpPage.css" />
+    <Content Include="assets\css\responsive.css" />
+    <Content Include="assets\css\style.css" />
+    <Content Include="assets\css\vendor.css" />
+    <Content Include="assets\fonts\fontawesome-webfont.svg" />
+    <Content Include="assets\fonts\line-awesome.svg" />
+    <Content Include="assets\img\add\1.png" />
+    <Content Include="assets\img\add\2.png" />
+    <Content Include="assets\img\add\3.png" />
+    <Content Include="assets\img\add\4.png" />
+    <Content Include="assets\img\add\5.png" />
+    <Content Include="assets\img\add\6.png" />
+    <Content Include="assets\img\author\1.png" />
+    <Content Include="assets\img\author\2.png" />
+    <Content Include="assets\img\author\3.png" />
+    <Content Include="assets\img\author\4.png" />
+    <Content Include="assets\img\banner\01.png" />
+    <Content Include="assets\img\banner\1.png" />
+    <Content Include="assets\img\banner\2.png" />
+    <Content Include="assets\img\banner\3.png" />
+    <Content Include="assets\img\banner\4.png" />
+    <Content Include="assets\img\banner\5.png" />
+    <Content Include="assets\img\banner\6.png" />
+    <Content Include="assets\img\banner\7.png" />
+    <Content Include="assets\img\blog\01.png" />
+    <Content Include="assets\img\blog\1.png" />
+    <Content Include="assets\img\blog\2.png" />
+    <Content Include="assets\img\blog\3.png" />
+    <Content Include="assets\img\blog\4.png" />
+    <Content Include="assets\img\blog\5.png" />
+    <Content Include="assets\img\blog\6.png" />
+    <Content Include="assets\img\blog\7.png" />
+    <Content Include="assets\img\category\01.png" />
+    <Content Include="assets\img\category\1.png" />
+    <Content Include="assets\img\category\10.png" />
+    <Content Include="assets\img\category\11.png" />
+    <Content Include="assets\img\category\12.png" />
+    <Content Include="assets\img\category\13.png" />
+    <Content Include="assets\img\category\14.png" />
+    <Content Include="assets\img\category\15.png" />
+    <Content Include="assets\img\category\16.png" />
+    <Content Include="assets\img\category\2.png" />
+    <Content Include="assets\img\category\3.png" />
+    <Content Include="assets\img\category\4.png" />
+    <Content Include="assets\img\category\5.png" />
+    <Content Include="assets\img\category\6.png" />
+    <Content Include="assets\img\category\7.png" />
+    <Content Include="assets\img\category\8.png" />
+    <Content Include="assets\img\category\9.png" />
+    <Content Include="assets\img\fashion\1.png" />
+    <Content Include="assets\img\fashion\2.png" />
+    <Content Include="assets\img\fashion\3.png" />
+    <Content Include="assets\img\fashion\4.png" />
+    <Content Include="assets\img\fashion\5.png" />
+    <Content Include="assets\img\fashion\6.png" />
+    <Content Include="assets\img\fashion\7.png" />
+    <Content Include="assets\img\fashion\8.png" />
+    <Content Include="assets\img\fashion\9.png" />
+    <Content Include="assets\img\favicon.png" />
+    <Content Include="assets\img\food\1.png" />
+    <Content Include="assets\img\food\add.png" />
+    <Content Include="assets\img\food\banner.png" />
+    <Content Include="assets\img\food\f1.png" />
+    <Content Include="assets\img\food\f10.png" />
+    <Content Include="assets\img\food\f11.png" />
+    <Content Include="assets\img\food\f12.png" />
+    <Content Include="assets\img\food\f13.png" />
+    <Content Include="assets\img\food\f14.png" />
+    <Content Include="assets\img\food\f15.png" />
+    <Content Include="assets\img\food\f16.png" />
+    <Content Include="assets\img\food\f17.png" />
+    <Content Include="assets\img\food\f18.png" />
+    <Content Include="assets\img\food\f19.png" />
+    <Content Include="assets\img\food\f2.png" />
+    <Content Include="assets\img\food\f20.png" />
+    <Content Include="assets\img\food\f21.png" />
+    <Content Include="assets\img\food\f22.png" />
+    <Content Include="assets\img\food\f23.png" />
+    <Content Include="assets\img\food\f24.png" />
+    <Content Include="assets\img\food\f25.png" />
+    <Content Include="assets\img\food\f26.png" />
+    <Content Include="assets\img\food\f27.png" />
+    <Content Include="assets\img\food\f28.png" />
+    <Content Include="assets\img\food\f29.png" />
+    <Content Include="assets\img\food\f3.png" />
+    <Content Include="assets\img\food\f30.png" />
+    <Content Include="assets\img\food\f31.png" />
+    <Content Include="assets\img\food\f32.png" />
+    <Content Include="assets\img\food\f33.png" />
+    <Content Include="assets\img\food\f4.png" />
+    <Content Include="assets\img\food\f5.png" />
+    <Content Include="assets\img\food\f6.png" />
+    <Content Include="assets\img\food\f7.png" />
+    <Content Include="assets\img\food\f8.png" />
+    <Content Include="assets\img\food\f9.png" />
+    <Content Include="assets\img\lifestyle\1.png" />
+    <Content Include="assets\img\lifestyle\2.png" />
+    <Content Include="assets\img\lifestyle\3.png" />
+    <Content Include="assets\img\lifestyle\4.png" />
+    <Content Include="assets\img\lifestyle\5.png" />
+    <Content Include="assets\img\lifestyle\6.png" />
+    <Content Include="assets\img\lifestyle\7.png" />
+    <Content Include="assets\img\lifestyle\8.png" />
+    <Content Include="assets\img\lifestyle\9.png" />
+    <Content Include="assets\img\logo-2.png" />
+    <Content Include="assets\img\logo-3.png" />
+    <Content Include="assets\img\logo-4.png" />
+    <Content Include="assets\img\logo.png" />
+    <Content Include="assets\img\post\1.png" />
+    <Content Include="assets\img\post\10.png" />
+    <Content Include="assets\img\post\11.png" />
+    <Content Include="assets\img\post\12.png" />
+    <Content Include="assets\img\post\13.png" />
+    <Content Include="assets\img\post\14.png" />
+    <Content Include="assets\img\post\15.png" />
+    <Content Include="assets\img\post\16.png" />
+    <Content Include="assets\img\post\17.png" />
+    <Content Include="assets\img\post\18.png" />
+    <Content Include="assets\img\post\19.png" />
+    <Content Include="assets\img\post\2.png" />
+    <Content Include="assets\img\post\20.png" />
+    <Content Include="assets\img\post\21.png" />
+    <Content Include="assets\img\post\22.png" />
+    <Content Include="assets\img\post\23.png" />
+    <Content Include="assets\img\post\24.png" />
+    <Content Include="assets\img\post\25.png" />
+    <Content Include="assets\img\post\26.png" />
+    <Content Include="assets\img\post\27.png" />
+    <Content Include="assets\img\post\28.png" />
+    <Content Include="assets\img\post\29.png" />
+    <Content Include="assets\img\post\3.png" />
+    <Content Include="assets\img\post\30.png" />
+    <Content Include="assets\img\post\31.png" />
+    <Content Include="assets\img\post\32.png" />
+    <Content Include="assets\img\post\33.png" />
+    <Content Include="assets\img\post\34.png" />
+    <Content Include="assets\img\post\35.png" />
+    <Content Include="assets\img\post\36.png" />
+    <Content Include="assets\img\post\37.png" />
+    <Content Include="assets\img\post\38.png" />
+    <Content Include="assets\img\post\39.png" />
+    <Content Include="assets\img\post\4.png" />
+    <Content Include="assets\img\post\40.png" />
+    <Content Include="assets\img\post\41.png" />
+    <Content Include="assets\img\post\42.png" />
+    <Content Include="assets\img\post\43.png" />
+    <Content Include="assets\img\post\44.png" />
+    <Content Include="assets\img\post\5.png" />
+    <Content Include="assets\img\post\6.png" />
+    <Content Include="assets\img\post\7.png" />
+    <Content Include="assets\img\post\8.png" />
+    <Content Include="assets\img\post\9.png" />
+    <Content Include="assets\img\post\bb.png" />
+    <Content Include="assets\img\post\cc.png" />
+    <Content Include="assets\img\post\list\1.png" />
+    <Content Include="assets\img\post\list\10.png" />
+    <Content Include="assets\img\post\list\11.png" />
+    <Content Include="assets\img\post\list\12.png" />
+    <Content Include="assets\img\post\list\2.png" />
+    <Content Include="assets\img\post\list\3.png" />
+    <Content Include="assets\img\post\list\4.png" />
+    <Content Include="assets\img\post\list\5.png" />
+    <Content Include="assets\img\post\list\6.png" />
+    <Content Include="assets\img\post\list\7.png" />
+    <Content Include="assets\img\post\list\8.png" />
+    <Content Include="assets\img\post\list\9.png" />
+    <Content Include="assets\img\slider\1.png" />
+    <Content Include="assets\img\slider\2.png" />
+    <Content Include="assets\img\slider\3.png" />
+    <Content Include="assets\img\sports\1.png" />
+    <Content Include="assets\img\sports\2.png" />
+    <Content Include="assets\img\sports\3.png" />
+    <Content Include="assets\img\sports\4.png" />
+    <Content Include="assets\img\sports\5.png" />
+    <Content Include="assets\img\sports\6.png" />
+    <Content Include="assets\img\sports\7.png" />
+    <Content Include="assets\img\sports\8.png" />
+    <Content Include="assets\img\sports\9.png" />
+    <Content Include="assets\img\tech\1.png" />
+    <Content Include="assets\img\tech\2.png" />
+    <Content Include="assets\img\tech\3.png" />
+    <Content Include="assets\img\tech\4.png" />
+    <Content Include="assets\img\tech\5.png" />
+    <Content Include="assets\img\tech\6.png" />
+    <Content Include="assets\img\tech\7.png" />
+    <Content Include="assets\img\tech\8.png" />
+    <Content Include="assets\img\tech\9.png" />
+    <Content Include="assets\img\video\01.png" />
+    <Content Include="assets\img\video\1.png" />
+    <Content Include="assets\img\video\2.png" />
+    <Content Include="assets\img\video\3.png" />
+    <Content Include="assets\img\video\4.png" />
+    <Content Include="assets\img\video\5.png" />
+    <Content Include="assets\img\video\6.png" />
+    <Content Include="assets\img\video\7.png" />
+    <Content Include="assets\js\main.js" />
+    <Content Include="assets\js\vendor.js" />
     <Content Include="Content\bootstrap-grid.css" />
     <Content Include="Content\bootstrap-grid.min.css" />
     <Content Include="Content\bootstrap-grid.rtl.css" />
@@ -1081,12 +1329,42 @@
     <Content Include="Areas\Admin\Views\Shared\_AdminNavPartial.cshtml" />
     <Content Include="Areas\Admin\Views\Shared\_AdminHeaderPartial.cshtml" />
     <Content Include="Areas\Admin\Views\Shared\_AdminFooterPartial.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_MucLuc_Admin.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Roles_Admin.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\Menu.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\TopMenuPartial.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\Slider.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\BaiViet.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\Register.cshtml" />
+    <Content Include="assets\fonts\fontawesome-webfont.eot" />
+    <Content Include="assets\fonts\fontawesome-webfont.ttf" />
+    <Content Include="assets\fonts\fontawesome-webfont.woff" />
+    <Content Include="assets\fonts\fontawesome-webfont.woff2" />
+    <Content Include="assets\fonts\FontAwesome.otf" />
+    <Content Include="assets\fonts\line-awesome.eot" />
+    <Content Include="assets\fonts\line-awesome.ttf" />
+    <Content Include="assets\fonts\line-awesome.woff" />
+    <Content Include="assets\fonts\line-awesome.woff2" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Function_Admin.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Users_Admin.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\SliderShowPartial.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\XemNoiDung.cshtml" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />
     <Content Include="Scripts\jquery-3.7.0.slim.js" />
     <Content Include="Scripts\jquery-3.7.0.slim.min.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
+    <Content Include="Uploads\Thumbnails\b0889e80c49d8aaa34420069b227c298_20250619105646.jpg" />
+    <Content Include="Uploads\Thumbnails\b0889e80c49d8aaa34420069b227c298_20250619110010.jpg" />
+    <Content Include="Uploads\Thumbnails\b0889e80c49d8aaa34420069b227c298_20250619110112.jpg" />
+    <Content Include="Uploads\Thumbnails\b0889e80c49d8aaa34420069b227c298_20250619110137.jpg" />
+    <Content Include="Uploads\Thumbnails\b0889e80c49d8aaa34420069b227c298_20250619110726.jpg" />
+    <Content Include="Uploads\Thumbnails\BrainDmgPika_20250619153002.jpg" />
+    <Content Include="Uploads\Thumbnails\BrainDmgPika_20250620090413.jpg" />
+    <Content Include="Uploads\Thumbnails\BrainDmgPika_20250620090419.jpg" />
+    <Content Include="Uploads\Thumbnails\museum_meme_20250619151223.jpg" />
+    <Content Include="Uploads\Thumbnails\z5904852926621_ea1a20e2a957ca24f66c1f2150af9c8e_20250619110751.jpg" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -1101,10 +1379,15 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Uploads\PDFs\test_20250619105429.pdf" />
+    <Content Include="Uploads\PDFs\Bai thuc hanh 1_BT3,4 %28NHOM%29_20250619152631.pdf" />
+    <Content Include="Uploads\PDFs\test_20250619152104.pdf" />
+    <Content Include="Uploads\PDFs\test_20250619152157.pdf" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Areas\Admin\Data\" />
+    <Folder Include="Uploads\Slider\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Scripts\bootstrap.min.js.map" />
