@@ -323,6 +323,7 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Areas\Admin\AdminAreaRegistration.cs" />
     <Compile Include="Areas\Admin\Controllers\APIController.cs" />
+    <Compile Include="Areas\Admin\Controllers\AuthApiController.cs" />
     <Compile Include="Areas\Admin\Controllers\InterfaceAdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\TestController.cs" />
     <Compile Include="Areas\HelpPage\ApiDescriptionExtensions.cs" />
@@ -363,6 +364,11 @@
     </Compile>
     <Compile Include="Models\ChucNangQuyenUser.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\dbTinTucKhaoThiModel.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dbTinTucKhaoThiModel.Context.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\dbTinTucKhaoThiModel.cs">
       <AutoGen>True</AutoGen>
@@ -1001,6 +1007,7 @@
     <Content Include="Models\dbTinTucKhaoThiModel.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>dbTinTucKhaoThiModel.edmx</DependentUpon>
+      <LastGenOutput>dbTinTucKhaoThiModel.Context.cs</LastGenOutput>
     </Content>
     <Content Include="Models\dbTinTucKhaoThiModel.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
