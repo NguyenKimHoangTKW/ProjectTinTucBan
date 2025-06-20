@@ -1,95 +1,180 @@
-﻿//using ProjectTinTucBan.Models;
-//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Net;
-//using System.Net.Http;
-//using System.Threading.Tasks;
-//using System.Web.Http;
-//using System.Data.Entity;
-
-//namespace ProjectTinTucBan.Areas.Admin.Controllers
-//{
-//    [RoutePrefix("api/v1/admin")] // cố định route
-//    public class BaiVietAPIController : ApiController
-//    {
-//        WebTinTucTDMUEntities db = new WebTinTucTDMUEntities(); // context DB
-
-//        [HttpGet]
-//        [Route("get-all-baiviet")] // --> api/v1/admin/get-all-baiviet
-//        public async Task<IHttpActionResult> GetAllBaiViet()
-//        {
-//            var data = await db.BaiViets
-//                 .Select(x => new
-//                 {
-//                     x.ID,
-//                     x.TieuDe,
-//                     x.NoiDung,
-//                     x.LinkThumbnail,
-//                     x.NgayDang,
-//                     x.LinkPDF,
-//                     x.NgayCapNhat,
-//                     x.ViewCount,
-//                 })
-//                 .ToListAsync();
-
-//            if (data.Count > 0)
-//            {
-//                return Ok(new { data = data, success = true });
-//            }
-//            else
-//            {
-//                return Ok(new { message = "Không có bài viết nào", success = false });
-//            }
-//        }
-
-//    }
-//}
-using ProjectTinTucBan.Models;
+﻿using ProjectTinTucBan.Models;
 using System;
-using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 using System.Data.Entity;
-using System.IO;
 
 namespace ProjectTinTucBan.Areas.Admin.Controllers
 {
-    [RoutePrefix("api/v1/admin")] // cố định route
+    [RoutePrefix("api/v1/admin")]
     public class BaiVietAPIController : ApiController
     {
-        WebTinTucTDMUEntities db = new WebTinTucTDMUEntities(); // context DB
+        WebTinTucTDMUEntities db = new WebTinTucTDMUEntities();
 
-        // Lấy tất cả bài viết
+        // GET: Lấy tất cả bài viết
         [HttpGet]
         [Route("get-all-baiviet")]
         public async Task<IHttpActionResult> GetAllBaiViet()
         {
             var data = await db.BaiViets
-                 .Select(x => new
-                 {
-                     x.ID,
-                     x.TieuDe,
-                     x.NoiDung,
-                     x.LinkThumbnail,
-                     x.NgayDang,
-                     x.LinkPDF,
-                     x.NgayCapNhat,
-                     x.ViewCount,
-                 })
-                 .ToListAsync();
+                .OrderByDescending(x => x.ID)
+                .Select(x => new
+                {
+                    x.ID,
+                    x.TieuDe,
+                    x.NoiDung,
+                    x.LinkThumbnail,
+                    x.LinkPDF,
+                    x.NgayDang,
+                    x.NgayCapNhat,
+                    x.ViewCount
+                })
+                .ToListAsync();
 
-            if (data.Count > 0)
+            return Ok(new { data, success = true });
+        }
+
+        // GET: Lấy bài viết theo ID
+        [HttpGet]
+        [Route("get-baiviet-by-id/{id}")]
+        public async Task<IHttpActionResult> GetBaiVietById(int id)
+        {
+            var baiViet = await db.BaiViets.FindAsync(id);
+            if (baiViet == null)
+                return NotFound();
+
+            return Ok(new
             {
-                return Ok(new { data = data, success = true });
+                data = new
+                {
+                    baiViet.ID,
+                    baiViet.TieuDe,
+                    baiViet.NoiDung,
+                    baiViet.LinkThumbnail,
+                    baiViet.LinkPDF,
+                    baiViet.NgayDang,
+                    baiViet.NgayCapNhat,
+                    baiViet.ViewCount
+                },
+                success = true
+            });
+        }
+
+        // POST: Thêm bài viết
+        [HttpPost]
+        [Route("them-baiviet")]
+        public async Task<IHttpActionResult> ThemBaiViet([FromBody] BaiViet model)
+        {
+            if (model == null || string.IsNullOrWhiteSpace(model.TieuDe))
+                return Content(HttpStatusCode.BadRequest, new { success = false, message = "Dữ liệu không hợp lệ." });
+
+            try
+            {
+                int currentDate = int.Parse(DateTime.Now.ToString("yyyyMMdd"));
+
+                model.NgayDang = currentDate;
+                model.NgayCapNhat = currentDate;
+                model.ViewCount = 0;
+
+                db.BaiViets.Add(model);
+                await db.SaveChangesAsync();
+
+                return Ok(new { success = true, message = "Thêm bài viết thành công.", data = model });
             }
-            else
+            catch (Exception ex)
             {
-                return Ok(new { message = "Không có bài viết nào", success = false });
+                return Content(HttpStatusCode.InternalServerError, new
+                {
+                    success = false,
+                    message = "Lỗi khi thêm bài viết.",
+                    error = ex.Message
+                });
+            }
+        }
+
+        // PUT: Cập nhật bài viết
+        [HttpPut]
+        [Route("update-baiviet/{id}")]
+        public async Task<IHttpActionResult> UpdateBaiViet(int id, [FromBody] BaiViet updatedBaiViet)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var existing = await db.BaiViets.FindAsync(id);
+            if (existing == null)
+                return NotFound();
+
+            existing.TieuDe = updatedBaiViet.TieuDe;
+            existing.NoiDung = updatedBaiViet.NoiDung;
+            existing.LinkThumbnail = updatedBaiViet.LinkThumbnail;
+            existing.LinkPDF = updatedBaiViet.LinkPDF;
+            existing.NgayCapNhat = int.Parse(DateTime.Now.ToString("yyyyMMdd"));
+
+            await db.SaveChangesAsync();
+
+            return Ok(new { success = true, message = "Cập nhật bài viết thành công." });
+        }
+
+        // DELETE: Xóa bài viết
+        [HttpDelete]
+        [Route("xoa-baiviet/{id:int}")]
+        public async Task<IHttpActionResult> XoaBaiViet(int id)
+        {
+            try
+            {
+                var baiViet = await db.BaiViets.FindAsync(id);
+                if (baiViet == null)
+                    return Content(HttpStatusCode.NotFound, new { success = false, message = "Không tìm thấy bài viết." });
+
+                db.BaiViets.Remove(baiViet);
+                await db.SaveChangesAsync();
+
+                return Ok(new { success = true, message = "Xóa bài viết thành công." });
+            }
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.InternalServerError, new
+                {
+                    success = false,
+                    message = "Lỗi trong quá trình xóa.",
+                    error = ex.Message
+                });
+            }
+        }
+
+        // GET: Lấy danh sách ảnh từ thư viện
+        [HttpGet]
+        [Route("thu-vien-anh")]
+        public IHttpActionResult GetThuVienAnh()
+        {
+            try
+            {
+                string folderPath = HttpContext.Current.Server.MapPath("/Uploads/Thumbnails");
+                string baseUrl = $"{Request.RequestUri.Scheme}://{Request.RequestUri.Authority}/Uploads/Thumbnails";
+
+                if (!Directory.Exists(folderPath))
+                    return Ok(new { success = true, data = new string[0] });
+
+                var imageFiles = Directory.GetFiles(folderPath)
+                    .Where(file => new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" }
+                        .Contains(Path.GetExtension(file).ToLower()))
+                    .Select(file => $"{baseUrl}/{Path.GetFileName(file)}")
+                    .ToList();
+
+                return Ok(new { success = true, data = imageFiles });
+            }
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.InternalServerError, new
+                {
+                    success = false,
+                    message = "Không thể tải thư viện ảnh.",
+                    error = ex.Message
+                });
             }
         }
     }

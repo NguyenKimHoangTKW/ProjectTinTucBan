@@ -71,8 +71,12 @@ secrets.json
 
 # Local config
 <<<<<<< HEAD
+<<<<<<< HEAD
 *.local.json
 =======
 *.local.json
 
 >>>>>>> Khiem
+=======
+*.local.json
+>>>>>>> Hung
