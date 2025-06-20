@@ -230,9 +230,9 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         }
 
 
+        /* Bắt đầu phần xử lý api quản lý cho group menu */
 
 
-        /* Bắt đầu phần xử lý api cho group menu */
         // Thêm DTO cho GroupMenu
         public class GroupMenuDto
         {
@@ -314,6 +314,11 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             return Ok(new { success = true });
         }
 
+
+
+        /* Xử lý tương tác giữa groupmenu với các bảng khác*/
+
+
         // Thêm DTO cho việc thêm menu vào group menu
         public class AddMenuToGroupDto
         {
@@ -381,6 +386,71 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 }).ToListAsync();
 
             return Ok(groups);
+        }
+
+        // API: Lấy menu và submenu theo group menu ID
+        [HttpGet]
+        [Route("groupmenu-menus/{groupId:int}")]
+        public async Task<IHttpActionResult> GetMenusByGroupMenu(int groupId)
+        {
+            var group = await db.Menu_Group
+                .Where(g => g.ID == groupId)
+                .Select(g => new
+                {
+                    g.ID,
+                    g.Ten,
+                    g.NgayTao,
+                    g.NgayCapNhat,
+                    Menus = g.Group_By_Menu.Select(gbm => new
+                    {
+                        MenuId = gbm.Menu.ID,
+                        MenuName = gbm.Menu.Ten,
+                        MenuLink = gbm.Menu.Link,
+                        SubMenus = gbm.Menu.Menu_by_sub
+                            .Where(mbs => mbs.id_sub != null)
+                            .Select(mbs => new
+                            {
+                                SubMenuId = mbs.Sub_Menu.id_sub,
+                                SubMenuName = mbs.Sub_Menu.name_sub,
+                                SubMenuLink = mbs.Sub_Menu.Link
+                            }).ToList()
+                    }).ToList()
+                })
+                .FirstOrDefaultAsync();
+
+            if (group == null)
+                return NotFound();
+
+            return Ok(group);
+        }
+
+        // API: Xóa menu khỏi group
+        [HttpPost]
+        [Route("delete-menu-from-group")]
+        public async Task<IHttpActionResult> DeleteMenuFromGroup([FromBody] AddMenuToGroupDto dto)
+        {
+            if (dto == null)
+                return BadRequest("Dữ liệu gửi lên không hợp lệ.");
+
+            // Kiểm tra liên kết có tồn tại không
+            var groupByMenu = await db.Group_By_Menu
+                .FirstOrDefaultAsync(x => x.ID_MENU == dto.MenuId && x.ID_GROUP == dto.GroupMenuId);
+
+            if (groupByMenu == null)
+                return Ok(new { success = false, message = "Không tìm thấy menu trong group này." });
+
+            try
+            {
+                // Xóa liên kết
+                db.Group_By_Menu.Remove(groupByMenu);
+                await db.SaveChangesAsync();
+
+                return Ok(new { success = true, message = "Xóa menu khỏi group thành công." });
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(new Exception("Lỗi khi xóa menu khỏi group: " + ex.Message));
+            }
         }
     }
 }

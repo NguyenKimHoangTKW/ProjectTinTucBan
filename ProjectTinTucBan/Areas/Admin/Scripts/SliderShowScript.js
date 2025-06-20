@@ -18,7 +18,7 @@
                 var slide = slides[j];
                 itemsHtml += `
                     <div class="carousel-item${j === 0 ? ' active' : ''}">
-                        <img src="${slide.LinkHinh}" class="d-block w-100" alt="Slide ${j + 1}">
+                        <img src="${slide.LinkHinh}"  style="height:500px; width:100%" class="d-block w-100" alt="Slide ${j + 1}">
                     </div>
                 `;
             }
