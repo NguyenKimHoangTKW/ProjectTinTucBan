@@ -136,10 +136,20 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Areas\Admin\AdminAreaRegistration.cs" />
+    <Compile Include="Areas\Admin\Controllers\BaiVietAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\InterfaceAdminController.cs" />
+    <Compile Include="Areas\Admin\Controllers\MucLucAdminAPIController.cs" />
+    <Compile Include="Areas\Admin\Controllers\RolesAdminAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\MenuApiAdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\SliderApiAdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\TestController.cs" />
+    <Content Include="Areas\Admin\Scripts\DanhSachMucLuc.js" />
+    <Compile Include="Areas\Admin\Controllers\SuaBaiVietController.cs" />
+    <Compile Include="Areas\Admin\Controllers\TestController.cs" />
+    <Compile Include="Areas\Admin\Controllers\ThemBaiVietAPIController.cs" />
+    <Compile Include="Areas\Admin\Controllers\UploadPDFAPIController.cs" />
+    <Compile Include="Areas\Admin\Controllers\UploadThumbnailAPIController.cs" />
+    <Compile Include="Areas\Admin\Controllers\XoaBaiVietAPIController.cs" />
     <Compile Include="Areas\HelpPage\ApiDescriptionExtensions.cs" />
     <Compile Include="Areas\HelpPage\App_Start\HelpPageConfig.cs" />
     <Compile Include="Areas\HelpPage\Controllers\HelpController.cs" />
@@ -240,6 +250,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\Admin\Scripts\GroupMenuAdminScript.js" />
+    <Content Include="Areas\Admin\Scripts\DanhSachRoles.js" />
     <Content Include="Areas\Admin\Scripts\MenuScript.js" />
     <Content Include="Areas\Admin\Scripts\SliderAdminScript.js" />
     <Content Include="Areas\Admin\Scripts\SliderShowScript.js" />
@@ -249,6 +260,12 @@
     <Content Include="Areas\Admin\Uploads\Slider\8c8f483f-368a-4e83-9028-357440a60a56.png" />
     <Content Include="Areas\Admin\Uploads\Slider\b40763c9-5dd7-45a4-a048-fe9177e1e4ca.png" />
     <Content Include="Areas\Admin\Uploads\Slider\bf59e30c-e56a-402d-a957-46e4084da858.png" />
+    <Content Include="Areas\Admin\Scripts\BaiViet.js" />
+    <Content Include="Areas\Admin\Scripts\SuaBaiViet.js" />
+    <Content Include="Areas\Admin\Scripts\ThemBaiViet.js" />
+    <Content Include="Areas\Admin\Scripts\UploadPDF.js" />
+    <Content Include="Areas\Admin\Scripts\UploadThumbnail.js" />
+    <Content Include="Areas\Admin\Scripts\XoaBaiViet.js" />
     <Content Include="Areas\assets\css\app.min.css" />
     <Content Include="Areas\assets\css\buttons.dataTables.min.css" />
     <Content Include="Areas\assets\css\sweetalert2.min.css" />
@@ -300,6 +317,7 @@
     <Content Include="Areas\assets\images\logo\logo-white.png" />
     <Content Include="Areas\assets\images\logo\logo.png" />
     <Content Include="Areas\assets\images\logo\logo_test_2.png" />
+    <Content Include="Areas\assets\images\nen.jpg" />
     <Content Include="Areas\assets\images\others\adobe-thumb.png" />
     <Content Include="Areas\assets\images\others\amazon-thumb.png" />
     <Content Include="Areas\assets\images\others\cambridge-thumb.png" />
@@ -1110,16 +1128,27 @@
     <Content Include="Areas\Admin\Views\Shared\_AdminNavPartial.cshtml" />
     <Content Include="Areas\Admin\Views\Shared\_AdminHeaderPartial.cshtml" />
     <Content Include="Areas\Admin\Views\Shared\_AdminFooterPartial.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_MucLuc_Admin.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Roles_Admin.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Menu.cshtml" />
     <Content Include="Areas\Admin\Views\Shared\TopMenuPartial.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Slider.cshtml" />
     <Content Include="Areas\Admin\Views\Shared\SliderShowPartial.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\BaiViet.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\ThemBaiViet.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\SuaBaiViet.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\XoaBaiViet.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\Login.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\Register.cshtml" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />
     <Content Include="Scripts\jquery-3.7.0.slim.js" />
     <Content Include="Scripts\jquery-3.7.0.slim.min.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
+    <Content Include="Uploads\Slider\0d79ed64-f935-4a1e-8193-74756d1d356f.png" />
+    <Content Include="Uploads\Thumbnails\BrainDmgPika.jpg" />
+    <Content Include="Uploads\Thumbnails\BrainDmgPika_20250612142043.jpg" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -1134,10 +1163,14 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Uploads\PDFs\test.pdf" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Areas\Admin\Data\" />
+    <Folder Include="Areas\Admin\Uploads\PDFs\" />
+    <Folder Include="Areas\Admin\Uploads\Slider\" />
+    <Folder Include="Areas\Admin\Uploads\Thumbnails\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Scripts\bootstrap.min.js.map" />

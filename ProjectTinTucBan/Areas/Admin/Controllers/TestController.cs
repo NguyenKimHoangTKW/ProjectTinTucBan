@@ -26,7 +26,13 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         public async Task<IHttpActionResult> test()
         {
             var get = db.BaiViets.ToListAsync();
-            return Ok();
+            var aaaa = await db.MucLucs
+                .Select(x => new
+                {
+                    x.ThuTuShow
+                })
+                .ToListAsync(); // lấy ra toàn bộ record trong table BaiViets
+            return Ok(new { data = aaaa });
         }
 
         [HttpPost]
