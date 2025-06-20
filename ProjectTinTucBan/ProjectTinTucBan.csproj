@@ -1349,6 +1349,7 @@
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Function_Admin.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Users_Admin.cshtml" />
     <Content Include="Areas\Admin\Views\Shared\SliderShowPartial.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\XemNoiDung.cshtml" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />
@@ -1360,6 +1361,10 @@
     <Content Include="Uploads\Thumbnails\b0889e80c49d8aaa34420069b227c298_20250619110112.jpg" />
     <Content Include="Uploads\Thumbnails\b0889e80c49d8aaa34420069b227c298_20250619110137.jpg" />
     <Content Include="Uploads\Thumbnails\b0889e80c49d8aaa34420069b227c298_20250619110726.jpg" />
+    <Content Include="Uploads\Thumbnails\BrainDmgPika_20250619153002.jpg" />
+    <Content Include="Uploads\Thumbnails\BrainDmgPika_20250620090413.jpg" />
+    <Content Include="Uploads\Thumbnails\BrainDmgPika_20250620090419.jpg" />
+    <Content Include="Uploads\Thumbnails\museum_meme_20250619151223.jpg" />
     <Content Include="Uploads\Thumbnails\z5904852926621_ea1a20e2a957ca24f66c1f2150af9c8e_20250619110751.jpg" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
@@ -1376,11 +1381,9 @@
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Uploads\PDFs\test_20250619105429.pdf" />
-    <Content Include="Uploads\Thumbnails\phat-trien-web-site_20250619110050.webp" />
-    <Content Include="Uploads\Thumbnails\phat-trien-web-site_20250619110353.webp" />
-    <Content Include="Uploads\Thumbnails\phat-trien-web-site_20250619110728.webp" />
-    <Content Include="Uploads\Thumbnails\phat-trien-web-site_20250619110732.webp" />
-    <Content Include="Uploads\Thumbnails\phat-trien-web-site_20250619110759.webp" />
+    <Content Include="Uploads\PDFs\Bai thuc hanh 1_BT3,4 %28NHOM%29_20250619152631.pdf" />
+    <Content Include="Uploads\PDFs\test_20250619152104.pdf" />
+    <Content Include="Uploads\PDFs\test_20250619152157.pdf" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
