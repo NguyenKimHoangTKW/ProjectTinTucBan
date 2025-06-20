@@ -116,7 +116,7 @@ function setupBaiVietTableEvents() {
     });
     $(document).on('click', '.btn-xem', function () {
         const id = $(this).data('id');
-        const url = `/Admin/InterfaceAdmin/XemNoiDung?id=${id}`; // Đúng tên Controller + Action
+        const url = `/admin/xem-noi-dung?id=${id}`; // Đúng tên Controller + Action
         window.open(url, '_blank');
     });
 
