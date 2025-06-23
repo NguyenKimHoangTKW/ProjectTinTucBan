@@ -34,13 +34,16 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     MenuId = m.ID,
                     MenuName = m.Ten,
                     MenuLink = m.Link,
+                    MenuOrder = m.ThuTuShow,
                     SubMenus = db.Menu_by_sub
                         .Where(x => x.id_menu == m.ID && x.id_sub != null)
+                        .OrderBy(x => x.Sub_Menu.ThuTuShow)
                         .Select(x => new
                         {
                             SubMenuId = x.Sub_Menu.id_sub,
                             SubMenuName = x.Sub_Menu.name_sub,
-                            SubMenuLink = x.Sub_Menu.Link
+                            SubMenuLink = x.Sub_Menu.Link,
+                            SubMenuOrder = x.Sub_Menu.ThuTuShow
                         }).ToList()
                 }).ToListAsync();
 
@@ -126,6 +129,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             public int ID { get; set; }
             public string Ten { get; set; }
             public string Link { get; set; }
+            public int ThuTuShow { get; set; }
         }
 
         [HttpPost]
@@ -144,6 +148,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
             menu.Ten = dto.Ten;
             menu.Link = dto.Link;
+            menu.ThuTuShow = dto.ThuTuShow;
             menu.NgayCapNhat = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
 
             try
@@ -173,6 +178,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
             menu.name_sub = dto.Ten;
             menu.Link = dto.Link;
+            menu.ThuTuShow = dto.ThuTuShow;
             menu.time_update = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
 
             try
@@ -401,20 +407,27 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     g.Ten,
                     g.NgayTao,
                     g.NgayCapNhat,
-                    Menus = g.Group_By_Menu.Select(gbm => new
-                    {
-                        MenuId = gbm.Menu.ID,
-                        MenuName = gbm.Menu.Ten,
-                        MenuLink = gbm.Menu.Link,
-                        SubMenus = gbm.Menu.Menu_by_sub
-                            .Where(mbs => mbs.id_sub != null)
-                            .Select(mbs => new
-                            {
-                                SubMenuId = mbs.Sub_Menu.id_sub,
-                                SubMenuName = mbs.Sub_Menu.name_sub,
-                                SubMenuLink = mbs.Sub_Menu.Link
-                            }).ToList()
-                    }).ToList()
+                    Menus = g.Group_By_Menu
+                        .Select(gbm => new
+                        {
+                            MenuId = gbm.Menu.ID,
+                            MenuName = gbm.Menu.Ten,
+                            MenuLink = gbm.Menu.Link,
+                            ThuTuShow = gbm.Menu.ThuTuShow,
+                            SubMenus = gbm.Menu.Menu_by_sub
+                                .Where(mbs => mbs.id_sub != null)
+                                .Select(mbs => new
+                                {
+                                    SubMenuId = mbs.Sub_Menu.id_sub,
+                                    SubMenuName = mbs.Sub_Menu.name_sub,
+                                    SubMenuLink = mbs.Sub_Menu.Link,
+                                    ThuTuShow = mbs.Sub_Menu.ThuTuShow
+                                })
+                                .OrderBy(sm => sm.ThuTuShow)
+                                .ToList()
+                        })
+                        .OrderBy(m => m.ThuTuShow)
+                        .ToList()
                 })
                 .FirstOrDefaultAsync();
 

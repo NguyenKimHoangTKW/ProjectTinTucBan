@@ -4,7 +4,7 @@ $(function () {
         Swal.fire({
             icon: type,
             title: message,
-            timer: 3000000,
+            timer: 3000,
             showConfirmButton: true
         });
     }
@@ -14,15 +14,19 @@ $(function () {
             data.forEach(menu => {
                 const $left = $('<div >').append(
                     $('<span>').text(menu.MenuName),
-                    menu.MenuLink ? $('<span class="text-muted">').text(' (' + menu.MenuLink + ')') : ''
+                    menu.MenuLink ? $('<span class="text-muted">').text(' (' + menu.MenuLink + ')') : '',
+                    menu.MenuOrder ? $('<span class="text-muted">').text(' - Thứ tự: ' + menu.MenuOrder) : ''
                 );
-                const $right = $('<div>').append(
+                const $right = $('<div >')
+                    .addClass('d-flex menu-action-buttons flex-row justify-content-end align-items-center')
+                    .append(
                     $('<button class="btn btn-sm btn-link add-submenu-btn mb-3">')
                         .text('Thêm menu con').attr('data-menu-id', menu.MenuId),
                     $('<button class="btn btn-sm btn-warning edit-menu-btn ml-2">')
                         .text('Sửa').attr('data-menu-id', menu.MenuId)
                         .attr('data-menu-name', menu.MenuName)
-                        .attr('data-menu-link', menu.MenuLink || ''),
+                        .attr('data-menu-link', menu.MenuLink || '')
+                        .attr('data-menu-order', menu.MenuOrder),
                     $('<button class="btn btn-sm btn-danger delete-menu-btn ml-2">')
                         .text('Xóa').attr('data-menu-id', menu.MenuId)
                 );
@@ -49,11 +53,12 @@ $(function () {
                             .append($name)
                             .append($link);
 
-                        const $right = $('<div>').append(
+                        const $right = $('<div >').append(
                             $('<button class="btn btn-sm btn-warning edit-submenu-btn">')
                                 .text('Sửa').attr('data-submenu-id', sub.SubMenuId)
                                 .attr('data-menu-name', sub.SubMenuName)
-                                .attr('data-menu-link', sub.SubMenuLink || ''),
+                                .attr('data-menu-link', sub.SubMenuLink || '')
+                                .attr('data-menu-order',sub.SubMenuOrder),
                             $('<button class="btn btn-sm btn-danger delete-submenu-btn">')
                                 .text('Xóa').attr('data-submenu-id', sub.SubMenuId)
                         );
@@ -136,12 +141,14 @@ $(function () {
         const menuId = $(this).data('menu-id');
         const currentName = $(this).data('menu-name');
         const currentLink = $(this).data('menu-link');
+        const currentOrder = $(this).data('menu-order') || '';
 
         Swal.fire({
             title: 'Chỉnh sửa Menu',
             html:
                 `<input id="swal-menu-name" class="swal2-input" placeholder="Tên menu" value="${currentName}">` +
-                `<input id="swal-menu-link" class="swal2-input" placeholder="Link" value="${currentLink}">`,
+                `<input id="swal-menu-link" class="swal2-input" placeholder="Link" value="${currentLink}">` +
+                `<input id="swal-menu-order" type="swal2-number" class="swal2-input" placeholder="Thứ tự show" value="${currentOrder}">`,
             focusConfirm: false,
             showCancelButton: true,
             confirmButtonText: 'Lưu',
@@ -149,11 +156,12 @@ $(function () {
             preConfirm: () => {
                 const name = $('#swal-menu-name').val().trim();
                 const link = $('#swal-menu-link').val().trim();
+                const order = $('#swal-menu-order').val().trim();
                 if (!name) {
                     Swal.showValidationMessage('Tên menu không được để trống!');
                     return false;
                 }
-                return { name, link };
+                return { name, link, order };
             }
         }).then((result) => {
             if (result.isConfirmed) {
@@ -164,7 +172,8 @@ $(function () {
                     data: JSON.stringify({
                         ID: menuId,
                         Ten: result.value.name,
-                        Link: result.value.link
+                        Link: result.value.link,
+                        thuTuShow: result.value.order ? parseInt(result.value.order) : null
                     }),
                     success: function (res) {
                         if (res.success) {
@@ -186,7 +195,7 @@ $(function () {
         const menuId = $(this).data('menu-id');
         $('#parentMenuId').val(menuId);
         $('#subMenuName').val('');
-        $('#subLink').val('');
+        $('#subLink').val('');  
         $('#addSubMenuModal').modal('show');
     });
 
@@ -227,12 +236,15 @@ $(function () {
         // Lấy tên submenu hiện tại từ DOM
         const $subItem = $(this).closest('.d-flex').find('span').first();
         const currentName = $subItem.text();
+        const currentLink = $(this).data('menu-link') || '';
+        const currentOrder = $(this).data('menu-order') || '';
 
         Swal.fire({
             title: 'Chỉnh sửa Menu Con',
             html:
                 `<input id="swal-submenu-name" class="swal2-input" placeholder="Tên menu con" value="${currentName}">` +
-                `<input id="swal-submenu-link" class="swal2-input" placeholder="Link" value="">`,
+                `<input id="swal-submenu-link" class="swal2-input" placeholder="Link" value="${currentLink}">` +
+                `<input id="swal-submenu-order" class="swal2-number" placeholder="Thứ tự show" value="${currentOrder}">`,
             focusConfirm: false,
             showCancelButton: true,
             confirmButtonText: 'Lưu',
@@ -240,11 +252,12 @@ $(function () {
             preConfirm: () => {
                 const name = $('#swal-submenu-name').val().trim();
                 const link = $('#swal-submenu-link').val().trim();
+                const order = $('#swal-submenu-order').val().trim();
                 if (!name) {
                     Swal.showValidationMessage('Tên menu con không được để trống!');
                     return false;
                 }
-                return { name, link };
+                return { name, link,order };
             }
         }).then((result) => {
             if (result.isConfirmed) {
@@ -255,7 +268,8 @@ $(function () {
                     data: JSON.stringify({
                         ID: subMenuId,
                         Ten: result.value.name,
-                        Link: result.value.link
+                        Link: result.value.link,
+                        ThuTuShow: result.value.order ? parseInt(result.value.order) : null
                     }),
                     success: function (res) {
                         if (res.success) {

@@ -14,8 +14,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
     public class InterfaceAdminController : Controller
     {
-        private WebTinTucTDMUEntities db = new WebTinTucTDMUEntities();
-        
+               
         // Gọi hàm thiết kế giao diện tại đây
         public ActionResult Index()
         {
