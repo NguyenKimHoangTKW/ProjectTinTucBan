@@ -1,4 +1,5 @@
-﻿using ProjectTinTucBan.Models;
+﻿using ProjectTinTucBan.Helper;
+using ProjectTinTucBan.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -53,13 +54,17 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
             try
             {
-                var existingAccount = await db.TaiKhoans.FirstOrDefaultAsync(x => x.Gmail == model.email);
+                // Lấy phần trước @ từ email để làm tên đăng nhập
+                string username = model.email.Split('@')[0];
 
+                var existingAccount = await db.TaiKhoans.FirstOrDefaultAsync(x => x.Gmail == model.email);
+                string MatKhauMaHoa = EncryptionHelper.Encrypt("@123");
                 if (existingAccount == null)
                 {
                     existingAccount = new TaiKhoan
                     {
-                        TenTaiKhoan = model.name,
+                        TenTaiKhoan = username, 
+                        MatKhau = MatKhauMaHoa,
                         Gmail = model.email,
                         ID_role = 4,
                         NgayTao = unixTimestamp,
@@ -71,19 +76,13 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 }
                 else
                 {
-                    existingAccount.TenTaiKhoan = model.name;
-                    await db.SaveChangesAsync();
+                    // Cập nhật tên đăng nhập nếu cần
+                    if (existingAccount.TenTaiKhoan != username)
+                    {
+                        existingAccount.TenTaiKhoan = username;
+                        await db.SaveChangesAsync();
+                    }
                 }
-
-                /*try
-                {
-                    SessionHelper.SetUser(existingAccount);
-                }
-                catch (Exception ex)
-                {
-                    // Log the error but continue - session error shouldn't prevent login
-                    System.Diagnostics.Debug.WriteLine("Session error: " + ex.Message);
-                }*/
 
                 return Ok(new
                 {
@@ -105,54 +104,71 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         {
             try
             {
-                // Tìm tài khoản dựa trên username hoặc email
-                var user = await db.TaiKhoans.FirstOrDefaultAsync(u =>
-                    u.TenTaiKhoan == model.Username || u.Gmail == model.Username);
+                // Tìm tài khoản dựa trên username
+                var user = await db.TaiKhoans.FirstOrDefaultAsync(u => u.TenTaiKhoan == model.Username);
 
-                if (user != null && user.MatKhau == model.Password)
+                // Kiểm tra user null trước khi giải mã
+                if (user == null)
                 {
-                    // Check if email is from valid domain
-                    if (user.Gmail != null && !user.Gmail.EndsWith("@student.tdmu.edu.vn") && !user.Gmail.EndsWith("@tdmu.edu.vn"))
-                    {
-                        return Ok(new
-                        {
-                            message = "Gmail không hợp lệ.",
-                            success = false
-                        });
-                    }
-
-                    // Tạo Account từ TaiKhoan
-                    var accountForSession = new TaiKhoan
-                    {
-                        ID = user.ID,
-                        TenTaiKhoan = user.TenTaiKhoan,
-                        Gmail = user.Gmail,
-                        ID_role = user.ID_role ?? 4
-                    };
-
-                    /*try
-                    {
-                        SessionHelper.SetUser(accountForSession);
-                    }
-                    catch (Exception ex)
-                    {
-                        // Log the error but continue - session error shouldn't prevent login
-                        System.Diagnostics.Debug.WriteLine("Session error: " + ex.Message);
-                    }*/
-
                     return Ok(new
                     {
-                        idRole = user.ID_role,
-                        message = "Đăng nhập thành công",
-                        success = true
+                        message = "Tên đăng nhập không tồn tại",
+                        success = false
                     });
                 }
 
-                return Ok(new
+                try
                 {
-                    message = "Tên đăng nhập hoặc mật khẩu không đúng",
-                    success = false
-                });
+                    string MatKhauGiaiMa = EncryptionHelper.Decrypt(user.MatKhau);
+
+                    if (MatKhauGiaiMa == model.Password)
+                    {
+                        // Kiểm tra domain email nếu có
+                        if (user.Gmail != null && !user.Gmail.EndsWith("@student.tdmu.edu.vn") && !user.Gmail.EndsWith("@tdmu.edu.vn"))
+                        {
+                            return Ok(new
+                            {
+                                message = "Gmail không hợp lệ.",
+                                success = false
+                            });
+                        }
+
+                        // Tạo Account cho session từ TaiKhoan
+                        var accountForSession = new TaiKhoan
+                        {
+                            ID = user.ID,
+                            TenTaiKhoan = user.TenTaiKhoan,
+                            Gmail = user.Gmail,
+                            ID_role = user.ID_role ?? 4
+                        };
+
+                        return Ok(new
+                        {
+                            idRole = user.ID_role,
+                            message = "Đăng nhập thành công",
+                            success = true
+                        });
+                    }
+                    else
+                    {
+                        return Ok(new
+                        {
+                            message = "Mật khẩu không đúng",
+                            success = false
+                        });
+                    }
+                }
+                catch (Exception decryptEx)
+                {
+                    // Log lỗi giải mã
+                    System.Diagnostics.Debug.WriteLine("Decrypt error: " + decryptEx.Message);
+
+                    return Ok(new
+                    {
+                        message = "Đã xảy ra lỗi khi xác thực mật khẩu",
+                        success = false
+                    });
+                }
             }
             catch (Exception ex)
             {
@@ -180,7 +196,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
     public class GoogleLoginModel
     {
         public string email { get; set; }
-        public string name { get; set; }
+        public string name { get; set; } 
     }
 
     public class LoginModel

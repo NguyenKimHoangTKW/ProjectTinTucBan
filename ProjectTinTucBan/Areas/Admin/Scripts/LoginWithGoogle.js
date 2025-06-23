@@ -30,8 +30,6 @@ function signIn() {
 
 async function Session_Login(email, fullname) {
     try {
-        console.log("Attempting to log in with:", email, fullname);
-
         // Validate email domain
         if (!email.endsWith('@student.tdmu.edu.vn') && !email.endsWith('@tdmu.edu.vn')) {
             console.log("Invalid email domain:", email);
@@ -50,7 +48,6 @@ async function Session_Login(email, fullname) {
             }),
         });
 
-        console.log("Login response:", res);
 
         if (res.success) {
             console.log("Login successful! Role:", res.idRole);

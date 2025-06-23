@@ -145,9 +145,7 @@
     <Compile Include="Areas\Admin\Controllers\RolesAdminAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\MenuApiAdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\SliderApiAdminController.cs" />
-    <Compile Include="Areas\Admin\Controllers\TestController.cs" />
     <Content Include="Areas\Admin\Scripts\DanhSachMucLuc.js" />
-    <Compile Include="Areas\Admin\Controllers\TestController.cs" />
     <Compile Include="Areas\Admin\Controllers\UploadPDFAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\UploadThumbnailAPIController.cs" />
     <Compile Include="Areas\HelpPage\ApiDescriptionExtensions.cs" />
@@ -183,6 +181,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helper\EncryptionHelper.cs" />
     <Compile Include="Models\BaiViet.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>

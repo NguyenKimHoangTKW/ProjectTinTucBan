@@ -1,7 +1,6 @@
 ﻿﻿@{
     ViewBag.Title = "Đăng nhập";
     Layout = null;
-    var returnUrl = ViewBag.ReturnUrl ?? Request.QueryString["ReturnUrl"];
 }
 
 <!DOCTYPE html>
@@ -37,7 +36,6 @@
     <div class="login-form">
         <h2 class="text-center mb-4">Đăng nhập quản trị</h2>
         <form id="loginForm" method="post">
-            <input type="hidden" name="ReturnUrl" value="@returnUrl" />
             <div class="form-group mb-3">
                 <label for="username">Tên đăng nhập</label>
                 <div class="input-group">
