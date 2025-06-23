@@ -159,6 +159,8 @@ function getRoleName(roleId, rolesData) {
     return role ? role.TenRole : "Không xác định";
 }
 
+defaultContent = "Không có dữ liệu";
+
 // Load data from API
 async function load_data() {
     try {
@@ -234,7 +236,7 @@ async function load_data() {
                         return newItem;
                     });
                 }
-
+                
                 // Khởi tạo DataTable với dữ liệu
                 dataTableInstance = $('#data-table').DataTable({
                     data: processedData || [],
@@ -245,9 +247,9 @@ async function load_data() {
                                 return meta.row + 1;
                             }
                         },
-                        { data: 'TenTaiKhoan' },
-                        { data: 'Gmail' },
-                        { data: 'SDT', defaultContent: "Không có" },
+                        { data: 'TenTaiKhoan', defaultContent},
+                        { data: 'Gmail', defaultContent},
+                        { data: 'SDT', defaultContent},
                         {
                             data: 'ID_role',
                             render: function (data, type, row) {
@@ -265,11 +267,11 @@ async function load_data() {
                         },
                         {
                             data: 'NgayTao',
-                            defaultContent: "N/A"
+                            defaultContent
                         },
                         {
                             data: 'NgayCapNhat',
-                            defaultContent: "N/A"
+                            defaultContent
                         },
                         {
                             data: null,
