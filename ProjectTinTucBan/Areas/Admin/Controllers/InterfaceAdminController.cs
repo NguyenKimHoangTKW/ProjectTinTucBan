@@ -22,12 +22,14 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
         public ActionResult Index()
         {
+            /*
             if (Session["AdminUser"] == null)
             {
                 return RedirectToAction("Login");
             }
             ViewBag.Username = Session["AdminUser"]?.ToString();
             ViewBag.Message = "Chào mừng đến trang quản trị!";
+            return View();*/
             return View();
         }
 
@@ -103,7 +105,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
             if (userFromDb != null)
             {
-                if (userFromDb.IsBanned == true)
+                if (userFromDb.IsBanned == 1)
                 {
                     ViewBag.Error = "Tài khoản này đã bị khóa.";
                     return View();
@@ -166,7 +168,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 TenTaiKhoan = username,
                 MatKhau = password, // QUAN TRỌNG: NÊN MÃ HÓA MẬT KHẨU.
                 Gmail = email,
-                IsBanned = false,
+                IsBanned = 0,
                 // NgayTao và ID_role sẽ được gán giá trị null (nếu CSDL cho phép)
                 // hoặc bạn cần logic cụ thể để gán giá trị cho chúng nếu chúng là bắt buộc
                 // hoặc có giá trị mặc định khác.

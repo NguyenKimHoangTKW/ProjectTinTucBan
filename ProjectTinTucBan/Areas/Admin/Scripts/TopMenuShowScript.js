@@ -1,6 +1,6 @@
 ﻿$(function () {
     function loadTopMenu() {
-        $.getJSON('/api/v1/admin/groupmenu-menus/15')// id cứng sau này đổi để test
+        $.getJSON('/api/v1/admin/groupmenu-menus/15')// id cứng để test, sau này đổi
             .done(function (group) {
                 const $nav = $('.admin-topmenu-nav').empty();
                 if (!group || !Array.isArray(group.Menus) || group.Menus.length === 0) {

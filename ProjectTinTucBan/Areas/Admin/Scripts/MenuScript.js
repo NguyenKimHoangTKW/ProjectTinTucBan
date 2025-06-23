@@ -136,12 +136,14 @@ $(function () {
         const menuId = $(this).data('menu-id');
         const currentName = $(this).data('menu-name');
         const currentLink = $(this).data('menu-link');
+        const currentShowOrder = $(this).data('menu-show-order') || '';
 
         Swal.fire({
             title: 'Chỉnh sửa Menu',
             html:
                 `<input id="swal-menu-name" class="swal2-input" placeholder="Tên menu" value="${currentName}">` +
-                `<input id="swal-menu-link" class="swal2-input" placeholder="Link" value="${currentLink}">`,
+                `<input id="swal-menu-link" class="swal2-input" placeholder="Link" value="${currentLink}">` +
+                `<input id="swal-menu-thutushow" class="swal2-input" placeholder="Link" value="${currentShowOrder}">`,
             focusConfirm: false,
             showCancelButton: true,
             confirmButtonText: 'Lưu',
@@ -164,7 +166,8 @@ $(function () {
                     data: JSON.stringify({
                         ID: menuId,
                         Ten: result.value.name,
-                        Link: result.value.link
+                        Link: result.value.link,
+                        ThuTuShow: result.value.thutushow ? parseInt(result.value.thutushow) : null
                     }),
                     success: function (res) {
                         if (res.success) {

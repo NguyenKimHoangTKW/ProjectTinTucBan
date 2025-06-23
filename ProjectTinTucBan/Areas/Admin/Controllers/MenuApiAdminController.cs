@@ -126,6 +126,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             public int ID { get; set; }
             public string Ten { get; set; }
             public string Link { get; set; }
+            public int? ThuTuShow { get; set; } 
         }
 
         [HttpPost]
@@ -144,6 +145,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
             menu.Ten = dto.Ten;
             menu.Link = dto.Link;
+            menu.ThuTuShow = dto.ThuTuShow ?? menu.ThuTuShow;
             menu.NgayCapNhat = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
 
             try
