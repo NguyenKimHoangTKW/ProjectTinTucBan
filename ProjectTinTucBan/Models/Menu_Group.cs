@@ -17,17 +17,20 @@ namespace ProjectTinTucBan.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Menu_Group()
         {
-            this.Group_By_Menu = new HashSet<Group_By_Menu>();
+            this.Group_By_Menu_And__Sub = new HashSet<Group_By_Menu_And__Sub>();
             this.Roles_By_Group = new HashSet<Roles_By_Group>();
         }
     
         public int ID { get; set; }
         public string Ten { get; set; }
+        public Nullable<int> AsignTo { get; set; }
         public Nullable<int> NgayTao { get; set; }
         public Nullable<int> NgayCapNhat { get; set; }
+        public Nullable<int> IsImportant { get; set; }
+        public string IconName { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Group_By_Menu> Group_By_Menu { get; set; }
+        public virtual ICollection<Group_By_Menu_And__Sub> Group_By_Menu_And__Sub { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Roles_By_Group> Roles_By_Group { get; set; }
     }

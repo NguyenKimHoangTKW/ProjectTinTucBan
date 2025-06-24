@@ -101,6 +101,8 @@ function resetAdvancedSearch() {
     }
 }
 
+defaultContent = "Không có dữ liệu";
+
 // Load data from API
 async function load_data() {
     try {
@@ -168,15 +170,15 @@ async function load_data() {
                                 return meta.row + 1;
                             }
                         },
-                        { data: 'TenRole' },
-                        { data: 'MoTa' },
+                        { data: 'TenRole', defaultContent},
+                        { data: 'MoTa', defaultContent},
                         {
                             data: 'NgayTao',
-                            defaultContent: "N/A"
+                            defaultContent
                         },
                         {
                             data: 'NgayCapNhat',
-                            defaultContent: "N/A"
+                            defaultContent
                         },
                         {
                             data: null,

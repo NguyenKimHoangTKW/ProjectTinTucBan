@@ -73,11 +73,15 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     {
                         TenTaiKhoan = username, 
                         MatKhau = MatKhauMaHoa,
+                        Name = model.name,
                         Gmail = model.email,
                         ID_role = 4,
                         NgayTao = unixTimestamp,
                         NgayCapNhat = unixTimestamp,
-                        IsBanned = 0
+                        IsBanned = 0,
+                        CountPasswordFail = 0,  
+                        LockTime = null,         
+                        LockTimeout = null
                     };
                     db.TaiKhoans.Add(existingAccount);
                     await db.SaveChangesAsync();
@@ -88,6 +92,10 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     if (existingAccount.TenTaiKhoan != username)
                     {
                         existingAccount.TenTaiKhoan = username;
+                        existingAccount.CountPasswordFail = 0;
+                        existingAccount.LockTime = null;
+                        existingAccount.LockTimeout = null;
+
                         await db.SaveChangesAsync();
                     }
                 }
@@ -95,6 +103,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 return Ok(new
                 {
                     idRole = existingAccount.ID_role,
+                    isBanner = existingAccount.IsBanned,
                     message = "Đăng nhập thành công",
                     success = true
                 });
@@ -112,6 +121,12 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         {
             try
             {
+                // Constants for account lockout
+                const int MaxFailedAttemptsBeforeLockout = 3;
+                const int MaxFailedAttemptsToPermanentLock = 5;
+                const int LockoutDurationInSeconds = 15;
+                const int LockoutDurationInSecondsExtended = 30;
+
                 // Tìm tài khoản dựa trên username
                 var user = await db.TaiKhoans.FirstOrDefaultAsync(u => u.TenTaiKhoan == model.Username);
 
@@ -125,12 +140,53 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     });
                 }
 
+                // Kiểm tra nếu tài khoản đã bị khóa vĩnh viễn
+                if (user.IsBanned == 1)
+                {
+                    return Ok(new
+                    {
+                        message = "Tài khoản của bạn đã bị khóa vĩnh viễn",
+                        success = false
+                    });
+                }
+
+                // Kiểm tra thời gian khóa tạm thời
+                if (user.LockTime.HasValue && user.LockTimeout.HasValue)
+                {
+                    // Tính thời gian khóa còn lại
+                    DateTime lockEndTime = DateTimeOffset.FromUnixTimeSeconds(user.LockTime.Value).AddSeconds(user.LockTimeout.Value).UtcDateTime;
+
+                    if (DateTime.UtcNow < lockEndTime)
+                    {
+                        TimeSpan remainingTime = lockEndTime - DateTime.UtcNow;
+                        return Ok(new
+                        {
+                            message = $"Tài khoản tạm thời bị khóa. Vui lòng thử lại sau {(int)remainingTime.TotalSeconds} giây.",
+                            success = false,
+                            isLocked = true,
+                            remainingSeconds = (int)remainingTime.TotalSeconds
+                        });
+                    }
+                    else
+                    {
+                        // Thời gian khóa đã hết, đặt lại các trường liên quan
+                        user.LockTime = null;
+                        user.LockTimeout = null;
+                    }
+                }
+
                 try
                 {
                     string MatKhauGiaiMa = EncryptionHelper.Decrypt(user.MatKhau);
 
                     if (MatKhauGiaiMa == model.Password)
                     {
+                        // Đăng nhập thành công, đặt lại số lần nhập sai mật khẩu
+                        user.CountPasswordFail = 0;
+                        user.LockTime = null;
+                        user.LockTimeout = null;
+                        await db.SaveChangesAsync();
+
                         // Kiểm tra domain email nếu có
                         if (user.Gmail != null && !user.Gmail.EndsWith("@student.tdmu.edu.vn") && !user.Gmail.EndsWith("@tdmu.edu.vn"))
                         {
@@ -159,11 +215,69 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     }
                     else
                     {
-                        return Ok(new
+                        // Tăng số lần nhập sai mật khẩu
+                        user.CountPasswordFail = (user.CountPasswordFail ?? 0) + 1;
+
+                        // Kiểm tra các điều kiện khóa tài khoản
+                        if (user.CountPasswordFail >= MaxFailedAttemptsToPermanentLock)
                         {
-                            message = "Mật khẩu không đúng",
-                            success = false
-                        });
+                            // Khóa vĩnh viễn tài khoản
+                            user.IsBanned = 1;
+                            user.LockTime = null;
+                            user.LockTimeout = null;
+                            await db.SaveChangesAsync();
+
+                            return Ok(new
+                            {
+                                message = "Tài khoản đã bị khóa vì nhập sai mật khẩu quá nhiều lần. Vui lòng liên hệ quản trị viên để được hỗ trợ.",
+                                success = false,
+                                isLocked = true,
+                                isPermanent = true
+                            });
+                        }
+                        else if (user.CountPasswordFail >= MaxFailedAttemptsBeforeLockout)
+                        {
+                            // Khóa tạm thời với thời gian dài hơn
+                            user.LockTime = unixTimestamp;
+                            user.LockTimeout = LockoutDurationInSecondsExtended;
+                            await db.SaveChangesAsync();
+
+                            return Ok(new
+                            {
+                                message = $"Tài khoản tạm thời bị khóa trong {LockoutDurationInSecondsExtended} giây vì nhập sai mật khẩu nhiều lần.",
+                                success = false,
+                                isLocked = true,
+                                remainingSeconds = LockoutDurationInSecondsExtended
+                            });
+                        }
+                        else if (user.CountPasswordFail == MaxFailedAttemptsBeforeLockout - 1)
+                        {
+                            // Khóa tạm thời
+                            user.LockTime = unixTimestamp;
+                            user.LockTimeout = LockoutDurationInSeconds;
+                            await db.SaveChangesAsync();
+
+                            return Ok(new
+                            {
+                                message = $"Tài khoản tạm thời bị khóa trong {LockoutDurationInSeconds} giây vì nhập sai mật khẩu nhiều lần.",
+                                success = false,
+                                isLocked = true,
+                                remainingSeconds = LockoutDurationInSeconds
+                            });
+                        }
+                        else
+                        {
+                            // Lưu số lần nhập sai vào database
+                            await db.SaveChangesAsync();
+
+                            int remainingAttempts = MaxFailedAttemptsBeforeLockout - user.CountPasswordFail.Value;
+                            return Ok(new
+                            {
+                                message = $"Mật khẩu không đúng. Bạn còn {remainingAttempts} lần thử trước khi tài khoản bị khóa tạm thời.",
+                                success = false,
+                                remainingAttempts = remainingAttempts
+                            });
+                        }
                     }
                 }
                 catch (Exception decryptEx)

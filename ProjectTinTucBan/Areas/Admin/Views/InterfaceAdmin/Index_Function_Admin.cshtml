@@ -31,7 +31,7 @@
                     </div>
                 </div>
 
-                <!-- Bộ lọc và tìm kiếm di động -->
+                <!-- Bộ lọc và tìm kiếm di động - Cải thiện -->
                 <div class="d-md-none mb-3">
                     <div class="input-group">
                         <input type="text" id="mobileSearch" class="form-control" placeholder="Tìm kiếm...">
@@ -46,15 +46,15 @@
                 <!-- Wrapper cho bảng có thể scroll ngang trên mobile -->
                 <div class="table-responsive">
                     <!-- Bảng dữ liệu -->
-                    <table id="data-table" class="display hover nowrap" style="width:100%">
+                    <table id="data-table" class="display hover nowrap w-100">
                         <thead>
                             <tr>
                                 <th>STT</th>
                                 <th>Tên chức năng</th>
                                 <th>Mã chức năng</th>
                                 <th data-priority="2">Mô tả</th>
-                                <th>Ngày tạo</th>
-                                <th>Ngày cập nhật</th>
+                                <th class="d-none d-lg-table-cell">Ngày tạo</th>
+                                <th class="d-none d-lg-table-cell">Ngày cập nhật</th>
                                 <th data-priority="1">Thao tác</th>
                             </tr>
                         </thead>
@@ -68,10 +68,9 @@
     </div>
 </div>
 
-
 <!-- Modal Quản lý Chức năng Admin (dùng chung cho cả thêm và sửa) -->
 <div class="modal fade" id="FunctionModal" tabindex="-1" role="dialog" aria-labelledby="FunctionModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="FunctionModalLabel">Quản lý chức năng Admin</h5>
@@ -131,7 +130,6 @@
     </div>
 </div>
 
-
 <style>
     /* Định dạng DataTable giống như mẫu */
     .dataTables_wrapper .dataTables_filter {
@@ -159,27 +157,34 @@
         margin-bottom: 20px;
     }
 
-    /* Thêm CSS để căn giữa nội dung trong tiêu đề và dữ liệu của bảng */
-    #data-table thead th {
-        padding: 15px 10px;
-        border-bottom: 1px solid #e8e8e8;
-        font-weight: 500;
-        color: #fff;
-        background-color: #5a8dee;
-        text-align: center;
-    }
+        /* Thêm CSS để căn giữa nội dung trong tiêu đề và dữ liệu của bảng */
+        #data-table thead th {
+            padding: 15px 10px;
+            border-bottom: 1px solid #e8e8e8;
+            font-weight: 500;
+            color: #fff;
+            background-color: #5a8dee;
+            text-align: center !important;
+        }
 
-    #data-table tbody td {
-        padding: 15px 10px;
-        border-bottom: 1px solid #e8e8e8;
-        color: #333;
-        text-align: center;
-        vertical-align: middle;
-    }
+        #data-table tbody td {
+            padding: 15px 10px;
+            border-bottom: 1px solid #e8e8e8;
+            color: #333;
+            text-align: left;
+            vertical-align: middle;
+        }
 
-    #data-table tbody tr:hover {
-        background-color: #f8f8f8;
-    }
+            #data-table tbody td:first-child,
+            #data-table tbody td:last-child,
+            #data-table tbody td:nth-child(5),
+            #data-table tbody td:nth-child(6) {
+                text-align: center;
+            }
+
+        #data-table tbody tr:hover {
+            background-color: #f8f8f8;
+        }
 
     /* Định dạng badge */
     .badge {
@@ -210,9 +215,9 @@
         margin-right: 5px;
     }
 
-    .btn-icon:hover {
-        background-color: rgba(0, 0, 0, 0.05);
-    }
+        .btn-icon:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
 
     /* Định dạng nút thao tác */
     .btn-action {
@@ -233,20 +238,20 @@
         color: #212529;
     }
 
-    .btn-edit:hover {
-        background-color: #e0a800;
-        color: #212529;
-    }
+        .btn-edit:hover {
+            background-color: #e0a800;
+            color: #212529;
+        }
 
     .btn-delete {
         background-color: #dc3545; /* Màu đỏ */
         color: white;
     }
 
-    .btn-delete:hover {
-        background-color: #c82333;
-        color: white;
-    }
+        .btn-delete:hover {
+            background-color: #c82333;
+            color: white;
+        }
 
     /* Cải thiện hiển thị di động */
     .table-responsive {
@@ -259,24 +264,24 @@
         margin-top: 10px;
     }
 
-    .dataTables_paginate .paginate_button {
-        padding: 5px 10px;
-        margin: 0 2px;
-        border: 1px solid #e8e8e8;
-        border-radius: 4px;
-        background: white;
-        cursor: pointer;
-    }
+        .dataTables_paginate .paginate_button {
+            padding: 5px 10px;
+            margin: 0 2px;
+            border: 1px solid #e8e8e8;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+        }
 
-    .dataTables_paginate .paginate_button.current {
-        background-color: #5a8dee;
-        color: white !important;
-        border-color: #5a8dee;
-    }
+            .dataTables_paginate .paginate_button.current {
+                background-color: #5a8dee;
+                color: white !important;
+                border-color: #5a8dee;
+            }
 
-    .dataTables_paginate .paginate_button:hover:not(.current) {
-        background-color: #f8f8f8;
-    }
+            .dataTables_paginate .paginate_button:hover:not(.current) {
+                background-color: #f8f8f8;
+            }
 
     /* Chỉnh mũi tên sắp xếp */
     table.dataTable thead .sorting:after,
@@ -328,15 +333,15 @@
         border-radius: 4px;
     }
 
-    .form-control:focus {
-        border-color: #5a8dee;
-        box-shadow: 0 0 0 0.1rem rgba(90, 141, 238, 0.25);
-    }
+        .form-control:focus {
+            border-color: #5a8dee;
+            box-shadow: 0 0 0 0.1rem rgba(90, 141, 238, 0.25);
+        }
 
-    .form-control[readonly] {
-        background-color: #f8f9fa;
-        cursor: not-allowed;
-    }
+        .form-control[readonly] {
+            background-color: #f8f9fa;
+            cursor: not-allowed;
+        }
 
     .input-group-text {
         background-color: #f8f9fa;
@@ -355,49 +360,85 @@
         border-radius: 4px;
     }
 
-    #advancedSearchCard label {
-        font-weight: 500;
-        color: #555;
-    }
+        #advancedSearchCard label {
+            font-weight: 500;
+            color: #555;
+        }
 
-    /* Responsive styles for mobile */
+    /* Cải thiện responsive styles for mobile */
     @@media screen and (max-width: 767px) {
         /* Ẩn tìm kiếm mặc định của DataTable */
         .dataTables_filter {
             display: none;
         }
-
-        /* Hiển thị các nút thao tác theo chiều dọc trên mobile */
+        /* Hiển thị tất cả nút thao tác trên mobile */
         .action-buttons {
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
+            justify-content: center;
             align-items: center;
+            margin: 0 auto;
         }
 
         .btn-action {
-            margin-bottom: 5px;
-            width: 100%;
+            margin: 3px;
+            min-width: 40px;
         }
-
         /* Tối ưu hóa phân trang trên di động */
-        .dataTables_paginate .paginate_button {
-            padding: 8px 12px;
-            margin-bottom: 5px;
+        .dataTables_paginate {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
+            .dataTables_paginate .paginate_button {
+                padding: 8px 12px;
+                margin: 3px;
+            }
         /* Điều chỉnh hiển thị số mục trên trang */
         .dataTables_length select {
             width: 80px;
         }
-
         /* Đảm bảo modal hiển thị đúng trên di động */
         .modal-dialog {
             margin: 10px;
+            width: calc(100% - 20px);
+            max-width: none;
         }
 
-        .modal-footer button {
-            margin: 5px;
-            min-width: 100px;
+        .modal-body {
+            padding: 15px;
+        }
+
+        .modal-footer {
+            justify-content: space-between;
+            padding: 10px;
+        }
+
+            .modal-footer button {
+                margin: 5px;
+                min-width: 45%;
+            }
+        /* Đảm bảo khoảng cách */
+        .mb-3 {
+            margin-bottom: 1rem !important;
+        }
+        /* Cải thiện hiển thị của bảng */
+        #data-table,
+        #data-table thead,
+        #data-table tbody,
+        #data-table th,
+        #data-table td,
+        #data-table tr {
+            font-size: 14px;
+        }
+        /* Điều chỉnh tiêu đề trang */
+        .header-title {
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
         }
     }
 
@@ -406,20 +447,52 @@
         height: 38px;
     }
 
-    /* Đảm bảo văn bản trên nút không bị tràn */
-    .btn span {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+    /* Làm mịn góc cho các phần tử UI */
+    .card, .modal-content, .btn, .form-control, .input-group-text {
+        border-radius: 6px;
     }
 
-    /* Tối ưu hoá cho tablet */
+        /* Đảm bảo văn bản trên nút không bị tràn */
+        .btn span {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+    /* Tối ưu hoá cột ẩn theo kích thước màn hình */
+    /* Đối với màn hình tablet */
     @@media (min-width: 768px) and (max-width: 991px) {
-        #data-table thead th:nth-child(4),
-        #data-table tbody td:nth-child(4),
-        #data-table thead th:nth-child(5),
-        #data-table tbody td:nth-child(5) {
-            display: none;
+        .d-md-none {
+            display: none !important;
+        }
+
+        .d-md-block {
+            display: block !important;
+        }
+    }
+
+    /* Đối với màn hình di động nhỏ */
+    @@media (max-width: 575px) {
+        /* Hiển thị các cột quan trọng nhất */
+        #data-table tbody td:nth-child(2) { /* Tên chức năng */
+            min-width: 120px;
+        }
+        /* Thu nhỏ font chữ */
+        body, .btn, .form-control, table {
+            font-size: 14px;
+        }
+        /* Thêm thụt lề cho nội dung chính */
+        .main-content {
+            padding: calc(70px + -25px) 10px 10px;
+        }
+        /* Tăng kích thước nút cho dễ chạm */
+        .btn-action {
+            width: 38px;
+            height: 38px;
+        }
+        /* Điều chỉnh khoảng cách trong bảng */
+        #data-table tbody td {
+            padding: 10px 5px;
         }
     }
 
@@ -432,10 +505,25 @@
         .text-md-right {
             text-align: center !important;
         }
+        /* Thêm lề dưới cho nút thêm */
+        #btnAddFunction {
+            margin-bottom: 1rem;
+        }
     }
+
+    /* Màu nền cho modal trên di động */
+    @@media (max-width: 767px) {
+        .modal-backdrop {
+            opacity: 0.7;
+        }
+    }
+
+    /* Meta tag để đảm bảo viewport đúng */
+    /* Thêm thẻ này vào _AdminLayout.cshtml nếu chưa có */
 </style>
 
 @section scriptsAdmin {
     <script src="~/Scripts/sweetalert2.all.min.js"></script>
     <script src="~/Areas/Admin/Scripts/DanhSachChucNang.js"></script>
+
 }

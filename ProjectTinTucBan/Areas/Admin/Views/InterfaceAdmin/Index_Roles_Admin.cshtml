@@ -56,7 +56,7 @@
 
 <!-- Modal Quản lý Quyền Admin (dùng chung cho cả thêm và sửa) -->
 <div class="modal fade" id="RolesModal" tabindex="-1" role="dialog" aria-labelledby="RolesModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="RolesModalLabel">Quản lý quyền Admin</h5>
@@ -69,49 +69,39 @@
                     <input type="hidden" id="roleId" value="" />
                     <input type="hidden" id="formMode" value="add" /> <!-- 'add' hoặc 'edit' -->
 
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="tenRole">Tên quyền <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="tenRole" name="tenRole" placeholder="Nhập tên quyền admin" required>
-                                <small class="form-text text-muted">Tên quyền trong hệ thống</small>
-                            </div>
-                        </div>
+                    <div class="form-group">
+                        <label for="tenRole">Tên quyền <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="tenRole" name="tenRole" placeholder="Nhập tên quyền admin" required>
+                        <small class="form-text text-muted">Tên quyền trong hệ thống</small>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="moTa">Mô tả <span class="text-danger">*</span></label>
-                                <textarea class="form-control" id="moTa" name="moTa" rows="3" placeholder="Nhập mô tả quyền admin" required></textarea>
-                                <small class="form-text text-muted">Mô tả chi tiết về quyền này</small>
-                            </div>
-                        </div>
+                    <div class="form-group">
+                        <label for="moTa">Mô tả <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="moTa" name="moTa" rows="3" placeholder="Nhập mô tả quyền admin" required></textarea>
+                        <small class="form-text text-muted">Mô tả chi tiết về quyền này</small>
                     </div>
 
                     <!-- Chỉ hiển thị khi ở chế độ sửa -->
-                    <div id="editOnlyFields" class="row" style="display:none">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Thông tin thời gian</label>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <input type="text" class="form-control" id="ngayTao" name="ngayTao" readonly placeholder="Ngày tạo">
-                                        <small class="form-text text-muted">Ngày tạo</small>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <input type="text" class="form-control" id="ngayCapNhat" name="ngayCapNhat" readonly placeholder="Ngày cập nhật">
-                                        <small class="form-text text-muted">Cập nhật gần nhất</small>
-                                    </div>
+                    <div id="editOnlyFields" style="display:none">
+                        <div class="form-group">
+                            <label>Thông tin thời gian</label>
+                            <div class="row">
+                                <div class="col-md-6 col-sm-12 mb-3">
+                                    <input type="text" class="form-control" id="ngayTao" name="ngayTao" readonly placeholder="Ngày tạo">
+                                    <small class="form-text text-muted">Ngày tạo</small>
+                                </div>
+                                <div class="col-md-6 col-sm-12">
+                                    <input type="text" class="form-control" id="ngayCapNhat" name="ngayCapNhat" readonly placeholder="Ngày cập nhật">
+                                    <small class="form-text text-muted">Cập nhật gần nhất</small>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-primary" id="btnSaveRole">
+            <div class="modal-footer flex-wrap justify-content-center">
+                <button type="button" class="btn btn-default m-1" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary m-1" id="btnSaveRole">
                     <i class="anticon anticon-save m-r-5"></i>
                     <span id="btnSaveText">Lưu</span>
                 </button>
@@ -155,14 +145,14 @@
             font-weight: 500;
             color: #fff;
             background-color: #5a8dee;
-            text-align: center;
+            text-align: center !important;
         }
 
         #data-table tbody td {
             padding: 15px 10px;
             border-bottom: 1px solid #e8e8e8;
             color: #333;
-            text-align: center;
+            text-align: left;
             vertical-align: middle;
         }
 
@@ -170,6 +160,31 @@
             background-color: #f8f8f8;
         }
 
+        #data-table tbody td:first-child,
+        #data-table tbody td:last-child {
+            text-align: center;
+        }
+
+        #data-table tbody td:nth-child(4),
+        #data-table tbody td:nth-child(5) {
+            text-align: center;
+        }
+        /*Chỉnh xuống dòng*/
+        #data-table th,
+        #data-table td {
+            white-space: normal !important; /* This allows text to wrap */
+            word-wrap: break-word; /* Break long words if necessary */
+            max-width: 200px; /* Maximum width for each column */
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+            #data-table th:nth-child(4),
+            #data-table td:nth-child(4),
+            #data-table th:nth-child(5),
+            #data-table td:nth-child(5) {
+                width: 12.5%; /* Ngày tạo & Ngày cập nhật */
+            }
     /* Định dạng badge */
     .badge {
         padding: 5px 10px;
@@ -241,6 +256,127 @@
         #data-table {
             display: block;
             overflow-x: auto;
+        }
+
+        /* Bổ sung các style cho mobile */
+        .main-content {
+            padding: calc(70px + -25px) 15px 15px;
+        }
+
+        /* Nút thêm quyền admin */
+        .col-lg-4.text-right {
+            text-align: center !important;
+            margin-top: 15px;
+        }
+
+        #btnAddRoles {
+            width: 100%;
+        }
+
+        /* Modal styling cho mobile */
+        .modal-dialog {
+            margin: 10px auto;
+            max-width: 95%;
+        }
+
+        .modal-header {
+            padding: 12px 15px;
+        }
+
+        .modal-body {
+            padding: 15px;
+        }
+
+        .modal-footer {
+            padding: 12px 15px;
+            flex-direction: row;
+        }
+
+        .modal-footer .btn {
+            flex: 1;
+            margin: 5px;
+            white-space: nowrap;
+            min-width: unset;
+        }
+
+        /* Tối ưu form trên điện thoại */
+        .form-control {
+            font-size: 14px;
+            padding: 8px 10px;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        /* Nút thao tác trong bảng */
+        .btn-action {
+            width: 36px;
+            height: 36px;
+            margin: 2px;
+        }
+
+        /* Table styling */
+        #data-table th,
+        #data-table td {
+            max-width: 150px;
+        }
+
+        /* Các cột thời gian */
+        #data-table th:nth-child(4),
+        #data-table td:nth-child(4),
+        #data-table th:nth-child(5),
+        #data-table td:nth-child(5) {
+            display: none;
+        }
+
+        /* Styling cho các nút trong modal */
+        .modal-dialog .btn {
+            font-size: 14px;
+            padding: 8px 12px;
+        }
+
+        /* Tối ưu cho việc nhấn vào input/textarea */
+        input, textarea, select, button {
+            font-size: 16px !important; /* Ngăn iOS zoom khi focus */
+        }
+
+        /* Fix cho modal tràn khỏi màn hình */
+        .modal-open {
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Căn giữa modal */
+        .modal-dialog-centered {
+            display: flex;
+            align-items: center;
+            min-height: calc(100% - 20px);
+        }
+    }
+
+    /* Style chung cho modal */
+.modal-content {
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+    /* Tối ưu cho các màn hình nhỏ hơn */
+    @@media screen and (max-width: 480px) {
+        .page-header .header-title {
+            font-size: 1.5rem;
+        }
+
+        .modal-footer {
+            flex-direction: column;
+        }
+
+        .modal-footer .btn {
+            width: 100%;
+            margin: 5px 0;
         }
     }
 

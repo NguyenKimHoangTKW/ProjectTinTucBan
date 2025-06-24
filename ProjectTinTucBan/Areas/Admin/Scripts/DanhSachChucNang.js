@@ -148,6 +148,7 @@
     /**
      * Tải danh sách chức năng từ API
      */
+    defaultContent = "Không có dữ liệu";
     function loadFunctionList() {
         // Hiển thị loading
         showLoading();
@@ -200,25 +201,25 @@
                         },
                         {
                             data: 'TenChucNang',
-                            className: 'text-nowrap'
+                            defaultContent
                         },
                         {
                             data: 'MaChucNang',
-                            className: 'text-nowrap'
+                            defaultContent
                         },
                         {
                             data: 'MoTa',
-                            className: 'text-wrap'
+                            defaultContent
                         },
                         {
                             data: 'NgayTao',
                             defaultContent: "N/A",
-                            className: 'text-nowrap'
+                            defaultContent
                         },
                         {
                             data: 'NgayCapNhat',
                             defaultContent: "N/A",
-                            className: 'text-nowrap'
+                            defaultContent
                         },
                         {
                             data: null,
@@ -258,21 +259,6 @@
                         '<"row"<"col-sm-12"tr>>' +
                         '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
                     initComplete: function () {
-                        // Thêm container tìm kiếm mobile nếu chưa có
-                        if ($("#mobileSearchContainer").length === 0) {
-                            $("#data-table_wrapper").prepend(`
-                                <div id="mobileSearchContainer" class="d-md-none mb-3" style="display: none;">
-                                    <div class="input-group">
-                                        <input type="text" id="mobileSearch" class="form-control" placeholder="Tìm kiếm...">
-                                        <div class="input-group-append">
-                                            <button class="btn btn-primary" id="btnMobileSearch">
-                                                <i class="fas fa-search"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            `);
-                        }
 
                         // Áp dụng cài đặt responsive
                         adjustUIForScreenSize();

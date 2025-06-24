@@ -2,13 +2,15 @@
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace ProjectTinTucBan.Helper
 {
     public static class EncryptionHelper
     {
-        // Khóa mã hóa được tạo ngẫu nhiên với độ dài 256 bit
-        private static readonly string EncryptionKey = GenerateRandomKey(256);
+        // Khóa mã hóa cố định với các ký tự đặc biệt
+        private static readonly string EncryptionKey = Convert.ToBase64String(
+            Encoding.UTF8.GetBytes("TDMU$@#!_WebTinTuc*&^%_SecretKey~+-<>?").Take(32).ToArray());
 
         public static string Encrypt(string plainText)
         {
@@ -83,6 +85,7 @@ namespace ProjectTinTucBan.Helper
             catch (Exception ex)
             {
                 // Xử lý lỗi khi giải mã thất bại
+                Console.WriteLine($"Lỗi giải mã: {ex.Message}");
                 return string.Empty;
             }
         }
@@ -97,6 +100,7 @@ namespace ProjectTinTucBan.Helper
             }
         }
 
+        // Phương thức này giữ lại để tương thích với mã nguồn cũ
         private static string GenerateRandomKey(int keySizeInBits)
         {
             // Chuyển kích thước khóa từ bit sang byte
@@ -113,6 +117,12 @@ namespace ProjectTinTucBan.Helper
 
             // Chuyển đổi mảng byte thành chuỗi Base64 để lưu trữ
             return Convert.ToBase64String(keyBytes);
+        }
+
+        // Thêm phương thức tiện ích để lấy mật khẩu đã mã hóa (hữu ích khi cần đặt lại mật khẩu)
+        public static string GetEncryptedDefaultPassword()
+        {
+            return Encrypt("@123");
         }
     }
 }

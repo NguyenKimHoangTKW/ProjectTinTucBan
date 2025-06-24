@@ -145,7 +145,6 @@
     <Compile Include="Areas\Admin\Controllers\RolesAdminAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\MenuApiAdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\SliderApiAdminController.cs" />
-    <Content Include="Areas\Admin\Scripts\DanhSachMucLuc.js" />
     <Compile Include="Areas\Admin\Controllers\UploadPDFAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\UploadThumbnailAPIController.cs" />
     <Compile Include="Areas\HelpPage\ApiDescriptionExtensions.cs" />
@@ -207,7 +206,7 @@
     <Compile Include="Models\DonViTrucThuoc.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\Group_By_Menu.cs">
+    <Compile Include="Models\Group_By_Menu_And__Sub.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Khoi.cs">

@@ -76,9 +76,6 @@ function loadRoles() {
                 $("#searchRole").html('<option value="">-- Tất cả vai trò --</option>' + options);
             }
         },
-        error: function (xhr) {
-            console.error("Không thể tải vai trò:", xhr.statusText);
-        }
     });
 }
 
@@ -180,7 +177,7 @@ async function load_data() {
                 rolesData = rolesResponse.data;
             }
         } catch (error) {
-            console.error("Error loading roles data:", error);
+            Sweet_Alert("error", "Loading data: " + error.message);
         }
 
         // Gọi API tải danh sách người dùng
@@ -247,9 +244,21 @@ async function load_data() {
                                 return meta.row + 1;
                             }
                         },
-                        { data: 'TenTaiKhoan', defaultContent},
-                        { data: 'Gmail', defaultContent},
-                        { data: 'SDT', defaultContent},
+                        {
+                            data: 'TenTaiKhoan',
+                            defaultContent,
+                            className: 'text-left'
+                        },
+                        {
+                            data: 'Gmail',
+                            defaultContent,
+                            className: 'text-left'
+                        },
+                        {
+                            data: 'SDT',
+                            defaultContent,
+                            className: 'text-left'
+                        },
                         {
                             data: 'ID_role',
                             render: function (data, type, row) {
@@ -267,11 +276,13 @@ async function load_data() {
                         },
                         {
                             data: 'NgayTao',
-                            defaultContent
+                            defaultContent,
+                            className: 'text-left'
                         },
                         {
                             data: 'NgayCapNhat',
-                            defaultContent
+                            defaultContent,
+                            className: 'text-left'
                         },
                         {
                             data: null,
@@ -338,12 +349,11 @@ async function load_data() {
                     </tbody>
                 `);
 
-                console.error("Error loading data:", error);
+     
                 Sweet_Alert("error", "Không thể tải danh sách: " + xhr.statusText);
             }
         });
     } catch (error) {
-        console.error("JavaScript error:", error);
         Sweet_Alert("error", "Lỗi JavaScript: " + error.message);
     }
 }
@@ -369,101 +379,56 @@ function unixTimestampToDate(unixTimestamp) {
 // Open modal for editing an existing user
 async function openEditUserModal(userId) {
     try {
-        // Get user data by ID
-        const response = await $.ajax({
-            url: `/api/v1/admin/Get-User-By-Id/${userId}`,
-            type: 'GET'
+        // Chỉ sử dụng API Get-All-Users và tìm người dùng cụ thể
+        const allUsersResponse = await $.ajax({
+            url: '/api/v1/admin/Get-All-Users',
+            type: 'GET',
+            dataType: 'json'
         });
 
-        if (response.success && response.data) {
-            const user = response.data;
+        if (allUsersResponse.success && allUsersResponse.data) {
+            // Tìm người dùng theo ID trong danh sách
+            const user = allUsersResponse.data.find(u => u.ID === userId);
 
-            // Set form mode and ID
-            $("#formMode").val("edit");
-            $("#userId").val(user.ID);
+            if (user) {
+                // Set form mode and ID
+                $("#formMode").val("edit");
+                $("#userId").val(user.ID);
 
-            // Fill in form fields
-            $("#tenTaiKhoan").val(user.TenTaiKhoan);
-            $("#ID_role").val(user.ID_role);
-            $("#Gmail").val(user.Gmail);
-            $("#SDT").val(user.SDT);
-            $("#IsBanned").val(user.IsBanned);
+                // Fill in form fields
+                $("#tenTaiKhoan").val(user.TenTaiKhoan);
+                $("#ID_role").val(user.ID_role);
+                $("#Gmail").val(user.Gmail);
+                $("#SDT").val(user.SDT || '');
+                $("#IsBanned").val(user.IsBanned);
 
-            // Format and display timestamps
-            let ngayTao = user.NgayTao || user.ngayTao;
-            let ngayCapNhat = user.NgayCapNhat || user.ngayCapNhat;
-            $("#NgayTao").val(ngayTao ? unixTimestampToDate(parseInt(ngayTao)) : "N/A");
-            $("#NgayCapNhat").val(ngayCapNhat ? unixTimestampToDate(parseInt(ngayCapNhat)) : "N/A");
+                // Format and display timestamps
+                let ngayTao = user.NgayTao || user.ngayTao;
+                let ngayCapNhat = user.NgayCapNhat || user.ngayCapNhat;
+                $("#NgayTao").val(ngayTao ? unixTimestampToDate(parseInt(ngayTao)) : "N/A");
+                $("#NgayCapNhat").val(ngayCapNhat ? unixTimestampToDate(parseInt(ngayCapNhat)) : "N/A");
 
-            // Update modal title and button text
-            $("#UserModalLabel").text("Cập nhật tài khoản");
-            $("#btnSaveText").text("Cập nhật");
+                // Update modal title and button text
+                $("#UserModalLabel").text("Cập nhật tài khoản");
+                $("#btnSaveText").text("Cập nhật");
 
-            // Hide password fields, show edit-only fields and password change option
-            $("#passwordFields").hide();
-            $("#editOnlyFields").show();
-            $("#changePasswordSection").show();
-            $("#newPasswordFields").hide();
-            $("#changePasswordCheck").prop('checked', false);
+                // Hide password fields, show edit-only fields and password change option
+                $("#passwordFields").hide();
+                $("#editOnlyFields").show();
+                $("#changePasswordSection").show();
+                $("#newPasswordFields").hide();
+                $("#changePasswordCheck").prop('checked', false);
 
-            // Show the modal
-            $("#UserModal").modal("show");
-        } else {
-            Sweet_Alert("error", "Không tìm thấy thông tin tài khoản");
-        }
-    } catch (error) {
-        console.error("Error loading user data:", error);
-
-        // If the API endpoint doesn't exist, try to load from all users
-        try {
-            const allUsersResponse = await $.ajax({
-                url: '/api/v1/admin/Get-All-Users',
-                type: 'GET'
-            });
-
-            if (allUsersResponse.success && allUsersResponse.data) {
-                const user = allUsersResponse.data.find(u => u.ID === userId);
-
-                if (user) {
-                    // Set form mode and ID
-                    $("#formMode").val("edit");
-                    $("#userId").val(user.ID);
-
-                    // Fill in form fields
-                    $("#tenTaiKhoan").val(user.TenTaiKhoan);
-                    $("#ID_role").val(user.ID_role);
-                    $("#Gmail").val(user.Gmail);
-                    $("#SDT").val(user.SDT);
-                    $("#IsBanned").val(user.IsBanned);
-
-                    // Format and display timestamps
-                    let ngayTao = user.NgayTao || user.ngayTao;
-                    let ngayCapNhat = user.NgayCapNhat || user.ngayCapNhat;
-                    $("#NgayTao").val(ngayTao ? unixTimestampToDate(parseInt(ngayTao)) : "N/A");
-                    $("#NgayCapNhat").val(ngayCapNhat ? unixTimestampToDate(parseInt(ngayCapNhat)) : "N/A");
-
-                    // Update modal title and button text
-                    $("#UserModalLabel").text("Cập nhật tài khoản");
-                    $("#btnSaveText").text("Cập nhật");
-
-                    // Hide password fields, show edit-only fields and password change option
-                    $("#passwordFields").hide();
-                    $("#editOnlyFields").show();
-                    $("#changePasswordSection").show();
-                    $("#newPasswordFields").hide();
-                    $("#changePasswordCheck").prop('checked', false);
-
-                    // Show the modal
-                    $("#UserModal").modal("show");
-                } else {
-                    Sweet_Alert("error", "Không tìm thấy thông tin tài khoản");
-                }
+                // Show the modal
+                $("#UserModal").modal("show");
             } else {
-                Sweet_Alert("error", "Không thể tải thông tin tài khoản");
+                Sweet_Alert("error", "Không tìm thấy thông tin tài khoản");
             }
-        } catch (fallbackError) {
+        } else {
             Sweet_Alert("error", "Không thể tải thông tin tài khoản");
         }
+    } catch (error) {
+        Sweet_Alert("error", "Không thể tải thông tin tài khoản");
     }
 }
 
@@ -544,7 +509,7 @@ async function update_User_in_modal() {
         } else {
             Sweet_Alert("error", "Có lỗi xảy ra khi cập nhật tài khoản");
         }
-        console.error("Error updating user:", error);
+     
     }
 }
 
@@ -578,7 +543,6 @@ function deleteUser(userId) {
                     Sweet_Alert("error", res.message || "Không thể xóa tài khoản");
                 }
             } catch (error) {
-                console.error("Delete error:", error);
                 // Show detailed error from server if available
                 if (error.responseJSON && error.responseJSON.message) {
                     Sweet_Alert("error", error.responseJSON.message);
@@ -680,7 +644,6 @@ async function openPermissionsModal(userId, username) {
         // Show the modal
         $("#UserPermissionModal").modal("show");
     } catch (error) {
-        console.error("Error opening permissions modal:", error);
         Sweet_Alert("error", "Không thể tải dữ liệu phân quyền");
     }
 }
@@ -734,7 +697,6 @@ async function saveUserPermissions() {
             Sweet_Alert("error", response.message || "Có lỗi xảy ra khi cập nhật phân quyền");
         }
     } catch (error) {
-        console.error("Error saving user permissions:", error);
         Sweet_Alert("error", "Có lỗi xảy ra khi cập nhật phân quyền");
     }
 }

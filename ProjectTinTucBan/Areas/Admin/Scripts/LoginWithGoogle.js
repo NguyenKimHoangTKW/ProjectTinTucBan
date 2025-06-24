@@ -36,19 +36,7 @@ function togglePassword(inputId) {
     }
 }
 
-// Điều chỉnh modal để phù hợp với thiết bị di động
-$(document).ready(function () {
-    if (window.innerWidth < 576) {
-        // Điều chỉnh modal để phù hợp hơn với màn hình nhỏ
-        $('.modal-dialog').css('margin', '10px');
-        $('.verification-code').css('width', '35px');
-    }
 
-    // Đảm bảo các modal hiển thị đúng trên thiết bị di động
-    $('.modal').on('shown.bs.modal', function () {
-        $(this).css('padding-right', '0');
-    });
-});
 
 async function Session_Login(email, fullname) {
     try {
@@ -80,11 +68,20 @@ async function Session_Login(email, fullname) {
                 time: new Date().toISOString()
             }));
 
-            if (res.idRole == 4) {
-                window.location.href = `/Admin/InterfaceAdmin/Index`;
-            } else {
-                Sweet_Alert("error", "Tài khoản bạn không thuộc phân quyền Admin...");
+            if (res.isBanner == 0) {
+                if (res.idRole == 4)  
+                    window.location.href = `/Admin/InterfaceAdmin/Index`;
+                else if (res.idRole == 1)
+                    window.location.href = `/Admin/InterfaceAdmin/Index`;
+                else
+                    Sweet_Alert("error", "Tài khoản bạn không thuộc phân quyền Admin...");
             }
+            else
+            {
+
+                SweetSweet_Alert("error", "Tài khoản bạn bị khoá");
+            }
+
         } else {
             Sweet_Alert("error", res.message || "Đăng nhập thất bại");
         }
