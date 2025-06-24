@@ -1,26 +1,313 @@
-﻿<main>
-    <section class="row" aria-labelledby="aspnetTitle">
-        <h1 id="aspnetTitle">ASP.NET</h1>
-        <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS, and JavaScript.</p>
-        <p><a href="https://asp.net" class="btn btn-primary btn-md">Learn more &raquo;</a></p>
-    </section>
-    <div class="row">
-        <section class="col-md-4" aria-labelledby="gettingStartedTitle">
-            <h2 id="gettingStartedTitle">Getting started</h2>
-            <p>ASP.NET Web API is a framework that makes it easy to build HTTP services that reach
-            a broad range of clients, including browsers and mobile devices. ASP.NET Web API
-            is an ideal platform for building RESTful applications on the .NET Framework.</p>
-            <p><a class="btn btn-outline-dark" href="https://go.microsoft.com/fwlink/?LinkId=301870">Learn more &raquo;</a></p>
-        </section>
-        <section class="col-md-4" aria-labelledby="librariesTitle">
-            <h2 id="librariesTitle">Get more libraries</h2>
-            <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-            <p><a class="btn btn-outline-dark" href="https://go.microsoft.com/fwlink/?LinkId=301871">Learn more &raquo;</a></p>
-        </section>
-        <section class="col-md-4" aria-labelledby="hostingTitle">
-            <h2 id="hostingTitle">Web Hosting</h2>
-            <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-            <p><a class="btn btn-outline-dark" href="https://go.microsoft.com/fwlink/?LinkId=301872">Learn more &raquo;</a></p>
-        </section>
+﻿@{ ViewBag.Title = "Trang chủ"; }
+
+<!-- Banner Swiper -->
+<section class="mb-6 -mx-4 md:-mx-8 lg:-mx-16 xl:-mx-24 2xl:-mx-32">
+    <div class="mySwiper swiper w-full">
+        <div class="swiper-wrapper">
+            @foreach (var img in new[] {
+                "29fcbd0c-9d4b-4b47-9ae2-121f14eb4cf9.png",
+                "b58bda5e-a637-4d82-8c11-4ddd3b6e9bc9.png",
+                "25e7413b-3051-42a4-9d8e-11407261a294.png"
+            })
+            {
+                <div class="swiper-slide">
+                    <img src="https://bdbcl.tdmu.edu.vn/img/ckeditor/Images/@img"
+                         class="w-full h-auto object-cover" alt="Slide" />
+                </div>
+            }
+        </div>
+        <div class="swiper-button-next text-white"></div>
+        <div class="swiper-button-prev text-white"></div>
+        <div class="swiper-pagination"></div>
     </div>
-</main>
+</section>
+
+
+<section class="max-w-7xl mx-auto p-4 space-y-10">
+    <!-- Tiêu đề -->
+    <div class="text-center">
+        <span style="font-size:1.5em" class="inline-block bg-red-600 text-white text-xs px-4 py-3 rounded-full">TIN TỨC</span>
+        <h2 class="text-gray font-semibold mt-4">Tin tức về hoạt động đảm bảo chất lượng</h2>
+    </div>
+
+    <!-- Danh sách tin -->
+    <div id="tin-tuc-list" class="space-y-6">
+        <p>Đang tải tin tức...</p>
+    </div>
+
+    <!-- Phân trang -->
+    <div id="pagination" class="text-center space-x-1 my-4"></div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- THÔNG BÁO -->
+        <div class="md:col-span-2 bg-white rounded shadow">
+            <h3 class="text-white bg-blue-600 px-4 py-2 text-sm font-semibold rounded-t">THÔNG BÁO</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
+                <!-- Cột 1 -->
+                <div>
+                    @{
+                        var thongBaoTrai = new[] {
+                        new { Img = "https://th.bing.com/th/id/OIP.FTkFJyPje3PkHX9YglTPRwAAAA?o=7rm=3&rs=1&pid=ImgDetMain", TieuDe = "Tập huấn xây dựng ngân hàng câu hỏi/đáp án...", Ngay = "13/01/2025" },
+                        new { Img = "https://th.bing.com/th/id/OIP.FTkFJyPje3PkHX9YglTPRwAAAA?o=7rm=3&rs=1&pid=ImgDetMain", TieuDe = "Phúc khảo kỳ 3, năm học 2021-2022", Ngay = "23/08/2022" },
+                        new { Img = "https://th.bing.com/th/id/OIP.FTkFJyPje3PkHX9YglTPRwAAAA?o=7rm=3&rs=1&pid=ImgDetMain", TieuDe = "Phúc khảo kỳ 2, năm học 2021-2022", Ngay = "06/05/2022" },
+                        new { Img = "https://th.bing.com/th/id/OIP.FTkFJyPje3PkHX9YglTPRwAAAA?o=7rm=3&rs=1&pid=ImgDetMain", TieuDe = "Phòng chống Covid-19 khi học trực tiếp", Ngay = "10/03/2022" },
+                        new { Img = "https://th.bing.com/th/id/OIP.FTkFJyPje3PkHX9YglTPRwAAAA?o=7rm=3&rs=1&pid=ImgDetMain", TieuDe = "Thông báo nghỉ Tết đón sinh viên", Ngay = "11/01/2022" },
+                    };
+
+                        foreach (var tb in thongBaoTrai)
+                        {
+                            <div class="flex gap-3 mb-3">
+                                <img src="@tb.Img" alt="TB" class="w-12 h-12 rounded border" />
+                                <div>
+                                    <p class="font-medium text-sm text-black hover:text-blue-700 hover:underline line-clamp-2">@tb.TieuDe</p>
+                                    <p class="text-xs text-gray-600 mt-1 flex items-center gap-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        @tb.Ngay
+                                    </p>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+
+                <!-- Cột 2 -->
+                <div>
+                    @{
+                        var thongBaoPhai = new[] {
+                        new { Img = "https://th.bing.com/th/id/OIP.FTkFJyPje3PkHX9YglTPRwAAAA?o=7rm=3&rs=1&pid=ImgDetMain", TieuDe = "Phúc khảo học kỳ I, 2022-2023", Ngay = "25/12/2022" },
+                        new { Img = "https://th.bing.com/th/id/OIP.FTkFJyPje3PkHX9YglTPRwAAAA?o=7rm=3&rs=1&pid=ImgDetMain", TieuDe = "Thu nợ học phí kỳ 3", Ngay = "02/06/2022" },
+                        new { Img = "https://th.bing.com/th/id/OIP.FTkFJyPje3PkHX9YglTPRwAAAA?o=7rm=3&rs=1&pid=ImgDetMain", TieuDe = "Thông tin kỳ thi đánh giá năng lực", Ngay = "23/03/2022" },
+                        new { Img = "https://th.bing.com/th/id/OIP.FTkFJyPje3PkHX9YglTPRwAAAA?o=7rm=3&rs=1&pid=ImgDetMain", TieuDe = "Công văn phòng chống Covid", Ngay = "08/03/2022" },
+                        new { Img = "https://th.bing.com/th/id/OIP.FTkFJyPje3PkHX9YglTPRwAAAA?o=7rm=3&rs=1&pid=ImgDetMain", TieuDe = "Thông báo nghỉ tết dương lịch", Ngay = "29/12/2021" },
+                    };
+
+                        foreach (var tb in thongBaoPhai)
+                        {
+                            <div class="flex gap-3 mb-3">
+                                <img src="@tb.Img" alt="TB" class="w-12 h-12 rounded border" />
+                                <div>
+                                    <p class="font-medium text-sm text-black hover:text-blue-700 hover:underline line-clamp-2">@tb.TieuDe</p>
+                                    <p class="text-xs text-gray-600 mt-1 flex items-center gap-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        @tb.Ngay
+                                    </p>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- BIỂU MẪU -->
+        <div class="bg-white rounded shadow">
+            <h3 class="text-white bg-blue-600 px-4 py-2 text-sm font-semibold rounded-t">BIỂU MẪU</h3>
+            <ul class="divide-y divide-gray-200 text-sm p-4 space-y-2">
+                <li class="pb-2">
+                    <strong>Quyết định số 143/QĐ-ĐHTDM</strong> (19/02/2025)<br />
+                    Quy định xây dựng, quản lý và sử dụng ngân hàng câu hỏi cho bậc đại học – Trường ĐH Thủ Dầu Một
+                </li>
+                <li class="pt-2">
+                    <strong>PHIẾU ĐĂNG KÝ PHÒNG ĐỘT XUẤT</strong><br />
+                    (Dùng trong thời gian kiểm tra kết thúc học phần tập trung)
+                </li>
+            </ul>
+        </div>
+    </div>
+
+
+    <!-- Khối văn bản có tab -->
+    <div class="space-y-4">
+        <div class="flex flex-wrap gap-2 text-sm font-semibold">
+            <button class="tab-btn bg-blue-600 text-white px-3 py-1 rounded" data-tab="tab1">Bộ GD&ĐT</button>
+            <button class="tab-btn bg-gray-200 hover:bg-blue-100 px-3 py-1 rounded" data-tab="tab2">Đảm bảo chất lượng</button>
+            <button class="tab-btn bg-gray-200 hover:bg-blue-100 px-3 py-1 rounded" data-tab="tab3">Kiểm tra - đánh giá</button>
+            <button class="tab-btn bg-gray-200 hover:bg-blue-100 px-3 py-1 rounded" data-tab="tab4">Tiêu chuẩn kiểm định</button>
+        </div>
+
+        <!-- Bảng văn bản -->
+        <div id="tab-content" class="overflow-x-auto">
+            <table class="w-full text-sm border border-gray-300">
+                <thead class="bg-gray-100 text-left">
+                    <tr>
+                        <th class="p-2 border">Tên văn bản</th>
+                        <th class="p-2 border w-32">Ban hành</th>
+                        <th class="p-2 border w-16 text-center">Tải</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <!-- Nội dung động -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const tabData = {
+            tab1: [
+                { Ten: "Thông tư 08/2021/TT-BGDĐT Ban hành quy chế đào tạo đại học", Ngay: "18/03/2021" },
+                { Ten: "Công văn số 2085/QLCL của Cục Quản lý chất lượng...", Ngay: "31/12/2020" },
+                { Ten: "Công văn số 1669/QLCL-KĐCLGD về tài liệu đánh giá chất lượng", Ngay: "31/05/2019" },
+                { Ten: "Thông tư 12/2017/TT-BGDĐT Ban hành quy định kiểm định chất lượng", Ngay: "19/05/2017" },
+                { Ten: "Thông tư 04/2016/QĐ-BGDĐT quy định tiêu chuẩn đánh giá CTĐT", Ngay: "14/03/2016" },
+                { Ten: "Văn bản số 17/VBHN-BGDĐT Ban hành quy chế đào tạo theo tín chỉ", Ngay: "15/05/2014" }
+            ],
+            tab2: [
+                { Ten: "Kế hoạch cải tiến chất lượng 2022", Ngay: "08/07/2022" },
+                { Ten: "Thông báo khảo sát sinh viên 2021", Ngay: "28/08/2021" },
+            ],
+            tab3: [
+                { Ten: "Kế hoạch tư vấn, rà soát hồ sơ minh chứng", Ngay: "26/08/2019" },
+                { Ten: "KH khảo sát ý kiến liên quan 2019-2020", Ngay: "20/08/2019" },
+            ],
+            tab4: [
+                { Ten: "Kế hoạch tự đánh giá chương trình đào tạo", Ngay: "20/08/2019" },
+                { Ten: "Phiếu khảo sát tốt nghiệp", Ngay: "01/03/2019" },
+            ]
+        };
+
+        const tabButtons = document.querySelectorAll(".tab-btn");
+        const tableBody = document.getElementById("table-body");
+
+        function loadTab(tabId) {
+            // Cập nhật trạng thái nút
+            tabButtons.forEach(btn => {
+                if (btn.dataset.tab === tabId) {
+                    btn.classList.add("bg-blue-600", "text-white");
+                    btn.classList.remove("bg-gray-200");
+                } else {
+                    btn.classList.remove("bg-blue-600", "text-white");
+                    btn.classList.add("bg-gray-200");
+                }
+            });
+
+            // Tạo nội dung bảng
+            tableBody.innerHTML = "";
+            tabData[tabId].forEach(vb => {
+                const row = `
+                                <tr class="hover:bg-gray-50">
+                                    <td class="p-2 border">${vb.Ten}</td>
+                                    <td class="p-2 border">${vb.Ngay}</td>
+                                    <td class="p-2 border text-center">
+                                        <a href="#" class="text-blue-600 hover:underline" title="Tải xuống">&#8681;</a>
+                                    </td>
+                                </tr>`;
+                tableBody.insertAdjacentHTML("beforeend", row);
+            });
+        }
+
+        // Khởi tạo mặc định
+        document.addEventListener("DOMContentLoaded", () => {
+            loadTab("tab1");
+
+            tabButtons.forEach(btn => {
+                btn.addEventListener("click", () => {
+                    loadTab(btn.dataset.tab);
+                });
+            });
+        });
+    </script>
+
+
+    <!--  hiển thị bài viết -->
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const container = document.getElementById("tin-tuc-list");
+            const pagination = document.getElementById("pagination");
+            let allPosts = [];
+            const perPage = 6;
+            let currentPage = 1;
+
+            try {
+                const res = await fetch("/api/v1/admin/get-all-baiviet");
+                const { data, success } = await res.json();
+
+                if (success && Array.isArray(data)) {
+                    allPosts = data;
+                    renderPosts(currentPage);
+                    renderPagination();
+                } else {
+                    showMessage("Không có bài viết nào.");
+                }
+            } catch (error) {
+                console.error("Fetch API Error:", error);
+                showMessage("Đã xảy ra lỗi khi tải tin tức.");
+            }
+
+            function showMessage(msg) {
+                container.className = "";
+                container.innerHTML = `<p class="text-center text-gray-600">${msg}</p>`;
+            }
+
+            function renderPosts(page) {
+                container.innerHTML = "";
+                container.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6";
+
+                const start = (page - 1) * perPage;
+                const posts = allPosts.slice(start, start + perPage);
+
+                posts.forEach(post => {
+                    const { ID, TieuDe, LinkThumbnail, NgayDang } = post;
+
+                    const thumb = (LinkThumbnail && LinkThumbnail.trim()) || "https://via.placeholder.com/400x240?text=No+Image";
+
+                    const date = formatDate(NgayDang);
+
+                    const html = `
+                        <div class="bg-white rounded shadow overflow-hidden hover:shadow-lg transition duration-300">
+                            <div class="relative h-44 overflow-hidden">
+                                <img src="${thumb}" alt="Tin" class="w-full h-full object-cover" />
+                                <div class="absolute bottom-2 left-2 bg-blue-700 text-white text-center px-3 py-1 rounded">
+                                    <div class="text-sm font-bold leading-none">${date.day}</div>
+                                    <div class="text-[10px] uppercase">${date.monthText}</div>
+                                </div>
+                            </div>
+                            <div class="p-3">
+                                <h3 class="text-black font-semibold text-sm hover:text-blue-700 hover:underline line-clamp-2">
+                                    <a href="/TinTuc/ChiTiet/${ID}">${TieuDe}</a>
+                                </h3>
+                            </div>
+                        </div>`;
+                    container.insertAdjacentHTML("beforeend", html);
+                });
+            }
+
+            function renderPagination() {
+                const totalPages = Math.ceil(allPosts.length / perPage);
+                pagination.innerHTML = "";
+
+                for (let i = 1; i <= totalPages; i++) {
+                    const btn = document.createElement("button");
+                    btn.textContent = i;
+                    btn.className = `px-3 py-1 rounded border text-sm m-1 ${i === currentPage ? 'bg-blue-600 text-white' : 'bg-gray-200 hover:bg-blue-100'}`;
+                    btn.addEventListener("click", () => {
+                        currentPage = i;
+                        renderPosts(currentPage);
+                        renderPagination();
+                    });
+                    pagination.appendChild(btn);
+                }
+            }
+
+            function formatDate(rawDate) {
+                const s = rawDate.toString(); // e.g. 20240526
+                const year = s.slice(0, 4);
+                const month = s.slice(4, 6);
+                const day = s.slice(6, 8);
+                return {
+                    day,
+                    month,
+                    year,
+                    monthText: `THÁNG ${parseInt(month, 10)}`
+                };
+            }
+        });
+    </script>
+
+

@@ -12,7 +12,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
     [RoutePrefix("api/v1/admin")]
     public class FunctionAdminAPIController : ApiController
     {
-        private WebTinTucTDMUEntities db = new WebTinTucTDMUEntities();
+        WebTinTucTDMUEntities db = new WebTinTucTDMUEntities();
         private int unixTimestamp;
         public FunctionAdminAPIController()
         {
@@ -75,7 +75,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     NgayTao = unixTimestamp,
                     NgayCapNhat = unixTimestamp
                 };
-                
+
                 db.ChucNangQuyenUsers.Add(newFunction);
                 await db.SaveChangesAsync();
                 return Ok(new { message = "Thêm chức năng thành công", success = true });

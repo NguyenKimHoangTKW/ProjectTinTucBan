@@ -14,8 +14,8 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
     public class InterfaceAdminController : Controller
     {
-        private WebTinTucTDMUEntities db = new WebTinTucTDMUEntities();
-        
+        WebTinTucTDMUEntities db = new WebTinTucTDMUEntities();
+
         // Gọi hàm thiết kế giao diện tại đây
         public ActionResult Index()
         {
@@ -75,7 +75,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             return View();
         }
 
-        
+
 
         public ActionResult Logout()
         {
@@ -117,4 +117,4 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             }
         }
     }
-}  
+}

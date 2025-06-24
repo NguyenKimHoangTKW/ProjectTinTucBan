@@ -1,36 +1,134 @@
-﻿<!DOCTYPE html>
-<html>
+﻿@{ Layout = null; }
+
+<!DOCTYPE html>
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
-    <title>@ViewBag.Title - My ASP.NET Application</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewBag.Title – ĐBCL TDMU</title>
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 1.5em;
+        }
+    </style>
 </head>
-<body>
+<body class="bg-gray-100 text-gray-800">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
 
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark">
-        <div class="container">
-            @Html.ActionLink("Application name", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
-            <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" title="Toggle navigation" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
-                    <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("API", "Index", "Help", new { area = "" }, new { @class = "nav-link" })</li>
-                </ul>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 1.5em;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        main {
+            flex: 1;
+        }
+    </style>
+
+    <!-- Top bar -->
+    <div style="background-color: #007bff" class=" text-white text-sm">
+        <div class="max-w-7xl mx-auto flex justify-between items-center px-4 py-2">
+            <span>Bdbcl@tdmu.edu.vn | (0274) 3822518-3-114</span>
+            <div class="flex gap-4">
+                @foreach (var link in new[] { "Giảng viên", "SV", "Lịch công tác", "Liên kết", "Liên hệ", "English" })
+                {
+                    <a href="#" class="hover:underline">@link</a>
+                }
             </div>
         </div>
-    </nav>
-    <div class="container body-content">
-        @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
-        </footer>
     </div>
+
+    <!-- Navbar -->
+    <header class="bg-blue-600 text-white shadow">
+        <div class="max-w-7xl mx-auto flex items-center justify-between px-4 py-3">
+            <!-- Logo + Tên đơn vị -->
+            <div class="flex items-center gap-4">
+                <img src="https://navigates.vn/wp-content/uploads/2023/06/logo-dai-hoc-thu-dau-mot.jpg"
+                     alt="Logo TDMU"
+                     class="h-14 w-auto rounded bg-white p-1" />
+                <span class="text-xl font-semibold uppercase leading-snug">
+                    Đảm Bảo Chất Lượng<br />Trường Đại học Thủ Dầu Một
+                </span>
+            </div>
+
+            <!-- Menu điều hướng -->
+            <nav class="hidden md:flex items-center gap-6 text-lg font-medium">
+                <a href="@Url.Action("Index", "Home")" class="hover:underline">Trang chủ</a>
+
+                <div class="relative group">
+                    <button class="hover:underline flex items-center gap-1">
+                        Giới thiệu
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                             viewBox="0 0 24 24">
+                            <path d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    <!-- Dropdown -->
+                    <ul class="absolute hidden group-hover:block mt-2 bg-white text-black rounded shadow-md w-48 z-20">
+                        <li><a href="#" class="block px-4 py-2 hover:bg-gray-100">Sơ đồ tổ chức Nhân sự</a></li>
+                        <li><a href="#" class="block px-4 py-2 hover:bg-gray-100">Chức năng - Nhiệm vụ</a></li>
+                    </ul>
+                </div>
+
+                <a href="#" class="hover:underline">Liên hệ</a>
+            </nav>
+        </div>
+    </header>
+
+
+
+    <!-- Main content -->
+    <main class="max-w-7xl mx-auto px-4 py-6">
+        @RenderBody()
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-200 text-gray-600 text-sm py-6">
+        <div class="max-w-7xl mx-auto px-4 space-y-2">
+            <p>Địa chỉ: Số 6 Trần Văn Ơn, P. Phú Hòa, TP. Thủ Dầu Một, Bình Dương</p>
+            <p>Điện thoại: 0274‑3822518‑3‑114 | Email: bdbcl@tdmu.edu.vn</p>
+            <p>&copy; @DateTime.Now.Year Ban ĐBCL – Trường Đại học Thủ Dầu Một</p>
+            <p>Ghi rõ nguồn "Trường Đại học Thủ Dầu Một" khi sử dụng nội dung này.</p>
+        </div>
+    </footer>
+
+    <!-- Back to top button -->
+    <button id="backToTop"
+            class="hidden fixed bottom-6 right-6 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition"
+            title="Lên đầu trang">
+        ↑
+    </button>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script>
+        new Swiper('.mySwiper', {
+            loop: true,
+            autoplay: { delay: 4000, disableOnInteraction: false },
+            pagination: { el: '.swiper-pagination', clickable: true },
+            navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }
+        });
+
+        const btn = document.getElementById("backToTop");
+        window.addEventListener("scroll", () => {
+            btn.classList.toggle("hidden", window.scrollY <= 200);
+        });
+        btn.addEventListener("click", () => {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+    </script>
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
