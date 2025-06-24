@@ -88,6 +88,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 {
                     idRole = existingAccount.ID_role,
                     message = "Đăng nhập thành công",
+                    isBanner = existingAccount.IsBanned,
                     success = true
                 });
             }

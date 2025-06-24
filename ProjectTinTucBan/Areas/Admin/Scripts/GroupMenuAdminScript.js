@@ -32,14 +32,12 @@ function renderGroupMenuTabs(groupMenus) {
     var tabContent = '';
     var first = true;
 
-    // Reset active của tab
     foundActive = false;
 
     groupMenus.forEach(function (group) {
         var tabId = 'groupmenu-tab-' + group.ID;
         var paneId = 'groupmenu-pane-' + group.ID;
 
-        // Xác định xem tab này có phải là tab đang hoạt động hay không
         var isActive = false;
         if (currentActiveTabId && tabId === currentActiveTabId) {
             isActive = true;
@@ -49,10 +47,9 @@ function renderGroupMenuTabs(groupMenus) {
             currentActiveTabId = tabId;
         }
 
-        // Show group theo dạng tab dọc
         tabList += `
             <li class="nav-item">
-                <div class="d-flex align-items-center justify-content-between w-100">
+                <div class="d-flex align-items-start justify-content-between w-100 flex-column flex-md-row">
                     <a class="nav-link${isActive ? ' active' : ''}" 
                        id="${tabId}" 
                        data-toggle="tab"
@@ -61,41 +58,40 @@ function renderGroupMenuTabs(groupMenus) {
                        aria-selected="${isActive}">
                         ${group.Ten}
                     </a>
-                    <div class="btn-group">
-                        <button class="btn btn-sm btn-primary add-menu-to-group-btn" 
+                    <div class="btn-group btn-group-sm d-flex flex-wrap flex-md-nowrap ml-md-2 mt-2 mt-md-0" role="group">
+                        <button class="btn btn-light text-primary add-menu-to-group-btn" 
                                 data-id="${group.ID}" 
                                 title="Thêm menu vào group">
-                            <i class="fas fa-plus"></i>
+                            <i class="fas fa-plus"></i><span class="d-none d-md-inline ml-1">Thêm</span>
                         </button>
-                        <button class="btn btn-sm btn-warning edit-groupmenu-btn" 
+                        <button class="btn btn-light text-warning edit-groupmenu-btn" 
                                 data-id="${group.ID}" 
                                 data-ten="${group.Ten}"
                                 title="Sửa group menu">
-                            <i class="fas fa-edit"></i>
+                            <i class="fas fa-edit"></i><span class="d-none d-md-inline ml-1">Sửa</span>
                         </button>
-                        <button class="btn btn-sm btn-danger delete-groupmenu-btn" 
+                        <button class="btn btn-light text-danger delete-groupmenu-btn" 
                                 data-id="${group.ID}"
                                 title="Xóa group menu">
-                            <i class="fas fa-trash"></i>
+                            <i class="fas fa-trash"></i><span class="d-none d-md-inline ml-1">Xóa</span>
                         </button>
                     </div>
                 </div>
             </li>
         `;
 
-        // Nội dung tương ứng với tab
         var menuContent = '';
         if (group.Menus && group.Menus.length > 0) {
             menuContent = '<ul class="list-group list-group-flush">';
             group.Menus.forEach(function (menu) {
                 menuContent += `
                     <li class="list-group-item">
-                        <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap">
                             <div>
                                 <strong>${menu.MenuName}</strong>
                                 ${menu.MenuLink ? `<span class="text-muted ml-2">(${menu.MenuLink})</span>` : ''}
                             </div>
-                            <button class="btn btn-sm btn-danger delete-menu-from-group-btn" 
+                            <button class="btn btn-sm btn-outline-danger delete-menu-from-group-btn mt-2 mt-md-0" 
                                     data-menuid="${menu.MenuId}" 
                                     data-groupid="${group.ID}">
                                 <i class="fas fa-times"></i>
@@ -129,22 +125,20 @@ function renderGroupMenuTabs(groupMenus) {
 
         first = false;
     });
-     
-    // Khởi chạy tab đầu tiên active nếu không có tab nào được chọn
+
     if (!foundActive && groupMenus.length > 0) {
         var firstTabId = 'groupmenu-tab-' + groupMenus[0].ID;
         currentActiveTabId = firstTabId;
     }
 
-    // Hiển thị HTML cho các tab
     var html = `
         <div class="card">
             <div class="card-body">
-                <div class="d-flex">
+                <div class="d-flex flex-column flex-md-row">
                     <ul class="nav nav-tabs flex-column" id="myTabVertical" role="tablist" style="min-width: 250px; border-right: 1px solid #dee2e6;">
                         ${tabList}
                     </ul>
-                    <div class="tab-content ml-3 flex-grow-1" id="myTabContentVertical">
+                    <div class="tab-content ml-md-3 mt-3 mt-md-0 flex-grow-1" id="myTabContentVertical">
                         ${tabContent}
                     </div>
                 </div>
@@ -154,9 +148,7 @@ function renderGroupMenuTabs(groupMenus) {
 
     $('#groupMenuTabsContainer').html(html);
 
-    
     updateTabStyles();
-
     $('[title]').tooltip();
     initializeTabHandlers();
 }
@@ -194,6 +186,17 @@ function updateTabStyles() {
             }
             .btn-group .btn {
                 padding: 0.25rem 0.5rem;
+                font-size: 0.875rem;
+            }
+            @media (max-width: 767.98px) {
+                .btn-group {
+                    flex-wrap: wrap;
+                    gap: 4px;
+                }
+                .btn-group .btn {
+                    flex: 1 0 30%;
+                    text-align: center;
+                }
             }
         `)
         .appendTo('head');

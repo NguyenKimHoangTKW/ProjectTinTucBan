@@ -145,7 +145,7 @@
     <Compile Include="Areas\Admin\Controllers\RolesAdminAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\MenuApiAdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\SliderApiAdminController.cs" />
-    <Content Include="Areas\Admin\Scripts\DanhSachMucLuc.js" />
+    <Content Include="Areas\Admin\Scripts\AdminSideNavScript.js" />
     <Compile Include="Areas\Admin\Controllers\UploadPDFAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\UploadThumbnailAPIController.cs" />
     <Compile Include="Areas\HelpPage\ApiDescriptionExtensions.cs" />
@@ -206,7 +206,7 @@
     <Compile Include="Models\DonViTrucThuoc.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\Group_By_Menu.cs">
+    <Compile Include="Models\Group_By_Menu_And__Sub.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Khoi.cs">
@@ -249,13 +249,13 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\Admin\Scripts\DanhSachChucNang.js" />
-    <Content Include="Areas\Admin\Scripts\DanhSachMucLuc.js" />
+    <Content Include="Areas\Admin\Scripts\DanhSachMucluc.js" />
     <Content Include="Areas\Admin\Scripts\DanhSachRoles.js" />
     <Content Include="Areas\Admin\Scripts\GroupMenuAdminScript.js" />
     <Content Include="Areas\Admin\Scripts\MenuScript.js" />
     <Content Include="Areas\Admin\Scripts\SliderAdminScript.js" />
     <Content Include="Areas\Admin\Scripts\SliderShowScript.js" />
-    <Content Include="Areas\Admin\Scripts\TopMenuShowScript.js" />
+    <Content Include="Areas\Admin\Scripts\TopNavShowScript.js" />
     <Content Include="Areas\Admin\Scripts\BaiViet.js" />
     <Content Include="Areas\Admin\Scripts\DanhSachUser.js" />
     <Content Include="Areas\Admin\Scripts\LoginWithGoogle.js" />
@@ -1332,7 +1332,7 @@
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_MucLuc_Admin.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Roles_Admin.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Menu.cshtml" />
-    <Content Include="Areas\Admin\Views\Shared\TopMenuPartial.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\TopNavTestPartial.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Slider.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\BaiViet.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Register.cshtml" />
@@ -1347,7 +1347,7 @@
     <Content Include="assets\fonts\line-awesome.woff2" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Function_Admin.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Users_Admin.cshtml" />
-    <Content Include="Areas\Admin\Views\Shared\SliderShowPartial.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\SliderTestShowPartial.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\XemNoiDung.cshtml" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
