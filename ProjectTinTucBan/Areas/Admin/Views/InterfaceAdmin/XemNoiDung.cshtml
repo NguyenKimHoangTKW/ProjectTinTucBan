@@ -1,68 +1,120 @@
 ﻿@model ProjectTinTucBan.Models.BaiViet
+
 @{
-    ViewBag.Title = "XemNộiDung";
+    ViewBag.Title = "Xem Nội Dung";
     Layout = null;
 }
 
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
-    <title>@Model.TieuDe</title>
+    <title>Nội dung bài viết</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="shortcut icon" href="https://tdmu.edu.vn/hinh/Icon.png" />
+    <!-- Script: jQuery, CKEditor, SweetAlert2, html2pdf -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.ckeditor.com/4.21.0/full/ckeditor.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="~/Areas/Admin/Scripts/XemNoiDung.js"></script>
+    <!-- CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
     <style>
         body {
             background: linear-gradient(to right, #e3f2fd, #bbdefb);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .main-content {
+            width: 100%;
+            max-width: 750px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 0; 
+            padding: 20px;
+            box-shadow: none;
+        }
+
+        .title {
+            text-align: center;
             color: #0d47a1;
-        }
-
-        .content-wrapper {
-            background-color: #ffffff;
-            border-radius: 10px;
-            padding: 30px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            max-width: 850px;
-            margin: 50px auto;
-        }
-
-        h2.title {
-            color: #1565c0;
+            text-transform: uppercase;
             font-weight: bold;
             margin-bottom: 30px;
             border-bottom: 2px solid #90caf9;
-            padding-bottom: 15px;
-            text-align: center;
+            padding-bottom: 10px;
         }
 
-        .post-content {
-            color: #1a237e;
-            font-size: 1.05rem;
-            line-height: 1.8;
+        #xemNoiDungContainer {
+            max-width: 800px;
+            margin: 0 auto;
         }
 
-        a {
-            color: #0d47a1;
+        .cke_editable {
+            overflow-wrap: break-word;
+            word-break: break-word;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #000;
+            font-size: 14px;
+            line-height: 1.6;
         }
 
-        a:hover {
-            color: #0b3c91;
-        }
-
-        @@media (max-width: 576px) {
-            .content-wrapper {
-                padding: 20px;
+            .cke_editable img {
+                display: block;
+                margin: 10px auto;
+                max-width: 100% !important;
+                height: auto !important;
             }
+
+        .cke_contents {
+            min-height: 400px !important;
+            Luôn giữ khung nhập cao tối thiểu
+        }
+
+        img.portrait {
+            max-height: 600px;
+            width: auto;
+        }
+
+        img.landscape {
+            max-width: 100%;
+            height: auto;
+        }
+
+        img {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        h2, p, table, div {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        textarea#NoiDung {
+            min-height: 400px;
         }
     </style>
 </head>
 <body>
-    <div class="content-wrapper">
+    <div class="main-content">
         <h2 class="title">@Model.TieuDe</h2>
-        <div class="post-content">
-            @Html.Raw(Model.NoiDung)
+
+        <!-- ID ẩn -->
+        <input type="hidden" id="BaiVietID" value="@Model.ID" />
+
+        <!-- CKEditor -->
+        <div id="xemNoiDungContainer">
+            <textarea id="NoiDung">@Html.Raw(Model.NoiDung)</textarea>
+        </div>
+
+        <!-- Nút thao tác -->
+        <div class="mt-4 text-right">
+            <button id="btnLuuNoiDung" class="btn btn-primary">Lưu Nội Dung</button>
+            <button id="btnExportPdf" class="btn btn-success ml-2">Xuất PDF</button>
+            <button id="btnPreviewPdf" class="btn btn-secondary ml-2">Xem trước PDF</button>
         </div>
     </div>
 </body>
 </html>
+

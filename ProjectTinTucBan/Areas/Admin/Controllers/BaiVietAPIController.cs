@@ -146,6 +146,38 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             }
         }
 
+        // PUT: Cập nhật chỉ nội dung bài viết
+        [HttpPut]
+        [Route("update-noidung/{id}")]
+        public async Task<IHttpActionResult> UpdateNoiDung(int id, [FromBody] dynamic body)
+        {
+            if (body == null || body.noiDung == null)
+                return BadRequest("Nội dung không được để trống.");
+
+            var baiViet = await db.BaiViets.FindAsync(id);
+            if (baiViet == null)
+                return NotFound();
+
+            try
+            {
+                baiViet.NoiDung = (string)body.noiDung;
+                baiViet.NgayCapNhat = int.Parse(DateTime.Now.ToString("yyyyMMdd"));
+
+                await db.SaveChangesAsync();
+
+                return Ok(new { success = true, message = "Cập nhật nội dung thành công." });
+            }
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.InternalServerError, new
+                {
+                    success = false,
+                    message = "Lỗi khi cập nhật nội dung.",
+                    error = ex.Message
+                });
+            }
+        }
+
         // GET: Lấy danh sách ảnh từ thư viện
         [HttpGet]
         [Route("thu-vien-anh")]
@@ -161,7 +193,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
                 // Lấy file và gom nhóm theo tên gốc (bỏ timestamp)
                 var grouped = Directory.GetFiles(folderPath)
-                    .Where(file => new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" }
+                    .Where(file => new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp" }
                         .Contains(Path.GetExtension(file).ToLower()))
                     .GroupBy(file =>
                     {
