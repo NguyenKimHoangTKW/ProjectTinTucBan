@@ -51,46 +51,6 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         {
             return View();
         }
-        // Trang đăng nhập (GET)
-        [HttpGet]
-        public ActionResult Login()
-        {
-            // Nếu đã đăng nhập, chuyển hướng về trang Index
-            if (Session["AdminUser"] != null)
-            {
-                return RedirectToAction("Index");
-            }
-            return View();
-        }
-
-        // Trang đăng ký (GET)
-        [HttpGet]
-        public ActionResult Register()
-        {
-            // Nếu đã đăng nhập, chuyển hướng về trang Index
-            if (Session["AdminUser"] != null)
-            {
-                return RedirectToAction("Index");
-            }
-            return View();
-        }
-
-
-
-        public ActionResult Logout()
-        {
-            Session.Clear(); // Xóa tất cả session variables
-            return RedirectToAction("Login");
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
-        }
         // Gọi hàm thiết kế giao diện quản lý người dùng Admin
         public ActionResult Index_Users_Admin()
         {

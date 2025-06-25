@@ -5,12 +5,94 @@ $(document).ready(async function () {
     setupBaiVietTableEvents();
     setupModalFormEvents();
 });
+// Sự kiện copy tiêu đề - đặt ngoài
+$(document).on('click', '#btnCopyTieuDe', function () {
+    const text = $('#tieuDeDayDuContent').text().trim();
+    if (!text) return;
+
+    navigator.clipboard.writeText(text).then(() => {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'Đã sao chép tiêu đề!',
+            showConfirmButton: false,
+            timer: 1000,
+            timerProgressBar: true,
+            customClass: {
+                popup: 'swal2-toast'
+            }
+        });
+
+        //Tự động đóng modal sau 2 giây
+        setTimeout(() => {
+            $('#modalTieuDeDayDu').modal('hide');
+        }, 2000);
+
+    }).catch(() => {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'error',
+            title: 'Không thể sao chép!',
+            showConfirmButton: false,
+            timer: 1000,
+            timerProgressBar: true,
+            customClass: {
+                popup: 'swal2-toast'
+            }
+        });
+    });
+});
 
 // -------------------- [ Danh sách bài viết ] --------------------
 function setupBaiVietTableEvents() {
     $('#btnThemBaiViet').on('click', function () {
         resetModalForm();
         $('#modalBaiVietLabel').text('Thêm Bài Viết');
+
+        // Sau khi modal mở, khởi tạo lại CKEditor với nội dung trống
+        $('#modalBaiViet').off('shown.bs.modal').on('shown.bs.modal', function () {
+            $(this).attr('aria-hidden', 'false');
+
+            if (CKEDITOR.instances.NoiDung) {
+                CKEDITOR.instances.NoiDung.destroy(true);
+            }
+            // Hủy CKEditor cũ nếu tồn tại
+            CKEDITOR.replace('NoiDung', {
+                extraPlugins: 'justify',
+                allowedContent: true,
+                height: '500px',
+                resize_enabled: false,
+                toolbar: [
+                    { name: 'clipboard', items: ['Cut', 'Copy', 'Paste', 'Undo', 'Redo'] },
+                    { name: 'styles', items: ['Format', 'Font', 'FontSize'] },
+                    { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', '-', 'RemoveFormat'] },
+                    { name: 'paragraph', items: ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'NumberedList', 'BulletedList'] },
+                    { name: 'links', items: ['Link', 'Unlink'] },
+                    { name: 'insert', items: ['Image', 'Table', 'HorizontalRule'] },
+                    { name: 'tools', items: ['Maximize'] }
+                ]
+            });
+            // Khi CKEditor sẵn sàng
+            CKEDITOR.instances.NoiDung.on('instanceReady', function () {
+                const editor = CKEDITOR.instances.NoiDung;
+                editor.setData('', function () {
+                    // Sau khi set xong, resize ngay
+                    setTimeout(() => {
+                        const body = editor.document?.$?.body;
+                        if (body) {
+                            const scrollHeight = body.scrollHeight;
+                            const newHeight = Math.min(scrollHeight + 100, 1000);
+                            editor.resize('100%', newHeight);
+                        }
+                    }, 100);
+                });
+
+                // Gắn auto resize khi người dùng nhập thêm nội dung
+                autoResizeCKEditor(editor);
+            });
+        });
         $('#modalBaiViet').modal('show');
     });
 
@@ -31,7 +113,7 @@ function setupBaiVietTableEvents() {
 
             if (res.success) {
                 const b = res.data;
-
+                const noiDung = b.NoiDung || '';
                 $('#modalBaiVietLabel').text('Sửa Bài Viết');
                 $('#BaiVietID').val(b.ID);
                 $('#TieuDe').val(b.TieuDe);
@@ -40,28 +122,34 @@ function setupBaiVietTableEvents() {
 
                 // Khởi tạo lại CKEditor sau khi modal show
                 $('#modalBaiViet').off('shown.bs.modal').on('shown.bs.modal', function () {
-                    if (CKEDITOR.instances.NoiDung) {
-                        CKEDITOR.instances.NoiDung.destroy(true);
-                    }
+                    setTimeout(() => {
+                        if (CKEDITOR.instances.NoiDung) {
+                            CKEDITOR.instances.NoiDung.destroy(true);
+                        }
 
-                    CKEDITOR.replace('NoiDung', {
-                        extraPlugins: 'justify',
-                        allowedContent: true,
-                        toolbar: [
-                            { name: 'clipboard', items: ['Cut', 'Copy', 'Paste', 'Undo', 'Redo'] },
-                            { name: 'styles', items: ['Format', 'Font', 'FontSize'] },
-                            { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', '-', 'RemoveFormat'] },
-                            { name: 'paragraph', items: ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'NumberedList', 'BulletedList'] },
-                            { name: 'links', items: ['Link', 'Unlink'] },
-                            { name: 'insert', items: ['Image', 'Table', 'HorizontalRule'] },
-                            { name: 'tools', items: ['Maximize'] }
-                        ]
-                    });
+                        CKEDITOR.replace('NoiDung', {
+                            extraPlugins: 'justify',
+                            allowedContent: true,
+                            height: '500px',
+                            resize_enabled: false,
+                            toolbar: [
+                                { name: 'clipboard', items: ['Cut', 'Copy', 'Paste', 'Undo', 'Redo'] },
+                                { name: 'styles', items: ['Format', 'Font', 'FontSize'] },
+                                { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', '-', 'RemoveFormat'] },
+                                { name: 'paragraph', items: ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'NumberedList', 'BulletedList'] },
+                                { name: 'links', items: ['Link', 'Unlink'] },
+                                { name: 'insert', items: ['Image', 'Table', 'HorizontalRule'] },
+                                { name: 'tools', items: ['Maximize'] }
+                            ]
+                        });
 
-                    CKEDITOR.instances.NoiDung.on('instanceReady', function () {
-                        CKEDITOR.instances.NoiDung.setData(b.NoiDung || '');
-                    });
+                        CKEDITOR.instances.NoiDung.on('instanceReady', function () {
+                            CKEDITOR.instances.NoiDung.setData(noiDung);
+                            autoResizeCKEditor(CKEDITOR.instances.NoiDung);
+                        });
+                    }, 200); // Chờ modal render xong
                 });
+
 
                 // Ảnh & PDF
                 if (b.LinkThumbnail) {
@@ -135,10 +223,15 @@ async function GetAllBaiViet() {
         let html = '';
         res.data.forEach((item, index) => {
             const isTitleLong = item.TieuDe.length > 10;
-            const shortTitle = shortenTitle(item.TieuDe);
-            const infoIcon = isTitleLong
-                ? `<i class="anticon anticon-info-circle text-primary ml-1 btn-xem-tieude" style="cursor:pointer;" data-tieude="${encodeURIComponent(item.TieuDe)}"></i>`
-                : '';
+            const displayTitle = isTitleLong
+                ? `<span class="btn-xem-tieude"
+                          title="${item.TieuDe}"
+                          data-tieude="${encodeURIComponent(item.TieuDe)}"
+                          style="cursor: pointer; color: black; text-decoration: none;">
+                          ${shortenTitle(item.TieuDe)}
+                   </span>`
+                : item.TieuDe;
+
 
             const linkThumb = item.LinkThumbnail
                 ? `<div class="text-center">
@@ -165,7 +258,7 @@ async function GetAllBaiViet() {
                     <td class="d-none">${item.ID}</td>
                     <td>${index + 1}</td>
                     <td>
-                        ${shortTitle}${infoIcon}
+                        ${displayTitle}
                     </td>
                     <td class="text-center">
                         <button class="btn btn-sm btn-outline-info btn-xem" data-id="${item.ID}">
@@ -203,6 +296,19 @@ function formatDateFromInt(dateInt) {
     const str = dateInt.toString();
     return `${str.slice(6, 8)}/${str.slice(4, 6)}/${str.slice(0, 4)}`;
 }
+function autoResizeCKEditor(editorInstance) {
+    if (!editorInstance) return;
+    editorInstance.on('change', function () {
+        setTimeout(() => {
+            const body = editorInstance.document?.$?.body;
+            if (body) {
+                const scrollHeight = body.scrollHeight;
+                const newHeight = Math.min(scrollHeight + 100, 1000);
+                editorInstance.resize('100%', newHeight);
+            }
+        }, 100); // Delay để đảm bảo nội dung dán vào đã hiển thị
+    });
+}
 
 // -------------------- [ Modal form logic ] --------------------
 function setupModalFormEvents() {
@@ -213,6 +319,9 @@ function setupModalFormEvents() {
         CKEDITOR.replace('NoiDung', {
             extraPlugins: 'justify',
             allowedContent: true,
+            removePlugins: 'exportpdf',
+            resize_enabled: false,
+            height: '500px',
             toolbar: [
                 { name: 'clipboard', items: ['Cut', 'Copy', 'Paste', 'Undo', 'Redo'] },
                 { name: 'styles', items: ['Format', 'Font', 'FontSize'] },
@@ -223,6 +332,22 @@ function setupModalFormEvents() {
                 { name: 'tools', items: ['Maximize'] }
             ]
         });
+        CKEDITOR.instances.NoiDung.on('instanceReady', function () {
+            const editor = CKEDITOR.instances.NoiDung;
+            // Tự động resize
+            autoResizeCKEditor(editor);
+
+            //Gói ảnh vào <p style="text-align:center"> + thêm dòng trống sau ảnh
+            editor.on('paste', function (evt) {
+                const data = evt.data;
+                if (data && data.dataValue && data.dataValue.includes('<img')) {
+                    data.dataValue = data.dataValue.replace(/<img[^>]*>/g, function (match) {
+                        return `<p style="text-align: center;">${match}</p><p><br></p>`;
+                    });
+                }
+            });
+        });
+
     });
 
     $('#form_baiviet').on('submit', async function (e) {
@@ -285,7 +410,6 @@ function setupModalFormEvents() {
     $('#ThumbnailFile').on('change', function () {
         const file = this.files[0];
         if (!file) return;
-
         const reader = new FileReader();
         reader.onload = function (e) {
             const imageUrl = e.target.result;
@@ -359,11 +483,13 @@ function setupModalFormEvents() {
 function resetModalForm() {
     const form = $('#form_baiviet')[0];
     if (form) form.reset();
-
     $('#BaiVietID').val('');
     $('#LinkThumbnail').val('');
     $('#LinkPDF').val('');
     $('#previewThumbnail').html('');
     $('#previewPDF').html('');
     $('#btnXoaThumbnail').addClass('d-none');
+    if (CKEDITOR.instances.NoiDung) {
+        CKEDITOR.instances.NoiDung.destroy(true);
+    }
 }
