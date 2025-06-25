@@ -147,6 +147,7 @@
     <Compile Include="Areas\Admin\Controllers\SliderApiAdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\UploadPDFAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\UploadThumbnailAPIController.cs" />
+    <Compile Include="Areas\Admin\Controllers\UserSession.cs" />
     <Compile Include="Areas\HelpPage\ApiDescriptionExtensions.cs" />
     <Compile Include="Areas\HelpPage\App_Start\HelpPageConfig.cs" />
     <Compile Include="Areas\HelpPage\Controllers\HelpController.cs" />
@@ -182,6 +183,7 @@
     </Compile>
     <Compile Include="Helper\EmailService.cs" />
     <Compile Include="Helper\EncryptionHelper.cs" />
+    <Compile Include="Helper\SessionHelper.cs" />
     <Compile Include="Models\BaiViet.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
@@ -248,6 +250,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Areas\Admin\Scripts\CheckSession.js" />
     <Content Include="Areas\Admin\Scripts\DanhSachChucNang.js" />
     <Content Include="Areas\Admin\Scripts\DanhSachMucLuc.js" />
     <Content Include="Areas\Admin\Scripts\DanhSachRoles.js" />

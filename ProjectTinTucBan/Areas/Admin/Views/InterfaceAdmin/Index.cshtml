@@ -1,10 +1,11 @@
 ﻿@{
-    ViewBag.Title = "Title";
+    ViewBag.Title = "Trang chủ Admin";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
 <div class="main-content">
     <div class="container-fluid">
+        <!-- Session info will be displayed here by JavaScript -->
         <!-- Thống kê -->
         <div class="row">
             <div class="col-md-3">
@@ -95,17 +96,23 @@
         width: 50px;
         height: 50px;
     }
+
+    /* Style cho phần hiển thị thông tin session */
+    .session-info, .session-warning, .session-error {
+        margin-bottom: 20px;
+        border-radius: 5px;
+    }
+
+        .session-info ul {
+            padding-left: 20px;
+            margin-bottom: 0;
+        }
+
+        .session-info li {
+            margin-bottom: 5px;
+        }
 </style>
-<<<<<<< HEAD
+
 @section scriptsAdmin {
-    // Khai bao section scriptsAdmin như trong code để lấy toàn bộ thư viện Script mà không cần phải gọi lại
-    // Trích đường dẫn file .js vào đây
-    // Viết bằng jQuery
-    // Tất cả file js tạo đều phải lưu trữ vào Areas/Admin/Scripts
-    
+    <script src="~/Areas/Admin/Scripts/CheckSession.js"></script>
 }
-
-<h2>Index</h2>
-=======
-
->>>>>>> Vinh

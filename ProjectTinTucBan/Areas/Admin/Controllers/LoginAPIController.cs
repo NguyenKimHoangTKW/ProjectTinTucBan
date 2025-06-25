@@ -99,7 +99,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                         await db.SaveChangesAsync();
                     }
                 }
-
+                SessionHelper.SetUser(existingAccount);
                 return Ok(new
                 {
                     idRole = existingAccount.ID_role,
@@ -206,6 +206,8 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                             ID_role = user.ID_role ?? 4
                         };
 
+                        SessionHelper.SetUser(user);
+
                         return Ok(new
                         {
                             idRole = user.ID_role,
@@ -305,7 +307,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         {
             try
             {
-                //SessionHelper.ClearUser();
+                SessionHelper.ClearUser();
                 return Ok(new { success = true });
             }
             catch (Exception ex)
@@ -580,6 +582,45 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             }
             catch (Exception ex)
             {
+                return InternalServerError(ex);
+            }
+        }
+
+        // Add this endpoint to return user session data
+        [HttpGet]
+        [Route("current-user")]
+        public IHttpActionResult GetCurrentUser()
+        {
+            try
+            {
+                var currentUser = SessionHelper.GetUser();
+                if (currentUser == null)
+                {
+                    return Ok(new
+                    {
+                        isLoggedIn = false,
+                        message = "Người dùng chưa đăng nhập",
+                        success = false
+                    });
+                }
+
+                return Ok(new
+                {
+                    isLoggedIn = true,
+                    user = new
+                    {
+                        id = currentUser.ID,
+                        username = currentUser.TenTaiKhoan,
+                        name = currentUser.Name,
+                        email = currentUser.Gmail,
+                        role = currentUser.ID_role
+                    },
+                    success = true
+                });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Session error: {ex.Message}");
                 return InternalServerError(ex);
             }
         }

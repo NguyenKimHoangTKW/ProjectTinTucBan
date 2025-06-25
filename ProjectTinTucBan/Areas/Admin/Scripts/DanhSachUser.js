@@ -405,8 +405,8 @@ async function openEditUserModal(userId) {
                 // Format and display timestamps
                 let ngayTao = user.NgayTao || user.ngayTao;
                 let ngayCapNhat = user.NgayCapNhat || user.ngayCapNhat;
-                $("#NgayTao").val(ngayTao ? unixTimestampToDate(parseInt(ngayTao)) : "N/A");
-                $("#NgayCapNhat").val(ngayCapNhat ? unixTimestampToDate(parseInt(ngayCapNhat)) : "N/A");
+                $("#NgayTao").val(ngayTao ? unixTimestampToDate(parseInt(ngayTao)) : "Không có dữ liệu");
+                $("#NgayCapNhat").val(ngayCapNhat ? unixTimestampToDate(parseInt(ngayCapNhat)) : "NKhông có dữ liệuA");
 
                 // Update modal title and button text
                 $("#UserModalLabel").text("Cập nhật tài khoản");
@@ -648,7 +648,7 @@ async function openPermissionsModal(userId, username) {
     }
 }
 
-                    // Function to update the state of "check all" checkbox
+// Function to update the state of "check all" checkbox
 function updateCheckAllState() {
     const totalCheckboxes = $("#functionsTableBody .function-checkbox").length;
     const checkedCheckboxes = $("#functionsTableBody .function-checkbox:checked").length;
