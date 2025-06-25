@@ -1,0 +1,109 @@
+﻿﻿@{
+    ViewBag.Title = "Quản lý Slider";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+@section scriptsAdmin{
+    <script src="~/Scripts/jquery-3.7.0.min.js"></script>
+    <script src="~/Areas/assets/js/OptionPhanQuyen.js"></script>
+    <script src="~/Areas/Admin/Scripts/SliderAdminScript.js"></script>
+    <script src="~/Areas/assets/js/vendors.min.js"></script>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+
+
+}
+
+<!-- Modal Thêm Slide -->
+<div class="modal fade" id="addSlideModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <form id="add-slide-form" class="modal-content" enctype="multipart/form-data">
+            <div class="modal-header">
+                <h5 class="modal-title h4">Thêm Slide</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <i class="anticon anticon-close"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Chọn hình ảnh</label>
+                    <input type="file" class="form-control" id="addLinkHinh" accept="image/*" required />
+                    <img id="addPreviewImg" src="#" alt="" style="display:none;max-width:100%;margin-top:10px;" />
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="addIsActive" /> Hiển thị
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="closeAddSlideModal" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="submit" class="btn btn-primary">Lưu</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Sửa Slide -->
+<div class="modal fade" id="editSlideModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <form id="edit-slide-form" class="modal-content" enctype="multipart/form-data">
+            <div class="modal-header">
+                <h5 class="modal-title h4">Sửa Slide</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <i class="anticon anticon-close"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editSlideId" />
+                <div class="form-group">
+                    <label>Chọn hình ảnh (bỏ qua nếu không đổi)</label>
+                    <input type="file" class="form-control" id="editLinkHinh" accept="image/*" />
+                    <img id="editPreviewImg" src="#" alt="" style="display:none;max-width:100%;margin-top:10px;" />
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="editIsActive" /> Hiển thị
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="closeEditSlideModal" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="submit" class="btn btn-primary">Lưu</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+
+<div class="main-content">
+    <!-- Breadcrumb -->
+    <div class="header-sub-title">
+        <nav class="breadcrumb breadcrumb-dash">
+            <a href="~/Admin" class="breadcrumb-item"><i class="anticon anticon-home m-2"></i>Home</a>
+            <a class="breadcrumb-item" href="#">Quản lý Slider</a>
+        </nav>
+    </div>
+    <div class="mb-3">
+        <button id="openAddSlideModal" type="button" class="btn btn-success" data-toggle="modal" data-target="#addSlideModal">
+            Thêm Slide
+        </button>
+    </div>
+    <div class="card">
+        <!-- DataTable -->
+        <table id="data-table" class="table table-bordered" style="max-width:100%">
+            <thead>
+                <tr>
+                    <th class="text-center">STT</th>
+                    <th class="text-center">Hình ảnh</th>
+                    <th class="text-center">Thứ tự hiển thị</th>
+                    <th class="text-center">Trạng thái</th>
+                    <th class="text-center">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody id="slider-list">
+            </tbody>
+        </table>
+    </div>
+</div>

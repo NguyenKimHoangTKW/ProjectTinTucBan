@@ -28,7 +28,7 @@ namespace ProjectTinTucBan.Models
         public virtual DbSet<BaiViet> BaiViets { get; set; }
         public virtual DbSet<ChucNangQuyenUser> ChucNangQuyenUsers { get; set; }
         public virtual DbSet<DonViTrucThuoc> DonViTrucThuocs { get; set; }
-        public virtual DbSet<Group_By_Menu> Group_By_Menu { get; set; }
+        public virtual DbSet<Group_By_Menu_And__Sub> Group_By_Menu_And__Sub { get; set; }
         public virtual DbSet<Khoi> Khois { get; set; }
         public virtual DbSet<Menu> Menus { get; set; }
         public virtual DbSet<Menu_by_sub> Menu_by_sub { get; set; }
