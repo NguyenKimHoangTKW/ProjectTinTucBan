@@ -450,7 +450,6 @@
     <Content Include="Areas\Admin\Uploads\Slider\19ffc442-085e-4f8f-84d8-4e2b7202a6ad.png" />
     <Content Include="Areas\Admin\Uploads\Slider\2d0c6ee3-9230-454d-bab0-1884516b667c.jpg" />
     <Content Include="Areas\Admin\Uploads\Slider\71e7bf3d-99aa-462c-b4b5-a21647f64f28.png" />
-    <Content Include="Areas\Admin\Views\InterfaceAdmin\Login.cshtml" />
     <Content Include="Areas\Admin\Uploads\Slider\141625ba-0db3-409b-bfc0-b2f0a385af00.png" />
     <Content Include="Areas\Admin\Uploads\Slider\309fcdd3-789a-4048-8b75-9cf8322ccd03.jpg" />
     <Content Include="Areas\Admin\Uploads\Slider\8c8f483f-368a-4e83-9028-357440a60a56.png" />
@@ -1279,7 +1278,6 @@
     <Content Include="Areas\Admin\Views\Shared\_AdminLayout.cshtml" />
     <Content Include="Areas\Admin\Views\Shared\Error.cshtml" />
     <Content Include="Areas\Admin\Views\_ViewStart.cshtml" />
-    <Content Include="Areas\Admin\Views\InterfaceAdmin\Index.cshtml" />
     <Content Include="Areas\assets\fonts\anticon.eot" />
     <Content Include="Areas\assets\fonts\anticon.ttf" />
     <Content Include="Areas\assets\fonts\anticon.woff" />
@@ -1516,8 +1514,16 @@
     <Content Include="Areas\Admin\Views\Shared\_AdminNavPartial.cshtml" />
     <Content Include="Areas\Admin\Views\Shared\_AdminHeaderPartial.cshtml" />
     <Content Include="Areas\Admin\Views\Shared\_AdminFooterPartial.cshtml" />
-    <Content Include="Areas\Admin\Views\InterfaceAdmin\Register.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\BaiViet.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Function_Admin.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Khoi.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_MucLuc_Admin.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Roles_Admin.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Users_Admin.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\Menu.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\Slider.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\XemNoiDung.cshtml" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />
