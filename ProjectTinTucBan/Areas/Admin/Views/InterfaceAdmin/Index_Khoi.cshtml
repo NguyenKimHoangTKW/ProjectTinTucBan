@@ -21,7 +21,7 @@
     </tbody>
 </table>
 
-<!-- Nút mở large modal Thêm/Sửa Khối -->
+<!-- Nút mở large    Thêm/Sửa Khối -->
 <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bd-example-modal-lg" id="btnShowKhoiModal">
     Thêm Khối
 </button>
@@ -47,10 +47,10 @@
                         <label for="ThuTuShow">Thứ tự</label>
                         <input type="number" class="form-control" id="ThuTuShow" />
                     </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-success">Lưu</button>
-                        <button type="button" class="btn btn-secondary" id="btnClear">Xóa form</button>
-                        <button type="button" class="btn btn-danger" data-dismiss="modal">Đóng</button>
+                    <div class="modal-footer d-flex flex-column flex-sm-row w-100">
+                        <button type="submit" class="btn btn-success mb-2 mb-sm-0 mr-0 mr-sm-2 w-100 w-sm-auto">Lưu</button>
+                        <button type="button" class="btn btn-secondary mb-2 mb-sm-0 mr-0 mr-sm-2 w-100 w-sm-auto" id="btnClear">Xóa form</button>
+                        <button type="button" class="btn btn-danger w-100 w-sm-auto" data-dismiss="modal">Đóng</button>
                     </div>
                 </form>
             </div>
@@ -64,3 +64,4 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="~/Areas/Admin/Scripts/Khoi.js"></script>
 }
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

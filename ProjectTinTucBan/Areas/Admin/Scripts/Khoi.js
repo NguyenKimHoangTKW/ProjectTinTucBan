@@ -29,8 +29,10 @@ function loadKhoi() {
                     <td>${unixToDateTimeString(item.ngayDang)}</td>
                     <td>${unixToDateTimeString(item.ngayCapNhat)}</td>
                     <td>
-                        <button onclick="editKhoi(${item.id})">Sửa</button>
-                        <button onclick="deleteKhoi(${item.id})">Xóa</button>
+                        <div class="text-center d-flex flex-column align-items-center">
+                            <button class="btn btn-warning btn-sm py-1 px-2 w-100 btn-sua" data-id="${item.id}" style="max-width: 80px;">Sửa</button>
+                            <button class="btn btn-danger btn-sm py-1 px-2 w-100 mt-1 btn-xoa" data-id="${item.id}" style="max-width: 80px;">Xóa</button>
+                        </div>
                     </td>
                 </tr>`;
         });
@@ -43,19 +45,37 @@ function editKhoi(id) {
         $('#ID').val(item.id);
         $('#TenKhoi').val(item.tenKhoi);
         $('#ThuTuShow').val(item.thuTuShow);
+        // Mở modal lớn
+        $('.bd-example-modal-lg').modal('show');
     });
 }
 
 function deleteKhoi(id) {
-    if (confirm('Bạn chắc chắn muốn xóa?')) {
-        $.ajax({
-            url: '/api/Khoi/' + id,
-            type: 'DELETE',
-            success: function () {
-                loadKhoi();
-            }
-        });
-    }
+    Swal.fire({
+        title: 'Bạn chắc chắn muốn xóa?',
+        text: "Hành động này không thể hoàn tác!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Xóa',
+        cancelButtonText: 'Hủy'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: '/api/Khoi/' + id,
+                type: 'DELETE',
+                success: function () {
+                    loadKhoi();
+                    Swal.fire(
+                        'Đã xóa!',
+                        'Khối đã được xóa thành công.',
+                        'success'
+                    );
+                }
+            });
+        }
+    });
 }
 
 $(function () {
@@ -100,4 +120,36 @@ $(function () {
         $('#khoiForm')[0].reset();
         $('#ID').val('');
     });
+
+    $('#btnShowKhoiModal').click(function () {
+        $('#khoiForm')[0].reset();
+        $('#ID').val('');
+    });
 });
+
+// Gán lại sự kiện sau mỗi lần load bảng
+$(document).on('click', '.btn-sua', function () {
+    var id = $(this).data('id');
+    editKhoi(id);
+});
+
+$(document).on('click', '.btn-xoa', function () {
+    var id = $(this).data('id');
+    deleteKhoi(id);
+});
+
+<style>
+@media (max-width: 575.98px) {
+    .modal-dialog {
+        max-width: 98vw !important;
+        margin: 0 auto;
+    }
+    .modal-content {
+        border-radius: 0.5rem;
+    }
+    .modal-footer {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+}
+</style>
