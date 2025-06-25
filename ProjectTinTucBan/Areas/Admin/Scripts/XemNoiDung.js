@@ -54,15 +54,14 @@ $(document).ready(function () {
 
             if (res.success) {
                 Swal.fire({
+                    toast: true,
+                    position: 'top-end',
                     icon: 'success',
-                    title: 'Đã lưu nội dung thành công!',
-                    timer: 1500,
-                    showConfirmButton: false
+                    title: 'Lưu thông tin thành công!',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true
                 });
-                setTimeout(() => {
-                    if (window.opener) window.close();
-                    else window.location.href = '/Admin/InterfaceAdmin/BaiViet';
-                }, 2000);
             } else {
                 Swal.fire('Lỗi', res.message || 'Không thể cập nhật.', 'error');
             }
@@ -71,40 +70,15 @@ $(document).ready(function () {
         }
     });
 
-    // ---------- Xuất PDF ----------
-    $('#btnExportPdf').on('click', async function () {
-        const result = await Swal.fire({
-            title: 'Bạn có chắc chắn muốn xuất file PDF không?',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: 'Xuất',
-            cancelButtonText: 'Hủy'
-        });
-
-        if (!result.isConfirmed) return;
-
-        const title = $('.title').text().trim().toUpperCase();
-        const noiDung = CKEDITOR.instances.NoiDung.getData();
-
-        // Tạo DOM tạm để xuất PDF
-        const container = document.createElement('div');
-        container.innerHTML = `
-            <div style="text-align: center;">
-                <h2>${title}</h2>
-                <hr />
-            </div>
-            <div>${noiDung}</div>
-        `;
-
-        const opt = {
-            margin: 0.5,
-            filename: `${title.replace(/\s+/g, '_')}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2 },
-            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-        };
-
-        html2pdf().set(opt).from(container).save();
+    // ---------- Quay lại ----------
+    $('#btnQuayLai').on('click', function () {
+        if (window.opener) {
+            // Nếu được mở từ cửa sổ khác
+            window.close();
+        } else {
+            // Nếu là trang bình thường
+            window.location.href = '/Admin/InterfaceAdmin/BaiViet';
+        }
     });
 
     // ---------- Xem trước PDF ----------

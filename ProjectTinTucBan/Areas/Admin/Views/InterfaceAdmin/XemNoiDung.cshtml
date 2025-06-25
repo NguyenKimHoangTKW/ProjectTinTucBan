@@ -12,14 +12,11 @@
     <title>Nội dung bài viết</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="shortcut icon" href="https://tdmu.edu.vn/hinh/Icon.png" />
-    <!-- Script: jQuery, CKEditor, SweetAlert2, html2pdf -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.ckeditor.com/4.21.0/full/ckeditor.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="~/Areas/Admin/Scripts/XemNoiDung.js"></script>
-    <!-- CSS -->
+
+    <!-- CSS: Bootstrap -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+
+    <!-- Style tùy chỉnh -->
     <style>
         body {
             background: linear-gradient(to right, #e3f2fd, #bbdefb);
@@ -30,7 +27,7 @@
             max-width: 750px;
             margin: 0 auto;
             background: #fff;
-            border-radius: 0; 
+            border-radius: 0;
             padding: 20px;
             box-shadow: none;
         }
@@ -68,7 +65,6 @@
 
         .cke_contents {
             min-height: 400px !important;
-            Luôn giữ khung nhập cao tối thiểu
         }
 
         img.portrait {
@@ -110,11 +106,19 @@
 
         <!-- Nút thao tác -->
         <div class="mt-4 text-right">
+            <button id="btnQuayLai" class="btn btn-outline-dark ml-2">Quay lại</button>
             <button id="btnLuuNoiDung" class="btn btn-primary">Lưu Nội Dung</button>
-            <button id="btnExportPdf" class="btn btn-success ml-2">Xuất PDF</button>
             <button id="btnPreviewPdf" class="btn btn-secondary ml-2">Xem trước PDF</button>
         </div>
     </div>
+
+    <!-- Script: jQuery, CKEditor, SweetAlert2, html2pdf -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.ckeditor.com/4.21.0/full/ckeditor.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- Script riêng -->
+    <script src="~/Areas/Admin/Scripts/XemNoiDung.js"></script>
 </body>
 </html>
-
