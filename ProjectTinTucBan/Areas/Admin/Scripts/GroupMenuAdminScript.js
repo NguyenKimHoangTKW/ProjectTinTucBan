@@ -59,18 +59,18 @@ function renderGroupMenuTabs(groupMenus) {
                         ${group.Ten}
                     </a>
                     <div class="btn-group btn-group-sm d-flex flex-wrap flex-md-nowrap ml-md-2 mt-2 mt-md-0" role="group">
-                        <button class="btn btn-light text-primary add-menu-to-group-btn" 
+                        <button class="btn btn-primary add-menu-to-group-btn" 
                                 data-id="${group.ID}" 
                                 title="Thêm menu vào group">
                             <i class="fas fa-plus"></i><span class="d-none d-md-inline ml-1">Thêm</span>
                         </button>
-                        <button class="btn btn-light text-warning edit-groupmenu-btn" 
+                        <button class="btn btn-warning edit-groupmenu-btn" 
                                 data-id="${group.ID}" 
                                 data-ten="${group.Ten}"
                                 title="Sửa group menu">
                             <i class="fas fa-edit"></i><span class="d-none d-md-inline ml-1">Sửa</span>
                         </button>
-                        <button class="btn btn-light text-danger delete-groupmenu-btn" 
+                        <button class="btn btn-danger delete-groupmenu-btn" 
                                 data-id="${group.ID}"
                                 title="Xóa group menu">
                             <i class="fas fa-trash"></i><span class="d-none d-md-inline ml-1">Xóa</span>
@@ -149,7 +149,10 @@ function renderGroupMenuTabs(groupMenus) {
     $('#groupMenuTabsContainer').html(html);
 
     updateTabStyles();
-    $('[title]').tooltip();
+    $('[title]').tooltip({
+        trigger: 'hover',
+        delay: { show: 500, hide: 100 }
+    });
     initializeTabHandlers();
 }
 
@@ -198,8 +201,50 @@ function updateTabStyles() {
                     text-align: center;
                 }
             }
+            .submenu-list {
+                border-left: 2px solid #dee2e6;
+            }
+            .submenu-item {
+                padding: 0.5rem 1rem;
+                border-bottom: 1px solid #f8f9fa;
+            }
+            .submenu-item:last-child {
+                border-bottom: none;
+            }
+            .submenu-item .fas.fa-level-down-alt {
+                color: #6c757d;
+            }
+            .submenu-item:hover {
+                background-color: #f8f9fa;
+            }
         `)
         .appendTo('head');
+}
+
+function renderSubMenus(subMenus, menuId, groupId) {
+    if (!subMenus || subMenus.length === 0) return '';
+
+    let html = '<ul class="list-group mt-2">';
+    subMenus.forEach(function (sub) {
+        if (!sub.InGroup) return;
+
+        html += `
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    ${sub.SubMenuName}
+                    ${sub.SubMenuLink ? `<span class="text-muted ml-2">(${sub.SubMenuLink})</span>` : ''}
+                </div>
+                <button class="btn btn-sm btn-outline-danger delete-submenu-from-group-btn"
+                        data-groupid="${groupId}"
+                        data-menuid="${menuId}"
+                        data-submenuid="${sub.SubMenuId}">
+                    <i class="fas fa-times"></i>
+                </button>
+            </li>
+        `;
+    });
+    html += '</ul>';
+    return html;
 }
 
 // Cập nhật handlers cho tab
@@ -383,13 +428,76 @@ function addNewMenuToGroup(menuName, menuLink, groupMenuId) {
 }
 
 // Hiển thị modal thêm menu vào group
-function openAddMenuToGroupModal(groupMenuId) {
-    loadMenusForSelect(function (menus) {
-        var options = menus.map(m => `<option value="${m.MenuId}">${m.MenuName}</option>`).join('');
-        $('#selectExistingMenu').html(options);
-        $('#addMenuToGroupModal').data('group-id', groupMenuId).modal('show');
+function openAddMenuToGroupModal(groupId) {
+    $('#selectExistingMenu').empty();
+    $('#selectTargetMenuInGroup').empty();
+    $('#selectSubMenu').empty();
+    $('#newMenuName').val('');
+    $('#newMenuLink').val('');
+
+    $('#addMenuToGroupModal').data('group-id', groupId);
+
+    // Load tất cả menu (cho dropdown bên trái)
+    $.get(`${BASE_URL}/get-menus`, function (menus) {
+        menus.forEach(m => {
+            $('#selectExistingMenu').append(`<option value="${m.MenuId}">${m.MenuName}</option>`);
+        });
     });
+
+    // Load submenu
+    $.get(`${BASE_URL}/get-submenus`, function (subs) {
+        subs.forEach(s => {
+            $('#selectSubMenu').append(`<option value="${s.SubMenuId}">${s.SubMenuName}</option>`);
+        });
+    });
+
+    // Load menu trong group cho dropdown mục tiêu
+    $.get(`${BASE_URL}/get-groupmenu-menus/${groupId}`, function (group) {
+        if (group && group.Menus && group.Menus.length > 0) {
+            group.Menus.forEach(menu => {
+                $('#selectTargetMenuInGroup').append(`<option value="${menu.MenuId}">${menu.MenuName}</option>`);
+            });
+        }
+    });
+
+    $('#addMenuToGroupModal').modal('show');
 }
+
+$('#add-menu-to-group-form').submit(function (e) {
+    e.preventDefault();
+    const groupId = $('#addMenuToGroupModal').data('group-id');
+    const menuId = $('#selectExistingMenu').val();
+    const targetMenuId = $('#selectTargetMenuInGroup').val();
+    const subMenuIds = $('#selectSubMenu').val() || [];
+
+    if (menuId) {
+        $.ajax({
+            url: `${BASE_URL}/add-menu-to-group`,
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ GroupMenuId: groupId, MenuId: menuId }),
+            success: function (res) {
+                if (res.success && subMenuIds.length > 0 && targetMenuId) {
+                    $.ajax({
+                        url: `${BASE_URL}/add-submenus-to-menu-in-group`,
+                        method: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({ GroupMenuId: groupId, MenuId: targetMenuId, SubMenuIds: subMenuIds }),
+                        success: function (res2) {
+                            Swal.fire('Xong', res2.message, 'success');
+                            $('#addMenuToGroupModal').modal('hide');
+                            loadGroupMenus();
+                        }
+                    });
+                } else {
+                    Swal.fire('Xong', res.message, res.success ? 'success' : 'error');
+                    $('#addMenuToGroupModal').modal('hide');
+                    loadGroupMenus();
+                }
+            }
+        });
+    }
+});
 
 // Xử lý submit form thêm menu vào group
 $('#add-menu-to-group-form').submit(function (e) {
@@ -419,33 +527,8 @@ $('#add-new-menu-to-group-form').submit(function (e) {
 });
 
 // Helper function to render submenus
-function renderSubMenus(subMenus, menuId, groupId) {
-    if (!subMenus || subMenus.length === 0) return '';
 
-    var html = '<div class="submenu-list ml-4 mt-2">';
-    subMenus.forEach(function (submenu) {
-        html += `
-            <div class="submenu-item d-flex justify-content-between align-items-center py-2">
-                <div>
-                    <i class="fas fa-level-down-alt mr-2"></i>
-                    <span>${submenu.SubMenuName}</span>
-                    ${submenu.SubMenuLink ?
-                `<span class="text-muted ml-2">(${submenu.SubMenuLink})</span>` :
-                ''}
-                </div>
-                <button class="btn btn-sm btn-danger delete-submenu-from-group-btn"
-                        data-submenuid="${submenu.SubMenuId}"
-                        data-menuid="${menuId}"
-                        data-groupid="${groupId}"
-                        title="Xóa submenu khỏi group">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        `;
-    });
-    html += '</div>';
-    return html;
-}
+
 
 function updateTabStyles() {
     $('<style>')
@@ -488,7 +571,62 @@ function formatUnixToDate(unixTime) {
         return `${dayName}, ${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
     }
 
+function openAddMenuToGroupModal(groupId) {
+    $('#selectExistingMenu').empty();
+    $('#selectSubMenu').empty();
+    $('#addMenuToGroupModal').data('group-id', groupId);
 
+    // Load menus hiện có
+    $.get(`${BASE_URL}/get-menus`, function (menus) {
+        menus.forEach(m => {
+            $('#selectExistingMenu').append(`<option value="${m.MenuId}">${m.MenuName}</option>`);
+        });
+    });
+
+    // Load submenus
+    $.get(`${BASE_URL}/get-submenus`, function (subs) {
+        subs.forEach(s => {
+            $('#selectSubMenu').append(`<option value="${s.SubMenuId}">${s.SubMenuName}</option>`);
+        });
+    });
+
+    $('#addMenuToGroupModal').modal('show');
+}
+
+// Submit thêm menu vào group + gán submenu
+$('#add-menu-to-group-form').submit(function (e) {
+    e.preventDefault();
+    const groupId = $('#addMenuToGroupModal').data('group-id');
+    const menuId = $('#selectExistingMenu').val();
+    const subMenuIds = $('#selectSubMenu').val() || [];
+
+    $.ajax({
+        url: `${BASE_URL}/add-menu-to-group`,
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ GroupMenuId: groupId, MenuId: menuId }),
+        success: function (res) {
+            if (res.success && subMenuIds.length > 0) {
+                // Gán submenu vào menu trong group
+                $.ajax({
+                    url: `${BASE_URL}/add-submenus-to-menu-in-group`,
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ GroupMenuId: groupId, MenuId: menuId, SubMenuIds: subMenuIds }),
+                    success: function (res2) {
+                        Swal.fire('Xong', res2.message, 'success');
+                        $('#addMenuToGroupModal').modal('hide');
+                        loadGroupMenus();
+                    }
+                });
+            } else {
+                Swal.fire('Xong', res.message, res.success ? 'success' : 'error');
+                $('#addMenuToGroupModal').modal('hide');
+                loadGroupMenus();
+            }
+        }
+    });
+});
 
 $(document).ready(function () {
     loadGroupMenus();
@@ -622,7 +760,7 @@ $(document).ready(function () {
         });
     }
 
-    // Event handlers
+    // Xử lý sự kiện nhấn nút xóa để xóa menu khỏi group
     $(document).on('click', '.delete-menu-from-group-btn', function (e) {
         e.stopPropagation();
         var menuId = $(this).data('menuid');
@@ -641,7 +779,7 @@ $(document).ready(function () {
             }
         });
     });
-    /* //Chưa có api và  chưa có thuộc tính để lưu sau xử lý
+     //Xóa submenu từ group
     $(document).on('click', '.delete-submenu-from-group-btn', function (e) {
         e.stopPropagation();
         var subMenuId = $(this).data('submenuid');
@@ -659,5 +797,5 @@ $(document).ready(function () {
                 deleteSubMenuFromGroup(subMenuId, menuId, groupId, btn);
             }
         });
-    }); */
+    }); 
 });

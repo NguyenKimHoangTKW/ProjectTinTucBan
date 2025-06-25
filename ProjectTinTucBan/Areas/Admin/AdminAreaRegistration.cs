@@ -59,6 +59,11 @@ namespace ProjectTinTucBan.Areas.Admin
                 "Admin/xem-noi-dung/{id}",
                 new { controller = "InterfaceAdmin", action = "XemNoiDung", id = UrlParameter.Optional }
             );
+            context.MapRoute(
+                "Admin-dang-nhap",
+                "Admin/dang-nhap",
+                new { controller = "InterfaceAdmin", action = "Login" }
+            );
 
             // Default route for other controllers/actions
 

@@ -30,7 +30,7 @@
                                 <i class="fa fa-arrow-down"></i>
                             </button>
                         </td>
-                        <td class="text-center">
+                        <td class="text-center ">
                             <input type="checkbox" class="toggle-active" data-id="${slide.ID}" ${slide.isActive ? 'checked' : ''} />
                         </td>
                         <td class="text-center">
