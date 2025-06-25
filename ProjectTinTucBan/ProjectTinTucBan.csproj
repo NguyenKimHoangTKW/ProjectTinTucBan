@@ -263,6 +263,7 @@
     <Content Include="Areas\Admin\Scripts\BaiViet.js" />
     <Content Include="Areas\Admin\Scripts\DanhSachUser.js" />
     <Content Include="Areas\Admin\Scripts\LoginWithGoogle.js" />
+    <Content Include="Areas\Admin\Scripts\XemNoiDung.js" />
     <Content Include="Areas\Admin\Uploads\Slider\0dcd9495-dcb8-4fc7-b924-bc27c7ea3f57.jpeg" />
     <Content Include="Areas\Admin\Uploads\Slider\19ffc442-085e-4f8f-84d8-4e2b7202a6ad.png" />
     <Content Include="Areas\Admin\Uploads\Slider\2d0c6ee3-9230-454d-bab0-1884516b667c.jpg" />

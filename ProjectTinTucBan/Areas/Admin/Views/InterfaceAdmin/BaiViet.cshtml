@@ -30,7 +30,7 @@
 </div>
 
 <div class="modal fade" id="modalBaiViet" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-xl" role="document">
         <form id="form_baiviet" class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="modalLabel">Thêm/Sửa Bài Viết</h5>
@@ -51,7 +51,7 @@
                 <!-- Nội dung -->
                 <div class="form-group">
                     <label for="NoiDung">Nội dung</label>
-                    <textarea id="NoiDung" class="form-control" rows="10"></textarea>
+                    <textarea id="NoiDung" class="form-control" style="min-height: 300px;"></textarea>
                 </div>
 
                 <!-- Thumbnail -->
@@ -117,7 +117,7 @@
             </div>
             <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
                 <!-- giới hạn chiều cao -->
-                <div id="xemNoiDungContainer"
+                <div id="xemNoiDungContainer" class="ckeditor-content"
                      style="padding: 10px; border: 1px solid #ddd; border-radius: 4px; background: #fff;
                         white-space: normal; word-wrap: break-word; overflow-wrap: break-word;">
                 </div>
@@ -127,16 +127,25 @@
     </div>
 </div>
 
-<div class="modal fade" id="modalTieuDeDayDu" tabindex="-1" role="dialog" aria-labelledby="modalTieuDeLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
+<!-- Modal Tiêu Đề Đầy Đủ -->
+<div class="modal fade" id="modalTieuDeDayDu" tabindex="-1" role="dialog" aria-labelledby="modalTieuDeDayDuLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Tiêu đề đầy đủ</h5>
+                <h5 class="modal-title" id="modalTieuDeDayDuLabel">Tiêu đề đầy đủ</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Đóng">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body" id="tieuDeDayDuContent" style="word-break: break-word;"></div>
+            <div class="modal-body d-flex align-items-center justify-content-between">
+                <p id="tieuDeDayDuContent" class="mb-0 mr-2 flex-grow-1"></p>
+                <button id="btnCopyTieuDe"
+                        class="border-0 bg-transparent"
+                        style="padding: 0; margin: 0; line-height: 1; height: auto; width: auto;"
+                        title="Sao chép tiêu đề">
+                    <i class="anticon anticon-copy" style="font-size: 16px;"></i>
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -176,6 +185,19 @@
             padding-right: 15px !important;
         }
 
+    .ckeditor-content img {
+        display: block;
+        margin-top: 12px;
+        margin-bottom: 12px;
+        max-width: 100%;
+        height: auto;
+    }
+
+    .ckeditor-content p {
+        margin-top: 6px;
+        margin-bottom: 6px;
+    }
+
     #table_load_baiviet th,
     #table_load_baiviet td {
         padding-left: 10px !important;
@@ -183,23 +205,28 @@
         vertical-align: middle;
         border: 1px solid #dee2e6 !important;
     }
+    #NoiDung {
+        min-height: 300px !important;
+    }
+    .cke_contents {
+        min-height: 300px !important;
+    }
+    /* Căn giữa và đảm bảo border trái cột STT hiển thị */
+    #table_load_baiviet th:nth-child(2),
+    #table_load_baiviet td:nth-child(2) {
+        text-align: center !important;
+        border-left: 1px solid #dee2e6 !important;
+    }
 
-        /* Căn giữa và đảm bảo border trái cột STT hiển thị */
-        #table_load_baiviet th:nth-child(2),
-        #table_load_baiviet td:nth-child(2) {
-            text-align: center !important;
-            border-left: 1px solid #dee2e6 !important;
-        }
-
-        #table_load_baiviet td:nth-child(7),
-        #table_load_baiviet th:nth-child(7) {
-            text-align: center !important;
-            vertical-align: middle !important;
-        }
-        /* Căn giữa nút Sửa/Xóa trong cột Hành động */
-        #table_load_baiviet th:nth-child(10),
-        #table_load_baiviet td:nth-child(10) {
-            text-align: center !important;
-            vertical-align: middle !important;
-        }
+    #table_load_baiviet td:nth-child(7),
+    #table_load_baiviet th:nth-child(7) {
+        text-align: center !important;
+        vertical-align: middle !important;
+    }
+    /* Căn giữa nút Sửa/Xóa trong cột Hành động */
+    #table_load_baiviet th:nth-child(10),
+    #table_load_baiviet td:nth-child(10) {
+        text-align: center !important;
+        vertical-align: middle !important;
+    }
 </style>
