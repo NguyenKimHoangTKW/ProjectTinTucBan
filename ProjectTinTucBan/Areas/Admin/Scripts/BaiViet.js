@@ -1,6 +1,7 @@
 ﻿const BASE_URL = `/api/v1/admin`;
 
 $(document).ready(async function () {
+    loadMucLucOptions();
     await GetAllBaiViet();
     setupBaiVietTableEvents();
     setupModalFormEvents();
@@ -44,6 +45,29 @@ $(document).on('click', '#btnCopyTieuDe', function () {
         });
     });
 });
+
+// Load all mục lục for dropdown selection
+function loadMucLucOptions() {
+    $.ajax({
+        url: '/api/v1/admin/get-all-mucluc',
+        type: 'GET',
+        dataType: 'json',
+        success: function (response) {
+            if (response.success) {
+                var options = '<option value="">-- Chọn mục lục --</option>';
+                $.each(response.data, function (i, item) {
+                    options += '<option value="' + item.ID + '">' + item.TenMucLuc + '</option>';
+                });
+                $('#ID_MucLuc').html(options);
+            } else {
+                toastr.error('Không thể tải danh sách mục lục');
+            }
+        },
+        error: function () {
+            toastr.error('Lỗi kết nối server');
+        }
+    });
+}
 
 // -------------------- [ Danh sách bài viết ] --------------------
 function setupBaiVietTableEvents() {
@@ -119,6 +143,11 @@ function setupBaiVietTableEvents() {
                 $('#TieuDe').val(b.TieuDe);
                 $('#LinkThumbnail').val(b.LinkThumbnail);
                 $('#LinkPDF').val(b.LinkPDF);
+                if (b.ID_MucLuc) {
+                    $('#ID_MucLuc').val(b.ID_MucLuc);
+                } else {
+                    $('#ID_MucLuc').val('');
+                }
 
                 // Khởi tạo lại CKEditor sau khi modal show
                 $('#modalBaiViet').off('shown.bs.modal').on('shown.bs.modal', function () {
@@ -211,6 +240,7 @@ function setupBaiVietTableEvents() {
 
 }
 
+// Update GetAllBaiViet to properly display MucLuc
 async function GetAllBaiViet() {
     const res = await $.ajax({ url: `${BASE_URL}/get-all-baiviet`, type: 'GET' });
     const table = $('#table_load_baiviet');
@@ -220,6 +250,9 @@ async function GetAllBaiViet() {
     }
 
     if (res.success) {
+        // Debug the API response to see MucLuc data structure
+        console.log('API Response Data:', res.data);
+
         let html = '';
         res.data.forEach((item, index) => {
             const isTitleLong = item.TieuDe.length > 10;
@@ -232,6 +265,11 @@ async function GetAllBaiViet() {
                    </span>`
                 : item.TieuDe;
 
+            // Improved MucLuc handling
+            let mucLucInfo = 'Chưa phân loại';
+            if (item.MucLuc && item.MucLuc.TenMucLuc) {
+                mucLucInfo = item.MucLuc.TenMucLuc;
+            }
 
             const linkThumb = item.LinkThumbnail
                 ? `<div class="text-center">
@@ -265,6 +303,7 @@ async function GetAllBaiViet() {
                             Xem
                         </button>
                     </td>
+                    <td class="text-center">${mucLucInfo}</td>
                     <td>${formatDateFromInt(item.NgayDang)}</td>
                     <td>${formatDateFromInt(item.NgayCapNhat)}</td>
                     <td>${linkThumb}</td>
@@ -280,9 +319,12 @@ async function GetAllBaiViet() {
         });
 
         table.find('tbody').html(html);
-        table.DataTable({ order: [] });
+        table.DataTable({
+            order: [], // No default ordering
+            columnDefs: [{ targets: 0, visible: false }] // Hide ID column
+        });
     } else {
-        table.find('tbody').html(`<tr><td colspan="9">${res.message}</td></tr>`);
+        table.find('tbody').html(`<tr><td colspan="11">${res.message}</td></tr>`);
     }
 }
 
@@ -359,7 +401,9 @@ function setupModalFormEvents() {
             TieuDe: $('#TieuDe').val().trim(),
             NoiDung: CKEDITOR.instances.NoiDung?.getData()?.trim() || '',
             LinkThumbnail: $('#LinkThumbnail').val().trim(),
-            LinkPDF: $('#LinkPDF').val().trim()
+            LinkPDF: $('#LinkPDF').val().trim(),
+            ID_MucLuc: $('#ID_MucLuc').val() || null 
+
         };
 
         if (!model.TieuDe || !model.NoiDung) {
@@ -486,6 +530,7 @@ function resetModalForm() {
     $('#BaiVietID').val('');
     $('#LinkThumbnail').val('');
     $('#LinkPDF').val('');
+    $('#ID_MucLuc').val(''); 
     $('#previewThumbnail').html('');
     $('#previewPDF').html('');
     $('#btnXoaThumbnail').addClass('d-none');

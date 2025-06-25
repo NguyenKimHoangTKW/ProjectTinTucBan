@@ -31,7 +31,13 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     x.LinkPDF,
                     x.NgayDang,
                     x.NgayCapNhat,
-                    x.ViewCount
+                    x.ViewCount,
+                    MucLuc = x.MucLuc != null ? new
+                    {
+                        x.MucLuc.ID,
+                        x.MucLuc.TenMucLuc
+                    } : null,
+                    ID_MucLuc = x.ID_MucLuc
                 })
                 .ToListAsync();
 
@@ -47,6 +53,12 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             if (baiViet == null)
                 return NotFound();
 
+            // Load mục lục nếu có
+            if (baiViet.ID_MucLuc.HasValue)
+            {
+                await db.Entry(baiViet).Reference(x => x.MucLuc).LoadAsync();
+            }
+
             return Ok(new
             {
                 data = new
@@ -58,7 +70,13 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     baiViet.LinkPDF,
                     baiViet.NgayDang,
                     baiViet.NgayCapNhat,
-                    baiViet.ViewCount
+                    baiViet.ViewCount,
+                    MucLuc = baiViet.MucLuc != null ? new
+                    {
+                        baiViet.MucLuc.ID,
+                        baiViet.MucLuc.TenMucLuc
+                    } : null,
+                    baiViet.ID_MucLuc
                 },
                 success = true
             });
@@ -112,6 +130,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             existing.NoiDung = updatedBaiViet.NoiDung;
             existing.LinkThumbnail = updatedBaiViet.LinkThumbnail;
             existing.LinkPDF = updatedBaiViet.LinkPDF;
+            existing.ID_MucLuc = updatedBaiViet.ID_MucLuc;
             existing.NgayCapNhat = int.Parse(DateTime.Now.ToString("yyyyMMdd"));
 
             await db.SaveChangesAsync();
@@ -220,6 +239,51 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     error = ex.Message
                 });
             }
+        }
+
+        // GET: Lấy danh sách mục lục
+        [HttpGet]
+        [Route("get-all-mucluc")]
+        public async Task<IHttpActionResult> GetAllMucLuc()
+        {
+            var data = await db.MucLucs
+                .Where(m => m.IsActive)
+                .OrderBy(x => x.ThuTuShow)
+                .Select(x => new
+                {
+                    x.ID,
+                    x.TenMucLuc,
+                    x.Link,
+                    x.ThuTuShow
+                })
+                .ToListAsync();
+
+            return Ok(new { data, success = true });
+        }
+
+        // GET: Lấy bài viết theo mục lục
+        [HttpGet]
+        [Route("get-baiviet-by-mucluc/{mucLucId}")]
+        public async Task<IHttpActionResult> GetBaiVietByMucLuc(int mucLucId)
+        {
+            var data = await db.BaiViets
+                .Where(x => x.ID_MucLuc == mucLucId)
+                .OrderByDescending(x => x.ID)
+                .Select(x => new
+                {
+                    x.ID,
+                    x.TieuDe,
+                    x.NoiDung,
+                    x.LinkThumbnail,
+                    x.LinkPDF,
+                    x.NgayDang,
+                    x.NgayCapNhat,
+                    x.ViewCount,
+                    ID_MucLuc = x.ID_MucLuc
+                })
+                .ToListAsync();
+
+            return Ok(new { data, success = true });
         }
     }
 }
