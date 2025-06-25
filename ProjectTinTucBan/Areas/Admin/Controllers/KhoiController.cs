@@ -8,20 +8,42 @@ using ProjectTinTucBan.Models;
 
 namespace ProjectTinTucBan.Controllers.Api
 {
+    [RoutePrefix("api/Khoi")]
     public class KhoiController : ApiController
     {
         private WebTinTucTDMUEntities db = new WebTinTucTDMUEntities();
 
         // GET: api/Khoi
-        public IEnumerable<Khoi> GetKhois()
+        [HttpGet]
+        [Route("")]
+        public IHttpActionResult Get()
         {
-            return db.Khois.ToList();
+            var khois = db.Khois.Select(k => new
+            {
+                id = k.ID,
+                tenKhoi = k.TenKhoi,
+                thuTuShow = k.ThuTuShow,
+                ngayDang = k.NgayDang,
+                ngayCapNhat = k.NgayCapNhat
+            }).ToList();
+            return Ok(khois);
         }
 
         // GET: api/Khoi/5
-        public IHttpActionResult GetKhoi(int id)
+        [HttpGet]
+        [Route("{id:int}")]
+        public IHttpActionResult Get(int id)
         {
-            var khoi = db.Khois.Find(id);
+            var khoi = db.Khois.Where(k => k.ID == id)
+                .Select(k => new
+                {
+                    id = k.ID,
+                    tenKhoi = k.TenKhoi,
+                    thuTuShow = k.ThuTuShow,
+                    ngayDang = k.NgayDang,
+                    ngayCapNhat = k.NgayCapNhat
+                })
+                .FirstOrDefault();
             if (khoi == null)
                 return NotFound();
             return Ok(khoi);
@@ -34,7 +56,9 @@ namespace ProjectTinTucBan.Controllers.Api
         }
 
         // POST: api/Khoi
-        public IHttpActionResult PostKhoi(Khoi khoi)
+        [HttpPost]
+        [Route("")]
+        public IHttpActionResult Post([FromBody] Khoi khoi)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -45,16 +69,16 @@ namespace ProjectTinTucBan.Controllers.Api
 
             db.Khois.Add(khoi);
             db.SaveChanges();
-            return CreatedAtRoute("DefaultApi", new { id = khoi.ID }, khoi);
+            return Ok(khoi);
         }
 
         // PUT: api/Khoi/5
-        public IHttpActionResult PutKhoi(int id, Khoi khoi)
+        [HttpPut]
+        [Route("{id:int}")]
+        public IHttpActionResult Put(int id, [FromBody] Khoi khoi)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            if (id != khoi.ID && khoi.ID != 0)
-                return BadRequest();
 
             var existing = db.Khois.Find(id);
             if (existing == null)
@@ -66,11 +90,13 @@ namespace ProjectTinTucBan.Controllers.Api
 
             db.Entry(existing).State = EntityState.Modified;
             db.SaveChanges();
-            return StatusCode(HttpStatusCode.NoContent);
+            return Ok(existing);
         }
 
         // DELETE: api/Khoi/5
-        public IHttpActionResult DeleteKhoi(int id)
+        [HttpDelete]
+        [Route("{id:int}")]
+        public IHttpActionResult Delete(int id)
         {
             var khoi = db.Khois.Find(id);
             if (khoi == null)
@@ -78,7 +104,7 @@ namespace ProjectTinTucBan.Controllers.Api
 
             db.Khois.Remove(khoi);
             db.SaveChanges();
-            return Ok(khoi);
+            return Ok();
         }
     }
 }

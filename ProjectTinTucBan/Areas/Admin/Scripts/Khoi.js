@@ -136,20 +136,4 @@ $(document).on('click', '.btn-sua', function () {
 $(document).on('click', '.btn-xoa', function () {
     var id = $(this).data('id');
     deleteKhoi(id);
-});
-
-<style>
-@media (max-width: 575.98px) {
-    .modal-dialog {
-        max-width: 98vw !important;
-        margin: 0 auto;
-    }
-    .modal-content {
-        border-radius: 0.5rem;
-    }
-    .modal-footer {
-        padding-left: 0.5rem;
-        padding-right: 0.5rem;
-    }
-}
-</style>
+}); 
