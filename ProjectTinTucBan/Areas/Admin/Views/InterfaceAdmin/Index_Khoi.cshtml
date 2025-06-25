@@ -1,0 +1,44 @@
+﻿@{
+    ViewBag.Title = "Quản lý Khối";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>Quản lý Khối</h2>
+
+<button id="btnLoad">Tải danh sách Khối</button>
+<table class="table" id="tblKhoi">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Tên Khối</th>
+            <th>Thứ tự</th>
+            <th>Ngày đăng</th>
+            <th>Ngày cập nhật</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<h3>Thêm/Sửa Khối</h3>
+<form id="khoiForm">
+    <input type="hidden" id="ID" />
+    <div>
+        <label>Tên Khối</label>
+        <input type="text" id="TenKhoi" required />
+    </div>
+    <div>
+        <label>Thứ tự</label>
+        <input type="number" id="ThuTuShow" />
+    </div>
+  
+    <button type="submit">Lưu</button>
+    <button type="button" id="btnClear">Xóa form</button>
+</form>
+
+@section scriptsAdmin {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script src="~/Areas/Admin/Scripts/Khoi.js"></script>
+}

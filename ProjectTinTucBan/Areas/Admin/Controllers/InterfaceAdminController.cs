@@ -107,6 +107,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         {
             return View();
         }
+        
         // Gọi hàm thiết kế giao diện quản lý chức năng admin
         public ActionResult Index_Function_Admin()
         {
@@ -126,6 +127,11 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
                 return View("XemNoiDung", baiViet); // View nằm trong Views/InterfaceAdmin/
             }
+        }
+
+        public ActionResult Index_Khoi()
+        {
+            return View("Index_Khoi");
         }
     }
 }  
