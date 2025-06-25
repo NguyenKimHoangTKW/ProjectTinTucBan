@@ -1,106 +1,85 @@
 ﻿@{ Layout = null; }
 
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" class="overflow-x-hidden">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@ViewBag.Title – ĐBCL TDMU</title>
+
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
-            font-size: 1.5em;
+            font-size: 1rem;
         }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-    <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-        }
-
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            font-size: 1.5em;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        main {
-            flex: 1;
-        }
-    </style>
-
+<body class="bg-white text-gray-800 overflow-x-hidden">
     <!-- Top bar -->
-    <div style="background-color: #007bff" class=" text-white text-sm">
-        <div class="max-w-7xl mx-auto flex justify-between items-center px-4 py-2">
-            <span>Bdbcl@tdmu.edu.vn | (0274) 3822518-3-114</span>
-            <div class="flex gap-4">
-                @foreach (var link in new[] { "Giảng viên", "SV", "Lịch công tác", "Liên kết", "Liên hệ", "English" })
-                {
-                    <a href="#" class="hover:underline">@link</a>
-                }
+    <div class="bg-[#29A3E0] text-white text-sm">
+        <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-y-2 px-4 py-2">
+            <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+                <span>📧 Bdbcl@tdmu.edu.vn</span>
+                <span>📞 (0274) 3822518-3-114</span>
+            </div>
+            <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs sm:text-sm">
+                <a href="#" class="hover:underline">Trang chủ TDMU</a>
+                <a href="#" class="hover:underline">Cổng thông tin GV | SV</a>
+                <a href="#" class="hover:underline">Lịch công tác</a>
+                <a href="#" class="hover:underline">Liên kết</a>
+                <a href="#" class="hover:underline">Liên hệ</a>
             </div>
         </div>
     </div>
 
-    <!-- Navbar -->
-    <header class="bg-blue-600 text-white shadow">
-        <div class="max-w-7xl mx-auto flex items-center justify-between px-4 py-3">
-            <!-- Logo + Tên đơn vị -->
+    <!-- Logo và Navbar -->
+    <header class="bg-white shadow">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between px-4 py-3 border-b gap-4">
+            <!-- Logo -->
             <div class="flex items-center gap-4">
-                <img src="https://navigates.vn/wp-content/uploads/2023/06/logo-dai-hoc-thu-dau-mot.jpg"
-                     alt="Logo TDMU"
-                     class="h-14 w-auto rounded bg-white p-1" />
-                <span class="text-xl font-semibold uppercase leading-snug">
-                    Đảm Bảo Chất Lượng<br />Trường Đại học Thủ Dầu Một
-                </span>
+                <img src="https://bdbcl.tdmu.edu.vn/img/Logo-BKTKD-BCL.jpg" alt="Logo ĐBCL TDMU" class="max-h-16 w-auto" />
             </div>
 
-            <!-- Menu điều hướng -->
-            <nav class="hidden md:flex items-center gap-6 text-lg font-medium">
-                <a href="@Url.Action("Index", "Home")" class="hover:underline">Trang chủ</a>
-
+            <!-- Main Navigation -->
+            <nav class="flex flex-wrap justify-center md:justify-end items-center gap-4 font-semibold text-black text-sm sm:text-base">
+                <a href="#" class="text-blue-600 border-b-2 border-blue-600 pb-1">TRANG CHỦ</a>
                 <div class="relative group">
-                    <button class="hover:underline flex items-center gap-1">
-                        Giới thiệu
+                    <button class="hover:text-blue-600 flex items-center gap-1">
+                        GIỚI THIỆU
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
                              viewBox="0 0 24 24">
                             <path d="M19 9l-7 7-7-7" />
                         </svg>
                     </button>
                     <!-- Dropdown -->
-                    <ul class="absolute hidden group-hover:block mt-2 bg-white text-black rounded shadow-md w-48 z-20">
-                        <li><a href="#" class="block px-4 py-2 hover:bg-gray-100">Sơ đồ tổ chức Nhân sự</a></li>
+                    <ul class="absolute hidden group-hover:block mt-2 bg-white text-black rounded shadow-md w-56 z-50">
                         <li><a href="#" class="block px-4 py-2 hover:bg-gray-100">Chức năng - Nhiệm vụ</a></li>
+                        <li><a href="#" class="block px-4 py-2 hover:bg-gray-100">Sơ đồ tổ chức</a></li>
                     </ul>
                 </div>
-
-                <a href="#" class="hover:underline">Liên hệ</a>
+                <a href="#" class="hover:text-blue-600">TIN TỨC</a>
+                <a href="#" class="hover:text-blue-600">KHẢO THÍ</a>
+                <a href="#" class="hover:text-blue-600">KIỂM ĐỊNH</a>
+                <a href="#" class="hover:text-blue-600">VĂN BẢN</a>
             </nav>
         </div>
     </header>
 
-
-
-    <!-- Main content -->
+    <!-- Nội dung chính -->
     <main class="max-w-7xl mx-auto px-4 py-6">
         @RenderBody()
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-200 text-gray-600 text-sm py-6">
+    <footer class="bg-[#29A3E0] text-white text-sm py-6">
         <div class="max-w-7xl mx-auto px-4 space-y-2">
-            <p>Địa chỉ: Số 6 Trần Văn Ơn, P. Phú Hòa, TP. Thủ Dầu Một, Bình Dương</p>
-            <p>Điện thoại: 0274‑3822518‑3‑114 | Email: bdbcl@tdmu.edu.vn</p>
-            <p>&copy; @DateTime.Now.Year Ban ĐBCL – Trường Đại học Thủ Dầu Một</p>
-            <p>Ghi rõ nguồn "Trường Đại học Thủ Dầu Một" khi sử dụng nội dung này.</p>
+            <p>&copy; 2021 Bản quyền thuộc Ban Khảo thí, kiểm định và đảm bảo chất lượng – Trường đại học Thủ Dầu Một</p>
+            <p>Ghi rõ nguồn "Trường đại học Thủ Dầu Một" khi sử dụng lại nội dung trên cổng thông tin.</p>
         </div>
     </footer>
 
@@ -114,13 +93,6 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script>
-        new Swiper('.mySwiper', {
-            loop: true,
-            autoplay: { delay: 4000, disableOnInteraction: false },
-            pagination: { el: '.swiper-pagination', clickable: true },
-            navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }
-        });
-
         const btn = document.getElementById("backToTop");
         window.addEventListener("scroll", () => {
             btn.classList.toggle("hidden", window.scrollY <= 200);

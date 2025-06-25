@@ -25,11 +25,15 @@ namespace ProjectTinTucBan.Models
         public Nullable<int> ID_role { get; set; }
         public string TenTaiKhoan { get; set; }
         public string MatKhau { get; set; }
+        public string Name { get; set; }
         public string Gmail { get; set; }
         public string SDT { get; set; }
         public Nullable<int> IsBanned { get; set; }
         public Nullable<int> NgayTao { get; set; }
         public Nullable<int> NgayCapNhat { get; set; }
+        public Nullable<int> CountPasswordFail { get; set; }
+        public Nullable<int> LockTimeout { get; set; }
+        public Nullable<int> LockTime { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<BaiViet> BaiViets { get; set; }

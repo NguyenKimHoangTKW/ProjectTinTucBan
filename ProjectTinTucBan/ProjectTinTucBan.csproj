@@ -141,6 +141,7 @@
     <Compile Include="Areas\Admin\Controllers\InterfaceAdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\LoginAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\MucLucAdminAPIController.cs" />
+    <Compile Include="Areas\Admin\Controllers\TinTucController.cs" />
     <Compile Include="Areas\Admin\Controllers\UserAdminAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\RolesAdminAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\MenuApiAdminController.cs" />
@@ -1384,10 +1385,14 @@
     <Content Include="Uploads\PDFs\Bai thuc hanh 1_BT3,4 %28NHOM%29_20250619152631.pdf" />
     <Content Include="Uploads\PDFs\test_20250619152104.pdf" />
     <Content Include="Uploads\PDFs\test_20250619152157.pdf" />
+    <Content Include="Views\Home\Introduction.cshtml" />
+    <Content Include="Views\Home\Contact.cshtml" />
+    <Content Include="Views\TinTuc\ChiTiet.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Areas\Admin\Data\" />
+    <Folder Include="Areas\Admin\Views\TinTuc\" />
     <Folder Include="Uploads\Slider\" />
   </ItemGroup>
   <ItemGroup>
