@@ -183,6 +183,7 @@
     </Compile>
     <Compile Include="Helper\EmailService.cs" />
     <Compile Include="Helper\EncryptionHelper.cs" />
+    <Compile Include="Helper\SessionEnabledDelegatingHandler.cs" />
     <Compile Include="Helper\SessionHelper.cs" />
     <Compile Include="Models\BaiViet.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>

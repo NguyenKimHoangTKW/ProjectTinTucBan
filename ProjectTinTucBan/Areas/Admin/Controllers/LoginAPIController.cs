@@ -35,8 +35,14 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
         private HttpContext GetCurrentContext()
         {
-            return HttpContext.Current ?? (Request.Properties.ContainsKey("MS_HttpContext") ? 
-                      ((HttpContextWrapper)Request.Properties["MS_HttpContext"]).ApplicationInstance.Context : null);
+            if (HttpContext.Current != null)
+                return HttpContext.Current;
+
+            var httpContextBase = Request.Properties["MS_HttpContext"] as HttpContextBase;
+            if (httpContextBase != null)
+                return httpContextBase.ApplicationInstance.Context;
+
+            return null;
         }
 
         // POST: api/v1/admin/login-with-google
@@ -99,7 +105,9 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                         await db.SaveChangesAsync();
                     }
                 }
-                SessionHelper.SetUser(existingAccount);
+
+                SessionHelper.SetUser(existingAccount, GetCurrentContext());
+
                 return Ok(new
                 {
                     idRole = existingAccount.ID_role,
@@ -206,14 +214,18 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                             ID_role = user.ID_role ?? 4
                         };
 
-                        SessionHelper.SetUser(user);
+
+                        SessionHelper.SetUser(user, GetCurrentContext());
 
                         return Ok(new
                         {
                             idRole = user.ID_role,
                             message = "Đăng nhập thành công",
                             success = true
+
                         });
+
+
                     }
                     else
                     {
@@ -284,8 +296,6 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 }
                 catch (Exception decryptEx)
                 {
-                    // Log lỗi giải mã
-                    System.Diagnostics.Debug.WriteLine("Decrypt error: " + decryptEx.Message);
 
                     return Ok(new
                     {
