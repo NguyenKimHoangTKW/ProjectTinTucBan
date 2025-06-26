@@ -3,16 +3,6 @@
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
-@section scriptsAdmin{
-    <script src="~/Scripts/jquery-3.7.0.min.js"></script>
-    <script src="~/Areas/assets/js/OptionPhanQuyen.js"></script>
-    <script src="~/Areas/Admin/Scripts/SliderAdminScript.js"></script>
-    <script src="~/Areas/assets/js/vendors.min.js"></script>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
-
-
-}
-
 <!-- Modal Thêm Slide -->
 <div class="modal fade" id="addSlideModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
@@ -78,12 +68,15 @@
 
 
 <div class="main-content">
-    <!-- Breadcrumb -->
-    <div class="header-sub-title">
-        <nav class="breadcrumb breadcrumb-dash">
-            <a href="~/Admin" class="breadcrumb-item"><i class="anticon anticon-home m-2"></i>Home</a>
-            <a class="breadcrumb-item" href="#">Quản lý Slider</a>
-        </nav>
+    <!-- Header và breadcrumb -->
+    <div class="page-header">
+        <h2 class="header-title">Quản lý Slide</h2>
+        <div class="header-sub-title">
+            <nav class="breadcrumb breadcrumb-dash">
+                <a href="/Admin/InterfaceAdmin/Index" class="breadcrumb-item"><i class="anticon anticon-home m-r-5"></i>Trang chủ</a>
+                <span class="breadcrumb-item active">Quản lý Menu</span>
+            </nav>
+        </div>
     </div>
     <div class="mb-3">
         <button id="openAddSlideModal" type="button" class="btn btn-success" data-toggle="modal" data-target="#addSlideModal">
@@ -107,3 +100,11 @@
         </table>
     </div>
 </div>
+
+@section scriptsAdmin{
+    <script src="~/Scripts/jquery-3.7.0.min.js"></script>
+    <script src="~/Areas/assets/js/OptionPhanQuyen.js"></script>
+    <script src="~/Areas/Admin/Scripts/SliderAdminScript.js"></script>
+    <script src="~/Areas/assets/js/vendors.min.js"></script>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+}
