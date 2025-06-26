@@ -322,6 +322,8 @@
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Areas\Admin\AdminAreaRegistration.cs" />
+    <Compile Include="Areas\Admin\AdminWebApiConfig.cs" />
+    <Compile Include="Areas\Admin\Controllers\DonViTrucThuocController.cs" />
     <Compile Include="Areas\Admin\Controllers\InterfaceAdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\KhoiController.cs" />
     <Compile Include="Areas\Admin\Controllers\LoginAPIController.cs" />
@@ -437,6 +439,7 @@
     <Content Include="Areas\Admin\Scripts\DanhSachChucNang.js" />
     <Content Include="Areas\Admin\Scripts\DanhSachMucLuc.js" />
     <Content Include="Areas\Admin\Scripts\DanhSachRoles.js" />
+    <Content Include="Areas\Admin\Scripts\DonViTrucThuoc.js" />
     <Content Include="Areas\Admin\Scripts\GroupMenuAdminScript.js" />
     <Content Include="Areas\Admin\Scripts\Khoi.js" />
     <Content Include="Areas\Admin\Scripts\MenuScript.js" />
@@ -1524,6 +1527,7 @@
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Menu.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Slider.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\XemNoiDung.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_DonViTrucThuoc.cshtml" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />

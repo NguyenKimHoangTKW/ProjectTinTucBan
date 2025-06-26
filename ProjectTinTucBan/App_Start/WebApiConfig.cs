@@ -11,13 +11,6 @@ namespace ProjectTinTucBan
     {
         public static void Register(HttpConfiguration config)
         {
-            // Web API configuration and services
-
-            // Thêm cấu hình này để tránh vòng lặp khi serialize
-            config.Formatters.JsonFormatter.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-            config.Formatters.JsonFormatter.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-
-            // Web API routes
             config.MapHttpAttributeRoutes();
 
             config.Routes.MapHttpRoute(

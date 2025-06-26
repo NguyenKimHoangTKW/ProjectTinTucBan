@@ -40,6 +40,25 @@ function loadKhoi() {
     });
 }
 
+function loadDonViTrucThuoc(idKhoi) {
+    $.get('/api/DonViTrucThuoc/ByKhoi/' + idKhoi, function (data) {
+        var rows = '';
+        $.each(data, function (i, item) {
+            rows += `<tr>
+                <td>${item.id}</td>
+                <td>${item.tenDonVi}</td>
+                <td>${item.thuTuShow ?? ''}</td>
+                <td>${item.link ?? ''}</td>
+                <td>
+                    <button class="btn btn-warning btn-sm btn-sua-donvi" data-id="${item.id}">Sửa</button>
+                    <button class="btn btn-danger btn-sm btn-xoa-donvi" data-id="${item.id}">Xóa</button>
+                </td>
+            </tr>`;
+        });
+        $('#tblDonViTrucThuoc tbody').html(rows);
+    });
+}
+
 function editKhoi(id) {
     $.get('/api/Khoi/' + id, function (item) {
         $('#ID').val(item.id);
@@ -142,4 +161,10 @@ $(document).on('click', '.btn-sua', function () {
 $(document).on('click', '.btn-xoa', function () {
     var id = $(this).data('id');
     deleteKhoi(id);
-}); 
+});
+
+$(document).on('click', '.btn-donvi', function () {
+    var idKhoi = $(this).data('id');
+    loadDonViTrucThuoc(idKhoi);
+    $('#donViTrucThuocModal').modal('show');
+});

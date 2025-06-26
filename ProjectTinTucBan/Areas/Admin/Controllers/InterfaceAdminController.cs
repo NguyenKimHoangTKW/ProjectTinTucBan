@@ -128,7 +128,10 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 return View("XemNoiDung", baiViet); // View nằm trong Views/InterfaceAdmin/
             }
         }
-
+        public ActionResult Index_DonViTrucThuoc()
+        {
+            return View();
+        }
         public ActionResult Index_Khoi()
         {
             return View("Index_Khoi");
