@@ -17,6 +17,7 @@ namespace ProjectTinTucBan.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public ChucNangQuyenUser()
         {
+            this.Function_By_Menu = new HashSet<Function_By_Menu>();
             this.PhanQuyenUsers = new HashSet<PhanQuyenUser>();
         }
     
@@ -27,6 +28,8 @@ namespace ProjectTinTucBan.Models
         public Nullable<int> NgayTao { get; set; }
         public Nullable<int> NgayCapNhat { get; set; }
     
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Function_By_Menu> Function_By_Menu { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<PhanQuyenUser> PhanQuyenUsers { get; set; }
     }

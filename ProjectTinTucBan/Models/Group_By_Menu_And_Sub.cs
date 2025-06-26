@@ -12,7 +12,7 @@ namespace ProjectTinTucBan.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class Group_By_Menu_And__Sub
+    public partial class Group_By_Menu_And_Sub
     {
         public int ID { get; set; }
         public Nullable<int> ID_MENU { get; set; }

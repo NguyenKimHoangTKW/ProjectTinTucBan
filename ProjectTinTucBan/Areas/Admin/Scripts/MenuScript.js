@@ -207,7 +207,7 @@ $(function () {
             html:
                 `<input id="swal-menu-name" class="swal2-input" placeholder="Tên menu" value="${currentName}">` +
                 `<input id="swal-menu-link" class="swal2-input" placeholder="Link" value="${currentLink}">` +
-                `<input id="swal-menu-order" type="swal2-number" class="swal2-input" placeholder="Thứ tự show" value="${currentOrder}">`,
+                `<input id="swal-menu-order" class="swal2-input" type="number" min="0" step="1" placeholder="Thứ tự show" value="${currentOrder}">`,
             focusConfirm: false,
             showCancelButton: true,
             confirmButtonText: 'Lưu',
@@ -216,10 +216,17 @@ $(function () {
                 const name = $('#swal-menu-name').val().trim();
                 const link = $('#swal-menu-link').val().trim();
                 const order = $('#swal-menu-order').val().trim();
+
                 if (!name) {
                     Swal.showValidationMessage('Tên menu không được để trống!');
                     return false;
                 }
+
+                if (order && (!/^\d+$/.test(order) || parseInt(order) < 0)) {
+                    Swal.showValidationMessage('Thứ tự show phải là số nguyên không âm!');
+                    return false;
+                }
+
                 return { name, link, order };
             }
         }).then((result) => {
@@ -249,6 +256,7 @@ $(function () {
             }
         });
     });
+
 
     $('#menu-list').on('click', '.add-submenu-btn', function () {
         const menuId = $(this).data('menu-id');
@@ -298,12 +306,14 @@ $(function () {
         const currentLink = $(this).data('menu-link') || '';
         const currentOrder = $(this).data('menu-order') || '';
 
+
+
         Swal.fire({
             title: 'Chỉnh sửa Menu Con',
             html:
                 `<input id="swal-submenu-name" class="swal2-input" placeholder="Tên menu con" value="${currentName}">` +
                 `<input id="swal-submenu-link" class="swal2-input" placeholder="Link" value="${currentLink}">` +
-                `<input id="swal-submenu-order" class="swal2-number" placeholder="Thứ tự show" value="${currentOrder}">`,
+                `<input id="swal-submenu-order" class="swal2-input" type="number" placeholder="Thứ tự show" value="${currentOrder}">`,
             focusConfirm: false,
             showCancelButton: true,
             confirmButtonText: 'Lưu',
@@ -313,9 +323,15 @@ $(function () {
                 const link = $('#swal-submenu-link').val().trim();
                 const order = $('#swal-submenu-order').val().trim();
                 if (!name) {
-                    Swal.showValidationMessage('Tên menu con không được để trống!');
+                    Swal.showValidationMessage('Tên menu không được để trống!');
                     return false;
                 }
+
+                if (order && (!/^\d+$/.test(order) || parseInt(order) < 0)) {
+                    Swal.showValidationMessage('Thứ tự show phải là số nguyên không âm!');
+                    return false;
+                }
+                
                 return { name, link,order };
             }
         }).then((result) => {

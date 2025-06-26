@@ -43,7 +43,15 @@
           <Property Name="NgayDang" Type="int" />
           <Property Name="NgayCapNhat" Type="int" />
         </EntityType>
-        <EntityType Name="Group_By_Menu_And _Sub">
+        <EntityType Name="Function_By_Menu">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ID_FUNCTION" Type="int" />
+          <Property Name="ID_MENU" Type="int" />
+        </EntityType>
+        <EntityType Name="Group_By_Menu_And_Sub">
           <Key>
             <PropertyRef Name="ID" />
           </Key>
@@ -71,6 +79,8 @@
           <Property Name="Link" Type="nvarchar(max)" />
           <Property Name="ThuTuShow" Type="int" />
           <Property Name="NgayDang" Type="int" />
+          <Property Name="IconName" Type="nvarchar" MaxLength="100" />
+          <Property Name="IsImportant" Type="int" />
           <Property Name="NgayCapNhat" Type="int" />
         </EntityType>
         <EntityType Name="Menu_by_sub">
@@ -91,7 +101,6 @@
           <Property Name="NgayTao" Type="int" />
           <Property Name="NgayCapNhat" Type="int" />
           <Property Name="IsImportant" Type="int" />
-          <Property Name="IconName" Type="nvarchar" MaxLength="100" />
         </EntityType>
         <EntityType Name="MucLuc">
           <Key>
@@ -123,14 +132,6 @@
           <Property Name="NgayTao" Type="int" />
           <Property Name="NgayCapNhat" Type="int" />
         </EntityType>
-        <EntityType Name="Roles_By_Group">
-          <Key>
-            <PropertyRef Name="ID" />
-          </Key>
-          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="ID_ROLES" Type="int" />
-          <Property Name="ID_GROUP" Type="int" />
-        </EntityType>
         <EntityType Name="Slider">
           <Key>
             <PropertyRef Name="ID" />
@@ -151,6 +152,7 @@
           <Property Name="time_create" Type="int" />
           <Property Name="time_update" Type="int" />
           <Property Name="Link" Type="nvarchar(max)" />
+          <Property Name="IconName" Type="nvarchar" MaxLength="100" />
           <Property Name="ThuTuShow" Type="int" />
         </EntityType>
         <EntityType Name="sysdiagrams">
@@ -217,38 +219,62 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Function_By_Menu_ChucNangQuyenUser">
+          <End Role="ChucNangQuyenUser" Type="Self.ChucNangQuyenUser" Multiplicity="0..1" />
+          <End Role="Function_By_Menu" Type="Self.Function_By_Menu" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ChucNangQuyenUser">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Function_By_Menu">
+              <PropertyRef Name="ID_FUNCTION" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Function_By_Menu_Menu">
+          <End Role="Menu" Type="Self.Menu" Multiplicity="0..1" />
+          <End Role="Function_By_Menu" Type="Self.Function_By_Menu" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Menu">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Function_By_Menu">
+              <PropertyRef Name="ID_MENU" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_Group_By_Menu_And _Sub_Sub_Menu">
           <End Role="Sub_Menu" Type="Self.Sub_Menu" Multiplicity="0..1" />
-          <End Role="Group_By_Menu_And _Sub" Type="Self.Group_By_Menu_And _Sub" Multiplicity="*" />
+          <End Role="Group_By_Menu_And_Sub" Type="Self.Group_By_Menu_And_Sub" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Sub_Menu">
               <PropertyRef Name="id_sub" />
             </Principal>
-            <Dependent Role="Group_By_Menu_And _Sub">
+            <Dependent Role="Group_By_Menu_And_Sub">
               <PropertyRef Name="ID_SUB" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_Group_By_Menu_Menu">
           <End Role="Menu" Type="Self.Menu" Multiplicity="0..1" />
-          <End Role="Group_By_Menu_And _Sub" Type="Self.Group_By_Menu_And _Sub" Multiplicity="*" />
+          <End Role="Group_By_Menu_And_Sub" Type="Self.Group_By_Menu_And_Sub" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Menu">
               <PropertyRef Name="ID" />
             </Principal>
-            <Dependent Role="Group_By_Menu_And _Sub">
+            <Dependent Role="Group_By_Menu_And_Sub">
               <PropertyRef Name="ID_MENU" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_Group_By_Menu_Menu_Group">
           <End Role="Menu_Group" Type="Self.Menu_Group" Multiplicity="0..1" />
-          <End Role="Group_By_Menu_And _Sub" Type="Self.Group_By_Menu_And _Sub" Multiplicity="*" />
+          <End Role="Group_By_Menu_And_Sub" Type="Self.Group_By_Menu_And_Sub" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Menu_Group">
               <PropertyRef Name="ID" />
             </Principal>
-            <Dependent Role="Group_By_Menu_And _Sub">
+            <Dependent Role="Group_By_Menu_And_Sub">
               <PropertyRef Name="ID_GROUP" />
             </Dependent>
           </ReferentialConstraint>
@@ -301,30 +327,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_Roles_By_Group_Menu_Group">
-          <End Role="Menu_Group" Type="Self.Menu_Group" Multiplicity="0..1" />
-          <End Role="Roles_By_Group" Type="Self.Roles_By_Group" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Menu_Group">
-              <PropertyRef Name="ID" />
-            </Principal>
-            <Dependent Role="Roles_By_Group">
-              <PropertyRef Name="ID_GROUP" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_Roles_By_Group_Roles">
-          <End Role="Roles" Type="Self.Roles" Multiplicity="0..1" />
-          <End Role="Roles_By_Group" Type="Self.Roles_By_Group" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Roles">
-              <PropertyRef Name="ID" />
-            </Principal>
-            <Dependent Role="Roles_By_Group">
-              <PropertyRef Name="ID_ROLES" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_TaiKhoan_Roles">
           <End Role="Roles" Type="Self.Roles" Multiplicity="0..1" />
           <End Role="TaiKhoan" Type="Self.TaiKhoan" Multiplicity="*" />
@@ -341,7 +343,8 @@
           <EntitySet Name="BaiViet" EntityType="Self.BaiViet" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ChucNangQuyenUser" EntityType="Self.ChucNangQuyenUser" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DonViTrucThuoc" EntityType="Self.DonViTrucThuoc" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="Group_By_Menu_And _Sub" EntityType="Self.Group_By_Menu_And _Sub" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Function_By_Menu" EntityType="Self.Function_By_Menu" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Group_By_Menu_And_Sub" EntityType="Self.Group_By_Menu_And_Sub" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Khoi" EntityType="Self.Khoi" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Menu" EntityType="Self.Menu" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Menu_by_sub" EntityType="Self.Menu_by_sub" Schema="dbo" store:Type="Tables" />
@@ -349,7 +352,6 @@
           <EntitySet Name="MucLuc" EntityType="Self.MucLuc" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PhanQuyenUser" EntityType="Self.PhanQuyenUser" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Roles" EntityType="Self.Roles" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="Roles_By_Group" EntityType="Self.Roles_By_Group" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Slider" EntityType="Self.Slider" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Sub_Menu" EntityType="Self.Sub_Menu" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" Schema="dbo" store:Type="Tables" />
@@ -366,17 +368,25 @@
             <End Role="Khoi" EntitySet="Khoi" />
             <End Role="DonViTrucThuoc" EntitySet="DonViTrucThuoc" />
           </AssociationSet>
+          <AssociationSet Name="FK_Function_By_Menu_ChucNangQuyenUser" Association="Self.FK_Function_By_Menu_ChucNangQuyenUser">
+            <End Role="ChucNangQuyenUser" EntitySet="ChucNangQuyenUser" />
+            <End Role="Function_By_Menu" EntitySet="Function_By_Menu" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Function_By_Menu_Menu" Association="Self.FK_Function_By_Menu_Menu">
+            <End Role="Menu" EntitySet="Menu" />
+            <End Role="Function_By_Menu" EntitySet="Function_By_Menu" />
+          </AssociationSet>
           <AssociationSet Name="FK_Group_By_Menu_And _Sub_Sub_Menu" Association="Self.FK_Group_By_Menu_And _Sub_Sub_Menu">
             <End Role="Sub_Menu" EntitySet="Sub_Menu" />
-            <End Role="Group_By_Menu_And _Sub" EntitySet="Group_By_Menu_And _Sub" />
+            <End Role="Group_By_Menu_And_Sub" EntitySet="Group_By_Menu_And_Sub" />
           </AssociationSet>
           <AssociationSet Name="FK_Group_By_Menu_Menu" Association="Self.FK_Group_By_Menu_Menu">
             <End Role="Menu" EntitySet="Menu" />
-            <End Role="Group_By_Menu_And _Sub" EntitySet="Group_By_Menu_And _Sub" />
+            <End Role="Group_By_Menu_And_Sub" EntitySet="Group_By_Menu_And_Sub" />
           </AssociationSet>
           <AssociationSet Name="FK_Group_By_Menu_Menu_Group" Association="Self.FK_Group_By_Menu_Menu_Group">
             <End Role="Menu_Group" EntitySet="Menu_Group" />
-            <End Role="Group_By_Menu_And _Sub" EntitySet="Group_By_Menu_And _Sub" />
+            <End Role="Group_By_Menu_And_Sub" EntitySet="Group_By_Menu_And_Sub" />
           </AssociationSet>
           <AssociationSet Name="FK_Menu_by_sub_Menu" Association="Self.FK_Menu_by_sub_Menu">
             <End Role="Menu" EntitySet="Menu" />
@@ -394,14 +404,6 @@
             <End Role="TaiKhoan" EntitySet="TaiKhoan" />
             <End Role="PhanQuyenUser" EntitySet="PhanQuyenUser" />
           </AssociationSet>
-          <AssociationSet Name="FK_Roles_By_Group_Menu_Group" Association="Self.FK_Roles_By_Group_Menu_Group">
-            <End Role="Menu_Group" EntitySet="Menu_Group" />
-            <End Role="Roles_By_Group" EntitySet="Roles_By_Group" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Roles_By_Group_Roles" Association="Self.FK_Roles_By_Group_Roles">
-            <End Role="Roles" EntitySet="Roles" />
-            <End Role="Roles_By_Group" EntitySet="Roles_By_Group" />
-          </AssociationSet>
           <AssociationSet Name="FK_TaiKhoan_Roles" Association="Self.FK_TaiKhoan_Roles">
             <End Role="Roles" EntitySet="Roles" />
             <End Role="TaiKhoan" EntitySet="TaiKhoan" />
@@ -415,7 +417,8 @@
           <EntitySet Name="BaiViets" EntityType="WebTinTucTDMUModel.BaiViet" />
           <EntitySet Name="ChucNangQuyenUsers" EntityType="WebTinTucTDMUModel.ChucNangQuyenUser" />
           <EntitySet Name="DonViTrucThuocs" EntityType="WebTinTucTDMUModel.DonViTrucThuoc" />
-          <EntitySet Name="Group_By_Menu_And__Sub" EntityType="WebTinTucTDMUModel.Group_By_Menu_And__Sub" />
+          <EntitySet Name="Function_By_Menu" EntityType="WebTinTucTDMUModel.Function_By_Menu" />
+          <EntitySet Name="Group_By_Menu_And_Sub" EntityType="WebTinTucTDMUModel.Group_By_Menu_And_Sub" />
           <EntitySet Name="Khois" EntityType="WebTinTucTDMUModel.Khoi" />
           <EntitySet Name="Menus" EntityType="WebTinTucTDMUModel.Menu" />
           <EntitySet Name="Menu_by_sub" EntityType="WebTinTucTDMUModel.Menu_by_sub" />
@@ -423,7 +426,6 @@
           <EntitySet Name="MucLucs" EntityType="WebTinTucTDMUModel.MucLuc" />
           <EntitySet Name="PhanQuyenUsers" EntityType="WebTinTucTDMUModel.PhanQuyenUser" />
           <EntitySet Name="Roles" EntityType="WebTinTucTDMUModel.Role" />
-          <EntitySet Name="Roles_By_Group" EntityType="WebTinTucTDMUModel.Roles_By_Group" />
           <EntitySet Name="Sliders" EntityType="WebTinTucTDMUModel.Slider" />
           <EntitySet Name="Sub_Menu" EntityType="WebTinTucTDMUModel.Sub_Menu" />
           <EntitySet Name="sysdiagrams" EntityType="WebTinTucTDMUModel.sysdiagram" />
@@ -436,6 +438,10 @@
             <End Role="TaiKhoan" EntitySet="TaiKhoans" />
             <End Role="BaiViet" EntitySet="BaiViets" />
           </AssociationSet>
+          <AssociationSet Name="FK_Function_By_Menu_ChucNangQuyenUser" Association="WebTinTucTDMUModel.FK_Function_By_Menu_ChucNangQuyenUser">
+            <End Role="ChucNangQuyenUser" EntitySet="ChucNangQuyenUsers" />
+            <End Role="Function_By_Menu" EntitySet="Function_By_Menu" />
+          </AssociationSet>
           <AssociationSet Name="FK_PhanQuyenUser_ChucNangQuyenUser" Association="WebTinTucTDMUModel.FK_PhanQuyenUser_ChucNangQuyenUser">
             <End Role="ChucNangQuyenUser" EntitySet="ChucNangQuyenUsers" />
             <End Role="PhanQuyenUser" EntitySet="PhanQuyenUsers" />
@@ -444,17 +450,21 @@
             <End Role="Khoi" EntitySet="Khois" />
             <End Role="DonViTrucThuoc" EntitySet="DonViTrucThuocs" />
           </AssociationSet>
+          <AssociationSet Name="FK_Function_By_Menu_Menu" Association="WebTinTucTDMUModel.FK_Function_By_Menu_Menu">
+            <End Role="Menu" EntitySet="Menus" />
+            <End Role="Function_By_Menu" EntitySet="Function_By_Menu" />
+          </AssociationSet>
           <AssociationSet Name="FK_Group_By_Menu_And__Sub_Sub_Menu" Association="WebTinTucTDMUModel.FK_Group_By_Menu_And__Sub_Sub_Menu">
             <End Role="Sub_Menu" EntitySet="Sub_Menu" />
-            <End Role="Group_By_Menu_And__Sub" EntitySet="Group_By_Menu_And__Sub" />
+            <End Role="Group_By_Menu_And_Sub" EntitySet="Group_By_Menu_And_Sub" />
           </AssociationSet>
           <AssociationSet Name="FK_Group_By_Menu_Menu" Association="WebTinTucTDMUModel.FK_Group_By_Menu_Menu">
             <End Role="Menu" EntitySet="Menus" />
-            <End Role="Group_By_Menu_And__Sub" EntitySet="Group_By_Menu_And__Sub" />
+            <End Role="Group_By_Menu_And_Sub" EntitySet="Group_By_Menu_And_Sub" />
           </AssociationSet>
           <AssociationSet Name="FK_Group_By_Menu_Menu_Group" Association="WebTinTucTDMUModel.FK_Group_By_Menu_Menu_Group">
             <End Role="Menu_Group" EntitySet="Menu_Group" />
-            <End Role="Group_By_Menu_And__Sub" EntitySet="Group_By_Menu_And__Sub" />
+            <End Role="Group_By_Menu_And_Sub" EntitySet="Group_By_Menu_And_Sub" />
           </AssociationSet>
           <AssociationSet Name="FK_Menu_by_sub_Menu" Association="WebTinTucTDMUModel.FK_Menu_by_sub_Menu">
             <End Role="Menu" EntitySet="Menus" />
@@ -464,17 +474,9 @@
             <End Role="Sub_Menu" EntitySet="Sub_Menu" />
             <End Role="Menu_by_sub" EntitySet="Menu_by_sub" />
           </AssociationSet>
-          <AssociationSet Name="FK_Roles_By_Group_Menu_Group" Association="WebTinTucTDMUModel.FK_Roles_By_Group_Menu_Group">
-            <End Role="Menu_Group" EntitySet="Menu_Group" />
-            <End Role="Roles_By_Group" EntitySet="Roles_By_Group" />
-          </AssociationSet>
           <AssociationSet Name="FK_PhanQuyenUser_TaiKhoan" Association="WebTinTucTDMUModel.FK_PhanQuyenUser_TaiKhoan">
             <End Role="TaiKhoan" EntitySet="TaiKhoans" />
             <End Role="PhanQuyenUser" EntitySet="PhanQuyenUsers" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Roles_By_Group_Roles" Association="WebTinTucTDMUModel.FK_Roles_By_Group_Roles">
-            <End Role="Role" EntitySet="Roles" />
-            <End Role="Roles_By_Group" EntitySet="Roles_By_Group" />
           </AssociationSet>
           <AssociationSet Name="FK_TaiKhoan_Roles" Association="WebTinTucTDMUModel.FK_TaiKhoan_Roles">
             <End Role="Role" EntitySet="Roles" />
@@ -508,6 +510,7 @@
           <Property Name="MoTa" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="NgayTao" Type="Int32" />
           <Property Name="NgayCapNhat" Type="Int32" />
+          <NavigationProperty Name="Function_By_Menu" Relationship="WebTinTucTDMUModel.FK_Function_By_Menu_ChucNangQuyenUser" FromRole="ChucNangQuyenUser" ToRole="Function_By_Menu" />
           <NavigationProperty Name="PhanQuyenUsers" Relationship="WebTinTucTDMUModel.FK_PhanQuyenUser_ChucNangQuyenUser" FromRole="ChucNangQuyenUser" ToRole="PhanQuyenUser" />
         </EntityType>
         <EntityType Name="DonViTrucThuoc">
@@ -523,7 +526,17 @@
           <Property Name="NgayCapNhat" Type="Int32" />
           <NavigationProperty Name="Khoi" Relationship="WebTinTucTDMUModel.FK__DonViTruc__ID_Kh__4E88ABD4" FromRole="DonViTrucThuoc" ToRole="Khoi" />
         </EntityType>
-        <EntityType Name="Group_By_Menu_And__Sub">
+        <EntityType Name="Function_By_Menu">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ID_FUNCTION" Type="Int32" />
+          <Property Name="ID_MENU" Type="Int32" />
+          <NavigationProperty Name="ChucNangQuyenUser" Relationship="WebTinTucTDMUModel.FK_Function_By_Menu_ChucNangQuyenUser" FromRole="Function_By_Menu" ToRole="ChucNangQuyenUser" />
+          <NavigationProperty Name="Menu" Relationship="WebTinTucTDMUModel.FK_Function_By_Menu_Menu" FromRole="Function_By_Menu" ToRole="Menu" />
+        </EntityType>
+        <EntityType Name="Group_By_Menu_And_Sub">
           <Key>
             <PropertyRef Name="ID" />
           </Key>
@@ -531,9 +544,9 @@
           <Property Name="ID_MENU" Type="Int32" />
           <Property Name="ID_GROUP" Type="Int32" />
           <Property Name="ID_SUB" Type="Int32" />
-          <NavigationProperty Name="Sub_Menu" Relationship="WebTinTucTDMUModel.FK_Group_By_Menu_And__Sub_Sub_Menu" FromRole="Group_By_Menu_And__Sub" ToRole="Sub_Menu" />
-          <NavigationProperty Name="Menu" Relationship="WebTinTucTDMUModel.FK_Group_By_Menu_Menu" FromRole="Group_By_Menu_And__Sub" ToRole="Menu" />
-          <NavigationProperty Name="Menu_Group" Relationship="WebTinTucTDMUModel.FK_Group_By_Menu_Menu_Group" FromRole="Group_By_Menu_And__Sub" ToRole="Menu_Group" />
+          <NavigationProperty Name="Sub_Menu" Relationship="WebTinTucTDMUModel.FK_Group_By_Menu_And__Sub_Sub_Menu" FromRole="Group_By_Menu_And_Sub" ToRole="Sub_Menu" />
+          <NavigationProperty Name="Menu" Relationship="WebTinTucTDMUModel.FK_Group_By_Menu_Menu" FromRole="Group_By_Menu_And_Sub" ToRole="Menu" />
+          <NavigationProperty Name="Menu_Group" Relationship="WebTinTucTDMUModel.FK_Group_By_Menu_Menu_Group" FromRole="Group_By_Menu_And_Sub" ToRole="Menu_Group" />
         </EntityType>
         <EntityType Name="Khoi">
           <Key>
@@ -555,8 +568,11 @@
           <Property Name="Link" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="ThuTuShow" Type="Int32" />
           <Property Name="NgayDang" Type="Int32" />
+          <Property Name="IconName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="IsImportant" Type="Int32" />
           <Property Name="NgayCapNhat" Type="Int32" />
-          <NavigationProperty Name="Group_By_Menu_And__Sub" Relationship="WebTinTucTDMUModel.FK_Group_By_Menu_Menu" FromRole="Menu" ToRole="Group_By_Menu_And__Sub" />
+          <NavigationProperty Name="Function_By_Menu" Relationship="WebTinTucTDMUModel.FK_Function_By_Menu_Menu" FromRole="Menu" ToRole="Function_By_Menu" />
+          <NavigationProperty Name="Group_By_Menu_And_Sub" Relationship="WebTinTucTDMUModel.FK_Group_By_Menu_Menu" FromRole="Menu" ToRole="Group_By_Menu_And_Sub" />
           <NavigationProperty Name="Menu_by_sub" Relationship="WebTinTucTDMUModel.FK_Menu_by_sub_Menu" FromRole="Menu" ToRole="Menu_by_sub" />
         </EntityType>
         <EntityType Name="Menu_by_sub">
@@ -579,9 +595,7 @@
           <Property Name="NgayTao" Type="Int32" />
           <Property Name="NgayCapNhat" Type="Int32" />
           <Property Name="IsImportant" Type="Int32" />
-          <Property Name="IconName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="Group_By_Menu_And__Sub" Relationship="WebTinTucTDMUModel.FK_Group_By_Menu_Menu_Group" FromRole="Menu_Group" ToRole="Group_By_Menu_And__Sub" />
-          <NavigationProperty Name="Roles_By_Group" Relationship="WebTinTucTDMUModel.FK_Roles_By_Group_Menu_Group" FromRole="Menu_Group" ToRole="Roles_By_Group" />
+          <NavigationProperty Name="Group_By_Menu_And_Sub" Relationship="WebTinTucTDMUModel.FK_Group_By_Menu_Menu_Group" FromRole="Menu_Group" ToRole="Group_By_Menu_And_Sub" />
         </EntityType>
         <EntityType Name="MucLuc">
           <Key>
@@ -615,18 +629,7 @@
           <Property Name="MoTa" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="NgayTao" Type="Int32" />
           <Property Name="NgayCapNhat" Type="Int32" />
-          <NavigationProperty Name="Roles_By_Group" Relationship="WebTinTucTDMUModel.FK_Roles_By_Group_Roles" FromRole="Role" ToRole="Roles_By_Group" />
           <NavigationProperty Name="TaiKhoans" Relationship="WebTinTucTDMUModel.FK_TaiKhoan_Roles" FromRole="Role" ToRole="TaiKhoan" />
-        </EntityType>
-        <EntityType Name="Roles_By_Group">
-          <Key>
-            <PropertyRef Name="ID" />
-          </Key>
-          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="ID_ROLES" Type="Int32" />
-          <Property Name="ID_GROUP" Type="Int32" />
-          <NavigationProperty Name="Menu_Group" Relationship="WebTinTucTDMUModel.FK_Roles_By_Group_Menu_Group" FromRole="Roles_By_Group" ToRole="Menu_Group" />
-          <NavigationProperty Name="Role" Relationship="WebTinTucTDMUModel.FK_Roles_By_Group_Roles" FromRole="Roles_By_Group" ToRole="Role" />
         </EntityType>
         <EntityType Name="Slider">
           <Key>
@@ -648,8 +651,9 @@
           <Property Name="time_create" Type="Int32" />
           <Property Name="time_update" Type="Int32" />
           <Property Name="Link" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="IconName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
           <Property Name="ThuTuShow" Type="Int32" />
-          <NavigationProperty Name="Group_By_Menu_And__Sub" Relationship="WebTinTucTDMUModel.FK_Group_By_Menu_And__Sub_Sub_Menu" FromRole="Sub_Menu" ToRole="Group_By_Menu_And__Sub" />
+          <NavigationProperty Name="Group_By_Menu_And_Sub" Relationship="WebTinTucTDMUModel.FK_Group_By_Menu_And__Sub_Sub_Menu" FromRole="Sub_Menu" ToRole="Group_By_Menu_And_Sub" />
           <NavigationProperty Name="Menu_by_sub" Relationship="WebTinTucTDMUModel.FK_Menu_by_sub_Sub_Menu" FromRole="Sub_Menu" ToRole="Menu_by_sub" />
         </EntityType>
         <EntityType Name="sysdiagram">
@@ -707,6 +711,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Function_By_Menu_ChucNangQuyenUser">
+          <End Type="WebTinTucTDMUModel.ChucNangQuyenUser" Role="ChucNangQuyenUser" Multiplicity="0..1" />
+          <End Type="WebTinTucTDMUModel.Function_By_Menu" Role="Function_By_Menu" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ChucNangQuyenUser">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Function_By_Menu">
+              <PropertyRef Name="ID_FUNCTION" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_PhanQuyenUser_ChucNangQuyenUser">
           <End Type="WebTinTucTDMUModel.ChucNangQuyenUser" Role="ChucNangQuyenUser" Multiplicity="0..1" />
           <End Type="WebTinTucTDMUModel.PhanQuyenUser" Role="PhanQuyenUser" Multiplicity="*" />
@@ -731,38 +747,50 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Function_By_Menu_Menu">
+          <End Type="WebTinTucTDMUModel.Menu" Role="Menu" Multiplicity="0..1" />
+          <End Type="WebTinTucTDMUModel.Function_By_Menu" Role="Function_By_Menu" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Menu">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Function_By_Menu">
+              <PropertyRef Name="ID_MENU" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_Group_By_Menu_And__Sub_Sub_Menu">
           <End Type="WebTinTucTDMUModel.Sub_Menu" Role="Sub_Menu" Multiplicity="0..1" />
-          <End Type="WebTinTucTDMUModel.Group_By_Menu_And__Sub" Role="Group_By_Menu_And__Sub" Multiplicity="*" />
+          <End Type="WebTinTucTDMUModel.Group_By_Menu_And_Sub" Role="Group_By_Menu_And_Sub" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Sub_Menu">
               <PropertyRef Name="id_sub" />
             </Principal>
-            <Dependent Role="Group_By_Menu_And__Sub">
+            <Dependent Role="Group_By_Menu_And_Sub">
               <PropertyRef Name="ID_SUB" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_Group_By_Menu_Menu">
           <End Type="WebTinTucTDMUModel.Menu" Role="Menu" Multiplicity="0..1" />
-          <End Type="WebTinTucTDMUModel.Group_By_Menu_And__Sub" Role="Group_By_Menu_And__Sub" Multiplicity="*" />
+          <End Type="WebTinTucTDMUModel.Group_By_Menu_And_Sub" Role="Group_By_Menu_And_Sub" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Menu">
               <PropertyRef Name="ID" />
             </Principal>
-            <Dependent Role="Group_By_Menu_And__Sub">
+            <Dependent Role="Group_By_Menu_And_Sub">
               <PropertyRef Name="ID_MENU" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_Group_By_Menu_Menu_Group">
           <End Type="WebTinTucTDMUModel.Menu_Group" Role="Menu_Group" Multiplicity="0..1" />
-          <End Type="WebTinTucTDMUModel.Group_By_Menu_And__Sub" Role="Group_By_Menu_And__Sub" Multiplicity="*" />
+          <End Type="WebTinTucTDMUModel.Group_By_Menu_And_Sub" Role="Group_By_Menu_And_Sub" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Menu_Group">
               <PropertyRef Name="ID" />
             </Principal>
-            <Dependent Role="Group_By_Menu_And__Sub">
+            <Dependent Role="Group_By_Menu_And_Sub">
               <PropertyRef Name="ID_GROUP" />
             </Dependent>
           </ReferentialConstraint>
@@ -791,18 +819,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_Roles_By_Group_Menu_Group">
-          <End Type="WebTinTucTDMUModel.Menu_Group" Role="Menu_Group" Multiplicity="0..1" />
-          <End Type="WebTinTucTDMUModel.Roles_By_Group" Role="Roles_By_Group" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Menu_Group">
-              <PropertyRef Name="ID" />
-            </Principal>
-            <Dependent Role="Roles_By_Group">
-              <PropertyRef Name="ID_GROUP" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_PhanQuyenUser_TaiKhoan">
           <End Type="WebTinTucTDMUModel.TaiKhoan" Role="TaiKhoan" Multiplicity="0..1" />
           <End Type="WebTinTucTDMUModel.PhanQuyenUser" Role="PhanQuyenUser" Multiplicity="*" />
@@ -812,18 +828,6 @@
             </Principal>
             <Dependent Role="PhanQuyenUser">
               <PropertyRef Name="ID_TaiKhoan" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_Roles_By_Group_Roles">
-          <End Type="WebTinTucTDMUModel.Role" Role="Role" Multiplicity="0..1" />
-          <End Type="WebTinTucTDMUModel.Roles_By_Group" Role="Roles_By_Group" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Role">
-              <PropertyRef Name="ID" />
-            </Principal>
-            <Dependent Role="Roles_By_Group">
-              <PropertyRef Name="ID_ROLES" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -886,9 +890,18 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Group_By_Menu_And__Sub">
-            <EntityTypeMapping TypeName="WebTinTucTDMUModel.Group_By_Menu_And__Sub">
-              <MappingFragment StoreEntitySet="Group_By_Menu_And _Sub">
+          <EntitySetMapping Name="Function_By_Menu">
+            <EntityTypeMapping TypeName="WebTinTucTDMUModel.Function_By_Menu">
+              <MappingFragment StoreEntitySet="Function_By_Menu">
+                <ScalarProperty Name="ID_MENU" ColumnName="ID_MENU" />
+                <ScalarProperty Name="ID_FUNCTION" ColumnName="ID_FUNCTION" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Group_By_Menu_And_Sub">
+            <EntityTypeMapping TypeName="WebTinTucTDMUModel.Group_By_Menu_And_Sub">
+              <MappingFragment StoreEntitySet="Group_By_Menu_And_Sub">
                 <ScalarProperty Name="ID_SUB" ColumnName="ID_SUB" />
                 <ScalarProperty Name="ID_GROUP" ColumnName="ID_GROUP" />
                 <ScalarProperty Name="ID_MENU" ColumnName="ID_MENU" />
@@ -911,6 +924,8 @@
             <EntityTypeMapping TypeName="WebTinTucTDMUModel.Menu">
               <MappingFragment StoreEntitySet="Menu">
                 <ScalarProperty Name="NgayCapNhat" ColumnName="NgayCapNhat" />
+                <ScalarProperty Name="IsImportant" ColumnName="IsImportant" />
+                <ScalarProperty Name="IconName" ColumnName="IconName" />
                 <ScalarProperty Name="NgayDang" ColumnName="NgayDang" />
                 <ScalarProperty Name="ThuTuShow" ColumnName="ThuTuShow" />
                 <ScalarProperty Name="Link" ColumnName="Link" />
@@ -931,7 +946,6 @@
           <EntitySetMapping Name="Menu_Group">
             <EntityTypeMapping TypeName="WebTinTucTDMUModel.Menu_Group">
               <MappingFragment StoreEntitySet="Menu_Group">
-                <ScalarProperty Name="IconName" ColumnName="IconName" />
                 <ScalarProperty Name="IsImportant" ColumnName="IsImportant" />
                 <ScalarProperty Name="NgayCapNhat" ColumnName="NgayCapNhat" />
                 <ScalarProperty Name="NgayTao" ColumnName="NgayTao" />
@@ -974,15 +988,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Roles_By_Group">
-            <EntityTypeMapping TypeName="WebTinTucTDMUModel.Roles_By_Group">
-              <MappingFragment StoreEntitySet="Roles_By_Group">
-                <ScalarProperty Name="ID_GROUP" ColumnName="ID_GROUP" />
-                <ScalarProperty Name="ID_ROLES" ColumnName="ID_ROLES" />
-                <ScalarProperty Name="ID" ColumnName="ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Sliders">
             <EntityTypeMapping TypeName="WebTinTucTDMUModel.Slider">
               <MappingFragment StoreEntitySet="Slider">
@@ -999,6 +1004,7 @@
             <EntityTypeMapping TypeName="WebTinTucTDMUModel.Sub_Menu">
               <MappingFragment StoreEntitySet="Sub_Menu">
                 <ScalarProperty Name="ThuTuShow" ColumnName="ThuTuShow" />
+                <ScalarProperty Name="IconName" ColumnName="IconName" />
                 <ScalarProperty Name="Link" ColumnName="Link" />
                 <ScalarProperty Name="time_update" ColumnName="time_update" />
                 <ScalarProperty Name="time_create" ColumnName="time_create" />
