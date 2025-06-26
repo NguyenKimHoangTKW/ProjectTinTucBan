@@ -3,6 +3,158 @@
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
+<style>
+    .main-content {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+        margin-top: 70px;
+    }
+
+        .main-content .table-responsive {
+            padding-left: 15px !important;
+            padding-right: 15px !important;
+        }
+
+    .ckeditor-content img {
+        display: block;
+        margin-top: 12px;
+        margin-bottom: 12px;
+        max-width: 100%;
+        height: auto;
+    }
+
+    .ckeditor-content p {
+        margin-top: 6px;
+        margin-bottom: 6px;
+    }
+
+    #NoiDung,
+    .cke_contents {
+        min-height: 300px !important;
+    }
+
+    #table_load_baiviet {
+        width: 100%;
+        border: 2px solid #5a8dee !important;
+        border-radius: 6px;
+        border-collapse: collapse !important;
+        border-spacing: 0 !important;
+        background-color: #fff;
+    }
+
+        #table_load_baiviet th,
+        #table_load_baiviet td {
+            padding: 10px !important;
+            border: 1px solid #5a8dee !important;
+        }
+
+        #table_load_baiviet thead th {
+            background-color: #5a8dee;
+            color: white;
+            text-align: center;
+            padding: 15px 10px;
+            border: 1px solid #5a8dee !important;
+        }
+
+    .table-responsive {
+        padding: 10px;
+        background-color: #fff;
+    }
+
+    /* Căn giữa và border trái cho cột STT */
+    #table_load_baiviet th:nth-child(2),
+    #table_load_baiviet td:nth-child(2) {
+        text-align: center !important;
+        border-left: 1px solid #5a8dee !important;
+    }
+
+    /* Căn giữa thumbnail (cột 7) */
+    #table_load_baiviet th:nth-child(7),
+    #table_load_baiviet td:nth-child(7) {
+        text-align: center !important;
+        vertical-align: middle !important;
+    }
+
+    /* Căn giữa nút Sửa/Xóa (cột 10) */
+    #table_load_baiviet th:nth-child(10),
+    #table_load_baiviet td:nth-child(10) {
+        text-align: center !important;
+        vertical-align: middle !important;
+    }
+
+    /* ✅ Mở rộng cột Mục lục (cột 5) */
+    #table_load_baiviet th:nth-child(5),
+    #table_load_baiviet td:nth-child(5) {
+        width: 180px !important;
+        max-width: 200px;
+        white-space: normal !important;
+    }
+
+    /* ✅ Thu nhỏ cột PDF (cột 9) */
+    #table_load_baiviet th:nth-child(9),
+    #table_load_baiviet td:nth-child(9) {
+        width: 60px !important;
+        max-width: 70px;
+        text-align: center;
+    }
+
+    /* Bổ sung viền trái/phải cho dòng đầu & cuối (đảm bảo hiển thị rõ ràng) */
+    #table_load_baiviet td:first-child,
+    #table_load_baiviet td:last-child,
+    #table_load_baiviet th:first-child,
+    #table_load_baiviet th:last-child {
+        border-left: 1px solid #5a8dee !important;
+        border-right: 1px solid #5a8dee !important;
+    }
+
+    /* Nếu bạn đang dùng bảng khác */
+    #data-table tbody td {
+        padding: 15px 10px;
+        border-bottom: 1px solid #e8e8e8;
+        color: #333;
+        text-align: left;
+        vertical-align: middle;
+    }
+
+    #data-table tbody tr:hover {
+        background-color: #f8f8f8;
+    }
+
+    table.dataTable thead .sorting:after,
+    table.dataTable thead .sorting_asc:after,
+    table.dataTable thead .sorting_desc:after {
+        opacity: 0.4;
+        font-size: 0.8em;
+    }
+
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter {
+        margin-bottom: 1rem;
+    }
+
+    .dataTables_wrapper .dataTables_paginate {
+        margin-top: 1rem;
+    }
+
+    .modal-footer {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    @@media (max-width: 576px) {
+        .modal-footer {
+            justify-content: space-between;
+        }
+
+            .modal-footer .btn {
+                flex: 0 0 48%;
+                max-width: 48%;
+            }
+    }
+</style>
+
 <div class="container-fluid main-content py-3">
     <!-- ========== Danh sách Bài Viết ========== -->
     <!-- Header và breadcrumb -->
@@ -190,78 +342,3 @@
     <script src="~/Areas/Admin/Scripts/Upload.js"></script>
     <script src="~/Areas/Admin/Scripts/ThuVienAnh.js"></script>
 }
-
-<style>
-    .main-content {
-        padding-left: 20px !important;
-        padding-right: 20px !important;
-        margin-top: 70px;
-    }
-
-        .main-content .table-responsive {
-            padding-left: 15px !important;
-            padding-right: 15px !important;
-        }
-
-    .ckeditor-content img {
-        display: block;
-        margin-top: 12px;
-        margin-bottom: 12px;
-        max-width: 100%;
-        height: auto;
-    }
-
-    .ckeditor-content p {
-        margin-top: 6px;
-        margin-bottom: 6px;
-    }
-
-    #NoiDung {
-        min-height: 300px !important;
-    }
-
-    .cke_contents {
-        min-height: 300px !important;
-    }
-
-    #table_load_baiviet th,
-    #table_load_baiviet td {
-        padding-left: 10px !important;
-        padding-right: 10px !important;
-        vertical-align: middle;
-        border: 1px solid #dee2e6 !important;
-    }
-    #table_load_baiviet {
-        border: 1px solid #dee2e6 !important;
-        border-collapse: collapse !important;
-    }
-
-        #table_load_baiviet th,
-        #table_load_baiviet td {
-            border: 1px solid #dee2e6 !important;
-        }
-
-    .table-responsive {
-        overflow-x: auto;
-        padding: 0 !important;
-        border: none !important;
-    }
-    /* Căn giữa và đảm bảo border trái cột STT hiển thị */
-    #table_load_baiviet th:nth-child(2),
-    #table_load_baiviet td:nth-child(2) {
-        text-align: center !important;
-        border-left: 1px solid #dee2e6 !important;
-    }
-
-    #table_load_baiviet td:nth-child(7),
-    #table_load_baiviet th:nth-child(7) {
-        text-align: center !important;
-        vertical-align: middle !important;
-    }
-    /* Căn giữa nút Sửa/Xóa trong cột Hành động */
-    #table_load_baiviet th:nth-child(10),
-    #table_load_baiviet td:nth-child(10) {
-        text-align: center !important;
-        vertical-align: middle !important;
-    }
-</style>
