@@ -4,38 +4,68 @@ $(function () {
         Swal.fire({
             icon: type,
             title: message,
-            timer: 3000000,
+            timer: 3000,
             showConfirmButton: true
+        });
+    }
+
+    function updateButtonStates() {
+        // Update menu buttons based on permissions or conditions
+        $('.menu-action-buttons').each(function () {
+            const $buttons = $(this);
+            const hasSubmenus = $buttons.closest('.list-group-item').find('.list-group').length > 0;
+
+            // Update edit/delete buttons based on menu state
+            const isEditable = !$buttons.closest('.list-group-item').hasClass('locked');
+            $buttons.find('.edit-menu-btn, .edit-submenu-btn').prop('disabled', !isEditable);
+            $buttons.find('.delete-menu-btn, .delete-submenu-btn').prop('disabled', !isEditable);
         });
     }
     function loadMenus() {
         $.getJSON(`${BASE_URL}/menus-with-submenus`, function (data) {
             const $menuList = $('#menu-list').empty();
             data.forEach(menu => {
-                const $left = $('<div >').append(
-                    $('<span>').text(menu.MenuName),
-                    menu.MenuLink ? $('<span class="text-muted">').text(' (' + menu.MenuLink + ')') : ''
-                );
-                const $right = $('<div>').append(
-                    $('<button class="btn btn-sm btn-link add-submenu-btn mb-3">')
-                        .text('Thêm menu con').attr('data-menu-id', menu.MenuId),
-                    $('<button class="btn btn-sm btn-warning edit-menu-btn ml-2">')
-                        .text('Sửa').attr('data-menu-id', menu.MenuId)
-                        .attr('data-menu-name', menu.MenuName)
-                        .attr('data-menu-link', menu.MenuLink || ''),
-                    $('<button class="btn btn-sm btn-danger delete-menu-btn ml-2">')
-                        .text('Xóa').attr('data-menu-id', menu.MenuId)
-                );
-                const $menuRow = $('<div class="d-flex justify-content-between align-items-center">')
+                // Left side with menu info
+                const $left = $('<div>')
+                    .addClass('menu-info') // Add this class for responsive layout
+                    .append(
+                        $('<span>').text(menu.MenuName),
+                        menu.MenuLink ? $('<span class="text-muted">').text(' (' + menu.MenuLink + ')') : '',
+                        menu.MenuOrder ? $('<span class="text-muted">').text(' - Thứ tự: ' + menu.MenuOrder) : ''
+                    );
+
+                // Right side with buttons
+                const $right = $('<div>')
+                    .addClass('d-flex menu-action-buttons flex-row justify-content-end align-items-center m-t-25')
+                    .append(
+                        $('<button class="btn btn-sm btn-link add-submenu-btn">')
+                            .text('Thêm menu con')
+                            .attr('data-menu-id', menu.MenuId),
+                        $('<button class="btn btn-sm btn-warning edit-menu-btn">')
+                            .text('Sửa')
+                            .attr('data-menu-id', menu.MenuId)
+                            .attr('data-menu-name', menu.MenuName)
+                            .attr('data-menu-link', menu.MenuLink || '')
+                            .attr('data-menu-order', menu.MenuOrder)
+                            .prop('disabled', menu.IsLocked),
+                        $('<button class="btn btn-sm btn-danger delete-menu-btn">')
+                            .text('Xóa')
+                            .attr('data-menu-id', menu.MenuId)
+                            .prop('disabled', menu.IsLocked || (menu.SubMenus?.length > 0))
+                    );
+
+                // Menu row with responsive class
+                const $menuRow = $('<div>')
+                    .addClass('d-flex justify-content-between align-items-start menu-row-responsive')
                     .append($left)
                     .append($right);
 
                 const $menuItem = $('<li class="list-group-item">').append($menuRow);
 
+                // Update submenu buttons with the same pattern
                 if (menu.SubMenus?.length > 0) {
                     const $subList = $('<ul class="list-group mt-2 mb-2">');
                     menu.SubMenus.forEach(sub => {
-                        // Show submenu name and link (as clickable link if exists)
                         const $name = $('<span>').text(sub.SubMenuName);
                         let $link = '';
                         if (sub.SubMenuLink) {
@@ -45,34 +75,68 @@ $(function () {
                                 .addClass('ml-2 text-primary')
                                 .text(sub.SubMenuLink);
                         }
-                        const $left = $('<div class="d-flex align-items-center">')
+
+                        const $left = $('<div>')
+                            .addClass('menu-info')
                             .append($name)
                             .append($link);
 
-                        const $right = $('<div>').append(
-                            $('<button class="btn btn-sm btn-warning edit-submenu-btn">')
-                                .text('Sửa').attr('data-submenu-id', sub.SubMenuId)
-                                .attr('data-menu-name', sub.SubMenuName)
-                                .attr('data-menu-link', sub.SubMenuLink || ''),
-                            $('<button class="btn btn-sm btn-danger delete-submenu-btn">')
-                                .text('Xóa').attr('data-submenu-id', sub.SubMenuId)
-                        );
+                        const $right = $('<div>')
+                            .addClass('d-flex menu-action-buttons flex-row justify-content-end align-items-center m-t-25')
+                            .append(
+                                $('<button class="btn btn-sm btn-warning edit-submenu-btn m-t-5">')
+                                    .text('Sửa')
+                                    .attr('data-submenu-id', sub.SubMenuId)
+                                    .attr('data-menu-name', sub.SubMenuName)
+                                    .attr('data-menu-link', sub.SubMenuLink || '')
+                                    .attr('data-menu-order', sub.SubMenuOrder),
+                                $('<button class="btn btn-sm btn-danger delete-submenu-btn">')
+                                    .text('Xóa')
+                                    .attr('data-submenu-id', sub.SubMenuId)
+                            );
+
                         const $subItem = $('<li class="list-group-item py-1 px-3">')
                             .append(
-                                $('<div class="d-flex justify-content-between align-items-center">')
+                                $('<div>')
+                                    .addClass('d-flex justify-content-between align-items-start menu-row-responsive')
                                     .append($left)
                                     .append($right)
                             );
+
                         $subList.append($subItem);
                     });
                     $menuItem.append($subList);
+                    
                 }
 
                 $menuList.append($menuItem);
             });
+            updateButtonStates();
         });
     }
+
+    // Add observer for dynamic updates
+    const observer = new MutationObserver(function (mutations) {
+        mutations.forEach(function (mutation) {
+            if (mutation.type === 'childList') {
+                updateButtonStates();
+            }
+        });
+    });
+
+    // Start observing the menu list for changes
+    observer.observe(document.getElementById('menu-list'), {
+        childList: true,
+        subtree: true
+    });
+
+    $(document).ajaxComplete(function () {
+        updateButtonStates();
+    });
+
     loadMenus();
+
+
 
     $('#openAddMenuModal').click(() => $('#addMenuModal').modal('show'));
     $('#closeAddMenuModal, #closeAddMenuModalFooter').click(() => $('#addMenuModal').modal('hide'));
@@ -136,14 +200,14 @@ $(function () {
         const menuId = $(this).data('menu-id');
         const currentName = $(this).data('menu-name');
         const currentLink = $(this).data('menu-link');
-        const currentShowOrder = $(this).data('menu-show-order') || '';
+        const currentOrder = $(this).data('menu-order') || '';
 
         Swal.fire({
             title: 'Chỉnh sửa Menu',
             html:
                 `<input id="swal-menu-name" class="swal2-input" placeholder="Tên menu" value="${currentName}">` +
                 `<input id="swal-menu-link" class="swal2-input" placeholder="Link" value="${currentLink}">` +
-                `<input id="swal-menu-thutushow" class="swal2-input" placeholder="Link" value="${currentShowOrder}">`,
+                `<input id="swal-menu-order" type="swal2-number" class="swal2-input" placeholder="Thứ tự show" value="${currentOrder}">`,
             focusConfirm: false,
             showCancelButton: true,
             confirmButtonText: 'Lưu',
@@ -151,11 +215,12 @@ $(function () {
             preConfirm: () => {
                 const name = $('#swal-menu-name').val().trim();
                 const link = $('#swal-menu-link').val().trim();
+                const order = $('#swal-menu-order').val().trim();
                 if (!name) {
                     Swal.showValidationMessage('Tên menu không được để trống!');
                     return false;
                 }
-                return { name, link };
+                return { name, link, order };
             }
         }).then((result) => {
             if (result.isConfirmed) {
@@ -167,7 +232,7 @@ $(function () {
                         ID: menuId,
                         Ten: result.value.name,
                         Link: result.value.link,
-                        ThuTuShow: result.value.thutushow ? parseInt(result.value.thutushow) : null
+                        thuTuShow: result.value.order ? parseInt(result.value.order) : null
                     }),
                     success: function (res) {
                         if (res.success) {
@@ -189,7 +254,7 @@ $(function () {
         const menuId = $(this).data('menu-id');
         $('#parentMenuId').val(menuId);
         $('#subMenuName').val('');
-        $('#subLink').val('');
+        $('#subLink').val('');  
         $('#addSubMenuModal').modal('show');
     });
 
@@ -230,12 +295,15 @@ $(function () {
         // Lấy tên submenu hiện tại từ DOM
         const $subItem = $(this).closest('.d-flex').find('span').first();
         const currentName = $subItem.text();
+        const currentLink = $(this).data('menu-link') || '';
+        const currentOrder = $(this).data('menu-order') || '';
 
         Swal.fire({
             title: 'Chỉnh sửa Menu Con',
             html:
                 `<input id="swal-submenu-name" class="swal2-input" placeholder="Tên menu con" value="${currentName}">` +
-                `<input id="swal-submenu-link" class="swal2-input" placeholder="Link" value="">`,
+                `<input id="swal-submenu-link" class="swal2-input" placeholder="Link" value="${currentLink}">` +
+                `<input id="swal-submenu-order" class="swal2-number" placeholder="Thứ tự show" value="${currentOrder}">`,
             focusConfirm: false,
             showCancelButton: true,
             confirmButtonText: 'Lưu',
@@ -243,11 +311,12 @@ $(function () {
             preConfirm: () => {
                 const name = $('#swal-submenu-name').val().trim();
                 const link = $('#swal-submenu-link').val().trim();
+                const order = $('#swal-submenu-order').val().trim();
                 if (!name) {
                     Swal.showValidationMessage('Tên menu con không được để trống!');
                     return false;
                 }
-                return { name, link };
+                return { name, link,order };
             }
         }).then((result) => {
             if (result.isConfirmed) {
@@ -258,7 +327,8 @@ $(function () {
                     data: JSON.stringify({
                         ID: subMenuId,
                         Ten: result.value.name,
-                        Link: result.value.link
+                        Link: result.value.link,
+                        ThuTuShow: result.value.order ? parseInt(result.value.order) : null
                     }),
                     success: function (res) {
                         if (res.success) {

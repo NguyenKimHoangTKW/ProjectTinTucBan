@@ -39,6 +39,7 @@
                             <th>Tên mục lục</th>
                             <th>Link</th>
                             <th>Vị trí hiển thị</th>
+                            <th>Trạng thái</th>
                             <th>Ngày đăng</th>
                             <th>Ngày cập nhật</th>
                             <th>Thao tác</th>
@@ -96,6 +97,18 @@
                                 <label for="thuTuShow">Vị trí hiển thị <span class="text-danger">*</span></label>
                                 <input type="number" class="form-control" id="thuTuShow" name="thuTuShow" min="1" value="1" placeholder="Nhập số thứ tự hiển thị" required>
                                 <small class="form-text text-muted">Số thứ tự hiển thị của mục lục (số nhỏ hiển thị trước)</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="checkbox">
+                                    <input id="isActive" name="isActive" type="checkbox">
+                                    <label for="isActive">Kích hoạt</label>
+                                    <small class="form-text text-muted">Mục lục sẽ hiển thị trên website nếu được kích hoạt</small>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -165,14 +178,14 @@
             font-weight: 500;
             color: #fff;
             background-color: #5a8dee;
-            text-align: center;
+            text-align: center !important;
         }
 
         #data-table tbody td {
             padding: 15px 10px;
             border-bottom: 1px solid #e8e8e8;
             color: #333;
-            text-align: center;
+            text-align: left;
             vertical-align: middle;
         }
 
@@ -180,21 +193,66 @@
             background-color: #f8f8f8;
         }
 
-    /* Định dạng badge */
-    .badge {
-        padding: 5px 10px;
-        border-radius: 4px;
-        font-weight: normal;
+        #data-table tbody td:first-child,
+        #data-table tbody td:last-child,
+        #data-table tbody td:nth-child(4),
+        #data-table tbody td:nth-child(5),
+        #data-table tbody td:nth-child(6),
+        #data-table tbody td:nth-child(7) {
+            text-align: center;
+        }
+
+
+
+
+    /* Styling for status toggle switch */
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 30px;
     }
 
-    .badge-success {
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 34px;
+    }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+    input:checked + .slider {
         background-color: #20c997;
-        color: #fff;
     }
 
-    .badge-danger {
-        background-color: #dc3545;
-        color: #fff;
+    input:focus + .slider {
+        box-shadow: 0 0 1px #20c997;
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(30px);
     }
 
     /* Định dạng nút hình vuông */
@@ -214,12 +272,70 @@
         }
 
     /* Cải thiện hiển thị di động */
-    @@media screen and (max-width: 767px) {
-        #data-table {
-            display: block;
-            overflow-x: auto;
-        }
+    @@media screen and (max-width: 576px) {
+    #data-table {
+        display: block;
+        overflow-x: auto;
     }
+
+    .modal-footer {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 15px;
+    }
+
+    .modal-footer button {
+        margin: 5px 0;
+        width: 100%;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Make modal body content more readable on mobile */
+    .modal-body {
+        padding: 15px;
+    }
+
+    .form-group small {
+        font-size: 11px;
+    }
+
+    /* Adjust input groups for better mobile display */
+    .input-group {
+        flex-wrap: nowrap;
+    }
+
+    /* Make sure modal header is properly displayed */
+    .modal-header h5 {
+        font-size: 16px;
+        margin-right: 25px; /* Ensure space for close button */
+    }
+
+    /* Improve form field spacing on mobile */
+    .row {
+        margin-right: -10px;
+        margin-left: -10px;
+    }
+
+    .col-md-6 {
+        padding-right: 10px;
+        padding-left: 10px;
+    }
+
+    /* Ensure checkbox is visible and properly aligned */
+    .checkbox {
+        display: flex;
+        align-items: center;
+        margin-top: 5px;
+    }
+
+    .checkbox input {
+        margin-right: 8px;
+    }
+}
+
 
     /* Tùy chỉnh các điều khiển DataTable */
     .dataTables_paginate {
@@ -259,6 +375,23 @@
         border: 1px solid #e8e8e8;
         border-radius: 4px;
     }
+
+    /*Chỉnh xuống dòng*/
+    #data-table th,
+    #data-table td {
+        white-space: normal !important; /* This allows text to wrap */
+        word-wrap: break-word; /* Break long words if necessary */
+        max-width: 200px; /* Maximum width for each column */
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+        #data-table th:nth-child(6),
+        #data-table td:nth-child(6),
+        #data-table th:nth-child(7),
+        #data-table td:nth-child(7) {
+            width: 12.5%; /* Ngày tạo & Ngày cập nhật */
+        }
 
     /* Làm cho phần Show entries và Search trông giống mẫu */
     .dataTables_wrapper .dataTables_length label,
@@ -340,9 +473,6 @@
             background-color: #c82333;
             color: white;
         }
-
-
-
 </style>
 
 @section scriptsAdmin {

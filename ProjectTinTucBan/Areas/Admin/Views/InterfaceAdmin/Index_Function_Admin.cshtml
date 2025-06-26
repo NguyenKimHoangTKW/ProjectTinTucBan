@@ -1,0 +1,529 @@
+﻿@{
+    ViewBag.Title = "Quản lý chức năng admin";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="main-content">
+    <div class="container-fluid">
+        <!-- Header và breadcrumb -->
+        <div class="page-header">
+            <h2 class="header-title">Quản lý chức năng Admin</h2>
+            <div class="header-sub-title">
+                <nav class="breadcrumb breadcrumb-dash">
+                    <a href="/Admin/InterfaceAdmin/Index" class="breadcrumb-item"><i class="anticon anticon-home m-r-5"></i>Trang chủ</a>
+                    <span class="breadcrumb-item active">Quản lý chức năng admin</span>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Card chứa bảng dữ liệu -->
+        <div class="card">
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-8 col-sm-12 mb-3">
+                        <h4 class="card-title">Danh sách chức năng admin</h4>
+                    </div>
+                    <div class="col-md-4 col-sm-12 text-md-right">
+                        <button class="btn btn-primary w-100 w-md-auto" id="btnAddFunction">
+                            <i class="anticon anticon-plus-circle m-r-5"></i>
+                            <span>Thêm chức năng admin</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Bộ lọc và tìm kiếm di động - Cải thiện -->
+                <div class="d-md-none mb-3">
+                    <div class="input-group">
+                        <input type="text" id="mobileSearch" class="form-control" placeholder="Tìm kiếm...">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" id="btnMobileSearch">
+                                <i class="anticon anticon-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wrapper cho bảng có thể scroll ngang trên mobile -->
+                <div class="table-responsive">
+                    <!-- Bảng dữ liệu -->
+                    <table id="data-table" class="display hover nowrap w-100">
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Tên chức năng</th>
+                                <th>Mã chức năng</th>
+                                <th data-priority="2">Mô tả</th>
+                                <th class="d-none d-lg-table-cell">Ngày tạo</th>
+                                <th class="d-none d-lg-table-cell">Ngày cập nhật</th>
+                                <th data-priority="1">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Quản lý Chức năng Admin (dùng chung cho cả thêm và sửa) -->
+<div class="modal fade" id="FunctionModal" tabindex="-1" role="dialog" aria-labelledby="FunctionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="FunctionModalLabel">Quản lý chức năng Admin</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="FunctionForm">
+                    <input type="hidden" id="functionId" value="" />
+                    <input type="hidden" id="formMode" value="add" /> <!-- 'add' hoặc 'edit' -->
+
+                    <div class="form-group">
+                        <label for="tenFunction">Tên chức năng <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="tenFunction" name="tenFunction" placeholder="Nhập tên chức năng admin" required>
+                        <small class="form-text text-muted">Tên chức năng trong hệ thống</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="maFunction">Mã chức năng <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="maFunction" name="maFunction" placeholder="Nhập mã chức năng admin" required>
+                        <small class="form-text text-muted">Mã nhận dạng chức năng trong hệ thống</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="moTa">Mô tả <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="moTa" name="moTa" rows="3" placeholder="Nhập mô tả chức năng admin" required></textarea>
+                        <small class="form-text text-muted">Mô tả chi tiết về chức năng này</small>
+                    </div>
+
+                    <!-- Chỉ hiển thị khi ở chế độ sửa -->
+                    <div id="editOnlyFields" style="display:none">
+                        <div class="form-group">
+                            <label>Thông tin thời gian</label>
+                            <div class="row">
+                                <div class="col-md-6 col-sm-12 mb-3">
+                                    <input type="text" class="form-control" id="ngayTao" name="ngayTao" readonly placeholder="Ngày tạo">
+                                    <small class="form-text text-muted">Ngày tạo</small>
+                                </div>
+                                <div class="col-md-6 col-sm-12">
+                                    <input type="text" class="form-control" id="ngayCapNhat" name="ngayCapNhat" readonly placeholder="Ngày cập nhật">
+                                    <small class="form-text text-muted">Cập nhật gần nhất</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer flex-wrap justify-content-center">
+                <button type="button" class="btn btn-default m-1" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary m-1" id="btnSaveFunction">
+                    <i class="anticon anticon-save m-r-5"></i>
+                    <span id="btnSaveText">Lưu</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Định dạng DataTable giống như mẫu */
+    .dataTables_wrapper .dataTables_filter {
+        float: right;
+        text-align: right;
+        margin-bottom: 20px;
+    }
+
+    .dataTables_wrapper .dataTables_length {
+        float: left;
+        margin-bottom: 20px;
+    }
+
+    .dataTables_wrapper .dataTables_filter input {
+        margin-left: 10px;
+        padding: 6px 10px;
+        border: 1px solid #e8e8e8;
+        border-radius: 4px;
+        min-width: 220px;
+    }
+
+    #data-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+
+        /* Thêm CSS để căn giữa nội dung trong tiêu đề và dữ liệu của bảng */
+        #data-table thead th {
+            padding: 15px 10px;
+            border-bottom: 1px solid #e8e8e8;
+            font-weight: 500;
+            color: #fff;
+            background-color: #5a8dee;
+            text-align: center !important;
+        }
+
+        #data-table tbody td {
+            padding: 15px 10px;
+            border-bottom: 1px solid #e8e8e8;
+            color: #333;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+            #data-table tbody td:first-child,
+            #data-table tbody td:last-child,
+            #data-table tbody td:nth-child(5),
+            #data-table tbody td:nth-child(6) {
+                text-align: center;
+            }
+
+        #data-table tbody tr:hover {
+            background-color: #f8f8f8;
+        }
+
+    /* Định dạng badge */
+    .badge {
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-weight: normal;
+    }
+
+    .badge-success {
+        background-color: #20c997;
+        color: #fff;
+    }
+
+    .badge-danger {
+        background-color: #dc3545;
+        color: #fff;
+    }
+
+    /* Định dạng nút hình vuông */
+    .btn-icon {
+        width: 32px;
+        height: 32px;
+        padding: 5px;
+        line-height: 1;
+        border-radius: 4px;
+        background-color: transparent;
+        border: none;
+        margin-right: 5px;
+    }
+
+        .btn-icon:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+    /* Định dạng nút thao tác */
+    .btn-action {
+        width: 40px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin: 3px;
+        border-radius: 4px;
+    }
+
+    .btn-edit {
+        background-color: #ffc107; /* Màu vàng */
+        color: #212529;
+    }
+
+        .btn-edit:hover {
+            background-color: #e0a800;
+            color: #212529;
+        }
+
+    .btn-delete {
+        background-color: #dc3545; /* Màu đỏ */
+        color: white;
+    }
+
+        .btn-delete:hover {
+            background-color: #c82333;
+            color: white;
+        }
+
+    /* Cải thiện hiển thị di động */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Tùy chỉnh các điều khiển DataTable */
+    .dataTables_paginate {
+        margin-top: 10px;
+    }
+
+        .dataTables_paginate .paginate_button {
+            padding: 5px 10px;
+            margin: 0 2px;
+            border: 1px solid #e8e8e8;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+        }
+
+            .dataTables_paginate .paginate_button.current {
+                background-color: #5a8dee;
+                color: white !important;
+                border-color: #5a8dee;
+            }
+
+            .dataTables_paginate .paginate_button:hover:not(.current) {
+                background-color: #f8f8f8;
+            }
+
+    /* Chỉnh mũi tên sắp xếp */
+    table.dataTable thead .sorting:after,
+    table.dataTable thead .sorting_asc:after,
+    table.dataTable thead .sorting_desc:after {
+        opacity: 0.4;
+        font-size: 0.8em;
+    }
+
+    /* Thiết lập tùy chỉnh hiển thị số mục */
+    .dataTables_length select {
+        padding: 5px 10px;
+        border: 1px solid #e8e8e8;
+        border-radius: 4px;
+    }
+
+    /* Làm cho phần Show entries và Search trông giống mẫu */
+    .dataTables_wrapper .dataTables_length label,
+    .dataTables_wrapper .dataTables_filter label {
+        font-weight: normal;
+    }
+
+    .main-content {
+        padding: calc(70px + -25px) 25px 25px;
+    }
+
+    /* Modal styling */
+    .modal-header {
+        border-bottom: 1px solid #e8e8e8;
+        padding: 15px 20px;
+    }
+
+    .modal-footer {
+        border-top: 1px solid #e8e8e8;
+        padding: 15px 20px;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .form-group label {
+        font-weight: 500;
+    }
+
+    .form-control {
+        padding: 10px 15px;
+        border: 1px solid #e8e8e8;
+        border-radius: 4px;
+    }
+
+        .form-control:focus {
+            border-color: #5a8dee;
+            box-shadow: 0 0 0 0.1rem rgba(90, 141, 238, 0.25);
+        }
+
+        .form-control[readonly] {
+            background-color: #f8f9fa;
+            cursor: not-allowed;
+        }
+
+    .input-group-text {
+        background-color: #f8f9fa;
+        border-color: #e8e8e8;
+    }
+
+    /* Style cho card tìm kiếm */
+    #advancedSearchCard .card-title {
+        color: #333;
+        font-size: 1.1rem;
+    }
+
+    #advancedSearchCard {
+        background-color: #f8f9fa;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+    }
+
+        #advancedSearchCard label {
+            font-weight: 500;
+            color: #555;
+        }
+
+    /* Cải thiện responsive styles for mobile */
+    @@media screen and (max-width: 767px) {
+        /* Ẩn tìm kiếm mặc định của DataTable */
+        .dataTables_filter {
+            display: none;
+        }
+        /* Hiển thị tất cả nút thao tác trên mobile */
+        .action-buttons {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto;
+        }
+
+        .btn-action {
+            margin: 3px;
+            min-width: 40px;
+        }
+        /* Tối ưu hóa phân trang trên di động */
+        .dataTables_paginate {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+            .dataTables_paginate .paginate_button {
+                padding: 8px 12px;
+                margin: 3px;
+            }
+        /* Điều chỉnh hiển thị số mục trên trang */
+        .dataTables_length select {
+            width: 80px;
+        }
+        /* Đảm bảo modal hiển thị đúng trên di động */
+        .modal-dialog {
+            margin: 10px;
+            width: calc(100% - 20px);
+            max-width: none;
+        }
+
+        .modal-body {
+            padding: 15px;
+        }
+
+        .modal-footer {
+            justify-content: space-between;
+            padding: 10px;
+        }
+
+            .modal-footer button {
+                margin: 5px;
+                min-width: 45%;
+            }
+        /* Đảm bảo khoảng cách */
+        .mb-3 {
+            margin-bottom: 1rem !important;
+        }
+        /* Cải thiện hiển thị của bảng */
+        #data-table,
+        #data-table thead,
+        #data-table tbody,
+        #data-table th,
+        #data-table td,
+        #data-table tr {
+            font-size: 14px;
+        }
+        /* Điều chỉnh tiêu đề trang */
+        .header-title {
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+    }
+
+    /* Styling cho nút tìm kiếm di động */
+    #mobileSearch {
+        height: 38px;
+    }
+
+    /* Làm mịn góc cho các phần tử UI */
+    .card, .modal-content, .btn, .form-control, .input-group-text {
+        border-radius: 6px;
+    }
+
+        /* Đảm bảo văn bản trên nút không bị tràn */
+        .btn span {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+    /* Tối ưu hoá cột ẩn theo kích thước màn hình */
+    /* Đối với màn hình tablet */
+    @@media (min-width: 768px) and (max-width: 991px) {
+        .d-md-none {
+            display: none !important;
+        }
+
+        .d-md-block {
+            display: block !important;
+        }
+    }
+
+    /* Đối với màn hình di động nhỏ */
+    @@media (max-width: 575px) {
+        /* Hiển thị các cột quan trọng nhất */
+        #data-table tbody td:nth-child(2) { /* Tên chức năng */
+            min-width: 120px;
+        }
+        /* Thu nhỏ font chữ */
+        body, .btn, .form-control, table {
+            font-size: 14px;
+        }
+        /* Thêm thụt lề cho nội dung chính */
+        .main-content {
+            padding: calc(70px + -25px) 10px 10px;
+        }
+        /* Tăng kích thước nút cho dễ chạm */
+        .btn-action {
+            width: 38px;
+            height: 38px;
+        }
+        /* Điều chỉnh khoảng cách trong bảng */
+        #data-table tbody td {
+            padding: 10px 5px;
+        }
+    }
+
+    /* Utility class */
+    .w-md-auto {
+        width: auto;
+    }
+
+    @@media (max-width: 767px) {
+        .text-md-right {
+            text-align: center !important;
+        }
+        /* Thêm lề dưới cho nút thêm */
+        #btnAddFunction {
+            margin-bottom: 1rem;
+        }
+    }
+
+    /* Màu nền cho modal trên di động */
+    @@media (max-width: 767px) {
+        .modal-backdrop {
+            opacity: 0.7;
+        }
+    }
+
+    /* Meta tag để đảm bảo viewport đúng */
+    /* Thêm thẻ này vào _AdminLayout.cshtml nếu chưa có */
+</style>
+
+@section scriptsAdmin {
+    <script src="~/Scripts/sweetalert2.all.min.js"></script>
+    <script src="~/Areas/Admin/Scripts/DanhSachChucNang.js"></script>
+
+}

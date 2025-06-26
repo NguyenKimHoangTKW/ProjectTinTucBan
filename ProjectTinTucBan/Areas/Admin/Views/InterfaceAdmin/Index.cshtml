@@ -1,10 +1,11 @@
 ﻿@{
-    ViewBag.Title = "Title";
+    ViewBag.Title = "Trang chủ Admin";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
 <div class="main-content">
     <div class="container-fluid">
+        <!-- Session info will be displayed here by JavaScript -->
         <!-- Thống kê -->
         <div class="row">
             <div class="col-md-3">
@@ -69,24 +70,6 @@
             </div>
         </div>
 
-        <!-- Thêm nội dung khác ở đây nếu cần -->
-        <!-- Phần thứ hai - các bảng hoặc biểu đồ -->
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h4>Thống kê chi tiết</h4>
-                        <p>Các thông tin chi tiết về hệ thống</p>
-                        <!-- Đặt bảng hoặc biểu đồ ở đây -->
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Phần footer -->
-        <div class="text-center m-t-30">
-            <p>Ban Khảo thí, kiểm định và đảm bảo chất lượng - TDMU © 2024</p>
-        </div>
     </div>
 </div>
 
@@ -95,13 +78,23 @@
         width: 50px;
         height: 50px;
     }
+
+    /* Style cho phần hiển thị thông tin session */
+    .session-info, .session-warning, .session-error {
+        margin-bottom: 20px;
+        border-radius: 5px;
+    }
+
+        .session-info ul {
+            padding-left: 20px;
+            margin-bottom: 0;
+        }
+
+        .session-info li {
+            margin-bottom: 5px;
+        }
 </style>
+
 @section scriptsAdmin {
-    // Khai bao section scriptsAdmin như trong code để lấy toàn bộ thư viện Script mà không cần phải gọi lại
-    // Trích đường dẫn file .js vào đây
-    // Viết bằng jQuery
-    // Tất cả file js tạo đều phải lưu trữ vào Areas/Admin/Scripts
-
+    <script src="~/Areas/Admin/Scripts/CheckSession.js"></script>
 }
-
-<h2>Index</h2>

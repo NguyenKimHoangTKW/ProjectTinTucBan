@@ -1,6 +1,6 @@
 ﻿$(function () {
     function loadSideNav() {
-        $.getJSON('/api/v1/admin/groupmenu-menus/17') // Assuming 16 is the ID for side nav menu group
+        $.getJSON('/api/v1/admin/groupmenu-menus/17') // id cứng để test, sau này đổi lại trong api
             .done(function (group) {
                 const $sideNav = $('.side-nav-menu').empty();
 
@@ -37,7 +37,7 @@
                         menu.SubMenus.forEach(sub => {
                             const $subLi = $('<li></li>');
                             const $subA = $('<a></a>')
-                                .attr('href', sub.SubMenuLink || '#')
+                                .attr('href',sub.SubMenuLink || '#')
                                 .text(sub.SubMenuName);
                             $subLi.append($subA);
                             $dropdown.append($subLi);
