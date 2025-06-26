@@ -64,5 +64,5 @@
             });
     }
 
-    loadSideNav();
+    //loadSideNav();
 });

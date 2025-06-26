@@ -250,9 +250,6 @@ async function GetAllBaiViet() {
     }
 
     if (res.success) {
-        // Debug the API response to see MucLuc data structure
-        console.log('API Response Data:', res.data);
-
         let html = '';
         res.data.forEach((item, index) => {
             const isTitleLong = item.TieuDe.length > 10;
@@ -266,7 +263,7 @@ async function GetAllBaiViet() {
                 : item.TieuDe;
 
             // Improved MucLuc handling
-            let mucLucInfo = 'Chưa phân loại';
+            let mucLucInfo = 'Khác';
             if (item.MucLuc && item.MucLuc.TenMucLuc) {
                 mucLucInfo = item.MucLuc.TenMucLuc;
             }
@@ -397,13 +394,19 @@ function setupModalFormEvents() {
         const id = $('#BaiVietID').val();
         const isUpdate = !!id;
 
+        const ID_MUCLUC_KHAC = 7;
+
+        let selectedMucLuc = $('#ID_MucLuc').val();
+        if (isNaN(selectedMucLuc)) {
+            selectedMucLuc = ID_MUCLUC_KHAC;
+        }
+
         const model = {
             TieuDe: $('#TieuDe').val().trim(),
             NoiDung: CKEDITOR.instances.NoiDung?.getData()?.trim() || '',
             LinkThumbnail: $('#LinkThumbnail').val().trim(),
             LinkPDF: $('#LinkPDF').val().trim(),
-            ID_MucLuc: $('#ID_MucLuc').val() || null 
-
+            ID_MucLuc: selectedMucLuc
         };
 
         if (!model.TieuDe || !model.NoiDung) {

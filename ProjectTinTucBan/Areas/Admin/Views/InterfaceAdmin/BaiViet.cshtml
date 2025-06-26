@@ -4,12 +4,9 @@
 }
 
 <div class="container-fluid main-content py-3">
-
-
-
     <!-- ========== Danh sách Bài Viết ========== -->
-    <h2>Bài Viết</h2>
     <!-- Header và breadcrumb -->
+    <h2 class="header-title">BÀI VIẾT</h2>
     <div class="page-header">
         <h2 class="header-title">Quản lý bài viết</h2>
         <div class="header-sub-title">
@@ -173,9 +170,8 @@
 
 @section scriptsAdmin {
     <!-- Bootstrap & DataTables -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <link href="~/Areas/assets/css/app.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css" />
-
     <!-- SweetAlert2 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
@@ -199,6 +195,7 @@
     .main-content {
         padding-left: 20px !important;
         padding-right: 20px !important;
+        margin-top: 70px;
     }
 
         .main-content .table-responsive {
@@ -219,6 +216,14 @@
         margin-bottom: 6px;
     }
 
+    #NoiDung {
+        min-height: 300px !important;
+    }
+
+    .cke_contents {
+        min-height: 300px !important;
+    }
+
     #table_load_baiviet th,
     #table_load_baiviet td {
         padding-left: 10px !important;
@@ -226,11 +231,20 @@
         vertical-align: middle;
         border: 1px solid #dee2e6 !important;
     }
-    #NoiDung {
-        min-height: 300px !important;
+    #table_load_baiviet {
+        border: 1px solid #dee2e6 !important;
+        border-collapse: collapse !important;
     }
-    .cke_contents {
-        min-height: 300px !important;
+
+        #table_load_baiviet th,
+        #table_load_baiviet td {
+            border: 1px solid #dee2e6 !important;
+        }
+
+    .table-responsive {
+        overflow-x: auto;
+        padding: 0 !important;
+        border: none !important;
     }
     /* Căn giữa và đảm bảo border trái cột STT hiển thị */
     #table_load_baiviet th:nth-child(2),
