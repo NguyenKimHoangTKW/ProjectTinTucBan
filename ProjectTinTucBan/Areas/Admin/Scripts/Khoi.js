@@ -67,6 +67,9 @@ function deleteKhoi(id) {
                 type: 'DELETE',
                 success: function () {
                     loadKhoi();
+                    $('#khoiForm')[0].reset();
+                    $('#ID').val('');
+                    $('#khoiForm').closest('.modal').modal('hide'); // Đóng modal
                     Swal.fire(
                         'Đã xóa!',
                         'Khối đã được xóa thành công.',
@@ -100,6 +103,7 @@ $(function () {
                     loadKhoi();
                     $('#khoiForm')[0].reset();
                     $('#ID').val('');
+                    $('#khoiForm').closest('.modal').modal('hide'); // Đóng modal
                 }
             });
         } else {
@@ -111,6 +115,8 @@ $(function () {
                 success: function () {
                     loadKhoi();
                     $('#khoiForm')[0].reset();
+                    $('#ID').val('');
+                    $('#khoiForm').closest('.modal').modal('hide'); // Đóng modal
                 }
             });
         }
