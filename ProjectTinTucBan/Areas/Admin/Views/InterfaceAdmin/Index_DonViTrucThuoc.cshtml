@@ -96,15 +96,18 @@
                 display: flex;
                 align-items: center;
             }
+
             .modal-content {
                 border-radius: 0.5rem;
                 width: 100vw !important;
                 min-height: 100vh;
             }
+
             .modal-body, .modal-content, .modal-header, .modal-footer {
                 width: 100% !important;
                 box-sizing: border-box;
             }
+
             .modal {
                 padding-right: 0 !important;
             }
@@ -125,25 +128,13 @@
         .table-responsive {
             overflow-x: auto;
         }
+
         .table th, .table td {
             vertical-align: middle !important;
             white-space: nowrap;
         }
     </style>
 
-    <!-- DataTables CSS -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap4.min.css">
-
-    <!-- jQuery và Bootstrap JS (Sử dụng jQuery 3.5.1 cho tương thích với Bootstrap 4) -->
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    
-    <!-- DataTables JS -->
-    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"></script>
-    
-    <!-- SweetAlert2 -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- Script xử lý cho Đơn vị trực thuộc -->
     <script>
@@ -176,12 +167,12 @@
                     var options = '<option value="">-- Tất cả Khối --</option>';
                     // Cập nhật dropdown trong form
                     var formOptions = '<option value="">-- Chọn Khối --</option>';
-                    
+
                     $.each(data, function (i, item) {
                         options += `<option value="${item.id}">${item.tenKhoi}</option>`;
                         formOptions += `<option value="${item.id}">${item.tenKhoi}</option>`;
                     });
-                    
+
                     $('#filterKhoi').html(options);
                     $('#ID_Khoi').html(formOptions);
                 }
@@ -201,41 +192,37 @@
                 "columns": [
                     { "data": "id" },
                     { "data": "tenDonVi" },
-                    { 
+                    {
                         "data": "idKhoi",
-                        "render": function(data) {
+                        "render": function (data) {
                             var khoi = danhSachKhoi.find(k => k.id === data);
                             return khoi ? khoi.tenKhoi : '';
                         }
                     },
                     { "data": "thuTuShow" },
                     { "data": "link" },
-                    { 
+                    {
                         "data": "ngayDang",
-                        "render": function(data) {
+                        "render": function (data) {
                             return unixToDateTimeString(data);
                         }
                     },
-                    { 
+                    {
                         "data": "ngayCapNhat",
-                        "render": function(data) {
+                        "render": function (data) {
                             return unixToDateTimeString(data);
                         }
                     },
                     {
                         "data": null,
                         "orderable": false,
-                        "render": function(data) {
+                        "render": function (data) {
                             return `
-                                <div class="text-center">
-                                    <button class="btn btn-warning btn-sm btn-sua-donvi" data-id="${data.id}">
-                                        <i class="fa fa-pencil"></i> Sửa
-                                    </button>
-                                    <button class="btn btn-danger btn-sm ml-1 btn-xoa-donvi" data-id="${data.id}">
-                                        <i class="fa fa-trash"></i> Xóa
-                                    </button>
-                                </div>
-                            `;
+        <div class="text-center d-flex flex-column align-items-center">
+            <button class="btn btn-warning btn-sm py-1 px-2 w-100 btn-sua-donvi" data-id="${data.id}" style="max-width: 80px;">Sửa</button>
+            <button class="btn btn-danger btn-sm py-1 px-2 w-100 mt-1 btn-xoa-donvi" data-id="${data.id}" style="max-width: 80px;">Xóa</button>
+        </div>
+    `;
                         }
                     }
                 ],
@@ -258,11 +245,10 @@
 
         // Load danh sách đơn vị trực thuộc
         function loadDonViTrucThuoc(idKhoi) {
-            var url = '/api/DonViTrucThuoc';
+            var url = '/api/Admin/DonViTrucThuoc/Get';
             if (idKhoi) {
-                url = '/api/DonViTrucThuoc/ByKhoi/' + idKhoi;
+                url = '/api/Admin/DonViTrucThuoc/GetByKhoi?idKhoi=' + idKhoi;
             }
-            
             $.ajax({
                 url: url,
                 type: 'GET',
@@ -287,7 +273,7 @@
                     $('#TenDonVi').val(item.tenDonVi);
                     $('#ThuTuShow').val(item.thuTuShow);
                     $('#Link').val(item.link);
-                    
+
                     // Hiển thị modal
                     $('#donViModal').modal('show');
                 },
@@ -333,34 +319,34 @@
 
         $(document).ready(function () {
             // Load danh sách Khối
-            loadDanhSachKhoi().then(function() {
+            loadDanhSachKhoi().then(function () {
                 // Khởi tạo DataTable sau khi đã load danh sách Khối
                 initDataTable();
                 // Load dữ liệu ban đầu
                 loadDonViTrucThuoc();
             });
-            
+
             // Lọc theo Khối
-            $('#filterKhoi').change(function() {
+            $('#filterKhoi').change(function () {
                 loadDonViTrucThuoc($(this).val());
             });
-            
+
             // Nút tải lại danh sách
-            $('#btnLoadDonVi').click(function() {
+            $('#btnLoadDonVi').click(function () {
                 loadDonViTrucThuoc($('#filterKhoi').val());
             });
-            
+
             // Mở modal thêm mới
-            $('#btnShowDonViModal').click(function() {
+            $('#btnShowDonViModal').click(function () {
                 $('#ID').val('');
                 $('#donViForm')[0].reset();
                 $('#donViModal').modal('show');
             });
-            
+
             // Xử lý form submit
-            $('#donViForm').submit(function(e) {
+            $('#donViForm').submit(function (e) {
                 e.preventDefault();
-                
+
                 var id = $('#ID').val();
                 var donVi = {
                     ID_Khoi: $('#ID_Khoi').val(),
@@ -368,7 +354,7 @@
                     ThuTuShow: $('#ThuTuShow').val(),
                     Link: $('#Link').val()
                 };
-                
+
                 if (id) {
                     // Cập nhật
                     $.ajax({
@@ -376,14 +362,14 @@
                         type: 'PUT',
                         data: JSON.stringify(donVi),
                         contentType: 'application/json',
-                        success: function() {
+                        success: function () {
                             $('#donViForm')[0].reset();
                             $('#ID').val('');
                             $('#donViModal').modal('hide');
                             loadDonViTrucThuoc($('#filterKhoi').val());
                             Swal.fire('Thành công!', 'Đã cập nhật đơn vị.', 'success');
                         },
-                        error: function(xhr) {
+                        error: function (xhr) {
                             Swal.fire('Lỗi!', 'Không thể cập nhật đơn vị.', 'error');
                             console.error(xhr);
                         }
@@ -395,36 +381,50 @@
                         type: 'POST',
                         data: JSON.stringify(donVi),
                         contentType: 'application/json',
-                        success: function() {
+                        success: function () {
                             $('#donViForm')[0].reset();
                             $('#donViModal').modal('hide');
                             loadDonViTrucThuoc($('#filterKhoi').val());
                             Swal.fire('Thành công!', 'Đã thêm đơn vị mới.', 'success');
                         },
-                        error: function(xhr) {
+                        error: function (xhr) {
                             Swal.fire('Lỗi!', 'Không thể thêm đơn vị mới.', 'error');
                             console.error(xhr);
                         }
                     });
                 }
             });
-            
+
             // Nút xóa form
-            $('#btnClear').click(function() {
+            $('#btnClear').click(function () {
                 $('#donViForm')[0].reset();
                 $('#ID').val('');
             });
-            
+
             // Gán sự kiện cho nút sửa, xóa
-            $(document).on('click', '.btn-sua-donvi', function() {
+            $(document).on('click', '.btn-sua-donvi', function () {
                 var id = $(this).data('id');
                 editDonVi(id);
             });
-            
-            $(document).on('click', '.btn-xoa-donvi', function() {
+
+            $(document).on('click', '.btn-xoa-donvi', function () {
                 var id = $(this).data('id');
                 deleteDonVi(id);
             });
         });
     </script>
 }
+
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap4.min.css">
+
+<!-- jQuery và Bootstrap JS (Sử dụng jQuery 3.5.1 cho tương thích với Bootstrap 4) -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"></script>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

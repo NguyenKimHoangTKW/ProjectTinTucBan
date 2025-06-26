@@ -109,10 +109,7 @@ function initDataTable() {
 
 // Load danh sách đơn vị trực thuộc
 function loadDonViTrucThuoc(idKhoi) {
-    var url = '/api/Admin/DonViTrucThuoc';
-    if (idKhoi) {
-        url = '/api/Admin/DonViTrucThuoc/ByKhoi/' + idKhoi;
-    }
+    var url = idKhoi ? '/api/DonViTrucThuoc/ByKhoi/' + idKhoi : '/api/DonViTrucThuoc';
     
     $.ajax({
         url: url,
