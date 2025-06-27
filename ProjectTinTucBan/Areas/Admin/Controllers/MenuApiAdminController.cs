@@ -9,6 +9,8 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
+using ProjectTinTucBan.Helper;
+using System.Web.ModelBinding;
 
 namespace ProjectTinTucBan.Areas.Admin.Controllers
 {
@@ -35,6 +37,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     MenuId = m.ID,
                     MenuName = m.Ten,
                     MenuLink = m.Link,
+                    IconName = m.IconName,
                     MenuOrder = m.ThuTuShow,
                     SubMenus = db.Menu_by_sub
                         .Where(x => x.id_menu == m.ID && x.id_sub != null)
@@ -44,11 +47,17 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                             SubMenuId = x.Sub_Menu.id_sub,
                             SubMenuName = x.Sub_Menu.name_sub,
                             SubMenuLink = x.Sub_Menu.Link,
+                            IconName = x.Sub_Menu.IconName,
                             SubMenuOrder = x.Sub_Menu.ThuTuShow
                         }).ToList()
                 }).ToListAsync();
 
-            return Ok(menus);
+            if (menus == null || menus.Count == 0)
+                return NotFound();
+            else
+                return Ok(menus);
+            
+            
         }
 
         [HttpGet]
@@ -62,9 +71,13 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                             SubMenuId = x.id_sub,
                             SubMenuName = x.name_sub,
                             SubMenuLink = x.Link,
+                            IconName = x.IconName,
                             SubMenuOrder = x.ThuTuShow
                         }).ToListAsync();
-            return Ok(submenus);
+            if (submenus == null || submenus.Count == 0)
+                return NotFound();
+            else
+                return Ok(submenus);
         }
 
         [HttpGet]
@@ -78,9 +91,14 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                             MenuId = x.ID,
                             MenuName = x.Ten,
                             MenuLink = x.Link,
+                            IconName = x.IconName,
                             MenuOrder = x.ThuTuShow
                         }).ToListAsync();
-            return Ok(menus);
+
+            if (menus == null || menus.Count == 0)
+                return NotFound();
+            else
+                return Ok(menus);
         }
 
         // 2. Thêm menu mới
@@ -91,18 +109,31 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             if (string.IsNullOrEmpty(menu.Ten))
                 return BadRequest("Tên menu không được để trống.");
 
-            menu.NgayDang = unixTimestamp;
-            menu.NgayCapNhat = unixTimestamp;
+            // Lấy Unix timestamp hiện tại
+            var unixTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+            // Tìm giá trị ThuTuShow lớn nhất
+            int maxThuTuShow = await db.Menus.MaxAsync(m => (int?)m.ThuTuShow) ?? 0;
+
+            // Gán giá trị ThuTuShow mới
+            menu.ThuTuShow = maxThuTuShow + 1;
+            menu.NgayDang = (int)unixTimestamp;
+            menu.NgayCapNhat = (int)unixTimestamp;
+
             db.Menus.Add(menu);
             await db.SaveChangesAsync();
+
             return Ok();
         }
+
         public class AddSubMenuDto
         {
             public int MenuId { get; set; }
             public string SubMenuName { get; set; }
             public string SubMenuLink { get; set; }
+            public string IconName { get; set; }
         }
+
         // 3. Thêm submenu mới
         [HttpPost]
         [Route("add-submenu")]
@@ -119,13 +150,21 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             if (menu == null)
                 return BadRequest("Menu cha không tồn tại.");
 
+            // Lấy Unix timestamp hiện tại
+            var unixTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+            // Lấy ThuTuShow lớn nhất từ Sub_Menu
+            int maxThuTuShow = await db.Sub_Menu.MaxAsync(s => (int?)s.ThuTuShow) ?? 0;
+
             // Tạo đối tượng submenu
             var subMenu = new Sub_Menu
             {
                 name_sub = dto.SubMenuName,
                 Link = string.IsNullOrWhiteSpace(dto.SubMenuLink) ? null : dto.SubMenuLink,
-                time_create = unixTimestamp,
-                time_update = unixTimestamp
+                IconName = string.IsNullOrWhiteSpace(dto.IconName) ? null : dto.IconName,
+                time_create = (int)unixTimestamp,
+                time_update = (int)unixTimestamp,
+                ThuTuShow = maxThuTuShow + 1
             };
 
             try
@@ -157,12 +196,14 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             }
         }
 
+
         public class EditMenuDto
         {
             public int ID { get; set; }
             public string Ten { get; set; }
             public string Link { get; set; }
             public int? ThuTuShow { get; set; }
+            public string IconName { get; set; }
         }
 
         [HttpPost]
@@ -179,9 +220,23 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             if (menu == null)
                 return BadRequest("Không tìm thấy menu.");
 
+            // Nếu thay đổi thứ tự show và có menu khác đang dùng thứ tự này
+            if (menu.ThuTuShow != dto.ThuTuShow)
+            {
+                var conflictedMenu = await db.Menus
+                    .FirstOrDefaultAsync(m => m.ThuTuShow == dto.ThuTuShow && m.ID != dto.ID);
+
+                if (conflictedMenu != null)
+                {
+                    // Hoán đổi ThuTuShow giữa hai menu
+                    conflictedMenu.ThuTuShow = menu.ThuTuShow;
+                }
+            }
+
             menu.Ten = dto.Ten;
             menu.Link = dto.Link;
             menu.ThuTuShow = dto.ThuTuShow;
+            menu.IconName = dto.IconName;
             menu.NgayCapNhat = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
 
             try
@@ -195,6 +250,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             }
         }
 
+
         [HttpPost]
         [Route("edit-sub-menu")]
         public async Task<IHttpActionResult> EditSubMenu([FromBody] EditMenuDto dto)
@@ -205,14 +261,28 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             if (string.IsNullOrWhiteSpace(dto.Ten))
                 return BadRequest("Tên menu không được để trống.");
 
-            var menu = await db.Sub_Menu.FindAsync(dto.ID);
-            if (menu == null)
-                return BadRequest("Không tìm thấy menu.");
+            var subMenu = await db.Sub_Menu.FindAsync(dto.ID);
+            if (subMenu == null)
+                return BadRequest("Không tìm thấy menu con.");
 
-            menu.name_sub = dto.Ten;
-            menu.Link = dto.Link;
-            menu.ThuTuShow = dto.ThuTuShow;
-            menu.time_update = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+            // Nếu thay đổi thứ tự show và có menu con khác đang dùng thứ tự này
+            if (subMenu.ThuTuShow != dto.ThuTuShow)
+            {
+                var conflictedSubMenu = await db.Sub_Menu
+                    .FirstOrDefaultAsync(s => s.ThuTuShow == dto.ThuTuShow && s.id_sub != dto.ID);
+
+                if (conflictedSubMenu != null)
+                {
+                    // Hoán đổi thứ tự show
+                    conflictedSubMenu.ThuTuShow = subMenu.ThuTuShow;
+                }
+            }
+
+            subMenu.name_sub = dto.Ten;
+            subMenu.Link = dto.Link;
+            subMenu.ThuTuShow = dto.ThuTuShow;
+            subMenu.IconName = dto.IconName;
+            subMenu.time_update = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
 
             try
             {
@@ -224,6 +294,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 return InternalServerError(new Exception("Lỗi khi cập nhật menu con: " + ex.Message));
             }
         }
+
 
         // 4. Xóa menu
         [HttpPost]
@@ -292,7 +363,11 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     g.NgayTao,
                     g.NgayCapNhat
                 }).ToListAsync();
-            return Ok(groups);
+
+            if (groups == null || groups.Count == 0)
+                return NotFound();
+            else
+                return Ok(groups);
         }
 
         // Thêm group menu
@@ -568,8 +643,10 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                             })
                     })
                 }).ToListAsync();
-
-            return Ok(groups);
+            if (groups == null || groups.Count == 0)
+                return NotFound();
+            else
+                return Ok(groups);
         }
 
         // API: Lấy menu và submenu theo group menu ID để hiển thị
@@ -592,6 +669,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                             MenuName = gbm.Menu.Ten,
                             MenuLink = gbm.Menu.Link,
                             ThuTuShow = gbm.Menu.ThuTuShow,
+                            IconName = gbm.Menu.IconName,
                             SubMenus = gbm.Menu.Menu_by_sub
                                 .Where(mbs => mbs.id_sub != null)
                                 .Select(mbs => new
@@ -599,6 +677,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                                     SubMenuId = mbs.Sub_Menu.id_sub,
                                     SubMenuName = mbs.Sub_Menu.name_sub,
                                     SubMenuLink = mbs.Sub_Menu.Link,
+                                    IconName = mbs.Sub_Menu.IconName,
                                     ThuTuShow = mbs.Sub_Menu.ThuTuShow
                                 })
                                 .OrderBy(sm => sm.ThuTuShow)
@@ -611,8 +690,8 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
             if (group == null)
                 return NotFound();
-
-            return Ok(group);
+            else
+                return Ok(group);
         }
         
         // API: Lấy menu theo group menu ID để cho phần thêm submenu
@@ -643,8 +722,77 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
             if (group == null)
                 return NotFound();
+            else
+                return Ok(group);
+        }
 
-            return Ok(group);
+        //lấy danh sách menu theo user
+        [HttpGet]
+        [Route("get-user-menus")]
+        public IHttpActionResult GetUserMenus()
+        {
+            try
+            {
+                var user = SessionHelper.GetUser(); // Lấy user từ session
+                if (user == null)
+                    return Unauthorized();
+
+                int userId = user.ID;
+
+                // Bước 1: Lấy các function user có quyền
+                var functionIds = db.PhanQuyenUsers
+                    .Where(p => p.ID_TaiKhoan == userId)
+                    .Select(p => p.ID_Function)
+                    .Distinct()
+                    .ToList();
+
+                if (!functionIds.Any())
+                    return Ok(new List<object>());
+
+                // Bước 2: Lấy các menu tương ứng function
+                var menuIds = db.Function_By_Menu
+                    .Where(fm => functionIds.Contains(fm.ID_FUNCTION))
+                    .Select(fm => fm.ID_MENU)
+                    .Distinct()
+                    .ToList();
+
+                // Bước 3: Lấy Menu và SubMenu liên kết
+                var menus = db.Menus
+                    .Where(m => menuIds.Contains(m.ID))
+                    .Select(m => new
+                    {
+                        ID = m.ID,
+                        Ten = m.Ten,
+                        Link = m.Link,
+                        ThuTuShow = m.ThuTuShow,
+                        IconName = m.IconName,
+                        IsImportant = m.IsImportant,
+                        NgayCapNhat = m.NgayCapNhat,
+                        SubMenus = db.Menu_by_sub
+                            .Where(ms => ms.id_menu == m.ID)
+                            .Select(ms => ms.Sub_Menu)
+                            .Select(sm => new
+                            {
+                                ID = sm.id_sub,
+                                Ten = sm.name_sub,
+                                Link = sm.Link,
+                                ThuTuShow = sm.ThuTuShow,
+                                IconName = sm.IconName,
+                                NgayTao = sm.time_create,
+                                NgayCapNhat = sm.time_update
+                            })
+                            .OrderBy(sm => sm.ThuTuShow)
+                            .ToList()
+                    })
+                    .OrderBy(m => m.ThuTuShow)
+                    .ToList();
+
+                return Ok(menus);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
         }
 
     }

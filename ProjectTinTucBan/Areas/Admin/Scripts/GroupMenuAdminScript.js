@@ -518,12 +518,15 @@ $('#add-menu-to-group-form').off('submit').on('submit', function (e) {
                 Swal.fire('Thành công', res.message, 'success');
                 $('#addMenuToGroupModal').modal('hide');
                 loadGroupMenus();
+                $submitBtn.prop('disabled', false);
             } else {
                 Swal.fire('Lỗi', res.message || 'Không thể thêm menu vào group', 'error');
+                $submitBtn.prop('disabled', false);
             }
         },
         error: function () {
             Swal.fire('Lỗi', 'Không thể thêm menu vào group', 'error');
+            $submitBtn.prop('disabled', false);
         }
     });
 });

@@ -1,35 +1,30 @@
 ﻿$(function () {
     function loadSideNav() {
-        $.getJSON('/api/v1/admin/groupmenu-menus/17') // id cứng để test
-            .done(function (group) {
-                if (!group || !Array.isArray(group.Menus) || group.Menus.length === 0) {
-                    return; // Không có menu, giữ lại menu offline
-                }
+        $.getJSON('/api/v1/admin/get-user-menus')
+            .done(function (menus) {
+                if (!menus || !Array.isArray(menus) || menus.length === 0) return;
 
                 const $sideNav = $('.side-nav-menu');
-                $sideNav.empty(); // Chỉ xóa khi có dữ liệu hợp lệ
-
+                $sideNav.empty();
                 const baseUrl = `${window.location.origin}/Admin/`;
 
-                // --- GỘP MENU TRÙNG ---
                 const menuMap = new Map();
 
-                group.Menus.forEach(menu => {
-                    if (!menuMap.has(menu.MenuId)) {
-                        menuMap.set(menu.MenuId, {
+                menus.forEach(menu => {
+                    if (!menuMap.has(menu.ID)) {
+                        menuMap.set(menu.ID, {
                             ...menu,
                             SubMenus: [...(menu.SubMenus || [])]
                         });
                     } else {
-                        const existing = menuMap.get(menu.MenuId);
+                        const existing = menuMap.get(menu.ID);
                         const combinedSubs = [...(existing.SubMenus || []), ...(menu.SubMenus || [])];
 
-                        // Lọc trùng SubMenuId
                         const subIdSet = new Set();
                         const uniqueSubs = [];
                         combinedSubs.forEach(sub => {
-                            if (!subIdSet.has(sub.SubMenuId)) {
-                                subIdSet.add(sub.SubMenuId);
+                            if (!subIdSet.has(sub.ID)) {
+                                subIdSet.add(sub.ID);
                                 uniqueSubs.push(sub);
                             }
                         });
@@ -38,39 +33,62 @@
                     }
                 });
 
-                // --- RENDER ---
+                // RENDER
                 menuMap.forEach(menu => {
                     const hasSub = Array.isArray(menu.SubMenus) && menu.SubMenus.length > 0;
-                    const $li = $('<li></li>').addClass('nav-item');
+                    const $li = $('<li>').addClass('nav-item');
 
-                    const menuLink = menu.MenuLink ? menu.MenuLink.replace(/^\/+/, '') : '';
+                    const menuLink = menu.Link ? menu.Link.replace(/^\/+/, '') : '';
                     const fullMenuLink = menuLink ? baseUrl + menuLink : 'javascript:void(0);';
 
-                    const $a = $('<a></a>')
+                    const $a = $('<a>')
                         .attr('href', fullMenuLink)
                         .addClass(hasSub ? 'dropdown-toggle' : '');
 
-                    const $iconHolder = $('<span></span>').addClass('icon-holder');
-                    $iconHolder.append($('<i></i>').addClass(menu.IconClass || 'anticon anticon-dashboard'));
+                    const $iconHolder = $('<span>').addClass('icon-holder');
+                    if (menu.IconName) {
+                        $iconHolder.append($('<i>').addClass(menu.IconName));
+                    } else {
+                        $iconHolder.append(
+                            $('<img>')
+                                .attr('src', 'Areas/assets/images/logo/favicon.png')
+                                .css({ width: '20px', height: '20px', objectFit: 'contain' })
+                        );
+                    }
 
-                    const $title = $('<span></span>').addClass('title').text(menu.MenuName);
-
+                    const $title = $('<span>').addClass('title').text(menu.Ten);
                     $a.append($iconHolder).append($title);
 
                     if (hasSub) {
-                        const $arrow = $('<span></span>').addClass('arrow')
-                            .append($('<i></i>').addClass('fas fa-chevron-down'));
+                        const $arrow = $('<span>').addClass('arrow')
+                            .append($('<i>').addClass('fas fa-chevron-down'));
                         $a.append($arrow);
 
-                        const $dropdown = $('<ul></ul>').addClass('dropdown-menu');
+                        const $dropdown = $('<ul>').addClass('dropdown-menu');
+
                         menu.SubMenus.forEach(sub => {
-                            const $subLi = $('<li></li>');
-                            const subLink = sub.SubMenuLink ? sub.SubMenuLink.replace(/^\/+/, '') : '';
+                            const $subLi = $('<li>');
+                            const subLink = sub.Link ? sub.Link.replace(/^\/+/, '') : '';
                             const fullSubLink = subLink ? baseUrl + subLink : '#';
 
-                            const $subA = $('<a></a>')
-                                .attr('href', fullSubLink)
-                                .text(sub.SubMenuName);
+                            const $subA = $('<a>').attr('href', fullSubLink);
+
+                            if (sub.IconName) {
+                                $subA.append($('<i>').addClass(sub.IconName).addClass('mr-2'));
+                            } else {
+                                $subA.append(
+                                    $('<img>')
+                                        .attr('src', 'Areas/assets/images/logo/favicon.png')
+                                        .css({
+                                            width: '16px',
+                                            height: '16px',
+                                            objectFit: 'contain',
+                                            marginRight: '6px'
+                                        })
+                                );
+                            }
+
+                            $subA.append(document.createTextNode(sub.Ten));
                             $subLi.append($subA);
                             $dropdown.append($subLi);
                         });
@@ -83,7 +101,6 @@
                     $sideNav.append($li);
                 });
 
-                // Gán sự kiện toggle dropdown
                 $('.dropdown-toggle').off('click').on('click', function (e) {
                     e.preventDefault();
                     e.stopPropagation();
