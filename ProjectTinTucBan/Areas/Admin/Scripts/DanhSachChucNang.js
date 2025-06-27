@@ -43,6 +43,12 @@
             }
         });
 
+        // Sự kiện cho nút xem chi tiết
+        $(document).on("click", ".btn-detail", function () {
+            const id = $(this).data("id");
+            openDetailFunctionModal(id);
+        });
+
         // Sự kiện cho nút sửa
         $(document).on("click", ".btn-edit", function () {
             const id = $(this).data("id");
@@ -149,6 +155,7 @@
      * Tải danh sách chức năng từ API
      */
     defaultContent = "Không có dữ liệu";
+
     function loadFunctionList() {
         // Hiển thị loading
         showLoading();
@@ -208,17 +215,11 @@
                             defaultContent
                         },
                         {
-                            data: 'MoTa',
-                            defaultContent
-                        },
-                        {
                             data: 'NgayTao',
-                            defaultContent: "N/A",
                             defaultContent
                         },
                         {
                             data: 'NgayCapNhat',
-                            defaultContent: "N/A",
                             defaultContent
                         },
                         {
@@ -228,6 +229,9 @@
                             render: function (data) {
                                 return `
                                     <div class="action-buttons">
+                                        <button class="btn-action btn-detail" data-id="${data.ID}" title="Xem chi tiết">
+                                            <i class="anticon anticon-eye"></i>
+                                        </button>
                                         <button class="btn-action btn-edit" data-id="${data.ID}" title="Sửa">
                                             <i class="anticon anticon-edit"></i>
                                         </button>
@@ -240,7 +244,7 @@
                         }
                     ],
                     responsive: true,
-                    pageLength: 10,
+                    pageLength: 5,
                     lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "Tất cả"]],
                     language: {
                         paginate: {
@@ -312,6 +316,7 @@
         // Focus vào ô nhập đầu tiên sau khi modal hiển thị
         $("#FunctionModal").on("shown.bs.modal", function () {
             $("#tenFunction").focus();
+            
         });
     }
 
@@ -321,6 +326,8 @@
     async function openEditFunctionModal(functionId) {
         try {
             showLoading();
+            loadMenuTable();
+
 
             const response = await $.ajax({
                 url: `/api/v1/admin/Get-All-Functions`,
@@ -367,7 +374,56 @@
                 $(".invalid-feedback").remove();
 
                 // Hiển thị modal
+                loadFunctionMenus(functionId);
                 $("#FunctionModal").modal("show");
+
+            } else {
+                showNotification("error", "Không thể tải thông tin chức năng admin");
+            }
+        } catch (error) {
+            hideLoading();
+            showNotification("error", "Không thể tải thông tin chức năng admin");
+        }
+    }
+        //Mở modal xem chi tiết chức năng
+    async function openDetailFunctionModal(functionId) {
+        try {
+            showLoading();
+
+            const response = await $.ajax({
+                url: `/api/v1/admin/Get-All-Functions`,
+                type: 'GET'
+            });
+
+            hideLoading();
+
+            if (response.success && response.data) {
+                // Tìm chức năng theo ID
+                const functionData = response.data.find(item => item.ID === functionId);
+
+                if (!functionData) {
+                    showNotification("error", "Không tìm thấy thông tin chức năng admin");
+                    return;
+                }
+
+                // Cập nhật tiêu đề
+                $("#detailFunctionModalLabel").text("Chi tiết chức năng admin");
+
+                // Điền dữ liệu vào form
+                $("#detailTenFunction").text(functionData.TenChucNang || defaultContent);
+                $("#detailMaFunction").text(functionData.MaChucNang || defaultContent);
+                $("#detailMoTa").text(functionData.MoTa || defaultContent);
+
+                // Xử lý timestamp
+                let ngayTao = functionData.NgayTao || functionData.ngayTao;
+                let ngayCapNhat = functionData.NgayCapNhat || functionData.ngayCapNhat;
+
+                // Format và hiển thị timestamp
+                $("#detailNgayTao").text(ngayTao ? formatDateTime(parseInt(ngayTao)) : "N/A");
+                $("#detailNgayCapNhat").text(ngayCapNhat ? formatDateTime(parseInt(ngayCapNhat)) : "N/A");
+
+                // Hiển thị modal
+                $("#detailFunctionModal").modal("show");
             } else {
                 showNotification("error", "Không thể tải thông tin chức năng admin");
             }
@@ -377,9 +433,8 @@
         }
     }
 
-    /**
-     * Thêm chức năng mới
-     */
+    //Thêm chức năng mới
+    
     async function addNewFunction() {
         // Validate form trước khi submit
         if (!validateForm()) {
@@ -406,23 +461,38 @@
 
             hideLoading();
 
+            // Xử lý phản hồi từ API
             if (res.success) {
+                // Đóng modal
                 $("#FunctionModal").modal("hide");
-                showNotification("success", res.message || "Thêm chức năng admin thành công");
+
+                // Sử dụng Sweet_Alert để hiển thị thông báo thành công
+                Sweet_Alert("success", res.message || "Thêm chức năng thành công");
+
+                // Tải lại danh sách để cập nhật dữ liệu mới
                 loadFunctionList();
             } else {
-                showNotification("error", res.message || "Không thể thêm chức năng admin");
+                // Hiển thị lỗi cụ thể từ API (ví dụ: trùng tên, trùng mã)
+                Sweet_Alert("error", res.message || "Không thể thêm chức năng");
             }
         } catch (error) {
+
             hideLoading();
 
-            // Trích xuất thông báo lỗi từ response
-            let errorMessage = "Đã xảy ra lỗi khi thêm chức năng admin";
-            if (error.responseJSON && error.responseJSON.message) {
-                errorMessage = error.responseJSON.message;
+            // Xử lý lỗi từ server nếu có
+            let errorMessage = "Đã xảy ra lỗi khi thêm chức năng";
+
+            // Trích xuất thông báo lỗi từ response nếu có
+            if (error.responseJSON) {
+                if (error.responseJSON.message) {
+                    errorMessage = error.responseJSON.message;
+                } else if (error.responseJSON.error) {
+                    errorMessage = error.responseJSON.error;
+                }
             }
 
-            showNotification("error", errorMessage);
+            // Sử dụng Sweet_Alert để hiển thị thông báo lỗi
+            Sweet_Alert("error", errorMessage);
         }
     }
 
@@ -439,6 +509,8 @@
         const tenFunction = $("#tenFunction").val().trim();
         const maFunction = $("#maFunction").val().trim();
         const moTa = $("#moTa").val().trim();
+        // Get selected menu IDs
+        const selectedMenuIds = getSelectedMenuIds();
 
         try {
             showLoading();
@@ -448,10 +520,13 @@
                 type: 'PUT',
                 contentType: 'application/json',
                 data: JSON.stringify({
-                    ID: parseInt(functionId),
-                    TenChucNang: tenFunction,
-                    MaChucNang: maFunction,
-                    MoTa: moTa
+                    Function: {
+                        ID: parseInt(functionId),
+                        TenChucNang: tenFunction,
+                        MaChucNang: maFunction,
+                        MoTa: moTa
+                    },
+                    MenuIds: selectedMenuIds
                 })
             });
 
@@ -588,7 +663,7 @@
             }
 
             // Trên desktop, hiển thị đầy đủ
-            const weekdays = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+            const weekdays = ['CN', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
             const dayOfWeek = weekdays[date.getDay()];
             const day = String(date.getDate()).padStart(2, '0');
             const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -701,3 +776,126 @@
         .html(responsiveCSS)
         .appendTo("head");
 });
+
+// Load menu
+
+function loadMenuTable() {
+    console.log("Loading menu table...");
+    const tableBody = $('#menuSelectionTable tbody');
+
+    // Check if the table exists
+    if (tableBody.length === 0) {
+        console.error("Menu selection table not found in DOM");
+        return;
+    }
+
+    tableBody.html('<tr><td colspan="3" class="text-center">Đang tải danh sách menu...</td></tr>');
+
+    // Use jQuery AJAX for consistency with your other code
+    $.ajax({
+        url: '/api/v1/admin/get-menus',
+        type: 'GET',
+        dataType: 'json',
+        success: function (data) {
+            console.log("Menu data loaded:", data);
+            if (data && data.length > 0) {
+                let tableContent = '';
+
+                data.forEach((menu, index) => {
+                    tableContent += `
+                    <tr>
+                        <td style="text-align: center;">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input menu-checkbox" 
+                                       id="menu${menu.MenuId}" value="${menu.MenuId}">
+                                <label class="custom-control-label" for="menu${menu.MenuId}"></label>
+                            </div>
+                        </td>
+                        <td>${menu.MenuName}</td>
+                        <td>${menu.MenuLink || ''}</td>
+                    </tr>`;
+                });
+
+                tableBody.html(tableContent);
+            } else {
+                tableBody.html('<tr><td colspan="3" class="text-center">Không có menu nào</td></tr>');
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error("Error loading menus:", error);
+            tableBody.html(`<tr><td colspan="3" class="text-center text-danger">Lỗi: ${error}</td></tr>`);
+        }
+    });
+}
+
+async function loadFunctionMenus(functionId) {
+    try {
+        console.log("Loading function menus for function ID:", functionId);
+
+        // First load menus table (wait for it to complete)
+        await loadMenuTable();
+
+        // Then fetch the function's associated menus
+        const response = await $.ajax({
+            url: `/api/v1/admin/function-menus/${functionId}`,
+            type: 'GET'
+        });
+
+        console.log("Function menus loaded:", response);
+
+        if (response && Array.isArray(response)) {
+            // Get menu IDs from the response
+            const menuIds = response.map(item => item.MenuId.toString());
+            console.log("Menu IDs to check:", menuIds);
+
+            // Set the checkboxes based on the menu IDs
+            setTimeout(() => {
+                setSelectedMenus(menuIds);
+            }, 300); // Small delay to ensure menu table is fully loaded
+        }
+    } catch (error) {
+        console.error("Error loading function menus:", error);
+    }
+}
+
+
+// Function to get selected menu IDs
+function getSelectedMenuIds() {
+    const selectedIds = [];
+    $('#menuSelectionTable .menu-checkbox:checked').each(function () {
+        selectedIds.push($(this).val());
+    });
+    return selectedIds;
+}
+
+// Function to set selected menus
+function setSelectedMenus(menuIds) {
+    console.log("Setting selected menus:", menuIds);
+
+    // Clear all selections first
+    $('#menuSelectionTable .menu-checkbox').prop('checked', false);
+
+    // Set checked for the provided IDs
+    if (menuIds && menuIds.length > 0) {
+        menuIds.forEach(id => {
+            const checkbox = $(`#menu${id}`);
+            if (checkbox.length) {
+                checkbox.prop('checked', true);
+                console.log(`Checkbox for menu ${id} checked`);
+            } else {
+                console.warn(`Checkbox for menu ${id} not found`);
+            }
+        });
+    }
+}
+
+// Display SweetAlert notifications
+function Sweet_Alert(icon, title) {
+    Swal.fire({
+        position: "center",
+        icon: icon,
+        title: title,
+        showConfirmButton: false,
+        timer: 2500
+    });
+}

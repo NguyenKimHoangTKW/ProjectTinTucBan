@@ -100,11 +100,12 @@
                 </form>
             </div>
             <div class="modal-footer flex-wrap justify-content-center">
-                <button type="button" class="btn btn-default m-1" data-dismiss="modal">Hủy</button>
                 <button type="button" class="btn btn-primary m-1" id="btnSaveRole">
                     <i class="anticon anticon-save m-r-5"></i>
                     <span id="btnSaveText">Lưu</span>
                 </button>
+                <button type="button" class="btn btn-default m-1" data-dismiss="modal">Hủy</button>
+
             </div>
         </div>
     </div>
@@ -322,13 +323,6 @@
             max-width: 150px;
         }
 
-        /* Các cột thời gian */
-        #data-table th:nth-child(4),
-        #data-table td:nth-child(4),
-        #data-table th:nth-child(5),
-        #data-table td:nth-child(5) {
-            display: none;
-        }
 
         /* Styling cho các nút trong modal */
         .modal-dialog .btn {
@@ -426,7 +420,7 @@
     }
 
     .main-content {
-        padding: calc(70px + -25px) 25px 25px;
+        padding: calc(70px + -25px) 25px 25px !important;
     }
 
     /* Modal styling */

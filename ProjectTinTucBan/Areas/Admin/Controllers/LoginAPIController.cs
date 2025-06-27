@@ -100,6 +100,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                         existingAccount.TenTaiKhoan = username;
                         existingAccount.CountPasswordFail = 0;
                         existingAccount.LockTime = null;
+                        existingAccount.NgayCapNhat = unixTimestamp;
                         existingAccount.LockTimeout = null;
 
                         await db.SaveChangesAsync();
@@ -111,7 +112,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 return Ok(new
                 {
                     idRole = existingAccount.ID_role,
-                    isBanner = existingAccount.IsBanned,
+                    isBanned = existingAccount.IsBanned,
                     message = "Đăng nhập thành công",
                     success = true
                 });
@@ -634,6 +635,89 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 return InternalServerError(ex);
             }
         }
+
+
+        // POST: api/v1/admin/check-account-lock
+        [HttpPost]
+        [Route("check-account-lock")]
+        public async Task<IHttpActionResult> CheckAccountLock(CheckLockModel model)
+        {
+            if (string.IsNullOrEmpty(model.username))
+            {
+                return BadRequest("Username cannot be empty");
+            }
+
+            try
+            {
+                // Find the account by username
+                var user = await db.TaiKhoans.FirstOrDefaultAsync(u => u.TenTaiKhoan == model.username || u.Gmail == model.username);
+
+                if (user == null)
+                {
+                    return Ok(new
+                    {
+                        isLocked = false,
+                        message = "User not found",
+                        success = false
+                    });
+                }
+
+                // Check if account is permanently locked
+                if (user.IsBanned == 1)
+                {
+                    return Ok(new
+                    {
+                        isLocked = true,
+                        isPermanent = true,
+                        message = "Account is permanently locked",
+                        success = true
+                    });
+                }
+
+                // Check if account is temporarily locked
+                if (user.LockTime.HasValue && user.LockTimeout.HasValue)
+                {
+                    // Calculate remaining lock time
+                    DateTime lockEndTime = DateTimeOffset.FromUnixTimeSeconds(user.LockTime.Value)
+                        .AddSeconds(user.LockTimeout.Value).UtcDateTime;
+
+                    if (DateTime.UtcNow < lockEndTime)
+                    {
+                        // Account is still locked
+                        TimeSpan remainingTime = lockEndTime - DateTime.UtcNow;
+
+                        return Ok(new
+                        {
+                            isLocked = true,
+                            isPermanent = false,
+                            unlockTime = user.LockTime.Value + user.LockTimeout.Value, // Unix timestamp when lock expires
+                            countPasswordFail = user.CountPasswordFail ?? 0,
+                            remainingSeconds = (int)remainingTime.TotalSeconds,
+                            message = "Account is temporarily locked",
+                            success = true
+                        });
+                    }
+                }
+
+                // Account is not locked
+                return Ok(new
+                {
+                    isLocked = false,
+                    message = "Account is not locked",
+                    success = true
+                });
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+    }
+
+    public class CheckLockModel
+    {
+        public string username { get; set; }
     }
 
     public class GoogleLoginModel

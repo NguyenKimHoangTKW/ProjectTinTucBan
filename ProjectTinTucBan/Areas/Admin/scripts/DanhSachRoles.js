@@ -239,12 +239,10 @@ async function load_data() {
                     </tbody>
                 `);
 
-                console.error("Error loading data:", error);
                 Sweet_Alert("error", "Không thể tải danh sách: " + xhr.statusText);
             }
         });
     } catch (error) {
-        console.error("JavaScript error:", error);
         Sweet_Alert("error", "Lỗi JavaScript: " + error.message);
     }
 }
@@ -320,7 +318,6 @@ async function openEditRoleModal(roleId) {
             Sweet_Alert("error", "Không tìm thấy thông tin quyền admin");
         }
     } catch (error) {
-        console.error("Error loading role data:", error);
         Sweet_Alert("error", "Không thể tải thông tin quyền admin");
     }
 }
@@ -366,7 +363,6 @@ async function add_new_Role_in_modal() {
         } else {
             Sweet_Alert("error", "Đã xảy ra lỗi khi thêm quyền admin");
         }
-        console.error(error);
     }
 }
 
@@ -412,7 +408,6 @@ async function update_Role_in_modal() {
         } else {
             Sweet_Alert("error", "Đã xảy ra lỗi khi cập nhật quyền admin");
         }
-        console.error(error);
     }
 }
 
@@ -449,7 +444,6 @@ function deleteRole(roleId) {
                 } else {
                     Sweet_Alert("error", "Đã xảy ra lỗi khi xóa quyền admin");
                 }
-                console.error(error);
             }
         }
     });

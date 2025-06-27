@@ -412,12 +412,9 @@ async function openEditUserModal(userId) {
                 $("#UserModalLabel").text("Cập nhật tài khoản");
                 $("#btnSaveText").text("Cập nhật");
 
-                // Hide password fields, show edit-only fields and password change option
-                $("#passwordFields").hide();
+    
                 $("#editOnlyFields").show();
-                $("#changePasswordSection").show();
-                $("#newPasswordFields").hide();
-                $("#changePasswordCheck").prop('checked', false);
+       
 
                 // Show the modal
                 $("#UserModal").modal("show");

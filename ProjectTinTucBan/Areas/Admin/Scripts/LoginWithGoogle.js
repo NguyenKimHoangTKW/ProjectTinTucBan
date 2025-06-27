@@ -79,7 +79,12 @@ async function Session_Login(email, fullname) {
             else
             {
 
-                SweetSweet_Alert("error", "Tài khoản bạn bị khoá");
+                if (res.unlockTime) {
+                    // Create account lock message with countdown
+                    showLockCountdown(res.unlockTime);
+                } else {
+                    Sweet_Alert("error", "Tài khoản bạn bị khoá");
+                }
             }
 
         } else {
@@ -89,7 +94,6 @@ async function Session_Login(email, fullname) {
         Sweet_Alert("error", "Đã xảy ra lỗi khi đăng nhập");
     }
 }
-
 function Logout_Session() {
     $.ajax({
         url: "/api/v1/admin/clear_session", // Fixed URL
@@ -121,8 +125,120 @@ function Sweet_Alert(icon, title) {
     });
 }
 
+// Function to check account lock status on page load
+function checkAccountLockStatus() {
+    // Get stored username if available (from a previous login attempt)
+    const storedUsername = localStorage.getItem('lastLoginUsername');
+
+    if (storedUsername) {
+        $.ajax({
+            url: `/api/v1/admin/check-account-lock`,
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({ username: storedUsername }),
+            success: function (response) {
+                if (response.success && response.isLocked) {
+                    if (response.isPermanent) {
+                        // Show permanent lock message
+                        $(".password-container").after(`
+                            <div id="lockCountdownContainer" class="alert alert-danger mt-2">
+                                <i class="fas fa-lock mr-2"></i>
+                                <span>Tài khoản bị khóa vĩnh viễn. Vui lòng liên hệ quản trị viên.</span>
+                            </div>
+                        `);
+                    } else if (response.unlockTime) {
+                        // Show temporary lock with countdown
+                        showLockCountdown(response.unlockTime, response.countPasswordFail || 0);
+                    }
+
+                    // Pre-fill the username field
+                    $("#username").val(storedUsername);
+                }
+            }
+        });
+    }
+}
+
+// Improved showLockCountdown function
+function showLockCountdown(unlockTimeValue, failedAttempts) {
+    // Remove any existing lock container
+    $("#lockCountdownContainer").remove();
+
+    // Create new countdown container
+    $(".password-container").after(`
+        <div id="lockCountdownContainer" class="alert alert-danger mt-2">
+            <i class="fas fa-lock mr-2"></i>
+            <span>Tài khoản bị khóa tạm thời. Sẽ mở khóa sau: </span>
+            <div id="lockCountdown" class="font-weight-bold">Đang tính toán...</div>
+            ${failedAttempts > 0 ? `<div class="mt-1">Số lần đăng nhập thất bại: ${failedAttempts}</div>` : ''}
+        </div>
+    `);
+
+    // Parse the unlock time correctly - ensure it's a number
+    let unlockTime;
+
+    try {
+        // Convert to number if it's a string
+        if (typeof unlockTimeValue === 'string') {
+            unlockTimeValue = parseInt(unlockTimeValue, 10);
+        }
+
+        // Check if it's a Unix timestamp (seconds since epoch)
+        if (unlockTimeValue && unlockTimeValue.toString().length === 10) {
+            unlockTime = unlockTimeValue * 1000; // Convert to milliseconds
+        } else {
+            unlockTime = unlockTimeValue;
+        }
+    } catch (e) {
+        // Default to 15 minutes from now as fallback
+        unlockTime = Date.now() + (15 * 60 * 1000);
+    }
+
+    // Set up the countdown timer
+    const updateCountdown = setInterval(function () {
+        const now = Date.now();
+        const timeLeft = unlockTime - now;
+
+        if (timeLeft <= 0) {
+            clearInterval(updateCountdown);
+            $("#lockCountdownContainer").html(`
+                <div class="alert alert-success">
+                    <i class="fas fa-unlock mr-2"></i>
+                    <span>Tài khoản đã được mở khóa. Bạn có thể đăng nhập lại.</span>
+                </div>
+            `);
+            setTimeout(() => $("#lockCountdownContainer").fadeOut('slow'), 5000);
+            return;
+        }
+
+        // Time calculations - ensure all positive numbers
+        const hours = Math.max(0, Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)));
+        const minutes = Math.max(0, Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60)));
+        const seconds = Math.max(0, Math.floor((timeLeft % (1000 * 60)) / 1000));
+
+        // Display countdown with zero-padding
+        $("#lockCountdown").text(
+            `${hours}h ${minutes}m ${seconds}s`
+        );
+    }, 1000);
+
+    // Show initial alert
+    Sweet_Alert("error", "Tài khoản bạn bị khoá tạm thời");
+}
+
 $(document).ready(function () {
-    // Xử lý đăng nhập bằng form
+    // Thêm enter key event cho username và password
+    $("#username, #password").keypress(function (e) {
+        if (e.which === 13) {  // 13 is the Enter key code
+            e.preventDefault();
+            $("#btnLogin").click();
+        }
+    });
+
+    checkAccountLockStatus();
+    
+
+    // Modify the btnLogin click handler to save the username
     $("#btnLogin").click(function (e) {
         e.preventDefault();
 
@@ -133,6 +249,9 @@ $(document).ready(function () {
             Sweet_Alert("error", "Vui lòng nhập đầy đủ thông tin đăng nhập");
             return;
         }
+
+        // Save username for lock checking on future page loads
+        localStorage.setItem('lastLoginUsername', username);
 
         // Validate email domain if it's an email
         if (username.includes('@')) {
@@ -155,7 +274,32 @@ $(document).ready(function () {
                 if (response.success) {
                     window.location.href = "/Admin/InterfaceAdmin/Index";
                 } else {
-                    Sweet_Alert("error", response.message || "Đăng nhập không thành công");
+                    // Check if account is locked
+                    if (response.isLocked) {
+                        if (response.isPermanent) {
+                            // Permanent lock
+                            $("#lockCountdownContainer").remove(); // Remove any existing countdown
+                            $(".password-container").after(`
+                            <div id="lockCountdownContainer" class="alert alert-danger mt-2">
+                                <i class="fas fa-lock mr-2"></i>
+                                <span>Tài khoản bị khóa vĩnh viễn. Vui lòng liên hệ quản trị viên.</span>
+                            </div>
+                        `);
+                            Sweet_Alert("error", "Tài khoản bị khóa vĩnh viễn");
+                        } else {
+                            // For temporary locks
+                            if (response.unlockTime) {
+                                showLockCountdown(response.unlockTime, response.countPasswordFail || 0);
+                            } else if (response.remainingSeconds) {
+                                const currentTime = Math.floor(Date.now() / 1000);
+                                const unlockTime = currentTime + response.remainingSeconds;
+                                showLockCountdown(unlockTime, response.countPasswordFail || 0);
+                            }
+                        }
+                    } else {
+                        // Handle other login failure reasons
+                        Sweet_Alert("error", response.message || "Đăng nhập không thành công");
+                    }
                 }
             },
             error: function (error) {

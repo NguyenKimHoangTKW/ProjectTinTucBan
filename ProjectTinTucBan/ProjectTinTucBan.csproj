@@ -211,7 +211,10 @@
     <Compile Include="Models\DonViTrucThuoc.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\Group_By_Menu_And__Sub.cs">
+    <Compile Include="Models\Function_By_Menu.cs">
+      <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Group_By_Menu_And_Sub.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Khoi.cs">
@@ -233,9 +236,6 @@
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Role.cs">
-      <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\Roles_By_Group.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Slider.cs">
