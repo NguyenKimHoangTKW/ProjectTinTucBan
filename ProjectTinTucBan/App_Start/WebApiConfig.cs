@@ -18,6 +18,12 @@ namespace ProjectTinTucBan
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );
+
+            config.Routes.MapHttpRoute(
+                name: "AdminApi",
+                routeTemplate: "api/Admin/{controller}/{id}",
+                defaults: new { id = RouteParameter.Optional }
+            );
         }
     }
 }

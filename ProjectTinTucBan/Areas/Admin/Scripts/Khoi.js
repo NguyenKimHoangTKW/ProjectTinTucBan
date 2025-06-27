@@ -104,15 +104,19 @@ $(function () {
     $('#btnLoad').click(loadKhoi);
     loadKhoi();
 
+    $('#khoiForm').on('submit', function (e) {
+        e.preventDefault(); // Ngăn reload trang
+        // Xử lý lưu dữ liệu ở đây
+    });
+
     $('#khoiForm').submit(function (e) {
         e.preventDefault();
         var id = $('#ID').val();
         var khoi = {
-            tenKhoi: $('#TenKhoi').val(),
-            thuTuShow: $('#ThuTuShow').val()
+            TenKhoi: $('#TenKhoi').val(),
+            ThuTuShow: $('#ThuTuShow').val()
         };
         if (id) {
-            khoi.id = id;
             $.ajax({
                 url: '/api/Khoi/' + id,
                 type: 'PUT',
@@ -122,7 +126,10 @@ $(function () {
                     loadKhoi();
                     $('#khoiForm')[0].reset();
                     $('#ID').val('');
-                    $('#khoiForm').closest('.modal').modal('hide'); // Đóng modal
+                    $('.bd-example-modal-lg').modal('hide');
+                },
+                error: function () {
+                    Swal.fire('Lỗi!', 'Không thể lưu dữ liệu.', 'error');
                 }
             });
         } else {
@@ -135,7 +142,10 @@ $(function () {
                     loadKhoi();
                     $('#khoiForm')[0].reset();
                     $('#ID').val('');
-                    $('#khoiForm').closest('.modal').modal('hide'); // Đóng modal
+                    $('.bd-example-modal-lg').modal('hide');
+                },
+                error: function () {
+                    Swal.fire('Lỗi!', 'Không thể lưu dữ liệu.', 'error');
                 }
             });
         }

@@ -2,7 +2,6 @@
 function unixToDateTimeString(unix) {
     if (!unix || unix == 0) return '';
     var date = new Date(unix * 1000);
-    // Định dạng: dd/MM/yyyy HH:mm:ss
     var day = ('0' + date.getDate()).slice(-2);
     var month = ('0' + (date.getMonth() + 1)).slice(-2);
     var year = date.getFullYear();
@@ -12,7 +11,6 @@ function unixToDateTimeString(unix) {
     return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
 }
 
-// Biến lưu trữ dữ liệu Khối
 var danhSachKhoi = [];
 var dataTable;
 
@@ -23,16 +21,12 @@ function loadDanhSachKhoi() {
         type: 'GET',
         success: function (data) {
             danhSachKhoi = data;
-            // Cập nhật dropdown filter
             var options = '<option value="">-- Tất cả Khối --</option>';
-            // Cập nhật dropdown trong form
             var formOptions = '<option value="">-- Chọn Khối --</option>';
-            
             $.each(data, function (i, item) {
                 options += `<option value="${item.id}">${item.tenKhoi}</option>`;
                 formOptions += `<option value="${item.id}">${item.tenKhoi}</option>`;
             });
-            
             $('#filterKhoi').html(options);
             $('#ID_Khoi').html(formOptions);
         }
@@ -52,31 +46,31 @@ function initDataTable() {
         "columns": [
             { "data": "id" },
             { "data": "tenDonVi" },
-            { 
+            {
                 "data": "idKhoi",
-                "render": function(data) {
+                "render": function (data) {
                     var khoi = danhSachKhoi.find(k => k.id === data);
                     return khoi ? khoi.tenKhoi : '';
                 }
             },
             { "data": "thuTuShow" },
             { "data": "link" },
-            { 
+            {
                 "data": "ngayDang",
-                "render": function(data) {
+                "render": function (data) {
                     return unixToDateTimeString(data);
                 }
             },
-            { 
+            {
                 "data": "ngayCapNhat",
-                "render": function(data) {
+                "render": function (data) {
                     return unixToDateTimeString(data);
                 }
             },
             {
                 "data": null,
                 "orderable": false,
-                "render": function(data) {
+                "render": function (data) {
                     return `
                         <div class="text-center">
                             <button class="btn btn-warning btn-sm btn-sua-donvi" data-id="${data.id}">
@@ -109,8 +103,9 @@ function initDataTable() {
 
 // Load danh sách đơn vị trực thuộc
 function loadDonViTrucThuoc(idKhoi) {
-    var url = idKhoi ? '/api/DonViTrucThuoc/ByKhoi/' + idKhoi : '/api/DonViTrucThuoc';
-    
+    var url = idKhoi
+        ? '/api/DonViTrucThuoc/ByKhoi/' + idKhoi
+        : '/api/DonViTrucThuoc';
     $.ajax({
         url: url,
         type: 'GET',
@@ -127,7 +122,7 @@ function loadDonViTrucThuoc(idKhoi) {
 // Hàm chỉnh sửa đơn vị
 function editDonVi(id) {
     $.ajax({
-        url: '/api/DonViTrucThuoc/' + id,
+        url: '/api/Admin/DonViTrucThuoc/' + id,
         type: 'GET',
         success: function (item) {
             $('#ID').val(item.id);
@@ -135,8 +130,6 @@ function editDonVi(id) {
             $('#TenDonVi').val(item.tenDonVi);
             $('#ThuTuShow').val(item.thuTuShow);
             $('#Link').val(item.link);
-            
-            // Hiển thị modal
             $('#donViModal').modal('show');
         },
         error: function (xhr) {
@@ -160,7 +153,7 @@ function deleteDonVi(id) {
     }).then((result) => {
         if (result.isConfirmed) {
             $.ajax({
-                url: '/api/DonViTrucThuoc/' + id,
+                url: '/api/Admin/DonViTrucThuoc/' + id,
                 type: 'DELETE',
                 success: function () {
                     loadDonViTrucThuoc($('#filterKhoi').val());
@@ -180,97 +173,85 @@ function deleteDonVi(id) {
 }
 
 $(document).ready(function () {
-    // Load danh sách Khối
-    loadDanhSachKhoi().then(function() {
-        // Khởi tạo DataTable sau khi đã load danh sách Khối
+    loadDanhSachKhoi().then(function () {
         initDataTable();
-        // Load dữ liệu ban đầu
         loadDonViTrucThuoc();
     });
-    
-    // Lọc theo Khối
-    $('#filterKhoi').change(function() {
+
+    $('#filterKhoi').change(function () {
         loadDonViTrucThuoc($(this).val());
     });
-    
-    // Nút tải lại danh sách
-    $('#btnLoadDonVi').click(function() {
+
+    $('#btnLoadDonVi').click(function () {
         loadDonViTrucThuoc($('#filterKhoi').val());
     });
-    
-    // Mở modal thêm mới
-    $('#btnShowDonViModal').click(function() {
+
+    $('#btnShowDonViModal').click(function () {
         $('#ID').val('');
         $('#donViForm')[0].reset();
         $('#donViModal').modal('show');
     });
-    
-    // Xử lý form submit
-    $('#donViForm').submit(function(e) {
+
+    $('#donViForm').submit(function (e) {
         e.preventDefault();
-        
+
         var id = $('#ID').val();
         var donVi = {
-            id_Khoi: $('#ID_Khoi').val(),
-            tenDonVi: $('#TenDonVi').val(),
-            thuTuShow: $('#ThuTuShow').val(),
-            link: $('#Link').val()
+            ID_Khoi: $('#ID_Khoi').val(),
+            TenDonVi: $('#TenDonVi').val(),
+            ThuTuShow: $('#ThuTuShow').val(),
+            Link: $('#Link').val()
         };
-        
+
         if (id) {
-            // Cập nhật
-            donVi.id = id;
             $.ajax({
-                url: '/api/DonViTrucThuoc/' + id,
+                url: '/api/Admin/DonViTrucThuoc/' + id,
                 type: 'PUT',
                 data: JSON.stringify(donVi),
                 contentType: 'application/json',
-                success: function() {
+                success: function () {
                     $('#donViForm')[0].reset();
                     $('#ID').val('');
                     $('#donViModal').modal('hide');
                     loadDonViTrucThuoc($('#filterKhoi').val());
                     Swal.fire('Thành công!', 'Đã cập nhật đơn vị.', 'success');
                 },
-                error: function(xhr) {
+                error: function (xhr) {
                     Swal.fire('Lỗi!', 'Không thể cập nhật đơn vị.', 'error');
                     console.error(xhr);
                 }
             });
         } else {
-            // Thêm mới
             $.ajax({
-                url: '/api/DonViTrucThuoc',
+                url: '/api/Admin/DonViTrucThuoc',
                 type: 'POST',
                 data: JSON.stringify(donVi),
                 contentType: 'application/json',
-                success: function() {
+                success: function () {
                     $('#donViForm')[0].reset();
                     $('#donViModal').modal('hide');
                     loadDonViTrucThuoc($('#filterKhoi').val());
                     Swal.fire('Thành công!', 'Đã thêm đơn vị mới.', 'success');
                 },
-                error: function(xhr) {
+                error: function (xhr) {
                     Swal.fire('Lỗi!', 'Không thể thêm đơn vị mới.', 'error');
                     console.error(xhr);
                 }
             });
         }
     });
-    
-    // Nút xóa form
-    $('#btnClear').click(function() {
+
+    $('#btnClear').click(function () {
         $('#donViForm')[0].reset();
         $('#ID').val('');
     });
-    
-    // Gán sự kiện cho nút sửa, xóa
-    $(document).on('click', '.btn-sua-donvi', function() {
+
+    $(document).on('click', '.btn-sua-donvi', function () {
         var id = $(this).data('id');
         editDonVi(id);
     });
-    
-    $(document).on('click', '.btn-xoa-donvi', function() {
+
+    $(document).on('click', '.btn-xoa-donvi', function () {
         var id = $(this).data('id');
         deleteDonVi(id);
     });

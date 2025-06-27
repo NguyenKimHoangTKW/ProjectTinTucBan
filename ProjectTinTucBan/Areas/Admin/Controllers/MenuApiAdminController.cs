@@ -303,10 +303,10 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 return Ok(new { success = false, message = "Không tìm thấy group menu." });
 
             // Xóa các liên kết Group_By_Menu của group này
-            var groupLinks = db.Group_By_Menu_And__Sub.Where(x => x.ID_GROUP == id).ToList();
+            var groupLinks = db.Group_By_Menu_And_Sub.Where(x => x.ID_GROUP == id).ToList();
             foreach (var link in groupLinks)
             {
-                db.Group_By_Menu_And__Sub.Remove(link);
+                db.Group_By_Menu_And_Sub.Remove(link);
             }
              
             db.Menu_Group.Remove(group);
@@ -339,17 +339,17 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 return BadRequest("Group menu không tồn tại.");
 
             // Kiểm tra đã tồn tại liên kết chưa
-            var exists = db.Group_By_Menu_And__Sub.Any(x => x.ID_MENU == dto.MenuId && x.ID_GROUP == dto.GroupMenuId);
+            var exists = db.Group_By_Menu_And_Sub.Any(x => x.ID_MENU == dto.MenuId && x.ID_GROUP == dto.GroupMenuId);
             if (exists)
                 return BadRequest("Menu đã tồn tại trong group menu này.");
 
             // Thêm liên kết
-            var groupByMenu = new Group_By_Menu_And__Sub
+            var groupByMenu = new Group_By_Menu_And_Sub
             {
                 ID_MENU = dto.MenuId,
                 ID_GROUP = dto.GroupMenuId
             };
-            db.Group_By_Menu_And__Sub.Add(groupByMenu);
+            db.Group_By_Menu_And_Sub.Add(groupByMenu);
             await db.SaveChangesAsync();
 
             return Ok(new { success = true, message = "Thêm menu vào group menu thành công." });
@@ -366,7 +366,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     g.Ten,
                     g.NgayTao,
                     g.NgayCapNhat,
-                    Menus = g.Group_By_Menu_And__Sub.Select(gbm => new {
+                    Menus = g.Group_By_Menu_And_Sub.Select(gbm => new {
                         MenuId = gbm.Menu.ID,
                         MenuName = gbm.Menu.Ten,
                         MenuLink = gbm.Menu.Link,

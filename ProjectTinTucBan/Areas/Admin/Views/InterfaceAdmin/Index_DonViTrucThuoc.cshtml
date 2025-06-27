@@ -245,9 +245,9 @@
 
         // Load danh sách đơn vị trực thuộc
         function loadDonViTrucThuoc(idKhoi) {
-            var url = '/api/Admin/DonViTrucThuoc/Get';
+            var url = '/api/Admin/DonViTrucThuoc';
             if (idKhoi) {
-                url = '/api/Admin/DonViTrucThuoc/GetByKhoi?idKhoi=' + idKhoi;
+                url = '/api/Admin/DonViTrucThuoc/ByKhoi/' + idKhoi;
             }
             $.ajax({
                 url: url,
@@ -265,7 +265,7 @@
         // Hàm chỉnh sửa đơn vị
         function editDonVi(id) {
             $.ajax({
-                url: '/api/DonViTrucThuoc/' + id,
+                url: '/api/Admin/DonViTrucThuoc/' + id,
                 type: 'GET',
                 success: function (item) {
                     $('#ID').val(item.id);
@@ -298,7 +298,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-                        url: '/api/DonViTrucThuoc/' + id,
+                        url: '/api/Admin/DonViTrucThuoc/' + id,
                         type: 'DELETE',
                         success: function () {
                             loadDonViTrucThuoc($('#filterKhoi').val());
@@ -358,7 +358,7 @@
                 if (id) {
                     // Cập nhật
                     $.ajax({
-                        url: '/api/DonViTrucThuoc/' + id,
+                        url: '/api/Admin/DonViTrucThuoc/' + id,
                         type: 'PUT',
                         data: JSON.stringify(donVi),
                         contentType: 'application/json',
@@ -377,7 +377,7 @@
                 } else {
                     // Thêm mới
                     $.ajax({
-                        url: '/api/DonViTrucThuoc',
+                        url: '/api/Admin/DonViTrucThuoc',
                         type: 'POST',
                         data: JSON.stringify(donVi),
                         contentType: 'application/json',
