@@ -71,10 +71,24 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            // Kiểm tra trùng thứ tự
+            bool isDuplicate = db.DonViTrucThuocs.Any(x => x.ThuTuShow == donvi.ThuTuShow);
+            if (isDuplicate)
+                return BadRequest("Thứ tự đã tồn tại, vui lòng chọn giá trị khác.");
+
             donvi.NgayDang = donvi.NgayCapNhat = (int)(System.DateTime.UtcNow - new System.DateTime(1970, 1, 1)).TotalSeconds;
             db.DonViTrucThuocs.Add(donvi);
             db.SaveChanges();
-            return Ok(donvi);
+            return Ok(new
+            {
+                id = donvi.ID,
+                idKhoi = donvi.ID_Khoi,
+                tenDonVi = donvi.TenDonVi,
+                thuTuShow = donvi.ThuTuShow,
+                link = donvi.Link,
+                ngayDang = donvi.NgayDang,
+                ngayCapNhat = donvi.NgayCapNhat
+            });
         }
 
         [HttpPut]
@@ -88,13 +102,28 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             if (existing == null)
                 return NotFound();
 
+            // Kiểm tra trùng thứ tự (loại trừ chính bản ghi đang sửa)
+            bool isDuplicate = db.DonViTrucThuocs.Any(x => x.ThuTuShow == donvi.ThuTuShow && x.ID != id);
+            if (isDuplicate)
+                return BadRequest("Thứ tự đã tồn tại, vui lòng chọn giá trị khác.");
+
             existing.TenDonVi = donvi.TenDonVi;
             existing.ThuTuShow = donvi.ThuTuShow;
             existing.Link = donvi.Link;
             existing.ID_Khoi = donvi.ID_Khoi;
             existing.NgayCapNhat = (int)(System.DateTime.UtcNow - new System.DateTime(1970, 1, 1)).TotalSeconds;
             db.SaveChanges();
-            return Ok(existing);
+
+            return Ok(new
+            {
+                id = existing.ID,
+                idKhoi = existing.ID_Khoi,
+                tenDonVi = existing.TenDonVi,
+                thuTuShow = existing.ThuTuShow,
+                link = existing.Link,
+                ngayDang = existing.NgayDang,
+                ngayCapNhat = existing.NgayCapNhat
+            });
         }
 
         [HttpDelete]
@@ -109,5 +138,6 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             db.SaveChanges();
             return Ok();
         }
+
     }
 }

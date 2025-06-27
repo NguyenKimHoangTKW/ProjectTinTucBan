@@ -113,7 +113,7 @@ function loadDonViTrucThuoc(idKhoi) {
             dataTable.clear().rows.add(data).draw();
         },
         error: function (xhr) {
-            Swal.fire('Lỗi!', 'Không thể tải dữ liệu.', 'error');
+            Swal.fire('Lỗi!', xhr.responseText || 'Không thể tải dữ liệu.', 'error');
             console.error(xhr);
         }
     });
@@ -133,7 +133,7 @@ function editDonVi(id) {
             $('#donViModal').modal('show');
         },
         error: function (xhr) {
-            Swal.fire('Lỗi!', 'Không thể tải thông tin đơn vị.', 'error');
+            Swal.fire('Lỗi!', xhr.responseText || 'Không thể tải thông tin đơn vị.', 'error');
             console.error(xhr);
         }
     });
@@ -164,7 +164,7 @@ function deleteDonVi(id) {
                     );
                 },
                 error: function (xhr) {
-                    Swal.fire('Lỗi!', 'Không thể xóa đơn vị.', 'error');
+                    Swal.fire('Lỗi!', xhr.responseText || 'Không thể xóa đơn vị.', 'error');
                     console.error(xhr);
                 }
             });
@@ -217,7 +217,7 @@ $(document).ready(function () {
                     Swal.fire('Thành công!', 'Đã cập nhật đơn vị.', 'success');
                 },
                 error: function (xhr) {
-                    Swal.fire('Lỗi!', 'Không thể cập nhật đơn vị.', 'error');
+                    Swal.fire('Lỗi!', xhr.responseText || 'Không thể cập nhật đơn vị.', 'error');
                     console.error(xhr);
                 }
             });
@@ -234,7 +234,7 @@ $(document).ready(function () {
                     Swal.fire('Thành công!', 'Đã thêm đơn vị mới.', 'success');
                 },
                 error: function (xhr) {
-                    Swal.fire('Lỗi!', 'Không thể thêm đơn vị mới.', 'error');
+                    Swal.fire('Lỗi!', xhr.responseText || 'Không thể thêm đơn vị mới.', 'error');
                     console.error(xhr);
                 }
             });

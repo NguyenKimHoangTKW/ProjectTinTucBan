@@ -63,13 +63,22 @@ namespace ProjectTinTucBan.Controllers.Api
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var now = GetUnixTimestamp();
-            khoi.NgayDang = now;
-            khoi.NgayCapNhat = now;
+            // Kiểm tra trùng thứ tự
+            bool isDuplicate = db.Khois.Any(x => x.ThuTuShow == khoi.ThuTuShow);
+            if (isDuplicate)
+                return BadRequest("Thứ tự đã tồn tại, vui lòng chọn giá trị khác.");
 
+            khoi.NgayDang = khoi.NgayCapNhat = (int)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds;
             db.Khois.Add(khoi);
             db.SaveChanges();
-            return Ok(khoi);
+            return Ok(new
+            {
+                id = khoi.ID,
+                tenKhoi = khoi.TenKhoi,
+                thuTuShow = khoi.ThuTuShow,
+                ngayDang = khoi.NgayDang,
+                ngayCapNhat = khoi.NgayCapNhat
+            });
         }
 
         // PUT: api/Khoi/5
@@ -84,13 +93,23 @@ namespace ProjectTinTucBan.Controllers.Api
             if (existing == null)
                 return NotFound();
 
+            // Kiểm tra trùng thứ tự (loại trừ chính bản ghi đang sửa)
+            bool isDuplicate = db.Khois.Any(x => x.ThuTuShow == khoi.ThuTuShow && x.ID != id);
+            if (isDuplicate)
+                return BadRequest("Thứ tự đã tồn tại, vui lòng chọn giá trị khác.");
+
             existing.TenKhoi = khoi.TenKhoi;
             existing.ThuTuShow = khoi.ThuTuShow;
-            existing.NgayCapNhat = GetUnixTimestamp();
-
-            db.Entry(existing).State = EntityState.Modified;
+            existing.NgayCapNhat = (int)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds;
             db.SaveChanges();
-            return Ok(existing);
+            return Ok(new
+            {
+                id = existing.ID,
+                tenKhoi = existing.TenKhoi,
+                thuTuShow = existing.ThuTuShow,
+                ngayDang = existing.NgayDang,
+                ngayCapNhat = existing.NgayCapNhat
+            });
         }
 
         // DELETE: api/Khoi/5
@@ -105,6 +124,13 @@ namespace ProjectTinTucBan.Controllers.Api
             db.Khois.Remove(khoi);
             db.SaveChanges();
             return Ok();
+        }
+
+        // Error handling function
+        private void HandleError(Exception ex)
+        {
+            var errorMessage = ex.Message ?? "Không thể lưu dữ liệu.";
+       
         }
     }
 }
