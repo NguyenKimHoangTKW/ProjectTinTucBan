@@ -5,18 +5,19 @@
 
 <h2>Quản lý Khối</h2>
 
-<div class="mb-2">
+<div class="mb-3">
     <button id="btnLoad" class="btn btn-info">Tải danh sách Khối</button>
-    <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target=".bd-example-modal-lg" id="btnShowKhoiModal">
+    <button type="button" class="btn btn-primary ml-2" id="btnShowKhoiModal">
         Thêm Khối
     </button>
 </div>
 
+<!-- DataTable cho Khối -->
 <div class="table-responsive">
-    <table class="table table-bordered table-hover table-sm" id="tblKhoi">
-        <thead class="thead-light">
+    <table id="data-table" class="table">
+        <thead>
             <tr>
-                <th>ID</th>
+                <th>STT</th>
                 <th>Tên Khối</th>
                 <th>Thứ tự</th>
                 <th>Ngày đăng</th>
@@ -29,12 +30,12 @@
     </table>
 </div>
 
-<!-- Large Modal Thêm/Sửa Khối -->
-<div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="khoiModalLabel" aria-hidden="true">
+<!-- Modal Thêm/Sửa Khối -->
+<div class="modal fade" id="khoiModal" tabindex="-1" role="dialog" aria-labelledby="khoiModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title h4" id="khoiModalLabel">Thêm/Sửa Khối</h5>
+                <h5 class="modal-title" id="khoiModalLabel">Thêm/Sửa Khối</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Đóng">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -63,7 +64,40 @@
 
 @section scriptsAdmin {
     <style>
-        /* Responsive cho modal trên mobile */
+        /* CSS cho nút action giống roles admin */
+        .btn-action {
+            width: 40px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 5px;
+        }
+
+        .btn-edit {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+            .btn-edit:hover {
+                background-color: #e0a800;
+                color: #212529;
+            }
+
+        .btn-delete {
+            background-color: #dc3545;
+            color: white;
+        }
+
+            .btn-delete:hover {
+                background-color: #c82333;
+                color: white;
+            }
+
+        /* Responsive styles */
         @@media (max-width: 575.98px) {
             .modal-dialog {
                 max-width: 100vw !important;
@@ -89,19 +123,19 @@
                 padding-right: 0 !important;
             }
         }
-        /* Căn giữa modal tuyệt đối trên mọi màn hình */
+
         .modal-dialog {
             margin-left: auto !important;
             margin-right: auto !important;
         }
-        /* Loại bỏ margin mặc định của modal trên màn hình lớn */
+
         @@media (min-width: 576px) {
             .modal-dialog {
                 margin-top: 2rem;
                 margin-bottom: 2rem;
             }
         }
-        /* Responsive cho bảng trên mobile */
+
         .table-responsive {
             overflow-x: auto;
         }
@@ -110,31 +144,21 @@
             vertical-align: middle !important;
             white-space: nowrap;
         }
-
-        @@media (max-width: 767.98px) {
-            .table th, .table td {
-                font-size: 0.95rem;
-                padding: 0.4rem 0.3rem;
-            }
-
-            h2 {
-                font-size: 1.2rem;
-            }
-        }
-
-        @@media (max-width: 575.98px) {
-            .table th, .table td {
-                font-size: 0.9rem;
-                padding: 0.3rem 0.2rem;
-            }
-
-            .btn, .form-control {
-                font-size: 0.95rem;
-            }
-        }
     </style>
 
     <script src="~/Areas/Admin/Scripts/Khoi.js"></script>
 }
-<link href="~/Areas/assets/css/app.min.css" rel="stylesheet" />
+
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap4.min.css">
+
+<!-- jQuery và Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"></script>
+
+<!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

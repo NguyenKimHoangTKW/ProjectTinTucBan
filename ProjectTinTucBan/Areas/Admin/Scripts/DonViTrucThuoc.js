@@ -44,7 +44,14 @@ function initDataTable() {
         "lengthMenu": [10, 25, 50, 100],
         "data": [],
         "columns": [
-            { "data": "id" },
+            {
+                "data": null,
+                "orderable": false,
+                "searchable": false,
+                "render": function (data, type, row, meta) {
+                    return meta.row + meta.settings._iDisplayStart + 1;
+                }
+            },
             { "data": "tenDonVi" },
             {
                 "data": "idKhoi",
@@ -72,16 +79,23 @@ function initDataTable() {
                 "orderable": false,
                 "render": function (data) {
                     return `
-                        <div class="text-center">
-                            <button class="btn btn-warning btn-sm btn-sua-donvi" data-id="${data.id}">
-                                <i class="fa fa-pencil"></i> Sửa
+                        <div class="text-center d-flex flex-row justify-content-center">
+                            <button class="btn-action btn-edit btn-sua-donvi" data-id="${data.id}" title="Sửa">
+                                <i class="anticon anticon-edit"></i>
                             </button>
-                            <button class="btn btn-danger btn-sm ml-1 btn-xoa-donvi" data-id="${data.id}">
-                                <i class="fa fa-trash"></i> Xóa
+                            <button class="btn-action btn-delete btn-xoa-donvi" data-id="${data.id}" title="Xóa">
+                                <i class="anticon anticon-delete"></i>
                             </button>
                         </div>
                     `;
                 }
+            }
+        ],
+        "columnDefs": [
+            {
+                "targets": [0], // Cột STT
+                "width": "50px",
+                "className": "text-center"
             }
         ],
         "language": {
@@ -104,8 +118,8 @@ function initDataTable() {
 // Load danh sách đơn vị trực thuộc
 function loadDonViTrucThuoc(idKhoi) {
     var url = idKhoi
-        ? '/api/DonViTrucThuoc/ByKhoi/' + idKhoi
-        : '/api/DonViTrucThuoc';
+        ? '/api/Admin/DonViTrucThuoc/ByKhoi/' + idKhoi
+        : '/api/Admin/DonViTrucThuoc';
     $.ajax({
         url: url,
         type: 'GET',
@@ -204,6 +218,7 @@ $(document).ready(function () {
         };
 
         if (id) {
+            // Cập nhật
             $.ajax({
                 url: '/api/Admin/DonViTrucThuoc/' + id,
                 type: 'PUT',
@@ -222,6 +237,7 @@ $(document).ready(function () {
                 }
             });
         } else {
+            // Thêm mới
             $.ajax({
                 url: '/api/Admin/DonViTrucThuoc',
                 type: 'POST',

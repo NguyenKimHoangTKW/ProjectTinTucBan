@@ -1,10 +1,4 @@
-﻿function unixToDateString(unix) {
-    if (!unix || unix == 0) return '';
-    var date = new Date(unix * 1000);
-    // Định dạng: dd/MM/yyyy
-    return date.toLocaleDateString('vi-VN');
-}
-
+﻿// Hàm chuyển Unix timestamp thành chuỗi ngày giờ
 function unixToDateTimeString(unix) {
     if (!unix || unix == 0) return '';
     var date = new Date(unix * 1000);
@@ -18,57 +12,116 @@ function unixToDateTimeString(unix) {
     return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
 }
 
-function loadKhoi() {
-    $.get('/api/Khoi', function (data) {
-        var rows = '';
-        $.each(data, function (i, item) {
-            rows += `<tr>
-                    <td>${item.id}</td>
-                    <td>${item.tenKhoi}</td>
-                    <td>${item.thuTuShow ?? ''}</td>
-                    <td>${unixToDateTimeString(item.ngayDang)}</td>
-                    <td>${unixToDateTimeString(item.ngayCapNhat)}</td>
-                    <td>
-                        <div class="text-center d-flex flex-column align-items-center">
-                            <button class="btn btn-warning btn-sm py-1 px-2 w-100 btn-sua" data-id="${item.id}" style="max-width: 80px;">Sửa</button>
-                            <button class="btn btn-danger btn-sm py-1 px-2 w-100 mt-1 btn-xoa" data-id="${item.id}" style="max-width: 80px;">Xóa</button>
+var dataTable;
+
+// Khởi tạo DataTable
+function initDataTable() {
+    dataTable = $('#data-table').DataTable({
+        "processing": true,
+        "serverSide": false,
+        "searching": true,
+        "ordering": true,
+        "paging": true,
+        "lengthMenu": [10, 25, 50, 100],
+        "data": [],
+        "columns": [
+            {
+                "data": null,
+                "orderable": false,
+                "searchable": false,
+                "render": function (data, type, row, meta) {
+                    return meta.row + meta.settings._iDisplayStart + 1;
+                }
+            },
+            { "data": "tenKhoi" },
+            { "data": "thuTuShow" },
+            {
+                "data": "ngayDang",
+                "render": function (data) {
+                    return unixToDateTimeString(data);
+                }
+            },
+            {
+                "data": "ngayCapNhat",
+                "render": function (data) {
+                    return unixToDateTimeString(data);
+                }
+            },
+            {
+                "data": null,
+                "orderable": false,
+                "render": function (data) {
+                    return `
+                        <div class="text-center d-flex flex-row justify-content-center">
+                            <button class="btn-action btn-edit btn-sua" data-id="${data.id}" title="Sửa">
+                                <i class="anticon anticon-edit"></i>
+                            </button>
+                            <button class="btn-action btn-delete btn-xoa" data-id="${data.id}" title="Xóa">
+                                <i class="anticon anticon-delete"></i>
+                            </button>
                         </div>
-                    </td>
-                </tr>`;
-        });
-        $('#tblKhoi tbody').html(rows);
+                    `;
+                }
+            }
+        ],
+        "columnDefs": [
+            {
+                "targets": [0], // Cột STT
+                "width": "50px",
+                "className": "text-center"
+            }
+        ],
+        "language": {
+            "lengthMenu": "Hiển thị _MENU_ dòng",
+            "zeroRecords": "Không tìm thấy dữ liệu",
+            "info": "Trang _PAGE_ / _PAGES_",
+            "infoEmpty": "Không có dữ liệu",
+            "infoFiltered": "(lọc từ _MAX_ dòng)",
+            "search": "Tìm kiếm:",
+            "paginate": {
+                "first": "Đầu",
+                "last": "Cuối",
+                "next": "Sau",
+                "previous": "Trước"
+            }
+        }
     });
 }
 
-function loadDonViTrucThuoc(idKhoi) {
-    $.get('/api/DonViTrucThuoc/ByKhoi/' + idKhoi, function (data) {
-        var rows = '';
-        $.each(data, function (i, item) {
-            rows += `<tr>
-                <td>${item.id}</td>
-                <td>${item.tenDonVi}</td>
-                <td>${item.thuTuShow ?? ''}</td>
-                <td>${item.link ?? ''}</td>
-                <td>
-                    <button class="btn btn-warning btn-sm btn-sua-donvi" data-id="${item.id}">Sửa</button>
-                    <button class="btn btn-danger btn-sm btn-xoa-donvi" data-id="${item.id}">Xóa</button>
-                </td>
-            </tr>`;
-        });
-        $('#tblDonViTrucThuoc tbody').html(rows);
+// Load danh sách khối
+function loadKhoi() {
+    $.ajax({
+        url: '/api/Khoi',
+        type: 'GET',
+        success: function (data) {
+            dataTable.clear().rows.add(data).draw();
+        },
+        error: function (xhr) {
+            Swal.fire('Lỗi!', 'Không thể tải dữ liệu.', 'error');
+            console.error(xhr);
+        }
     });
 }
 
+// Hàm chỉnh sửa khối
 function editKhoi(id) {
-    $.get('/api/Khoi/' + id, function (item) {
-        $('#ID').val(item.id);
-        $('#TenKhoi').val(item.tenKhoi);
-        $('#ThuTuShow').val(item.thuTuShow);
-        // Mở modal lớn
-        $('.bd-example-modal-lg').modal('show');
+    $.ajax({
+        url: '/api/Khoi/' + id,
+        type: 'GET',
+        success: function (item) {
+            $('#ID').val(item.id);
+            $('#TenKhoi').val(item.tenKhoi);
+            $('#ThuTuShow').val(item.thuTuShow);
+            $('#khoiModal').modal('show');
+        },
+        error: function (xhr) {
+            Swal.fire('Lỗi!', 'Không thể tải thông tin khối.', 'error');
+            console.error(xhr);
+        }
     });
 }
 
+// Hàm xóa khối
 function deleteKhoi(id) {
     Swal.fire({
         title: 'Bạn chắc chắn muốn xóa?',
@@ -86,95 +139,103 @@ function deleteKhoi(id) {
                 type: 'DELETE',
                 success: function () {
                     loadKhoi();
-                    $('#khoiForm')[0].reset();
-                    $('#ID').val('');
-                    $('#khoiForm').closest('.modal').modal('hide'); // Đóng modal
                     Swal.fire(
                         'Đã xóa!',
                         'Khối đã được xóa thành công.',
                         'success'
                     );
+                },
+                error: function (xhr) {
+                    Swal.fire('Lỗi!', 'Không thể xóa khối.', 'error');
+                    console.error(xhr);
                 }
             });
         }
     });
 }
 
-$(function () {
-    $('#btnLoad').click(loadKhoi);
+$(document).ready(function () {
+    // Khởi tạo DataTable
+    initDataTable();
+    // Load dữ liệu ban đầu
     loadKhoi();
 
-    $('#khoiForm').on('submit', function (e) {
-        e.preventDefault(); // Ngăn reload trang
-        // Xử lý lưu dữ liệu ở đây
+    // Nút tải lại danh sách
+    $('#btnLoad').click(function () {
+        loadKhoi();
     });
 
+    // Mở modal thêm mới
+    $('#btnShowKhoiModal').click(function () {
+        $('#ID').val('');
+        $('#khoiForm')[0].reset();
+        $('#khoiModal').modal('show');
+    });
+
+    // Xử lý form submit
     $('#khoiForm').submit(function (e) {
         e.preventDefault();
+
         var id = $('#ID').val();
         var khoi = {
             TenKhoi: $('#TenKhoi').val(),
             ThuTuShow: $('#ThuTuShow').val()
         };
+
         if (id) {
+            // Cập nhật
             $.ajax({
                 url: '/api/Khoi/' + id,
                 type: 'PUT',
                 data: JSON.stringify(khoi),
                 contentType: 'application/json',
                 success: function () {
-                    loadKhoi();
                     $('#khoiForm')[0].reset();
                     $('#ID').val('');
-                    $('.bd-example-modal-lg').modal('hide');
+                    $('#khoiModal').modal('hide');
+                    loadKhoi();
+                    Swal.fire('Thành công!', 'Đã cập nhật khối.', 'success');
                 },
-                error: function () {
-                    Swal.fire('Lỗi!', 'Không thể lưu dữ liệu.', 'error');
+                error: function (xhr) {
+                    Swal.fire('Lỗi!', 'Không thể cập nhật khối.', 'error');
+                    console.error(xhr);
                 }
             });
         } else {
+            // Thêm mới
             $.ajax({
                 url: '/api/Khoi',
                 type: 'POST',
                 data: JSON.stringify(khoi),
                 contentType: 'application/json',
                 success: function () {
-                    loadKhoi();
                     $('#khoiForm')[0].reset();
-                    $('#ID').val('');
-                    $('.bd-example-modal-lg').modal('hide');
+                    $('#khoiModal').modal('hide');
+                    loadKhoi();
+                    Swal.fire('Thành công!', 'Đã thêm khối mới.', 'success');
                 },
-                error: function () {
-                    Swal.fire('Lỗi!', 'Không thể lưu dữ liệu.', 'error');
+                error: function (xhr) {
+                    Swal.fire('Lỗi!', 'Không thể thêm khối mới.', 'error');
+                    console.error(xhr);
                 }
             });
         }
     });
 
+    // Nút xóa form
     $('#btnClear').click(function () {
         $('#khoiForm')[0].reset();
         $('#ID').val('');
     });
 
-    $('#btnShowKhoiModal').click(function () {
-        $('#khoiForm')[0].reset();
-        $('#ID').val('');
+    // Gán sự kiện cho nút sửa, xóa
+    $(document).on('click', '.btn-sua', function () {
+        var id = $(this).data('id');
+        editKhoi(id);
     });
-});
 
-// Gán lại sự kiện sau mỗi lần load bảng
-$(document).on('click', '.btn-sua', function () {
-    var id = $(this).data('id');
-    editKhoi(id);
-});
-
-$(document).on('click', '.btn-xoa', function () {
-    var id = $(this).data('id');
-    deleteKhoi(id);
-});
-
-$(document).on('click', '.btn-donvi', function () {
-    var idKhoi = $(this).data('id');
-    loadDonViTrucThuoc(idKhoi);
-    $('#donViTrucThuocModal').modal('show');
+    $(document).on('click', '.btn-xoa', function () {
+        var id = $(this).data('id');
+        deleteKhoi(id);
+    });
 });
