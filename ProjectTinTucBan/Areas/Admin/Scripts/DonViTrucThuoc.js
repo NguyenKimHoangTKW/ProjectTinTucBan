@@ -11,6 +11,24 @@ function unixToDateTimeString(unix) {
     return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
 }
 
+// Hàm xử lý error message từ server
+function getErrorMessage(xhr) {
+    try {
+        if (xhr.responseJSON && xhr.responseJSON.Message) {
+            return xhr.responseJSON.Message;
+        } else if (xhr.responseText) {
+            // Thử parse JSON từ responseText
+            var errorResponse = JSON.parse(xhr.responseText);
+            if (errorResponse.Message) {
+                return errorResponse.Message;
+            }
+        }
+        return xhr.responseText || 'Có lỗi xảy ra.';
+    } catch (e) {
+        return xhr.responseText || 'Có lỗi xảy ra.';
+    }
+}
+
 var danhSachKhoi = [];
 var dataTable;
 
@@ -127,7 +145,7 @@ function loadDonViTrucThuoc(idKhoi) {
             dataTable.clear().rows.add(data).draw();
         },
         error: function (xhr) {
-            Swal.fire('Lỗi!', xhr.responseText || 'Không thể tải dữ liệu.', 'error');
+            Swal.fire('Lỗi!', getErrorMessage(xhr), 'error');
             console.error(xhr);
         }
     });
@@ -147,7 +165,7 @@ function editDonVi(id) {
             $('#donViModal').modal('show');
         },
         error: function (xhr) {
-            Swal.fire('Lỗi!', xhr.responseText || 'Không thể tải thông tin đơn vị.', 'error');
+            Swal.fire('Lỗi!', getErrorMessage(xhr), 'error');
             console.error(xhr);
         }
     });
@@ -178,7 +196,7 @@ function deleteDonVi(id) {
                     );
                 },
                 error: function (xhr) {
-                    Swal.fire('Lỗi!', xhr.responseText || 'Không thể xóa đơn vị.', 'error');
+                    Swal.fire('Lỗi!', getErrorMessage(xhr), 'error');
                     console.error(xhr);
                 }
             });
@@ -232,7 +250,7 @@ $(document).ready(function () {
                     Swal.fire('Thành công!', 'Đã cập nhật đơn vị.', 'success');
                 },
                 error: function (xhr) {
-                    Swal.fire('Lỗi!', xhr.responseText || 'Không thể cập nhật đơn vị.', 'error');
+                    Swal.fire('Lỗi!', getErrorMessage(xhr), 'error');
                     console.error(xhr);
                 }
             });
@@ -250,7 +268,7 @@ $(document).ready(function () {
                     Swal.fire('Thành công!', 'Đã thêm đơn vị mới.', 'success');
                 },
                 error: function (xhr) {
-                    Swal.fire('Lỗi!', xhr.responseText || 'Không thể thêm đơn vị mới.', 'error');
+                    Swal.fire('Lỗi!', getErrorMessage(xhr), 'error');
                     console.error(xhr);
                 }
             });
