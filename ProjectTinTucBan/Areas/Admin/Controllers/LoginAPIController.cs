@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 
-
 namespace ProjectTinTucBan.Areas.Admin.Controllers
 {
     [RoutePrefix("api/v1/admin")]
@@ -632,6 +631,25 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             {
                 System.Diagnostics.Debug.WriteLine($"Session error: {ex.Message}");
                 return InternalServerError(ex);
+            }
+        }
+
+        [HttpGet]
+        [Route("check-login")]
+        public IHttpActionResult CheckLogin()
+        {
+            try
+            {
+                bool isLoggedIn = SessionHelper.IsUserLoggedIn();
+                return Ok(new
+                {
+                    success = isLoggedIn
+                });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Session error: {ex.Message}");
+                return Ok(new { success = false });
             }
         }
     }

@@ -1,12 +1,14 @@
 ﻿using ProjectTinTucBan.Models;
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
-using System.Data.Entity;
+using ProjectTinTucBan.Helper;
 
 namespace ProjectTinTucBan.Areas.Admin.Controllers
 {
@@ -53,11 +55,12 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             if (baiViet == null)
                 return NotFound();
 
-            // Load mục lục nếu có
+            // Load mục lục và người đăng nếu có
             if (baiViet.ID_MucLuc.HasValue)
-            {
                 await db.Entry(baiViet).Reference(x => x.MucLuc).LoadAsync();
-            }
+
+            if (baiViet.ID_NguoiDang.HasValue)
+                await db.Entry(baiViet).Reference(x => x.TaiKhoan).LoadAsync();
 
             return Ok(new
             {
@@ -76,11 +79,17 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                         baiViet.MucLuc.ID,
                         baiViet.MucLuc.TenMucLuc
                     } : null,
+                    NguoiDang = baiViet.TaiKhoan != null ? new //
+                    {
+                        baiViet.TaiKhoan.ID,
+                        baiViet.TaiKhoan.TenTaiKhoan
+                    } : null,
                     baiViet.ID_MucLuc
                 },
                 success = true
             });
         }
+
 
         // POST: Thêm bài viết
         [HttpPost]
@@ -93,15 +102,33 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             try
             {
                 int currentDate = int.Parse(DateTime.Now.ToString("yyyyMMdd"));
-
+                var tk = Helper.SessionHelper.GetUser();
+                if (tk == null)
+                    return Content(HttpStatusCode.Unauthorized, new { success = false, message = "Bạn cần đăng nhập để thực hiện thao tác này." });
+                // Gán thêm ngày đăng + view + tài khoản
                 model.NgayDang = currentDate;
                 model.NgayCapNhat = currentDate;
                 model.ViewCount = 0;
+                model.ID_NguoiDang = tk.ID; // Lấy ID người đăng từ session
+
+                if (model.ID_NguoiDang <= 0)
+                    return Content(HttpStatusCode.BadRequest, new { success = false, message = "Thiếu ID người đăng bài." });
 
                 db.BaiViets.Add(model);
                 await db.SaveChangesAsync();
 
-                return Ok(new { success = true, message = "Thêm bài viết thành công.", data = model });
+                // Trả về thông tin tài khoản đang đăng nhập (không trả về mật khẩu)
+                var userInfo = new
+                {
+                    tk.ID,
+                    tk.TenTaiKhoan,
+                    tk.Name,
+                    tk.Gmail,
+                    tk.SDT,
+                    tk.ID_role
+                };
+
+                return Ok(new { success = true, message = "Thêm bài viết thành công.", data = model, user = userInfo });
             }
             catch (Exception ex)
             {
@@ -113,6 +140,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 });
             }
         }
+
 
         // PUT: Cập nhật bài viết
         [HttpPut]

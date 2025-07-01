@@ -65,6 +65,7 @@ async function Session_Login(email, fullname) {
                 email: email,
                 name: fullname,
                 role: res.idRole,
+                userId: res.idUser,
                 time: new Date().toISOString()
             }));
 

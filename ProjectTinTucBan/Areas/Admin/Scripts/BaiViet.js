@@ -1,11 +1,36 @@
 ﻿const BASE_URL = `/api/v1/admin`;
 
 $(document).ready(async function () {
+    let loginStatus = false;
+    try {
+        const res = await $.ajax({
+            url: '/api/v1/admin/check-login',
+            type: 'GET',
+            dataType: 'json'
+        });
+        loginStatus = res && res.success;
+    } catch {
+        loginStatus = false;
+    }
+
+    if (!loginStatus) {
+        await Swal.fire({
+            icon: 'warning',
+            title: 'Chưa đăng nhập',
+            text: 'Vui lòng đăng nhập trước khi sử dụng chức năng này.',
+            confirmButtonText: 'Đăng nhập tài khoản'
+        });
+        window.location.href = 'https://localhost:44305/Admin/InterfaceAdmin/Login';
+        return;
+    }
+
     loadMucLucOptions();
     await GetAllBaiViet();
     setupBaiVietTableEvents();
     setupModalFormEvents();
 });
+
+
 // Sự kiện copy tiêu đề - đặt ngoài
 $(document).on('click', '#btnCopyTieuDe', function () {
     const text = $('#tieuDeDayDuContent').text().trim();
@@ -406,8 +431,9 @@ function setupModalFormEvents() {
             NoiDung: CKEDITOR.instances.NoiDung?.getData()?.trim() || '',
             LinkThumbnail: $('#LinkThumbnail').val().trim(),
             LinkPDF: $('#LinkPDF').val().trim(),
-            ID_MucLuc: selectedMucLuc
+            ID_MucLuc: selectedMucLuc,
         };
+
 
         if (!model.TieuDe || !model.NoiDung) {
             Swal.fire({ icon: 'warning', title: 'Thiếu thông tin', text: 'Tiêu đề và nội dung là bắt buộc.' });

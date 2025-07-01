@@ -69,8 +69,20 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     return HttpNotFound();
                 }
 
-                return View("XemNoiDung", baiViet); // View nằm trong Views/InterfaceAdmin/
+                // Load người đăng
+                if (baiViet.ID_NguoiDang.HasValue)
+                {
+                    db.Entry(baiViet).Reference(x => x.TaiKhoan).Load();
+                    ViewBag.TenTaiKhoan = baiViet.TaiKhoan?.TenTaiKhoan ?? "Không rõ";
+                }
+                else
+                {
+                    ViewBag.TenTaiKhoan = "Không rõ";
+                }
+
+                return View("XemNoiDung", baiViet);
             }
         }
+
     }
 }  

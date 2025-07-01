@@ -1,5 +1,86 @@
 ﻿const BASE_URL = `/api/v1/admin`;
 
+// ✅ Định nghĩa hàm resizeImage
+function resizeImage(file, maxWidth, maxHeight, callback) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        const img = new Image();
+        img.onload = function () {
+            const canvas = document.createElement('canvas');
+            canvas.width = maxWidth;
+            canvas.height = maxHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, maxWidth, maxHeight);
+            canvas.toBlob(function (blob) {
+                callback(blob, canvas.toDataURL(file.type));
+            }, file.type);
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+// ✅ Định nghĩa hàm checkImageExactSize
+function checkImageExactSize(file, requiredWidth, requiredHeight, callback) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        const img = new Image();
+        img.onload = function () {
+            if (img.width === requiredWidth && img.height === requiredHeight) {
+                callback(true, e.target.result);
+            } else {
+                callback(false, null);
+            }
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+// ✅ Định nghĩa hàm handlePasteOrDrop
+function handlePasteOrDrop(evt, editor) {
+    const items = (evt.clipboardData || evt.dataTransfer)?.items;
+    if (!items) return;
+
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (item.type.indexOf('image') !== -1) {
+            evt.preventDefault();
+            const file = item.getAsFile();
+
+            const requiredWidth = 600;
+            const requiredHeight = 400;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = new Image();
+                img.onload = function () {
+                    if (img.width === requiredWidth && img.height === requiredHeight) {
+                        // Hình đúng kích thước, chèn luôn
+                        editor.insertHtml('<img src="' + e.target.result + '" width="600" height="400" />');
+                    } else {
+                        // Resize hình cho đúng kích thước rồi chèn vào
+                        resizeImage(file, requiredWidth, requiredHeight, function (resizedBlob, resizedDataUrl) {
+                            editor.insertHtml('<img src="' + resizedDataUrl + '" width="600" height="400" />');
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'success',
+                                title: 'Đã resize ảnh về 600x400 và chèn vào nội dung',
+                                showConfirmButton: false,
+                                timer: 2000,
+                                timerProgressBar: true
+                            });
+                        });
+                    }
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+}
+
 // ✅ Định nghĩa hàm khởi tạo CKEditor
 function initCKEditor(elementId) {
     if (CKEDITOR.instances[elementId]) {
@@ -18,7 +99,43 @@ function initCKEditor(elementId) {
             { name: 'paragraph', items: ['NumberedList', 'BulletedList', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'] },
             { name: 'insert', items: ['Image', 'Table'] },
             { name: 'tools', items: ['Maximize'] }
-        ]
+        ],
+        on: {
+            instanceReady: function (evt) {
+                const editor = evt.editor;
+
+                // ❌ Chặn dán hình mặc định
+                editor.on('paste', function (evt) {
+                    const data = evt.data;
+                    if (data && data.dataTransfer && data.dataTransfer._) {
+                        const files = data.dataTransfer._.files || [];
+                        if (files.length > 0 && files[0].type.startsWith('image/')) {
+                            evt.cancel(); // Ngăn CKEditor chèn ảnh gốc
+                        }
+                    }
+                });
+
+                // ❌ Chặn kéo-thả hình mặc định
+                editor.on('drop', function (evt) {
+                    const data = evt.data;
+                    if (data && data.$ && data.$.dataTransfer) {
+                        const items = data.$.dataTransfer.items || [];
+                        if (items.length > 0 && items[0].type.startsWith('image/')) {
+                            evt.cancel(); // Ngăn CKEditor chèn ảnh gốc
+                        }
+                    }
+                });
+
+                // ✅ Gọi xử lý ảnh tùy chỉnh
+                editor.document.on('paste', function (e) {
+                    handlePasteOrDrop(e.data.$, editor);
+                });
+
+                editor.document.on('drop', function (e) {
+                    handlePasteOrDrop(e.data.$, editor);
+                });
+            }
+        }
     });
 }
 

@@ -342,10 +342,10 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             if (group == null)
                 return Ok(new { success = false, message = "Không tìm thấy group menu." });
 
-            var groupLinks = db.Group_By_Menu_And__Sub.Where(x => x.ID_GROUP == id).ToList();
+            var groupLinks = db.Group_By_Menu_And_Sub.Where(x => x.ID_GROUP == id).ToList();
             foreach (var link in groupLinks)
             {
-                db.Group_By_Menu_And__Sub.Remove(link);
+                db.Group_By_Menu_And_Sub.Remove(link);
             }
 
             db.Menu_Group.Remove(group);
@@ -383,17 +383,17 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 return BadRequest("Group menu không tồn tại.");
 
             // Kiểm tra đã tồn tại liên kết chưa
-            var exists = db.Group_By_Menu_And__Sub.Any(x => x.ID_MENU == dto.MenuId && x.ID_GROUP == dto.GroupMenuId);
+            var exists = db.Group_By_Menu_And_Sub.Any(x => x.ID_MENU == dto.MenuId && x.ID_GROUP == dto.GroupMenuId);
             if (exists)
                 return BadRequest("Menu đã tồn tại trong group menu này.");
 
             // Thêm liên kết
-            var groupByMenu = new Group_By_Menu_And__Sub
+            var groupByMenu = new Group_By_Menu_And_Sub
             {
                 ID_MENU = dto.MenuId,
                 ID_GROUP = dto.GroupMenuId
             };
-            db.Group_By_Menu_And__Sub.Add(groupByMenu);
+            db.Group_By_Menu_And_Sub.Add(groupByMenu);
             await db.SaveChangesAsync();
 
             return Ok(new { success = true, message = "Thêm menu vào group menu thành công." });
@@ -416,9 +416,9 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
             foreach (var subId in req.SubMenuIds)
             {
-                if (!db.Group_By_Menu_And__Sub.Any(x => x.ID_GROUP == req.GroupMenuId && x.ID_MENU == req.MenuId && x.ID_SUB == subId))
+                if (!db.Group_By_Menu_And_Sub.Any(x => x.ID_GROUP == req.GroupMenuId && x.ID_MENU == req.MenuId && x.ID_SUB == subId))
                 {
-                    db.Group_By_Menu_And__Sub.Add(new Group_By_Menu_And__Sub
+                    db.Group_By_Menu_And_Sub.Add(new Group_By_Menu_And_Sub
                     {
                         ID_GROUP = req.GroupMenuId,
                         ID_MENU = req.MenuId,
@@ -446,7 +446,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 return BadRequest("Dữ liệu gửi lên không hợp lệ.");
 
             // Kiểm tra liên kết có tồn tại không
-            var groupByMenu = await db.Group_By_Menu_And__Sub
+            var groupByMenu = await db.Group_By_Menu_And_Sub
                 .FirstOrDefaultAsync(x => x.ID_MENU == dto.MenuId && x.ID_GROUP == dto.GroupMenuId);
 
             if (groupByMenu == null)
@@ -455,7 +455,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             try
             {
                 // Xóa liên kết
-                db.Group_By_Menu_And__Sub.Remove(groupByMenu);
+                db.Group_By_Menu_And_Sub.Remove(groupByMenu);
                 await db.SaveChangesAsync();
 
                 return Ok(new { success = true, message = "Xóa menu khỏi group thành công." });
@@ -473,7 +473,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             if (dto == null)
                 return BadRequest("Dữ liệu không hợp lệ.");
 
-            var entry = await db.Group_By_Menu_And__Sub.FirstOrDefaultAsync(x =>
+            var entry = await db.Group_By_Menu_And_Sub.FirstOrDefaultAsync(x =>
                 x.ID_GROUP == dto.GroupMenuId &&
                 x.ID_MENU == dto.MenuId &&
                 x.ID_SUB == dto.SubMenuId
@@ -482,7 +482,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             if (entry == null)
                 return Ok(new { success = false, message = "Không tìm thấy submenu trong group." });
 
-            db.Group_By_Menu_And__Sub.Remove(entry);
+            db.Group_By_Menu_And_Sub.Remove(entry);
             await db.SaveChangesAsync();
             return Ok(new { success = true, message = "Xóa submenu khỏi group thành công." });
         }
@@ -501,7 +501,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     g.NgayTao,
                     g.NgayCapNhat,
 
-                    Menus = g.Group_By_Menu_And__Sub.Select(gbm => new
+                    Menus = g.Group_By_Menu_And_Sub.Select(gbm => new
                     {
                         MenuId = gbm.Menu.ID,
                         MenuName = gbm.Menu.Ten,
@@ -533,7 +533,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     g.Ten,
                     g.NgayTao,
                     g.NgayCapNhat,
-                    Menus = g.Group_By_Menu_And__Sub
+                    Menus = g.Group_By_Menu_And_Sub
                         .Select(gbm => new
                         {
                             MenuId = gbm.Menu.ID,
@@ -576,7 +576,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     g.Ten,
                     g.NgayTao,
                     g.NgayCapNhat,
-                    Menus = g.Group_By_Menu_And__Sub
+                    Menus = g.Group_By_Menu_And_Sub
                         .Select(gbm => new
                         {
                             MenuId = gbm.Menu.ID,
