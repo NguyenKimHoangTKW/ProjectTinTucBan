@@ -57,7 +57,9 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="addMenuModalLabel">Thêm Menu mới</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeAddMenuModal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeAddMenuModal">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <form id="add-menu-form">
                 <div class="modal-body">
@@ -229,9 +231,14 @@
                         <label>Chọn menu mục tiêu để gán các submenu:</label>
                         <select id="selectTargetMenuInGroup" class="form-control"></select>
                     </div>
+                    <!--
                     <label>Gán sub menu:</label>
                     <select id="selectSubMenu" class="form-control" multiple></select>
                     <small class="form-text text-muted">Giữ Ctrl (hoặc Cmd) để chọn nhiều submenu</small>
+                    <button type="button" class="btn btn-info" id="btnAssignSubmenuToMenu">
+                        Gán submenu vào menu
+                    </button>
+                    -->
                 </div>
                 <div class="modal-footer d-flex flex-wrap justify-content-between gap-2">
                     <button type="submit" class="btn btn-success">Thêm menu đã có vào group</button>

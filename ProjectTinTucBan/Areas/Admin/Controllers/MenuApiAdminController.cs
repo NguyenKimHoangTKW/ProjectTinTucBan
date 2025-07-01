@@ -517,7 +517,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             public int SubMenuId { get; set; }
         }
 
-
+        
         [HttpPost]
         [Route("add-submenus-to-menu-in-group")]
         public async Task<IHttpActionResult> AddSubmenusToMenuInGroup(AddSubmenuRequest req)
@@ -562,6 +562,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             public int MenuId { get; set; }
             public List<int> SubMenuIds { get; set; }
         }
+        
 
         [HttpPost]
         [Route("delete-menu-from-group")]
@@ -621,28 +622,34 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         public async Task<IHttpActionResult> GetGroupMenusWithMenus()
         {
             var groups = await db.Menu_Group
-                .Select(g => new
-                {
-                    g.ID,
-                    g.Ten,
-                    g.NgayTao,
-                    g.NgayCapNhat,
+                        .Select(g => new
+                        {
+                            g.ID,
+                            g.Ten,
+                            g.NgayTao,
+                            g.NgayCapNhat,
 
-                    Menus = g.Group_By_Menu_And_Sub.Select(gbm => new
-                    {
-                        MenuId = gbm.Menu.ID,
-                        MenuName = gbm.Menu.Ten,
-                        MenuLink = gbm.Menu.Link,
-                        SubMenus = gbm.Menu.Menu_by_sub
-                            .Where(x => x.id_sub != null)
-                            .Select(x => new
-                            {
-                                SubMenuId = x.Sub_Menu.id_sub,
-                                SubMenuName = x.Sub_Menu.name_sub,
-                                SubMenuLink = x.Sub_Menu.Link
-                            })
-                    })
-                }).ToListAsync();
+                            Menus = g.Group_By_Menu_And_Sub
+                                .OrderBy(gbm => gbm.Menu.ThuTuShow)
+                                .Select(gbm => new
+                                {
+                                    MenuId = gbm.Menu.ID,
+                                    MenuName = gbm.Menu.Ten,
+                                    MenuLink = gbm.Menu.Link,
+                                    MenuThuTuShow = gbm.Menu.ThuTuShow,
+
+                                    SubMenus = gbm.Menu.Menu_by_sub
+                                        .Where(x => x.id_sub != null)
+                                        .OrderBy(x => x.Sub_Menu.ThuTuShow)
+                                        .Select(x => new
+                                        {
+                                            SubMenuId = x.Sub_Menu.id_sub,
+                                            SubMenuName = x.Sub_Menu.name_sub,
+                                            SubMenuLink = x.Sub_Menu.Link,
+                                            SubMenuThuTuShow = x.Sub_Menu.ThuTuShow
+                                        })
+                                })
+                        }).ToListAsync();
             if (groups == null || groups.Count == 0)
                 return NotFound();
             else

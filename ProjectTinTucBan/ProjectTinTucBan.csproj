@@ -211,7 +211,10 @@
     <Compile Include="Models\DonViTrucThuoc.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\Group_By_Menu_And__Sub.cs">
+    <Compile Include="Models\Function_By_Menu.cs">
+      <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Group_By_Menu_And_Sub.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Khoi.cs">
@@ -233,9 +236,6 @@
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Role.cs">
-      <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\Roles_By_Group.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Slider.cs">
@@ -269,7 +269,9 @@
     <Content Include="Areas\Admin\Uploads\Slider\0dcd9495-dcb8-4fc7-b924-bc27c7ea3f57.jpeg" />
     <Content Include="Areas\Admin\Uploads\Slider\19ffc442-085e-4f8f-84d8-4e2b7202a6ad.png" />
     <Content Include="Areas\Admin\Uploads\Slider\2d0c6ee3-9230-454d-bab0-1884516b667c.jpg" />
+    <Content Include="Areas\Admin\Uploads\Slider\32f610cc-7cfe-42fa-9955-8e7e3049394b.jpg" />
     <Content Include="Areas\Admin\Uploads\Slider\71e7bf3d-99aa-462c-b4b5-a21647f64f28.png" />
+    <Content Include="Areas\Admin\Uploads\Slider\c14ea662-cfbd-4085-bfe1-2b9fbe051c17.jpg" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Login.cshtml" />
     <Content Include="Areas\Admin\Uploads\Slider\141625ba-0db3-409b-bfc0-b2f0a385af00.png" />
     <Content Include="Areas\Admin\Uploads\Slider\309fcdd3-789a-4048-8b75-9cf8322ccd03.jpg" />

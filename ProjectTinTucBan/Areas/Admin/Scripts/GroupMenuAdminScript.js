@@ -18,6 +18,9 @@ function loadGroupMenus() {
     });
 }
 
+
+
+/* Code render menu */
 // Biến toàn cục theo dõi trạng thái tab hiện tại
 var currentActiveTabId = null;
 var foundActive = false;
@@ -309,6 +312,9 @@ function initializeTabHandlers() {
         currentActiveTabId = savedTabId;
     }
 }
+
+
+/* Code chức năng */
 // Thêm group menu
 function addGroupMenu(ten) {
     $.ajax({
@@ -377,29 +383,10 @@ function loadMenusForSelect(callback) {
     });
 }
 
-/*
-// Thêm menu đã có vào group
-function addExistingMenuToGroup(menuId, groupMenuId) {
-    $.ajax({
-        url: `${BASE_URL}/add-menu-to-group`,
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({ MenuId: menuId, GroupMenuId: groupMenuId }),
-        success: function (res) {
-            Swal.fire({
-                icon: res.success ? 'success' : 'error',
-                title: res.message || (res.success ? 'Thêm thành công' : 'Thêm thất bại'),
-                timer: 1500,
-                showConfirmButton: false
-            });
-            loadGroupMenus();
-        }
-    });
-}
-*/
 
 // Thêm mới menu vào group
 function addNewMenuToGroup(menuName, menuLink, groupMenuId) {
+
     $.ajax({
         url: `${BASE_URL}/add-menu`,
         type: 'POST',
@@ -420,6 +407,71 @@ function addNewMenuToGroup(menuName, menuLink, groupMenuId) {
         }
     });
 }
+
+//Tạo mới menu và thêm vào group
+
+// Xử lý submit form thêm mới menu vào group (nút "Thêm mới và gán vào group")
+$('#add-new-menu-to-group-form').off('submit').on('submit', function (e) {
+    e.preventDefault();
+
+    var groupMenuId = $('#addMenuToGroupModal').data('group-id');
+    var menuName = $('#newMenuName').val().trim();
+    var menuLink = $('#newMenuLink').val().trim();
+
+    if (!menuName) {
+        Swal.fire('Lỗi', 'Tên menu không được để trống!', 'warning');
+        return;
+    }
+
+    // Gọi API add-menu
+    $.ajax({
+        url: `${BASE_URL}/add-menu`,
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            Ten: menuName,
+            Link: menuLink
+        }),
+        success: function (res, status, xhr) {
+            // Sau khi thêm menu thành công, lấy lại danh sách menu để tìm ID menu vừa thêm
+            $.get(`${BASE_URL}/get-menus`, function (menus) {
+                var found = menus && menus.length
+                    ? menus.find(m => m.MenuName === menuName && m.MenuLink === menuLink)
+                    : null;
+                if (found) {
+                    // Gọi API add-menu-to-group
+                    $.ajax({
+                        url: `${BASE_URL}/add-menu-to-group`,
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            MenuId: found.MenuId,
+                            GroupMenuId: groupMenuId
+                        }),
+                        success: function (res2) {
+                            Swal.fire({
+                                icon: res2.success ? 'success' : 'error',
+                                title: res2.message || (res2.success ? 'Thêm thành công' : 'Thêm thất bại'),
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                            $('#addMenuToGroupModal').modal('hide');
+                            loadGroupMenus();
+                        },
+                        error: function () {
+                            Swal.fire('Lỗi', 'Không thể gán menu vào group', 'error');
+                        }
+                    });
+                } else {
+                    Swal.fire('Lỗi', 'Không tìm thấy menu vừa thêm!', 'error');
+                }
+            });
+        },
+        error: function (xhr) {
+            Swal.fire('Lỗi', xhr.responseJSON && xhr.responseJSON.Message ? xhr.responseJSON.Message : 'Không thể thêm menu', 'error');
+        }
+    });
+});
 
 // Hiển thị modal thêm menu vào group
 function openAddMenuToGroupModal(groupId) {
@@ -474,7 +526,6 @@ $('#add-new-menu-to-group-form').submit(function (e) {
     loadGroupMenus();
 });
 
-// Helper function to render submenus
 
 function formatUnixToDate(unixTime) {
         if (!unixTime) return '';
@@ -531,6 +582,31 @@ $('#add-menu-to-group-form').off('submit').on('submit', function (e) {
     });
 });
 
+
+// Example usage: add selected submenus to a menu in a group
+function addSubmenusToMenuInGroup(groupMenuId, menuId, subMenuIds) {
+    $.ajax({
+        url: '/api/v1/admin/add-submenus-to-menu-in-group',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            GroupMenuId: groupMenuId,
+            MenuId: menuId,
+            SubMenuIds: subMenuIds // array of submenu IDs
+        }),
+        success: function (res) {
+            if (res.success) {
+                Swal.fire('Thành công', res.message, 'success');
+                // Optionally reload group menus or update UI here
+            } else {
+                Swal.fire('Lỗi', res.message || 'Không thể thêm submenu', 'error');
+            }
+        },
+        error: function (xhr) {
+            Swal.fire('Lỗi', xhr.responseJSON && xhr.responseJSON.Message ? xhr.responseJSON.Message : 'Không thể thêm submenu', 'error');
+        }
+    });
+}
 
 $(document).ready(function () {
     loadGroupMenus();
@@ -703,4 +779,60 @@ $(document).ready(function () {
             }
         });
     }); */
+
+
+    // Handler riêng cho nút "Gán submenu vào menu"
+    $(document).on('click', '#btnAssignSubmenuToMenu', function () {
+        var groupId = $('#addMenuToGroupModal').data('group-id');
+        var menuId = $('#selectTargetMenuInGroup').val();
+        var subMenuIds = $('#selectSubMenu').val();
+
+        if (!groupId || !menuId || !subMenuIds || subMenuIds.length === 0) {
+            Swal.fire('Lỗi', 'Vui lòng chọn menu mục tiêu và ít nhất một submenu.', 'warning');
+            return;
+        }
+
+        $.ajax({
+            url: '/api/v1/admin/add-submenus-to-menu-in-group',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                GroupMenuId: parseInt(groupId),
+                MenuId: parseInt(menuId),
+                SubMenuIds: subMenuIds.map(Number)
+            }),
+            success: function (res) {
+                if (res.success) {
+                    Swal.fire('Thành công', res.message, 'success');
+                    $('#addMenuToGroupModal').modal('hide');
+                    loadGroupMenus();
+                } else {
+                    Swal.fire('Lỗi', res.message || 'Không thể gán submenu', 'error');
+                }
+            },
+            error: function (xhr) {
+                Swal.fire('Lỗi', xhr.responseJSON && xhr.responseJSON.Message ? xhr.responseJSON.Message : 'Không thể gán submenu', 'error');
+            }
+        });
+    });
+
+    // Xử lý submit gán submenu vào menu trong group
+    $('#add-menu-to-group-form').off('submit.assignSubmenus').on('submit.assignSubmenus', function (e) {
+        // Chỉ thực hiện khi người dùng chọn menu mục tiêu và submenu (phần gán submenu)
+        var menuTarget = $('#selectTargetMenuInGroup').val();
+        var subMenus = $('#selectSubMenu').val();
+        var groupId = $('#addMenuToGroupModal').data('group-id');
+
+        // Nếu không chọn menu mục tiêu hoặc không chọn submenu thì bỏ qua (để các submit khác xử lý)
+        if (menuTarget && subMenus && subMenus.length > 0) {
+            e.preventDefault();
+            addSubmenusToMenuInGroup(
+                parseInt(groupId),
+                parseInt(menuTarget),
+                subMenus.map(Number)
+            );
+            $('#addMenuToGroupModal').modal('hide');
+            loadGroupMenus();
+        }
+    });
 });
