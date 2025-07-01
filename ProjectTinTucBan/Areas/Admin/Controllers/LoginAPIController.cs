@@ -265,7 +265,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                                 remainingSeconds = LockoutDurationInSecondsExtended
                             });
                         }
-                        else if (user.CountPasswordFail == MaxFailedAttemptsBeforeLockout - 1)
+                        else if (user.CountPasswordFail == MaxFailedAttemptsBeforeLockout)
                         {
                             // Khóa tạm thời
                             user.LockTime = unixTimestamp;
