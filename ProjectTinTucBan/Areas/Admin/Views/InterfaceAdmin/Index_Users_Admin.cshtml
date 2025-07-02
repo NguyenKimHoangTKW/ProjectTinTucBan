@@ -2,7 +2,7 @@
     ViewBag.Title = "Quản lý tài khoản";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
-
+<h1>test comit</h1>
 <div class="main-content">
     <div class="container-fluid">
         <!-- Header và breadcrumb -->
@@ -102,25 +102,6 @@
                         </div>
                     </div>
 
-                    <!-- Password fields - show only in add mode -->
-                    <div id="passwordFields">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="MatKhau">Mật khẩu <span class="text-danger">*</span></label>
-                                    <input type="password" class="form-control" id="MatKhau" name="MatKhau" placeholder="Nhập mật khẩu">
-                                    <small class="form-text text-muted">Mật khẩu đăng nhập</small>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="xacNhanMatKhau">Xác nhận mật khẩu <span class="text-danger">*</span></label>
-                                    <input type="password" class="form-control" id="xacNhanMatKhau" name="xacNhanMatKhau" placeholder="Nhập lại mật khẩu">
-                                    <small class="form-text text-muted">Nhập lại mật khẩu để xác nhận</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
                     <!-- Chỉ hiển thị khi ở chế độ sửa -->
                     <div id="editOnlyFields" class="row" style="display:none">
@@ -177,11 +158,12 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Hủy</button>
                 <button type="button" class="btn btn-primary" id="btnSaveUser">
                     <i class="anticon anticon-save m-r-5"></i>
                     <span id="btnSaveText">Lưu</span>
                 </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Hủy</button>
+
             </div>
         </div>
     </div>
@@ -213,22 +195,7 @@
 
                 <div class="row">
                     <div class="col-md-12">
-                        <div class="form-group">
-                            <div class="input-group mb-3">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text">
-                                        <i class="anticon anticon-search"></i>
-                                    </span>
-                                </div>
-                                <input type="text" class="form-control" id="searchFunctions" placeholder="Tìm kiếm chức năng...">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="table-responsive">
+                        <div class="table-responsive functions-table-container">
                             <table class="table table-hover" id="functionsTable">
                                 <thead>
                                     <tr>
@@ -263,11 +230,12 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
                 <button type="button" class="btn btn-primary" id="btnSavePermissions">
                     <i class="anticon anticon-save m-r-5"></i>
                     <span>Lưu phân quyền</span>
                 </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
+
             </div>
         </div>
     </div>
@@ -773,6 +741,55 @@
         #data-table td.text-truncated:hover::after {
             display: block;
         }
+
+        /* Fixed height scrollable functions table */
+    .functions-table-container {
+        max-height: 300px;
+        overflow-y: auto;
+        border: 1px solid #e8e8e8;
+        border-radius: 4px;
+    }
+
+    #functionsTable {
+        margin-bottom: 0;
+    }
+
+    #functionsTable thead {
+        position: sticky;
+        top: 0;
+        background-color: #5a8dee;
+        z-index: 1;
+    }
+
+    #functionsTable thead th {
+        border-top: none;
+    }
+
+    /* Custom scrollbar for better appearance */
+    .functions-table-container::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .functions-table-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+    }
+
+    .functions-table-container::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 3px;
+    }
+
+    .functions-table-container::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
+
+    /* Responsive adjustments for mobile */
+    @@media screen and (max-width: 576px) {
+        .functions-table-container {
+            max-height: 250px;
+        }
+    }
 </style>
 
 @section scriptsAdmin {

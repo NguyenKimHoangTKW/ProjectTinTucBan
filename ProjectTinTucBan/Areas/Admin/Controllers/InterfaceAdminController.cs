@@ -6,6 +6,7 @@ using System.Web.Mvc;
 using System.Data.Entity;
 using System.Net.Http;
 using System.Threading.Tasks;
+using ProjectTinTucBan.Helper;
 using Newtonsoft.Json;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -22,12 +23,14 @@ using System.Collections.Generic; // << --- THÊM DÒNG NÀY ---
 
 namespace ProjectTinTucBan.Areas.Admin.Controllers
 {
-
     public class InterfaceAdminController : Controller
     {
+
         WebTinTucTDMUEntities db = new WebTinTucTDMUEntities();
 
+
         // Gọi hàm thiết kế giao diện tại đây
+        [UserAuthorizeAttribute()]
         public ActionResult Index()
         {
 
@@ -35,44 +38,57 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         }
 
         // Gọi hàm thiết kế giao diện Quản lý mục lục
+        [UserAuthorizeAttribute(1, 4)]
         public ActionResult Index_MucLuc_Admin()
         {
             return View();
         }
+
         // Gọi hàm thiết kế giao diện quản lý quyền Admin
+        [UserAuthorizeAttribute(1, 4)]
         public ActionResult Index_Roles_Admin()
         {
             return View();
         }
 
+        [UserAuthorizeAttribute(1, 4)]
         public ActionResult Menu()
         {
             return View();
         }
+
+        [UserAuthorizeAttribute(1, 4)]
         public ActionResult Slider()
         {
             return View();
         }
+
+        [UserAuthorizeAttribute(1, 4)]
         public ActionResult BaiViet()
         {
             return View();
-        }        
+        }
+
+        [UserAuthorizeAttribute(1, 4)]
         // Gọi hàm thiết kế giao diện quản lý người dùng Admin
         public ActionResult Index_Users_Admin()
         {
             return View();
         }
-        
+
         // Gọi hàm thiết kế giao diện quản lý chức năng admin
+        [UserAuthorizeAttribute(1, 4)]
         public ActionResult Index_Function_Admin()
         {
             return View();
         }
+
         // Gọi hàm thiết kế giao diện đăng nhập
         public ActionResult Login()
         {
             return View();
         }
+        [UserAuthorizeAttribute(1, 4)]
         public ActionResult XemNoiDung(int id)
         {
             using (var db = new WebTinTucTDMUEntities())

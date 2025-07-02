@@ -334,6 +334,7 @@
     <Compile Include="Areas\Admin\Controllers\RolesAdminAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\MenuApiAdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\SliderApiAdminController.cs" />
+    <Content Include="Areas\Admin\Scripts\AdminHeaderPartial.js" />
     <Content Include="Areas\Admin\Scripts\AdminSideNavScript.js" />
     <Compile Include="Areas\Admin\Controllers\UploadPDFAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\UploadThumbnailAPIController.cs" />
@@ -377,6 +378,7 @@
     <Compile Include="Helper\EncryptionHelper.cs" />
     <Compile Include="Helper\SessionEnabledDelegatingHandler.cs" />
     <Compile Include="Helper\SessionHelper.cs" />
+    <Compile Include="Helper\UserAuthorizeAttribute.cs" />
     <Compile Include="Models\BaiViet.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>

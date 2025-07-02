@@ -42,7 +42,6 @@
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
 
-
       <Diagram DiagramId="76b3c91e0ce24ca5adac6e2ed33cfc90" Name="Diagram1" ZoomLevel="74">
         <EntityTypeShape EntityType="WebTinTucTDMUModel.BaiViet" Width="1.5" PointX="8.25" PointY="4.375" />
         <EntityTypeShape EntityType="WebTinTucTDMUModel.ChucNangQuyenUser" Width="1.5" PointX="3" PointY="10.75" />
@@ -59,6 +58,7 @@
         <EntityTypeShape EntityType="WebTinTucTDMUModel.Slider" Width="1.5" PointX="7.75" PointY="8.625" />
         <EntityTypeShape EntityType="WebTinTucTDMUModel.Sub_Menu" Width="1.5" PointX="8.75" PointY="18.125" />
         <EntityTypeShape EntityType="WebTinTucTDMUModel.sysdiagram" Width="1.5" PointX="9.75" PointY="8.625" />
+
         <EntityTypeShape EntityType="WebTinTucTDMUModel.TaiKhoan" Width="1.5" PointX="3" PointY="4" />
         <AssociationConnector Association="WebTinTucTDMUModel.FK__BaiViet__ID_MucL__49C3F6B7" />
         <AssociationConnector Association="WebTinTucTDMUModel.FK__BaiViet__ID_Nguo__4AB81AF0" />
