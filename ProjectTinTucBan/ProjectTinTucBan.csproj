@@ -146,6 +146,7 @@
     <Compile Include="Areas\Admin\Controllers\RolesAdminAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\MenuApiAdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\SliderApiAdminController.cs" />
+    <Content Include="Areas\Admin\Scripts\AdminHeaderPartial.js" />
     <Content Include="Areas\Admin\Scripts\AdminSideNavScript.js" />
     <Compile Include="Areas\Admin\Controllers\UploadPDFAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\UploadThumbnailAPIController.cs" />

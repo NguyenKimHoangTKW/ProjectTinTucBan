@@ -359,7 +359,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         // POST: api/v1/admin/clear_session
         [HttpPost]
         [Route("clear_session")]
-        public IHttpActionResult Logout()
+        public IHttpActionResult clear_session()
         {
             try
             {
