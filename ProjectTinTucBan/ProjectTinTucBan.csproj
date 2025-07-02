@@ -322,7 +322,6 @@
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Areas\Admin\AdminAreaRegistration.cs" />
-    <Compile Include="Areas\Admin\AdminWebApiConfig.cs" />
     <Compile Include="Areas\Admin\Controllers\DonViTrucThuocController.cs" />
     <Compile Include="Areas\Admin\Controllers\InterfaceAdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\KhoiController.cs" />

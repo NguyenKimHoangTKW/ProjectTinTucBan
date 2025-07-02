@@ -16,8 +16,7 @@ namespace ProjectTinTucBan
             AreaRegistration.RegisterAllAreas();
             GlobalConfiguration.Configure(WebApiConfig.Register);
 
-            // Đăng ký Web API cho Area Admin
-            ProjectTinTucBan.Areas.Admin.AdminWebApiConfig.Register(GlobalConfiguration.Configuration);
+ 
 
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
