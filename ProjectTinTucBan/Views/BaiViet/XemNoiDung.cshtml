@@ -36,7 +36,6 @@
             margin: 1rem auto;
             word-break: break-word;
         }
- 
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
@@ -53,7 +52,7 @@
         <!-- Nút quay lại -->
         <div class="mb-4">
             <a href="/" class="inline-flex items-center text-sm text-gray-600 hover:text-blue-600">
-                <i class="fas fa-chevron-left mr-2"></i> Quay trở lại
+                <i class="fas fa-chevron-left mr-2"></i> Trang chủ
             </a>
         </div>
 
@@ -143,11 +142,11 @@
                     const noiDungChuan = convertImagePaths(bv.NoiDung);
                     const breadcrumb = `
                         <nav class="flex flex-wrap gap-x-1">
-                            <a href="/" class="text-blue-700 hover:underline">Trang chủ</a>
+                            <a href="/" class="text-blue-700 hover:underline">Quay trở lại</a>
                             <span>›</span>
                             <a href="/danh-muc/${bv.MaMucLuc || '#'}" class="text-blue-700 hover:underline break-all">${bv.TenMucLuc}</a>
                             <span>›</span>
-                            <span class="text-blue-700 font-medium break-words">${bv.TieuDe}</span>
+                            <span class="text-gray-800 font-medium break-words">${bv.TieuDe}</span>
                         </nav>
                     `;
 
@@ -168,7 +167,7 @@
                                 <i class="fa-regular fa-calendar-days mr-1"></i>Ngày đăng: ${ngayDang}
                             </p>
                             <div class="mb-4">
-                               <img src="${thumb}" alt="Thumbnail" class="w-full max-w-xl mx-auto h-auto rounded shadow mb-6" />
+                               <img src="${thumb}" alt="Thumbnail" class="w-full h-auto rounded shadow mb-6" />
                             </div>
                             <div class="noi-dung-bai-viet text-justify leading-relaxed max-w-none">
                                 ${noiDungChuan}

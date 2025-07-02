@@ -14,7 +14,19 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
     public class BaiVietAPIController : ApiController
     {
         WebTinTucTDMUEntities db = new WebTinTucTDMUEntities();
+        [HttpPost]
+        [Route("increase-views/{id:int}")]
 
+        public IHttpActionResult IncreaseViews(int id)
+        {
+            var bv = db.BaiViets.Find(id);
+            if (bv == null) return NotFound();
+
+            bv.ViewCount = (bv.ViewCount ?? 0) + 1;
+            db.SaveChanges();
+
+            return Ok(new { success = true, viewCount = bv.ViewCount });
+        }
         // GET: Lấy tất cả bài viết
         [HttpGet]
         [Route("get-all-baiviet")]
@@ -43,12 +55,26 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("get-baiviet-by-id/{id}")]
         public async Task<IHttpActionResult> GetBaiVietById(int id)
         {
-            var baiViet = await db.BaiViets.FindAsync(id);
+            var baiViet = await db.BaiViets
+                .Include(b => b.MucLuc)
+                .FirstOrDefaultAsync(b => b.ID == id);
+
             if (baiViet == null)
                 return NotFound();
 
+            var baiVietsCungMuc = await db.BaiViets
+                .Where(b => b.ID_MucLuc == baiViet.ID_MucLuc && b.ID != id)
+                .OrderByDescending(b => b.NgayDang)
+                .Select(b => new
+                {
+                    b.ID,
+                    b.TieuDe
+                })
+                .ToListAsync();
+
             return Ok(new
             {
+                success = true,
                 data = new
                 {
                     baiViet.ID,
@@ -58,11 +84,13 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     baiViet.LinkPDF,
                     baiViet.NgayDang,
                     baiViet.NgayCapNhat,
-                    baiViet.ViewCount
-                },
-                success = true
+                    baiViet.ViewCount,
+                    TenMucLuc = baiViet.MucLuc?.TenMucLuc ?? "Không rõ",
+                    BaiVietsCungMuc = baiVietsCungMuc
+                }
             });
         }
+
 
         // POST: Thêm bài viết
         [HttpPost]

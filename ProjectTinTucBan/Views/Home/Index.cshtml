@@ -1,4 +1,5 @@
-﻿@{
+﻿@model ProjectTinTucBan.Models.BaiViet
+@{
     ViewBag.Title = "Trang chủ";
     var imageList = new[] {
         "29fcbd0c-9d4b-4b47-9ae2-121f14eb4cf9.png",
@@ -10,296 +11,329 @@
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
-    <title>Trang chủ</title>
+    <title>@ViewBag.Title</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
     <style>
         html, body {
             margin: 0;
             padding: 0;
             overflow-x: hidden;
+            scroll-behavior: smooth;
         }
 
-        .swiper-slide img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
-        .swiper {
-            width: 100%;
+        img, iframe {
+            max-width: 100%;
+            height: auto;
         }
     </style>
 </head>
-<body class="bg-white">
-
-    <!-- Swiper Banner -->
-    <section class="relative w-full bg-white overflow-hidden">
-        <div class="swiper mySwiper w-full">
+<body class="bg-gray-50 text-gray-800">
+    <!-- Banner -->
+    <section class="w-full">
+        <div class="swiper mySwiper w-full overflow-hidden">
             <div class="swiper-wrapper">
                 @foreach (var img in imageList)
                 {
                     <div class="swiper-slide">
-                        <img src="https://bdbcl.tdmu.edu.vn/img/ckeditor/Images/@img" alt="Banner" class="object-cover w-full" />
+                        <img src="https://bdbcl.tdmu.edu.vn/img/ckeditor/Images/@img"
+                             alt="Banner"
+                             class="w-full h-[550px] object-cover" />
                     </div>
                 }
             </div>
+
+            <!-- Nút điều hướng Swiper -->
             <div class="swiper-button-next text-white"></div>
             <div class="swiper-button-prev text-white"></div>
             <div class="swiper-pagination"></div>
         </div>
     </section>
 
-    <!-- Mục lục và bài viết -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6">
-        <h2 class="text-center text-lg sm:text-xl md:text-2xl font-bold text-blue-800 mb-6 uppercase">
-            Tin tức về hoạt động đảm bảo chất lượng
-        </h2>
-
-        <div id="muc-luc-content">
-            <div class="text-gray-500 italic">Đang tải dữ liệu...</div>
-        </div>
-    </section>
-    <!-- Đoạn HTML mới được chèn thêm vào file Trang chủ -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6">
-        <div class="text-center mb-6">
-            <h2 class="text-xl sm:text-2xl font-bold text-white bg-red-600 px-6 py-3 inline-block rounded-full uppercase">
-                Kiểm định chất lượng
-            </h2>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Cột THÔNG BÁO -->
-            <div class="bg-white rounded shadow p-4">
-                <h3 class="text-lg font-bold text-blue-700 mb-4 border-b pb-2">THÔNG BÁO</h3>
-                <div id="box-thongbao">
-                    <p class="italic text-gray-500">Đang tải...</p>
-                </div>
-            </div>
-
-            <!-- Cột THÔNG BÁO (phần 2 bên phải của ảnh gốc) -->
-            <div class="bg-white rounded shadow p-4">
-                <h3 class="text-lg font-bold text-blue-700 mb-4 border-b pb-2">THÔNG BÁO KHÁC</h3>
-                <div id="box-thongbao-2">
-                    <p class="italic text-gray-500">Đang tải...</p>
-                </div>
-            </div>
-
-            <!-- Cột BIỂU MẪU -->
-            <div class="bg-white rounded shadow p-4">
-                <h3 class="text-lg font-bold text-blue-700 mb-4 border-b pb-2">BIỂU MẪU</h3>
-                <ul id="box-bieumau" class="space-y-2 text-sm">
-                    <li class="italic text-gray-500">Đang tải...</li>
-                </ul>
-            </div>
+    <!-- Tin tức -->
+    <section class="py-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+            <div id="mucLucContainer" class="space-y-12"></div>
         </div>
     </section>
 
-    <script>
-        $(document).ready(function () {
-            LoadKiemDinhNoiDung();
-        });
+    <!-- Giới thiệu + Video -->
+    <section class="w-full bg-white px-4 py-8">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
+            <!-- VIDEO -->
+            <div class="w-full aspect-video">
+                <iframe id="video"
+                        class="w-full h-full rounded shadow-lg"
+                        src="https://www.youtube.com/embed/oFdIkvZf6Wg?enablejsapi=1"
+                        title="YouTube video player"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowfullscreen>
+                </iframe>
+            </div>
 
-        async function LoadKiemDinhNoiDung() {
-            try {
-                const res = await $.ajax({ url: `${BASE_URL}/get-all-baiviet`, type: 'GET' });
+            <!-- PHẦN GIỚI THIỆU -->
+            <div>
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-6">
+                    Giới thiệu về Trung tâm
+                </h2>
 
-                if (res.success && Array.isArray(res.data)) {
-                    const tbList = res.data.filter(x => x.TieuDe.includes("Thông báo"));
-                    const bmList = res.data.filter(x => x.TieuDe.toLowerCase().includes("phiếu"));
-
-                    const renderTB = tbList.slice(0, 4).map(bv => `
-                        <div class="flex items-start space-x-3 mb-4">
-                            <img src="${bv.LinkThumbnail || 'https://via.placeholder.com/60'}" alt="thumb" class="w-14 h-14 object-cover rounded" />
-                            <div>
-                                <a href="/Home/XemNoiDung/${bv.ID}" class="text-sm font-semibold text-gray-800 hover:text-blue-600 line-clamp-2">${bv.TieuDe}</a>
-                                <div class="text-xs text-gray-500 mt-1"><i class="far fa-clock"></i> ${formatDateFromInt(bv.NgayDang)}</div>
-                            </div>
+                <div class="space-y-5 mb-8">
+                    <div class="flex items-start gap-4">
+                        <div class="bg-blue-100 text-blue-600 rounded-full p-3 shadow-sm">
+                            <i class="fas fa-check text-xl"></i>
                         </div>
-                    `).join('');
-
-                    const renderTB2 = tbList.slice(4, 8).map(bv => `
-                        <div class="flex items-start space-x-3 mb-4">
-                            <img src="${bv.LinkThumbnail || 'https://via.placeholder.com/60'}" alt="thumb" class="w-14 h-14 object-cover rounded" />
-                            <div>
-                                <a href="/Home/XemNoiDung/${bv.ID}" class="text-sm font-semibold text-gray-800 hover:text-blue-600 line-clamp-2">${bv.TieuDe}</a>
-                                <div class="text-xs text-gray-500 mt-1"><i class="far fa-clock"></i> ${formatDateFromInt(bv.NgayDang)}</div>
-                            </div>
+                        <div>
+                            <p class="font-semibold text-gray-700">Tên đầy đủ</p>
+                            <p class="text-red-600 font-bold">
+                                BAN KHẢO THÍ, KIỂM ĐỊNH VÀ ĐẢM BẢO CHẤT LƯỢNG
+                            </p>
                         </div>
-                    `).join('');
+                    </div>
 
-                    const renderBM = bmList.map(bv => `
-                        <li><i class="fa fa-headphones mr-2 text-blue-600"></i><a href="/Home/XemNoiDung/${bv.ID}" class="hover:underline">${bv.TieuDe}</a></li>
-                    `).join('');
+                    <div class="flex items-start gap-4">
+                        <div class="bg-blue-100 text-blue-600 rounded-full p-3 shadow-sm">
+                            <i class="fas fa-check text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-gray-700">Tên tiếng Anh</p>
+                            <p class="text-red-600 font-bold leading-snug">
+                                DEPARTMENT OF EDUCATIONAL TESTING,<br />
+                                ACCREDITATION AND QUALITY ASSURANCE
+                            </p>
+                        </div>
+                    </div>
 
-                    $('#box-thongbao').html(renderTB || '<p class="text-sm italic text-gray-500">Không có thông báo.</p>');
-                    $('#box-thongbao-2').html(renderTB2 || '<p class="text-sm italic text-gray-500">Không có thông báo.</p>');
-                    $('#box-bieumau').html(renderBM || '<li class="text-sm italic text-gray-500">Không có biểu mẫu.</li>');
-                } else {
-                    $('#box-thongbao, #box-thongbao-2').html('<p class="text-sm italic text-red-500">Không có dữ liệu.</p>');
-                    $('#box-bieumau').html('<li class="text-sm italic text-red-500">Không có dữ liệu.</li>');
-                }
-            } catch (err) {
-                $('#box-thongbao, #box-thongbao-2').html('<p class="text-sm italic text-red-500">Lỗi khi tải dữ liệu.</p>');
-                $('#box-bieumau').html('<li class="text-sm italic text-red-500">Lỗi khi tải dữ liệu.</li>');
-                console.error(err);
-            }
-        }
-    </script>
-    <!-- Giới thiệu về Trung tâm -->
-    <section class="max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-6">
-        <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-6">Giới thiệu về Trung tâm</h2>
+                    <div class="flex items-start gap-4">
+                        <div class="bg-blue-100 text-blue-600 rounded-full p-3 shadow-sm">
+                            <i class="fas fa-calendar-alt text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-gray-700">Ngày thành lập</p>
+                            <p class="text-blue-700 font-bold">17/7/2024</p>
+                        </div>
+                    </div>
+                </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <div class="flex items-start space-x-4">
-                <div class="text-blue-600 text-2xl">
-                    <i class="fas fa-check-circle"></i>
+                <div class="flex items-center gap-4 mb-8">
+                    <button class="bg-blue-600 text-white px-6 py-2 rounded shadow hover:bg-blue-700 transition">
+                        CHI TIẾT
+                    </button>
+                    <a href="#video" class="flex items-center gap-2 text-black hover:text-blue-700">
+                        <div class="border border-blue-600 rounded-full p-2 text-blue-600">
+                            <i class="fas fa-play"></i>
+                        </div>
+                        <span class="font-medium">Watch Video</span>
+                    </a>
                 </div>
-                <div>
-                    <p class="text-gray-600 font-semibold">Tên đầy đủ</p>
-                    <p class="text-red-600 font-bold uppercase">BAN KHẢO THÍ, KIỂM ĐỊNH VÀ ĐẢM BẢO CHẤT LƯỢNG</p>
-                </div>
-            </div>
 
-            <div class="flex items-start space-x-4">
-                <div class="text-blue-600 text-2xl">
-                    <i class="fas fa-check-circle"></i>
+                <div class="border-t pt-4 text-sm space-y-2 text-gray-800">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-map-marker-alt text-blue-600"></i>
+                        <span>Đây G, Số 06, đường Trần Văn Ơn, phường Phú Hòa, Tp. Thủ Dầu Một, Bình Dương</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-phone text-blue-600"></i>
+                        <span>(0274) 3822518-3-114</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-envelope text-blue-600"></i>
+                        <a href="mailto:bdbcl@tdmu.edu.vn" class="text-blue-600 hover:underline">
+                            Bdbcl@tdmu.edu.vn
+                        </a>
+                    </div>
                 </div>
-                <div>
-                    <p class="text-gray-600 font-semibold">Tên tiếng Anh</p>
-                    <p class="text-red-600 font-bold uppercase">DEPARTMENT OF EDUCATIONAL TESTING, ACCREDITATION AND QUALITY ASSURANCE</p>
-                </div>
-            </div>
-
-            <div class="flex items-start space-x-4">
-                <div class="text-blue-600 text-2xl">
-                    <i class="fas fa-calendar-alt"></i>
-                </div>
-                <div>
-                    <p class="text-gray-600 font-semibold">Ngày thành lập</p>
-                    <p class="text-blue-700 font-bold">17/7/2024</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="flex flex-wrap items-center space-x-4 text-sm text-gray-700">
-            <div class="flex items-center space-x-2">
-                <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path d="M10 20s8-4.438 8-10V4l-8-4-8 4v6c0 5.562 8 10 8 10z" /></svg>
-                <span>Đây G, Số 06, đường Trần Văn Ơn, phường Phú Hòa, Tp. Thủ Dầu Một, Bình Dương</span>
-            </div>
-            <div class="flex items-center space-x-2">
-                <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path d="M2 5.5A2.5 2.5 0 014.5 3h11A2.5 2.5 0 0118 5.5v9a2.5 2.5 0 01-2.5 2.5h-11A2.5 2.5 0 012 14.5v-9zM4.5 4a1.5 1.5 0 00-1.5 1.5v.637l7 4.375 7-4.375V5.5A1.5 1.5 0 0015.5 4h-11z" /></svg>
-                <a href="mailto:bdbcl@tdmu.edu.vn" class="text-blue-600 hover:underline">bdbcl@tdmu.edu.vn</a>
-            </div>
-            <div class="flex items-center space-x-2">
-                <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3.5A1.5 1.5 0 013.5 2h13A1.5 1.5 0 0118 3.5v13a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 012 16.5v-13zM3.5 3a.5.5 0 00-.5.5V6h14V3.5a.5.5 0 00-.5-.5h-13zM17 7H3v9.5a.5.5 0 00.5.5h13a.5.5 0 00.5-.5V7z" /></svg>
-                <span>(0274) 3822518-3-114</span>
             </div>
         </div>
     </section>
 
-    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        const BASE_URL = '/api/v1/admin';
+        function toSlug(str) {
+            return str.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+        }
+
+        function formatDate(yyyymmdd) {
+            if (!yyyymmdd || yyyymmdd.toString().length !== 8) return '';
+            const str = yyyymmdd.toString();
+            return `${str.substring(6, 8)}/${str.substring(4, 6)}/${str.substring(0, 4)}`;
+        }
+
+        new Swiper(".mySwiper", {
+            loop: true,
+            autoplay: { delay: 3000, disableOnInteraction: false },
+            pagination: { el: ".swiper-pagination", clickable: true },
+            navigation: { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" }
+        });
+
+        // Lưu trữ dữ liệu mục lục bài viết
+        window.mucLucData = {};
 
         $(document).ready(function () {
-            LoadMucLucWithBaiViet();
+            $.get("/api/v1/home/get-mucluc-with-baiviet", function (res) {
+                if (!res.success || !res.data) {
+                    $("#mucLucContainer").html("<p class='text-center text-gray-500'>Không có dữ liệu mục lục.</p>");
+                    return;
+                }
 
-            new Swiper('.mySwiper', {
-                loop: true,
-                pagination: {
-                    el: '.swiper-pagination',
-                    clickable: true
-                },
-                navigation: {
-                    nextEl: '.swiper-button-next',
-                    prevEl: '.swiper-button-prev'
-                },
-                autoplay: {
-                    delay: 4000,
-                    disableOnInteraction: false
-                },
-                slidesPerView: 1
-            });
-        });
-        async function LoadMucLucWithBaiViet() {
-            try {
-                const res = await $.ajax({
-                    url: `${BASE_URL}/get-mucluc-with-baiviet`,
-                    type: 'GET'
+                let html = `<div class="space-y-10">`;
+
+                res.data.forEach(muc => {
+                    const isThongBao = muc.TenMucLuc?.toLowerCase().includes("thông báo");
+                    const mucId = toSlug(muc.TenMucLuc);
+                    const allBaiViets = muc.BaiViets || [];
+
+                    html += `<div id="${mucId}">
+                                <div class="text-center">
+                        <h3 class="inline-block bg-red-600 text-white text-sm sm:text-base md:text-lg font-semibold rounded-full px-6 py-2 mb-6 uppercase shadow">
+                            ${muc.TenMucLuc}
+                        </h3>
+                    </div>`;
+
+                    if (!allBaiViets.length) {
+                        html += `<p class="text-gray-500 italic mb-4">Hiện tại chưa cập nhật bài viết nào.</p>`;
+                    } else if (isThongBao) {
+                        const moiNhat = [...allBaiViets].sort((a, b) => b.NgayDang - a.NgayDang).slice(0, 5);
+                        const xemNhieu = [...allBaiViets].sort((a, b) => (b.LuotXem ?? 0) - (a.LuotXem ?? 0)).slice(0, 5);
+
+                        html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <h4 class="text-xl font-bold text-orange-600 mb-4 border-b border-orange-400 pb-2 uppercase">Thông báo mới</h4>
+                                        <ul class="space-y-4">`;
+
+                        moiNhat.forEach(bv => {
+                            const date = formatDate(bv.NgayDang);
+                            html += `<li class="flex gap-4 items-start">
+                            <div class="w-24 h-16 overflow-hidden rounded border flex-shrink-0">
+                                <img src="${bv.LinkThumbnail?.trim() || '/images/thong-bao-icon.png'}" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <a href="/noi-dung/${bv.ID}" class="font-semibold text-lg text-blue-800 hover:underline block break-words">${bv.TieuDe}</a>
+                                <div class="text-sm text-gray-600 mt-1"><i class="far fa-clock mr-1"></i>${date}</div>
+                            </div>
+                        </li>`;
+                        });
+
+                        html += `</ul>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-xl font-bold text-orange-600 mb-4 border-b border-orange-400 pb-2 uppercase">Thông báo được xem nhiều</h4>
+                                        <ul class="space-y-4">`;
+
+                        xemNhieu.forEach(bv => {
+                            const date = formatDate(bv.NgayDang);
+                            html += `<li class="flex gap-4 items-start">
+                            <div class="w-24 h-16 overflow-hidden rounded border flex-shrink-0 shadow-sm">
+                                <img src="${bv.LinkThumbnail?.trim() || '/images/thong-bao-icon.png'}" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <a href="/noi-dung/${bv.ID}" class="font-semibold text-lg text-blue-800 hover:underline block break-words leading-snug">${bv.TieuDe}</a>
+                                <div class="text-sm text-gray-600 mt-1"><i class="far fa-eye mr-1"></i>${bv.LuotXem ?? 0} lượt xem</div>
+                            </div>
+                        </li>`;
+                        });
+                        html += `</ul>
+                                    </div>
+                                </div>`;
+                    } else {
+                        // Lưu dữ liệu để phân trang
+                        window.mucLucData[mucId] = {
+                            data: allBaiViets,
+                            page: 1,
+                            perPage: 6
+                        };
+                        html += `
+                        <div id="muc-${mucId}">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="list-${mucId}">
+                            </div>
+                            ${allBaiViets.length > 6
+                                ? `<div class="text-center mt-6">
+                                        <button data-id="${mucId}" class="btn-xem-them bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Xem thêm</button>
+                                   </div>`
+                                : ''
+                            }
+                        </div>`;
+                    }
+
+                    html += `</div>`;
                 });
 
-                const container = $('#muc-luc-content');
-                container.empty();
+                html += `</div>`;
+                $("#mucLucContainer").html(html);
 
-                if (res.success && Array.isArray(res.data)) {
-                    res.data.forEach(muc => {
-                        const htmlBaiViet = muc.BaiViets.length > 0
-                            ? `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                                                    ${muc.BaiViets.map(bv => `
-                                                        <a href="/Home/XemNoiDung/${bv.ID}" class="block bg-white rounded shadow hover:shadow-lg transition overflow-hidden border">
-                                                            <div class="relative">
-                                                                <img src="${bv.LinkThumbnail && bv.LinkThumbnail.trim() !== '' ? bv.LinkThumbnail : 'https://navigates.vn/wp-content/uploads/2023/06/logo-dai-hoc-thu-dau-mot.jpg'}"
-                                                                     class="w-full h-32 sm:h-40 md:h-44 object-cover" />
-                                                                <div class="absolute top-2 left-2 bg-blue-700 text-white rounded text-[10px] sm:text-xs font-bold px-2 py-1 text-center shadow">
-                                                                    ${formatDay(bv.NgayDang)}<br />
-                                                                    <span class="uppercase">${formatMonth(bv.NgayDang)}</span>
-                                                                </div>
-                                                            </div>
-                                                            <div class="p-3">
-                                                                <h3 class="text-xs sm:text-sm md:text-base font-semibold text-gray-900 mb-2 line-clamp-2 uppercase">${bv.TieuDe}</h3>
-                                                                <p class="text-[10px] sm:text-xs md:text-sm text-gray-600 line-clamp-3">${truncateHtml(bv.NoiDung, 150)}</p>
-                                                            </div>
-                                                        </a>
-                                                    `).join('')}
-                                                </div>`
-                            : `<p class="text-gray-500 italic">Không có bài viết nào.</p>`;
+                // Gọi render lần đầu
+                Object.keys(window.mucLucData).forEach(mucId => {
+                    renderBaiVietForMucLuc(mucId);
+                });
+            });
 
-                        const block = `
-                                            <div class="mb-12">
-                                                <div class="flex justify-center mb-4">
-                                                    <h3 class="text-sm sm:text-base md:text-xl font-bold text-white uppercase bg-red-600 px-3 sm:px-4 py-2 rounded shadow">
-                                                        ${muc.TenMucLuc}
-                                                    </h3>
-                                                </div>
-                                                ${htmlBaiViet}
-                                            </div>`;
+            // Cuộn mượt
+            $(document).on("click", ".scroll-to", function (e) {
+                e.preventDefault();
+                const target = $(this).attr("href");
+                $('html, body').animate({ scrollTop: $(target).offset().top - 100 }, 500);
+            });
 
-                        container.append(block);
-                    });
-                } else {
-                    container.html('<p class="text-red-500">Không có dữ liệu mục lục nào.</p>');
+            // Xem thêm
+            $(document).on("click", ".btn-xem-them", function () {
+                const mucId = $(this).data("id");
+                if (window.mucLucData[mucId]) {
+                    window.mucLucData[mucId].page += 1;
+                    renderBaiVietForMucLuc(mucId);
                 }
-            } catch (err) {
-                $('#muc-luc-content').html('<p class="text-red-500">Lỗi kết nối đến máy chủ.</p>');
-                console.error(err);
+            });
+
+            // Hàm hiển thị bài viết phân trang
+            function renderBaiVietForMucLuc(mucId) {
+                const container = $(`#list-${mucId}`);
+                const muc = window.mucLucData[mucId];
+                if (!muc) return;
+
+                const start = 0;
+                const end = muc.page * muc.perPage;
+                const currentList = muc.data.slice(0, end);
+
+                let html = "";
+                currentList.forEach(bv => {
+                    const thumb = bv.LinkThumbnail?.trim() || "https://th.bing.com/th/id/OIP.FkEdh0U5AttOx7kx74Y6sQAAAA?w=460";
+                    const date = formatDate(bv.NgayDang);
+                    const views = bv.LuotXem ?? 0;
+                    const moTa = bv.MoTa ?? '';
+                    const tieuDe = bv.TieuDe?.toUpperCase() ?? 'KHÔNG CÓ TIÊU ĐỀ';
+
+                    html += `
+                    <div class="bg-white rounded shadow hover:shadow-md transition overflow-hidden flex flex-col h-full">
+                      <img src="${thumb}" class="w-full h-auto" alt="Thumbnail" />
+                        <div class="p-4 flex-1 flex flex-col">
+                            <a href="/noi-dung/${bv.ID}" class="font-bold text-blue-800 text-base sm:text-lg mb-2 hover:underline break-words whitespace-normal">${tieuDe}</a>
+                            <div class="text-sm text-gray-500 mb-2 flex items-center gap-3">
+                                <span><i class="far fa-clock mr-1"></i>${date}</span>
+                                <span><i class="far fa-eye mr-1"></i>${views}</span>
+                            </div>
+                            <p class="text-sm text-gray-700 line-clamp-2 break-words whitespace-normal">${moTa}</p>
+                        </div>
+                    </div>`;
+                });
+
+                container.html(html);
+
+                // Ẩn nút nếu hiển thị hết
+                const total = muc.data.length;
+                if (end >= total) {
+                    $(`button[data-id="${mucId}"]`).hide();
+                }
             }
-        }
-
-        function formatDay(dateInt) {
-            return dateInt ? dateInt.toString().slice(6, 8) : '';
-        }
-
-        function formatMonth(dateInt) {
-            const month = dateInt.toString().slice(4, 6);
-            const mapping = {
-                "01": "Tháng 1", "02": "Tháng 2", "03": "Tháng 3", "04": "Tháng 4",
-                "05": "Tháng 5", "06": "Tháng 6", "07": "Tháng 7", "08": "Tháng 8",
-                "09": "Tháng 9", "10": "Tháng 10", "11": "Tháng 11", "12": "Tháng 12"
-            };
-            return mapping[month] || '';
-        }
-        function truncateHtml(html, maxLength) {
-            const temp = document.createElement('div');
-            temp.innerHTML = html || '';
-            const text = temp.textContent || temp.innerText || '';
-            return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
-        }</script>
+        });
+    </script>
 </body>
 </html>

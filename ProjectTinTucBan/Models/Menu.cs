@@ -17,7 +17,8 @@ namespace ProjectTinTucBan.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Menu()
         {
-            this.Group_By_Menu_And__Sub = new HashSet<Group_By_Menu_And__Sub>();
+            this.Function_By_Menu = new HashSet<Function_By_Menu>();
+            this.Group_By_Menu_And_Sub = new HashSet<Group_By_Menu_And_Sub>();
             this.Menu_by_sub = new HashSet<Menu_by_sub>();
         }
     
@@ -26,10 +27,14 @@ namespace ProjectTinTucBan.Models
         public string Link { get; set; }
         public Nullable<int> ThuTuShow { get; set; }
         public Nullable<int> NgayDang { get; set; }
+        public string IconName { get; set; }
+        public Nullable<int> IsImportant { get; set; }
         public Nullable<int> NgayCapNhat { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Group_By_Menu_And__Sub> Group_By_Menu_And__Sub { get; set; }
+        public virtual ICollection<Function_By_Menu> Function_By_Menu { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Group_By_Menu_And_Sub> Group_By_Menu_And_Sub { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Menu_by_sub> Menu_by_sub { get; set; }
     }

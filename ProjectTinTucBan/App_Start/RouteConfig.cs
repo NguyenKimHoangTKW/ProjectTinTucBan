@@ -11,7 +11,20 @@ namespace ProjectTinTucBan
     {
         public static void RegisterRoutes(RouteCollection routes)
         {
+            routes.MapMvcAttributeRoutes();
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
+            
+            routes.MapRoute(
+                name: "BaiViet",
+                url: "bai-viet/{id}",
+                defaults: new { controller = "BaiViet", action = "XemNoiDung", id = UrlParameter.Optional }
+            );
+
+            routes.MapRoute(
+                name: "XemNoiDung",
+                url: "noi-dung/{id}",
+                defaults: new { controller = "Home", action = "XemNoiDung", id = UrlParameter.Optional }
+            );
 
             routes.MapRoute(
                 name: "Default",

@@ -19,12 +19,12 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         // Gọi hàm thiết kế giao diện tại đây
         public ActionResult Index()
         {
-            if (Session["AdminUser"] == null)
+            /*if (Session["AdminUser"] == null)
             {
                 return RedirectToAction("Login");
             }
             ViewBag.Username = Session["AdminUser"]?.ToString();
-            ViewBag.Message = "Chào mừng đến trang quản trị!";
+            ViewBag.Message = "Chào mừng đến trang quản trị!";*/
             return View();
         }
 

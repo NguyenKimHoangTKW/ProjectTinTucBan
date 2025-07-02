@@ -1,48 +1,37 @@
-﻿using Newtonsoft.Json;
-using ProjectTinTucBan.Models;
-using System;
-using System.Net.Http;
-using System.Threading.Tasks;
+﻿using ProjectTinTucBan.Models;
+using System.Data.Entity;
+using System.Linq;
 using System.Web.Mvc;
 
 namespace ProjectTinTucBan.Controllers
 {
     public class HomeController : Controller
     {
+        private WebTinTucTDMUEntities db = new WebTinTucTDMUEntities();
+
+        // Trang chủ
         public ActionResult Index()
         {
-            return View(); // cần View ~/Views/Home/Index.cshtml tồn tại
+            return View(); // ~/Views/Home/Index.cshtml
         }
-        WebTinTucTDMUEntities db = new WebTinTucTDMUEntities();
-        public async Task<ActionResult> XemNoiDung(int id)
-        {
-            using (var client = new HttpClient())
-            {
-                client.BaseAddress = new System.Uri("https://localhost:44305"); // hoặc domain thực tế
 
-                var response = await client.GetAsync($"/api/v1/admin/get-baiviet-by-id/{id}");
-                if (response.IsSuccessStatusCode)
-                {
-                    var json = await response.Content.ReadAsStringAsync();
-                    dynamic result = JsonConvert.DeserializeObject(json);
-                    if (result.success == true)
-                    {
-                        BaiViet baiViet = new BaiViet
-                        {
-                            ID = result.data.ID,
-                            TieuDe = result.data.TieuDe,
-                            NoiDung = result.data.NoiDung,
-                            LinkPDF = result.data.LinkPDF,
-                            LinkThumbnail = result.data.LinkThumbnail,
-                            NgayDang = result.data.NgayDang
-                        };
-                        return View("XemNoiDung", baiViet);
-                    }
-                }
+        // Chi tiết bài viết
+        [Route("noi-dung/{id:int}")]
+        public ActionResult XemNoiDung(int id)
+        {
+            var baiViet = db.BaiViets
+                            .Include(b => b.MucLuc)
+                            .FirstOrDefault(b => b.ID == id);
+
+            if (baiViet == null)
+            {
+                return HttpNotFound("Không tìm thấy bài viết.");
             }
 
-            return HttpNotFound("Không tìm thấy bài viết.");
-        }
+            // ❌ Bỏ tăng view tại đây để JavaScript sau 30s mới tăng
+            // baiViet.ViewCount = (baiViet.ViewCount ?? 0) + 1;
+            // db.SaveChanges();
 
-    }
+            return View("XemNoiDung", baiViet);
+        }}
 }
