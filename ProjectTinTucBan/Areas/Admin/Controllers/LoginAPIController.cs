@@ -67,17 +67,18 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
             try
             {
-
                 // Lấy phần trước @ từ email để làm tên đăng nhập
                 string username = model.email.Split('@')[0];
 
                 var existingAccount = await db.TaiKhoans.FirstOrDefaultAsync(x => x.Gmail == model.email);
                 string MatKhauMaHoa = EncryptionHelper.Encrypt("@123");
+
                 if (existingAccount == null)
                 {
+                    // Tạo tài khoản mới nếu chưa tồn tại
                     existingAccount = new TaiKhoan
                     {
-                        TenTaiKhoan = username, 
+                        TenTaiKhoan = username,
                         MatKhau = MatKhauMaHoa,
                         Name = model.name,
                         Gmail = model.email,
@@ -85,8 +86,8 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                         NgayTao = unixTimestamp,
                         NgayCapNhat = unixTimestamp,
                         IsBanned = 0,
-                        CountPasswordFail = 0,  
-                        LockTime = null,         
+                        CountPasswordFail = 0,
+                        LockTime = null,
                         LockTimeout = null
                     };
                     db.TaiKhoans.Add(existingAccount);
@@ -94,6 +95,44 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 }
                 else
                 {
+                    // Kiểm tra nếu tài khoản đã bị khóa vĩnh viễn
+                    if (existingAccount.IsBanned == 1)
+                    {
+                        return Ok(new
+                        {
+                            message = "Tài khoản của bạn đã bị khóa vĩnh viễn",
+                            success = false,
+                            isLocked = true,
+                            isPermanent = true
+                        });
+                    }
+
+                    // Kiểm tra thời gian khóa tạm thời
+                    if (existingAccount.LockTime.HasValue && existingAccount.LockTimeout.HasValue)
+                    {
+                        // Tính thời gian khóa còn lại
+                        DateTime lockEndTime = DateTimeOffset.FromUnixTimeSeconds(existingAccount.LockTime.Value)
+                            .AddSeconds(existingAccount.LockTimeout.Value).UtcDateTime;
+
+                        if (DateTime.UtcNow < lockEndTime)
+                        {
+                            TimeSpan remainingTime = lockEndTime - DateTime.UtcNow;
+                            return Ok(new
+                            {
+                                message = $"Tài khoản tạm thời bị khóa. Vui lòng thử lại sau {(int)remainingTime.TotalSeconds} giây.",
+                                success = false,
+                                isLocked = true,
+                                remainingSeconds = (int)remainingTime.TotalSeconds
+                            });
+                        }
+                        else
+                        {
+                            // Thời gian khóa đã hết, đặt lại các trường liên quan
+                            existingAccount.LockTime = null;
+                            existingAccount.LockTimeout = null;
+                        }
+                    }
+
                     // Cập nhật tên đăng nhập nếu cần
                     if (existingAccount.TenTaiKhoan != username)
                     {
@@ -107,12 +146,17 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     }
                 }
 
+                // Đặt lại số lần nhập sai mật khẩu (nếu có)
+                existingAccount.CountPasswordFail = 0;
+                await db.SaveChangesAsync();
+
+                // Lưu vào session
                 SessionHelper.SetUser(existingAccount, GetCurrentContext());
 
                 return Ok(new
                 {
                     idRole = existingAccount.ID_role,
-                    isBanned = existingAccount.IsBanned,
+                    userId = existingAccount.ID,
                     message = "Đăng nhập thành công",
                     success = true
                 });
@@ -121,7 +165,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             {
                 return InternalServerError(ex);
             }
-        }
+        }                      
 
         // POST: api/v1/admin/login
         [HttpPost]
@@ -221,6 +265,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                         return Ok(new
                         {
                             idRole = user.ID_role,
+                            userId = user.ID,
                             message = "Đăng nhập thành công",
                             success = true
 

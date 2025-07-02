@@ -42,11 +42,11 @@ async function Session_Login(email, fullname) {
     try {
         // Validate email domain
         if (!email.endsWith('@student.tdmu.edu.vn') && !email.endsWith('@tdmu.edu.vn')) {
-            Sweet_Alert("error", "Gmail không hợp lệ."); 
+            Sweet_Alert("error", "Gmail không hợp lệ.");
             return;
         }
 
-        // Phần còn lại không đổi
+        // Gọi API đăng nhập Google
         const res = await $.ajax({
             url: "/api/v1/admin/login-with-google",
             type: 'POST',
@@ -58,42 +58,48 @@ async function Session_Login(email, fullname) {
             }),
         });
 
-
         if (res.success) {
-            // Save to sessionStorage to verify on Index page
+            // Đăng nhập thành công
             sessionStorage.setItem('loginInfo', JSON.stringify({
                 email: email,
                 name: fullname,
                 role: res.idRole,
+                userId: res.userId,
                 time: new Date().toISOString()
             }));
 
-            if (res.isBanner == 0) {
-                if (res.idRole == 4)  
-                    window.location.href = `/Admin/InterfaceAdmin/Index`;
-                else if (res.idRole == 1)
-                    window.location.href = `/Admin/InterfaceAdmin/Index`;
-                else
-                    Sweet_Alert("error", "Tài khoản bạn không thuộc phân quyền Admin...");
+            // Chuyển hướng dựa trên vai trò
+            if (res.idRole == 4 || res.idRole == 1) {
+                window.location.href = `/Admin/InterfaceAdmin/Index`;
+            } else {
+                Sweet_Alert("error", "Tài khoản bạn không thuộc phân quyền Admin...");
             }
-            else
-            {
-
-                if (res.unlockTime) {
-                    // Create account lock message with countdown
-                    showLockCountdown(res.unlockTime);
-                } else {
-                    Sweet_Alert("error", "Tài khoản bạn bị khoá");
-                }
-            }
-
         } else {
-            Sweet_Alert("error", res.message || "Đăng nhập thất bại");
+            // Xử lý các trường hợp đăng nhập thất bại
+            if (res.isLocked) {
+                if (res.isPermanent) {
+                    // Tài khoản bị khóa vĩnh viễn
+                    Sweet_Alert("error", "Tài khoản của bạn đã bị khóa vĩnh viễn. Vui lòng liên hệ quản trị viên.");
+                } else if (res.remainingSeconds) {
+                    // Tài khoản bị khóa tạm thời
+                    const currentTime = Math.floor(Date.now() / 1000);
+                    const unlockTime = currentTime + res.remainingSeconds;
+                    showLockCountdown(unlockTime);
+                    Sweet_Alert("error", res.message);
+                } else {
+                    Sweet_Alert("error", "Tài khoản bạn bị khóa tạm thời.");
+                }
+            } else {
+                // Các lỗi khác
+                Sweet_Alert("error", res.message || "Đăng nhập thất bại");
+            }
         }
     } catch (error) {
+        console.error("Login error:", error);
         Sweet_Alert("error", "Đã xảy ra lỗi khi đăng nhập");
     }
 }
+
 function Logout_Session() {
     $.ajax({
         url: "/api/v1/admin/clear_session", // Fixed URL
@@ -160,7 +166,16 @@ function checkAccountLockStatus() {
 }
 
 // Improved showLockCountdown function
+let currentCountdownInterval = null;
 function showLockCountdown(unlockTimeValue, failedAttempts) {
+
+    $("#btnLogin").prop("disabled", true).addClass("disabled");
+    // xoá bộ đếm hiện có
+    if (currentCountdownInterval) {
+        clearInterval(currentCountdownInterval);
+        currentCountdownInterval = null;
+    }
+
     // Remove any existing lock container
     $("#lockCountdownContainer").remove();
 
@@ -208,6 +223,10 @@ function showLockCountdown(unlockTimeValue, failedAttempts) {
                 </div>
             `);
             setTimeout(() => $("#lockCountdownContainer").fadeOut('slow'), 5000);
+
+            // Kích hoạt lại nút đăng nhập
+            $("#btnLogin").prop("disabled", false).removeClass("disabled");
+
             return;
         }
 

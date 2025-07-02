@@ -187,6 +187,7 @@
     <Compile Include="Helper\EncryptionHelper.cs" />
     <Compile Include="Helper\SessionEnabledDelegatingHandler.cs" />
     <Compile Include="Helper\SessionHelper.cs" />
+    <Compile Include="Helper\UserAuthorizeAttribute.cs" />
     <Compile Include="Models\BaiViet.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
