@@ -1,42 +1,5 @@
 ﻿const BASE_URL = `/api/v1/admin`;
 
-// ✅ Định nghĩa hàm resizeImage
-function resizeImage(file, maxWidth, maxHeight, callback) {
-    const reader = new FileReader();
-    reader.onload = function (e) {
-        const img = new Image();
-        img.onload = function () {
-            const canvas = document.createElement('canvas');
-            canvas.width = maxWidth;
-            canvas.height = maxHeight;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, maxWidth, maxHeight);
-            canvas.toBlob(function (blob) {
-                callback(blob, canvas.toDataURL(file.type));
-            }, file.type);
-        };
-        img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-}
-
-// ✅ Định nghĩa hàm checkImageExactSize
-function checkImageExactSize(file, requiredWidth, requiredHeight, callback) {
-    const reader = new FileReader();
-    reader.onload = function (e) {
-        const img = new Image();
-        img.onload = function () {
-            if (img.width === requiredWidth && img.height === requiredHeight) {
-                callback(true, e.target.result);
-            } else {
-                callback(false, null);
-            }
-        };
-        img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-}
-
 // ✅ Định nghĩa hàm handlePasteOrDrop
 function handlePasteOrDrop(evt, editor) {
     const items = (evt.clipboardData || evt.dataTransfer)?.items;
@@ -48,36 +11,85 @@ function handlePasteOrDrop(evt, editor) {
             evt.preventDefault();
             const file = item.getAsFile();
 
-            const requiredWidth = 600;
-            const requiredHeight = 400;
-
             const reader = new FileReader();
             reader.onload = function (e) {
                 const img = new Image();
+
                 img.onload = function () {
-                    if (img.width === requiredWidth && img.height === requiredHeight) {
-                        // Hình đúng kích thước, chèn luôn
-                        editor.insertHtml('<img src="' + e.target.result + '" width="600" height="400" />');
+                    const originalWidth = img.width;
+                    const originalHeight = img.height;
+
+                    const maxWidth = 600;
+                    const maxHeight = 400;
+
+                    let newWidth = originalWidth;
+                    let newHeight = originalHeight;
+
+                    if (originalWidth > maxWidth || originalHeight > maxHeight) {
+                        const ratio = Math.min(maxWidth / originalWidth, maxHeight / originalHeight);
+                        newWidth = Math.round(originalWidth * ratio);
+                        newHeight = Math.round(originalHeight * ratio);
+
+                        const canvas = document.createElement('canvas');
+                        canvas.width = newWidth;
+                        canvas.height = newHeight;
+
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, newWidth, newHeight);
+
+                        const resizedDataUrl = canvas.toDataURL(file.type);
+
+                        insertImage(editor, resizedDataUrl, newWidth, newHeight, true);
                     } else {
-                        // Resize hình cho đúng kích thước rồi chèn vào
-                        resizeImage(file, requiredWidth, requiredHeight, function (resizedBlob, resizedDataUrl) {
-                            editor.insertHtml('<img src="' + resizedDataUrl + '" width="600" height="400" />');
-                            Swal.fire({
-                                toast: true,
-                                position: 'top-end',
-                                icon: 'success',
-                                title: 'Đã resize ảnh về 600x400 và chèn vào nội dung',
-                                showConfirmButton: false,
-                                timer: 2000,
-                                timerProgressBar: true
-                            });
-                        });
+                        insertImage(editor, e.target.result, newWidth, newHeight, false);
                     }
                 };
+
                 img.src = e.target.result;
             };
+
             reader.readAsDataURL(file);
         }
+    }
+}
+
+function insertImage(editor, src, width, height, showToast) {
+    // Tạo đoạn trống trước ảnh để tránh ảnh chèn sát chữ đầu
+    const before = editor.document.createElement('p');
+    before.setHtml('&nbsp;');
+    editor.insertElement(before);
+
+    // Tạo ảnh
+    const img = editor.document.createElement('img');
+    img.setAttribute('src', src);
+    img.setAttribute('width', width);
+    img.setAttribute('height', height);
+    img.setStyle('display', 'block');
+    img.setStyle('margin', '10px auto');
+
+    // Bọc img trong div
+    const wrapper = editor.document.createElement('div');
+    wrapper.setAttribute('class', 'cke-custom-image-wrapper');
+    wrapper.append(img);
+
+    // ❗️Dùng insertHtml thay vì insertElement (ổn định hơn với trình tự nội dung)
+    editor.insertHtml(wrapper.getOuterHtml());
+
+    // Thêm đoạn trống sau ảnh để ngắt nội dung tiếp theo
+    const after = editor.document.createElement('p');
+    after.setHtml('&nbsp;');
+    editor.insertElement(after);
+
+    if (showToast) {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: `Ảnh đã resize về ${width}x${height}`,
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+        });
     }
 }
 
@@ -103,30 +115,28 @@ function initCKEditor(elementId) {
         on: {
             instanceReady: function (evt) {
                 const editor = evt.editor;
-
-                // ❌ Chặn dán hình mặc định
+                // ❌ CHẶN CKEditor xử lý dán ảnh mặc định
                 editor.on('paste', function (evt) {
                     const data = evt.data;
-                    if (data && data.dataTransfer && data.dataTransfer._) {
-                        const files = data.dataTransfer._.files || [];
-                        if (files.length > 0 && files[0].type.startsWith('image/')) {
-                            evt.cancel(); // Ngăn CKEditor chèn ảnh gốc
+                    const transfer = data?.dataTransfer?._ || data?.dataTransfer?.$;
+
+                    if (transfer?.files?.length > 0) {
+                        let hasImage = false;
+
+                        for (const f of transfer.files) {
+                            if (f.type.startsWith('image/')) {
+                                hasImage = true;
+                            }
+                        }
+
+                        // ❌ Nếu có ảnh, nhưng không phải chỉ có ảnh —> KHÔNG cancel, để giữ lại chữ
+                        if (hasImage && transfer.files.length === 1) {
+                            evt.cancel(); // Chỉ cancel nếu là ảnh duy nhất
                         }
                     }
                 });
 
-                // ❌ Chặn kéo-thả hình mặc định
-                editor.on('drop', function (evt) {
-                    const data = evt.data;
-                    if (data && data.$ && data.$.dataTransfer) {
-                        const items = data.$.dataTransfer.items || [];
-                        if (items.length > 0 && items[0].type.startsWith('image/')) {
-                            evt.cancel(); // Ngăn CKEditor chèn ảnh gốc
-                        }
-                    }
-                });
-
-                // ✅ Gọi xử lý ảnh tùy chỉnh
+                // ✅ Gọi xử lý ảnh tùy chỉnh khi paste hoặc kéo-thả
                 editor.document.on('paste', function (e) {
                     handlePasteOrDrop(e.data.$, editor);
                 });
@@ -141,6 +151,7 @@ function initCKEditor(elementId) {
 
 $(document).ready(function () {
     initCKEditor('NoiDung');
+
     // ---------- Lưu nội dung ----------
     $('#btnLuuNoiDung').on('click', async function () {
         const result = await Swal.fire({
@@ -198,7 +209,84 @@ $(document).ready(function () {
         }
     });
 
-    // ---------- Xem trước PDF ----------
+    // ---------- Xem trước PDF (đã cải thiện) ----------
+    //$('#btnPreviewPdf').on('click', async function () {
+    //    const result = await Swal.fire({
+    //        title: 'Bạn có muốn xem trước PDF không?',
+    //        icon: 'info',
+    //        showCancelButton: true,
+    //        confirmButtonText: 'Xem',
+    //        cancelButtonText: 'Hủy'
+    //    });
+
+    //    if (!result.isConfirmed) return;
+
+    //    // Hiển thị loading
+    //    Swal.fire({
+    //        title: 'Đang chuẩn bị PDF...',
+    //        allowOutsideClick: false,
+    //        didOpen: () => {
+    //            Swal.showLoading();
+    //        }
+    //    });
+
+    //    const title = $('.title').text().trim().toUpperCase();
+    //    const noiDung = CKEDITOR.instances.NoiDung.getData();
+
+    //    // Tạo container mới với class đặc biệt cho PDF
+    //    const container = document.createElement('div');
+    //    container.className = 'pdf-container'; // Thêm class đặc biệt
+    //    container.innerHTML = `
+    //    <div style="text-align: center;">
+    //        <h2>${title}</h2>
+    //        <hr />
+    //    </div>
+    //    <div>${noiDung}</div>
+    //`;
+
+    //    // Đợi CKEditor cập nhật xong và hình ảnh tải hoàn tất
+    //    await new Promise(resolve => setTimeout(resolve, 500));
+
+    //    // Chờ tất cả hình ảnh tải xong
+    //    await waitForImagesToLoad(container);
+
+    //    const opt = {
+    //        margin: 0.5,
+    //        image: { type: 'jpeg', quality: 0.98 },
+    //        html2canvas: {
+    //            scale: 2,
+    //            useCORS: true,
+    //            allowTaint: true,
+    //            logging: true,
+    //            ignoreElements: (element) => {
+    //                // Bỏ qua các phần tử không cần thiết khi tạo PDF
+    //                return element.classList.contains('main-content') ||
+    //                    element.classList.contains('btn');
+    //            }
+    //        },
+    //        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+    //        pagebreak: { mode: ['css', 'legacy'] }
+    //    };
+
+    //    try {
+    //        const pdfBlob = await html2pdf().set(opt).from(container).outputPdf('blob');
+    //        const blobUrl = URL.createObjectURL(pdfBlob);
+
+    //        Swal.close();
+
+    //        Swal.fire({
+    //            title: 'Xem trước PDF',
+    //            html: `<iframe src="${blobUrl}" width="100%" height="500px" style="border:none;"></iframe>`,
+    //            width: '90%',
+    //            showCloseButton: true,
+    //            showConfirmButton: false
+    //        });
+    //    } catch (error) {
+    //        console.error('Error generating PDF:', error);
+    //        Swal.fire('Lỗi', 'Không thể tạo PDF. Vui lòng thử lại.', 'error');
+    //    }
+    //});
+    // ---------- Xem trước PDF (phiên bản đã sửa hoàn chỉnh) ----------
     $('#btnPreviewPdf').on('click', async function () {
         const result = await Swal.fire({
             title: 'Bạn có muốn xem trước PDF không?',
@@ -210,34 +298,156 @@ $(document).ready(function () {
 
         if (!result.isConfirmed) return;
 
-        const title = $('.title').text().trim().toUpperCase();
-        const noiDung = CKEDITOR.instances.NoiDung.getData();
+        // Hiển thị loading
+        const loadingSwal = Swal.fire({
+            title: 'Đang chuẩn bị PDF...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
 
-        const container = document.createElement('div');
-        container.innerHTML = `
-            <div style="text-align: center;">
-                <h2>${title}</h2>
-                <hr />
+        try {
+            const title = $('.title').text().trim().toUpperCase();
+            const noiDung = CKEDITOR.instances.NoiDung.getData();
+
+            // Tạo container mới với CSS đặc biệt cho PDF
+            const container = document.createElement('div');
+            container.className = 'pdf-preview-container';
+            container.style.width = '100%';
+            container.style.padding = '20px';
+            container.style.boxSizing = 'border-box';
+
+            // Clone nội dung từ CKEditor và xử lý đặc biệt
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = noiDung;
+
+            // Xử lý tất cả hình ảnh trong nội dung
+            const images = tempDiv.querySelectorAll('img');
+            images.forEach(img => {
+                // Đảm bảo hình ảnh có margin và display phù hợp
+                img.style.display = 'block';
+                img.style.margin = '15px auto';
+                img.style.maxWidth = '100%';
+                img.style.height = 'auto';
+
+                // Thêm div wrapper cho mỗi hình ảnh
+                const wrapper = document.createElement('div');
+                wrapper.style.pageBreakInside = 'avoid';
+                wrapper.style.breakInside = 'avoid';
+                img.parentNode.insertBefore(wrapper, img);
+                wrapper.appendChild(img);
+            });
+
+            // Thêm nội dung đã xử lý vào container
+            container.innerHTML = `
+            <div style="text-align: center; margin-bottom: 20px;">
+                <h2 style="color: #0d47a1;">${title}</h2>
+                <hr style="border-color: #90caf9;"/>
             </div>
-            <div>${noiDung}</div>
+            ${tempDiv.innerHTML}
         `;
 
-        const opt = {
-            margin: 0.5,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2 },
-            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-        };
+            // Chờ tất cả hình ảnh tải xong
+            await new Promise(resolve => setTimeout(resolve, 300));
+            await waitForImagesToLoad(container);
 
-        html2pdf().set(opt).from(container).outputPdf('blob').then(blob => {
-            const blobUrl = URL.createObjectURL(blob);
+            const opt = {
+                margin: [10, 5, 10, 5], // [top, right, bottom, left]
+                filename: `${title}.pdf`,
+                image: {
+                    type: 'jpeg',
+                    quality: 0.98
+                },
+                html2canvas: {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true,
+                    logging: true,
+                    scrollX: 0,
+                    scrollY: 0,
+                    ignoreElements: (element) => {
+                        return element.classList.contains('cke_wysiwyg_div') ||
+                            element.classList.contains('cke_show_borders');
+                    }
+                },
+                jsPDF: {
+                    unit: 'mm',
+                    format: 'a4',
+                    orientation: 'portrait'
+                },
+                pagebreak: {
+                    mode: ['avoid-all', 'css', 'legacy'],
+                    before: '.page-break-before',
+                    after: '.page-break-after',
+                    avoid: 'img'
+                }
+            };
+
+            // Tạo PDF
+            const pdfBlob = await html2pdf().set(opt).from(container).outputPdf('blob');
+            const blobUrl = URL.createObjectURL(pdfBlob);
+
+            Swal.close();
+
+            // Hiển thị PDF preview
             Swal.fire({
                 title: 'Xem trước PDF',
-                html: `<iframe src="${blobUrl}" width="100%" height="500px" style="border:none;"></iframe>`,
-                width: '80%',
+                html: `
+                <div style="width: 100%; height: 500px;">
+                    <iframe src="${blobUrl}" width="100%" height="100%" style="border: none;"></iframe>
+                </div>
+            `,
+                width: '90%',
                 showCloseButton: true,
-                showConfirmButton: false
+                showConfirmButton: false,
+                customClass: {
+                    container: 'pdf-preview-modal'
+                }
+            });
+
+        } catch (error) {
+            console.error('Lỗi khi tạo PDF:', error);
+            Swal.fire('Lỗi', 'Không thể tạo PDF. Vui lòng thử lại.', 'error');
+        }
+    });
+
+    // Hàm chờ tất cả hình ảnh tải xong (phiên bản cải tiến)
+    async function waitForImagesToLoad(container) {
+        const images = container.querySelectorAll('img');
+        const loadPromises = Array.from(images).map(img => {
+            // Nếu hình ảnh đã tải xong
+            if (img.complete && img.naturalWidth > 0) {
+                return Promise.resolve();
+            }
+
+            // Nếu hình ảnh chưa tải
+            return new Promise((resolve) => {
+                img.onload = resolve;
+                img.onerror = resolve; // Vẫn tiếp tục dù có lỗi
+                // Timeout dự phòng
+                setTimeout(resolve, 2000);
             });
         });
-    });
+
+        await Promise.all(loadPromises);
+        await new Promise(resolve => setTimeout(resolve, 300)); // Thêm delay đảm bảo
+    }
+
+    // Hàm chờ tất cả hình ảnh tải xong
+    async function waitForImagesToLoad(container) {
+        const images = container.querySelectorAll('img');
+        const promises = Array.from(images).map(img => {
+            if (img.complete && img.naturalWidth !== 0) {
+                return Promise.resolve();
+            }
+            return new Promise((resolve, reject) => {
+                img.onload = resolve;
+                img.onerror = resolve; // Vẫn tiếp tục ngay cả khi có lỗi tải ảnh
+            });
+        });
+
+        await Promise.all(promises);
+        await new Promise(resolve => setTimeout(resolve, 200)); // Thêm delay nhỏ để đảm bảo
+    }
 });

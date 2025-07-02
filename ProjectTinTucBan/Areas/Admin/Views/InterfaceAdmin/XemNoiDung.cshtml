@@ -21,7 +21,6 @@
         body {
             background: linear-gradient(to right, #e3f2fd, #bbdefb);
         }
-
         .main-content {
             width: 100%;
             max-width: 750px;
@@ -57,9 +56,10 @@
 
             .cke_editable img {
                 display: block;
+                max-width: 100%;
+                height: auto;
                 margin: 10px auto;
-                max-width: none !important;
-                height: auto !important;
+                clear: both;
             }
 
         .cke_contents {
@@ -85,11 +85,34 @@
             page-break-inside: avoid;
             break-inside: avoid;
         }
-
         textarea#NoiDung {
             min-height: 400px;
         }
+        .pdf-preview-container {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 20px !important;
+            box-sizing: border-box !important;
+            background: white !important;
+        }
+
+            .pdf-preview-container img {
+                display: block !important;
+                margin: 15px auto !important;
+                max-width: 100% !important;
+                height: auto !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+
+            .pdf-preview-container p {
+                margin: 10px 0 !important;
+                page-break-inside: avoid !important;
+            }
     </style>
+
+
 </head>
 <body>
     <div class="main-content">
@@ -99,7 +122,7 @@
       
         </p>
         <p class="text-muted font-italic small text-right mb-1">
-            Ngày đăng: <strong>@DateTime.ParseExact(Model.NgayDang.ToString(), "yyyyMMdd", null).ToString("dd/MM/yyyy")</strong>
+            Ngày đăng bài: <strong>@DateTime.ParseExact(Model.NgayDang.ToString(), "yyyyMMdd", null).ToString("dd/MM/yyyy")</strong>
         </p>
         <p class="text-muted font-italic small text-right mb-1">
             Cập nhật lần cuối: <strong>@DateTime.ParseExact(Model.NgayCapNhat.ToString(), "yyyyMMdd", null).ToString("dd/MM/yyyy")</strong>

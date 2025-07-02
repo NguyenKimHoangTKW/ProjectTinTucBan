@@ -140,6 +140,46 @@ function setupBaiVietTableEvents() {
 
                 // Gắn auto resize khi người dùng nhập thêm nội dung
                 autoResizeCKEditor(editor);
+
+                // Gắn sự kiện xử lý ảnh paste/drag-drop
+                editor.on('paste', function (evt) {
+                    const data = evt.data;
+                    const transfer = data?.dataTransfer?._ || data?.dataTransfer?.$;
+                    if (transfer?.files?.length > 0) {
+                        let hasImage = false;
+                        for (const f of transfer.files) {
+                            if (f.type.startsWith('image/')) {
+                                hasImage = true;
+                            }
+                        }
+                        if (hasImage && transfer.files.length === 1) {
+                            evt.cancel(); // Chỉ cancel nếu là ảnh duy nhất
+                        }
+                    }
+                });
+
+                // Gắn sự kiện xử lý ảnh paste/drag-drop
+                editor.on('paste', function (evt) {
+                    const data = evt.data;
+                    const transfer = data?.dataTransfer?._ || data?.dataTransfer?.$;
+                    if (transfer?.files?.length > 0) {
+                        let hasImage = false;
+                        for (const f of transfer.files) {
+                            if (f.type.startsWith('image/')) {
+                                hasImage = true;
+                            }
+                        }
+                        if (hasImage && transfer.files.length === 1) {
+                            evt.cancel(); // Chỉ cancel nếu là ảnh duy nhất
+                        }
+                    }
+                });
+                editor.document.on('paste', function (e) {
+                    handlePasteOrDrop(e.data.$, editor);
+                });
+                editor.document.on('drop', function (e) {
+                    handlePasteOrDrop(e.data.$, editor);
+                });
             });
         });
         $('#modalBaiViet').modal('show');
@@ -153,7 +193,6 @@ function setupBaiVietTableEvents() {
 
     $(document).on('click', '.btn-sua', async function () {
         const id = $(this).data('id');
-
         try {
             const res = await $.ajax({
                 url: `${BASE_URL}/get-baiviet-by-id/${id}`,
@@ -198,9 +237,47 @@ function setupBaiVietTableEvents() {
                         });
 
                         CKEDITOR.instances.NoiDung.on('instanceReady', function () {
-                            CKEDITOR.instances.NoiDung.setData(noiDung);
-                            autoResizeCKEditor(CKEDITOR.instances.NoiDung);
+                            const editor = CKEDITOR.instances.NoiDung;
+                            editor.setData(noiDung, function () {
+                                // Resize ban đầu
+                                setTimeout(() => {
+                                    const body = editor.document?.$?.body;
+                                    if (body) {
+                                        const scrollHeight = body.scrollHeight;
+                                        const newHeight = Math.min(scrollHeight + 100, 1000);
+                                        editor.resize('100%', newHeight);
+                                    }
+                                }, 100);
+                            });
+
+                            autoResizeCKEditor(editor);
+
+                            // Chặn ảnh gốc nếu dán ảnh duy nhất
+                            editor.on('paste', function (evt) {
+                                const data = evt.data;
+                                const transfer = data?.dataTransfer?._ || data?.dataTransfer?.$;
+                                if (transfer?.files?.length > 0) {
+                                    let hasImage = false;
+                                    for (const f of transfer.files) {
+                                        if (f.type.startsWith('image/')) {
+                                            hasImage = true;
+                                        }
+                                    }
+                                    if (hasImage && transfer.files.length === 1) {
+                                        evt.cancel(); // Chỉ cancel nếu là ảnh duy nhất
+                                    }
+                                }
+                            });
+
+                            // Xử lý ảnh paste hoặc drag-drop (resize)
+                            editor.document.on('paste', function (e) {
+                                handlePasteOrDrop(e.data.$, editor);
+                            });
+                            editor.document.on('drop', function (e) {
+                                handlePasteOrDrop(e.data.$, editor);
+                            });
                         });
+
                     }, 200); // Chờ modal render xong
                 });
 
@@ -373,6 +450,116 @@ function autoResizeCKEditor(editorInstance) {
         }, 100); // Delay để đảm bảo nội dung dán vào đã hiển thị
     });
 }
+
+// --- Thêm 2 hàm xử lý hình ảnh ---
+function insertImage(editor, src, width, height, showToast) {
+    // Luôn đảm bảo width <= 600, height <= 400
+    width = Math.min(width, 600);
+    height = Math.min(height, 400);
+
+    // Tạo đoạn trống trước ảnh để tránh ảnh chèn sát chữ đầu
+    const before = editor.document.createElement('p');
+    before.setHtml('&nbsp;');
+    editor.insertElement(before);
+
+    // Tạo ảnh
+    const img = editor.document.createElement('img');
+    img.setAttribute('src', src);
+    img.setAttribute('width', width);
+    img.setAttribute('height', height);
+    img.setStyle('display', 'block');
+    img.setStyle('margin', '10px auto');
+    img.setStyle('max-width', '600px');
+    img.setStyle('max-height', '400px');
+
+    // Bọc img trong div
+    const wrapper = editor.document.createElement('div');
+    wrapper.setAttribute('class', 'cke-custom-image-wrapper');
+    wrapper.append(img);
+
+    // Dùng insertHtml để đảm bảo trình tự nội dung
+    editor.insertHtml(wrapper.getOuterHtml());
+
+    // Thêm đoạn trống sau ảnh để ngắt nội dung tiếp theo
+    const after = editor.document.createElement('p');
+    after.setHtml('&nbsp;');
+    editor.insertElement(after);
+
+    if (showToast) {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: `Ảnh đã resize về ${width}x${height}`,
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+        });
+    }
+}
+
+function handlePasteOrDrop(evt, editor) {
+    const items = (evt.clipboardData || evt.dataTransfer)?.items;
+    if (!items) return;
+
+    let handled = false;
+
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (item.type.indexOf('image') !== -1) {
+            handled = true; // Đánh dấu đã xử lý ảnh
+            const file = item.getAsFile();
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = new Image();
+
+                img.onload = function () {
+                    const originalWidth = img.width;
+                    const originalHeight = img.height;
+
+                    const maxWidth = 600;
+                    const maxHeight = 400;
+
+                    let newWidth = originalWidth;
+                    let newHeight = originalHeight;
+
+                    // Resize nếu vượt quá kích thước
+                    if (originalWidth > maxWidth || originalHeight > maxHeight) {
+                        const ratio = Math.min(maxWidth / originalWidth, maxHeight / originalHeight);
+                        newWidth = Math.round(originalWidth * ratio);
+                        newHeight = Math.round(originalHeight * ratio);
+
+                        const canvas = document.createElement('canvas');
+                        canvas.width = newWidth;
+                        canvas.height = newHeight;
+
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, newWidth, newHeight);
+
+                        const resizedDataUrl = canvas.toDataURL(file.type);
+
+                        insertImage(editor, resizedDataUrl, newWidth, newHeight, true);
+                    } else {
+                        insertImage(editor, e.target.result, newWidth, newHeight, false);
+                    }
+                };
+
+                img.src = e.target.result;
+            };
+
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // Nếu đã xử lý ảnh thì chặn chèn ảnh gốc
+    if (handled) {
+        if (evt.preventDefault) evt.preventDefault();
+        if (evt.stopPropagation) evt.stopPropagation();
+        return false;
+    }
+}
+
 
 // -------------------- [ Modal form logic ] --------------------
 function setupModalFormEvents() {
