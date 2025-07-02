@@ -40,6 +40,12 @@ namespace ProjectTinTucBan.Areas.Admin
             );
 
             context.MapRoute(
+                "Index_Function_Admin",
+                "Admin/quan-ly-chuc-nang",
+                new { controller = "InterfaceAdmin", action = "Index_Function_Admin" }
+            );
+
+            context.MapRoute(
                 "Admin_Slider",
                 "Admin/quan-ly-slide",
                 new { controller = "InterfaceAdmin", action = "Slider" }
