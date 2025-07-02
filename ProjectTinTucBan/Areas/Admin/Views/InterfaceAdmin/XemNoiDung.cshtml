@@ -116,17 +116,29 @@
 </head>
 <body>
     <div class="main-content">
-        <h2 class="title">@Model.TieuDe</h2>
+        <div class="form-group">
+            <input type="text" class="form-control font-weight-bold text-uppercase title" id="TieuDeBaiViet" value="@Model.TieuDe" />
+        </div>
         <p class="text-muted font-italic small text-right mb-1 mt-0">
             Người đăng: <strong>@ViewBag.TenTaiKhoan</strong>
-      
+
+        </p>
+        @{
+            var ngayDang = Model.NgayDang.HasValue
+                ? DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(Model.NgayDang.Value)).ToLocalTime().ToString("dd/MM/yyyy")
+                : "Không xác định";
+
+            var ngayCapNhat = Model.NgayCapNhat.HasValue
+                ? DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(Model.NgayCapNhat.Value)).ToLocalTime().ToString("dd/MM/yyyy")
+                : "Không xác định";
+        }
+        <p class="text-muted font-italic small text-right mb-1">
+            Ngày đăng bài: <strong>@ngayDang</strong>
         </p>
         <p class="text-muted font-italic small text-right mb-1">
-            Ngày đăng bài: <strong>@DateTime.ParseExact(Model.NgayDang.ToString(), "yyyyMMdd", null).ToString("dd/MM/yyyy")</strong>
+            Cập nhật lần cuối: <strong>@ngayCapNhat</strong>
         </p>
-        <p class="text-muted font-italic small text-right mb-1">
-            Cập nhật lần cuối: <strong>@DateTime.ParseExact(Model.NgayCapNhat.ToString(), "yyyyMMdd", null).ToString("dd/MM/yyyy")</strong>
-        </p>
+
 
         <!-- ID ẩn -->
         <input type="hidden" id="BaiVietID" value="@Model.ID" />

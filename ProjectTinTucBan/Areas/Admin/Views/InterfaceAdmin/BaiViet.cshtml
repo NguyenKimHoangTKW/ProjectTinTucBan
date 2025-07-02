@@ -106,6 +106,23 @@
         border-left: 1px solid #5a8dee !important;
         border-right: 1px solid #5a8dee !important;
     }
+    /* Thu hẹp cột Ngày đăng (cột 6) */
+    #table_load_baiviet th:nth-child(6),
+    #table_load_baiviet td:nth-child(6) {
+        width: 100px !important;
+        max-width: 110px;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    /* Mở rộng cột Ngày cập nhật (cột 7) */
+    #table_load_baiviet th:nth-child(7),
+    #table_load_baiviet td:nth-child(7) {
+        width: 150px !important;
+        max-width: 160px;
+        text-align: center;
+        white-space: nowrap;
+    }
 
     /* Nếu bạn đang dùng bảng khác */
     #data-table tbody td {
@@ -255,6 +272,12 @@
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
             </div>
         </form>
+    </div>
+    <div id="savingSpinner" class="text-center my-2 d-none">
+        <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Đang lưu...</span>
+        </div>
+        <p class="mt-2 font-italic text-muted">Đang lưu bài viết...</p>
     </div>
 </div>
 
