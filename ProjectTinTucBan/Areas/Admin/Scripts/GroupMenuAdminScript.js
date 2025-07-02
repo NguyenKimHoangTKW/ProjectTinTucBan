@@ -31,6 +31,15 @@ function renderGroupMenuTabs(groupMenus) {
         return;
     }
 
+    // Ánh xạ giá trị AsignTo sang tên vị trí
+    function getAsignToName(asignTo) {
+        switch (asignTo) {
+            case 1: return 'Header';
+            case 2: return 'User Navbar';
+            default: return 'Không xác định';
+        }
+    }
+
     var tabList = '';
     var tabContent = '';
     var first = true;
@@ -48,6 +57,18 @@ function renderGroupMenuTabs(groupMenus) {
         } else if (!currentActiveTabId && first) {
             isActive = true;
             currentActiveTabId = tabId;
+        }
+
+        // Tạo nút xóa chỉ khi IsImportant !== 1
+        var deleteButtonHtml = '';
+        if (group.IsImportant !== 1) {
+            deleteButtonHtml = `
+                <button class="btn btn-danger delete-groupmenu-btn" 
+                        data-id="${group.ID}"
+                        title="Xóa group menu">
+                    <i class="fas fa-trash"></i><span class="d-none d-md-inline ml-1">Xóa</span>
+                </button>
+            `;
         }
 
         tabList += `
@@ -70,14 +91,12 @@ function renderGroupMenuTabs(groupMenus) {
                         <button class="btn btn-warning edit-groupmenu-btn" 
                                 data-id="${group.ID}" 
                                 data-ten="${group.Ten}"
+                                data-asignto="${group.AsignTo}"
+                                data-isimportant="${group.IsImportant}"
                                 title="Sửa group menu">
                             <i class="fas fa-edit"></i><span class="d-none d-md-inline ml-1">Sửa</span>
                         </button>
-                        <button class="btn btn-danger delete-groupmenu-btn" 
-                                data-id="${group.ID}"
-                                title="Xóa group menu">
-                            <i class="fas fa-trash"></i><span class="d-none d-md-inline ml-1">Xóa</span>
-                        </button>
+                        ${deleteButtonHtml}
                     </div>
                 </div>
             </li>
@@ -144,6 +163,7 @@ function renderGroupMenuTabs(groupMenus) {
                 <div class="card">
                     <div class="card-body">
                         <h6 class="card-subtitle mb-3 text-muted">
+                            Vị trí sử dụng: <strong>${getAsignToName(group.AsignTo)}</strong><br>
                             Ngày tạo: ${formatUnixToDate(group.NgayTao)}
                             <br>
                             Ngày cập nhật: ${formatUnixToDate(group.NgayCapNhat)}
@@ -316,12 +336,16 @@ function initializeTabHandlers() {
 
 /* Code chức năng */
 // Thêm group menu
-function addGroupMenu(ten) {
+function addGroupMenu(ten, isImportant, asignTo) {
     $.ajax({
         url: `${BASE_URL}/add-groupmenu`,
         type: 'POST',
         contentType: 'application/json',
-        data: JSON.stringify({ Ten: ten }),
+        data: JSON.stringify({
+            Ten: ten,
+            IsImportant: isImportant,
+            AsignTo: asignTo
+        }),
         success: function (res) {
             Swal.fire({
                 icon: res.success ? 'success' : 'error',
@@ -335,12 +359,17 @@ function addGroupMenu(ten) {
 }
 
 // Sửa group menu
-function editGroupMenu(id, ten) {
+function editGroupMenu(id, ten, isImportant, asignTo) {
     $.ajax({
         url: `${BASE_URL}/edit-groupmenu`,
         type: 'POST',
         contentType: 'application/json',
-        data: JSON.stringify({ ID: id, Ten: ten }),
+        data: JSON.stringify({
+            ID: id,
+            Ten: ten,
+            IsImportant: isImportant,
+            AsignTo: asignTo
+        }),
         success: function (res) {
             Swal.fire({
                 icon: res.success ? 'success' : 'error',
@@ -629,11 +658,13 @@ $(document).ready(function () {
     $('#add-groupmenu-form').submit(function (e) {
         e.preventDefault();
         var ten = $('#groupMenuName').val().trim();
+        var asignTo = $('#groupAsignTo').val().trim();
+        var isImportant = $('#groupImportant').is(':checked') ? 1 : 0;
         if (!ten) {
             alert('Tên group không được để trống!');
             return;
         }
-        addGroupMenu(ten);
+        addGroupMenu(ten, isImportant, asignTo);
         $('#addGroupMenuModal').modal('hide');
         loadGroupMenus();
     });
@@ -666,10 +697,22 @@ $(document).ready(function () {
     // Xử lý click nút sửa group menu
     $(document).on('click', '.edit-groupmenu-btn', function (e) {
         e.stopPropagation();
+
+        // Xóa thông tin cũ trước khi load mới
+        $('#editGroupMenuId').val('');
+        $('#editGroupMenuName').val('');
+        $('#editGroupAsignTo').val('');
+        $('#editGroupImportant').prop('checked', false);
+
+
         var id = $(this).data('id');
         var ten = $(this).data('ten');
+        var asignTo = $(this).data('asignto') || 0; 
+        var isImportant = $(this).data('isimportant') || 0;
         $('#editGroupMenuId').val(id);
         $('#editGroupMenuName').val(ten);
+        $('#editGroupAsignTo').val(asignTo);
+        $('#editGroupImportant').prop('checked', isImportant === 1);
         $('#editGroupMenuModal').modal('show');
     });
 
@@ -683,13 +726,15 @@ $(document).ready(function () {
     // Xử lý submit form sửa group menu
     $('#edit-groupmenu-form').submit(function (e) {
         e.preventDefault();
-        var id = $('#editGroupMenuId').val(); 
+        var id = $('#editGroupMenuId').val();
         var ten = $('#editGroupMenuName').val().trim();
+        var asignTo = $('#editGroupAsignTo').val().trim();
+        var isImportant = $('#editGroupImportant').is(':checked') ? 1 : 0;
         if (!ten) {
             alert('Tên group không được để trống!');
             return;
         }
-        editGroupMenu(id, ten);
+        editGroupMenu(id, ten, isImportant, asignTo);
         $('#editGroupMenuModal').modal('hide');
         loadGroupMenus();
     });
@@ -759,6 +804,7 @@ $(document).ready(function () {
             }
         });
     });
+
     /*
      //Xóa submenu từ group
     $(document).on('click', '.delete-submenu-from-group-btn', function (e) {
@@ -778,7 +824,7 @@ $(document).ready(function () {
                 deleteSubMenuFromGroup(subMenuId, menuId, groupId, btn);
             }
         });
-    }); */
+    }); 
 
 
     // Handler riêng cho nút "Gán submenu vào menu"
@@ -835,4 +881,5 @@ $(document).ready(function () {
             loadGroupMenus();
         }
     });
+    */
 });
