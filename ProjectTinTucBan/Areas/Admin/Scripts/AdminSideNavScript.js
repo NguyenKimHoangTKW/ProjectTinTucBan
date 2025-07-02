@@ -247,5 +247,5 @@
             });
     }
 
-    //loadSideNav();
+    loadSideNav();
 });

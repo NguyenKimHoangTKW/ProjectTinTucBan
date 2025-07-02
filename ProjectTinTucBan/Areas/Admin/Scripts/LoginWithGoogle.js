@@ -74,11 +74,8 @@ async function Session_Login(email, fullname, given_name, family_name) {
                 email: email,
                 name: fullname,
                 role: res.idRole,
-<<<<<<< HEAD
                 userId: res.idUser,
-=======
                 userId: res.userId,
->>>>>>> 7a5b32893c2ad8b6dfbc63194eced800b2532658
                 time: new Date().toISOString()
             }));
 
