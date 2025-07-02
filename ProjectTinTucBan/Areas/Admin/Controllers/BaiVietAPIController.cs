@@ -12,11 +12,15 @@ using ProjectTinTucBan.Helper;
 
 namespace ProjectTinTucBan.Areas.Admin.Controllers
 {
+
     [RoutePrefix("api/v1/admin")]
     public class BaiVietAPIController : ApiController
     {
         WebTinTucTDMUEntities db = new WebTinTucTDMUEntities();
-
+        private int GetUnixTimestamp()
+        {
+            return (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+        }
         // GET: Lấy tất cả bài viết
         [HttpGet]
         [Route("get-all-baiviet")]
@@ -101,13 +105,13 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
             try
             {
-                int currentDate = int.Parse(DateTime.Now.ToString("yyyyMMdd"));
+                int currentTimestamp = GetUnixTimestamp();
                 var tk = Helper.SessionHelper.GetUser();
                 if (tk == null)
                     return Content(HttpStatusCode.Unauthorized, new { success = false, message = "Bạn cần đăng nhập để thực hiện thao tác này." });
                 // Gán thêm ngày đăng + view + tài khoản
-                model.NgayDang = currentDate;
-                model.NgayCapNhat = currentDate;
+                model.NgayDang = currentTimestamp;
+                model.NgayCapNhat = currentTimestamp;
                 model.ViewCount = 0;
                 model.ID_NguoiDang = tk.ID; // Lấy ID người đăng từ session
 
@@ -159,8 +163,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             existing.LinkThumbnail = updatedBaiViet.LinkThumbnail;
             existing.LinkPDF = updatedBaiViet.LinkPDF;
             existing.ID_MucLuc = updatedBaiViet.ID_MucLuc;
-            existing.NgayCapNhat = int.Parse(DateTime.Now.ToString("yyyyMMdd"));
-
+            existing.NgayCapNhat = GetUnixTimestamp();
             await db.SaveChangesAsync();
 
             return Ok(new { success = true, message = "Cập nhật bài viết thành công." });
@@ -168,7 +171,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
         // DELETE: Xóa bài viết
         [HttpDelete]
-        [Route("xoa-baiviet/{id:int}")]
+        [Route("xoa-baiviet/{id}")]
         public async Task<IHttpActionResult> XoaBaiViet(int id)
         {
             try
@@ -176,6 +179,21 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 var baiViet = await db.BaiViets.FindAsync(id);
                 if (baiViet == null)
                     return Content(HttpStatusCode.NotFound, new { success = false, message = "Không tìm thấy bài viết." });
+
+                // Lấy người dùng hiện tại từ session
+                var currentUser = Helper.SessionHelper.GetUser();
+                if (currentUser == null)
+                    return Content(HttpStatusCode.Unauthorized, new { success = false, message = "Bạn cần đăng nhập." });
+
+                // Cho phép xóa nếu: là admin (id_role == 1) hoặc là tác giả
+                if (currentUser.ID_role != 1 && baiViet.ID_NguoiDang != currentUser.ID)
+                {
+                    return Content(HttpStatusCode.Forbidden, new
+                    {
+                        success = false,
+                        message = "Bạn không có quyền xóa bài viết này."
+                    });
+                }
 
                 db.BaiViets.Remove(baiViet);
                 await db.SaveChangesAsync();
@@ -193,29 +211,66 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             }
         }
 
-        // PUT: Cập nhật chỉ nội dung bài viết
+        // PUT: Cập nhật nội dung bài viết
         [HttpPut]
         [Route("update-noidung/{id}")]
         public async Task<IHttpActionResult> UpdateNoiDung(int id, [FromBody] dynamic body)
         {
             if (body == null || body.noiDung == null)
-                return BadRequest("Nội dung không được để trống.");
+            {
+                return Content(HttpStatusCode.BadRequest, new
+                {
+                    success = false,
+                    message = "Nội dung không được để trống."
+                });
+            }
 
             var baiViet = await db.BaiViets.FindAsync(id);
             if (baiViet == null)
-                return NotFound();
+            {
+                return Content(HttpStatusCode.NotFound, new
+                {
+                    success = false,
+                    message = "Không tìm thấy bài viết."
+                });
+            }
+
+            var currentUser = SessionHelper.GetUser();
+            if (currentUser == null)
+            {
+                return Content(HttpStatusCode.Unauthorized, new
+                {
+                    success = false,
+                    message = "Bạn cần đăng nhập để thực hiện thao tác này."
+                });
+            }
+
+            // ✅ Phân quyền: chỉ admin (ID_role == 1) hoặc là người đăng mới được sửa
+            if (currentUser.ID_role != 1 && baiViet.ID_NguoiDang != currentUser.ID)
+            {
+                return Content(HttpStatusCode.Forbidden, new
+                {
+                    success = false,
+                    message = "Bạn không có quyền sửa bài viết này."
+                });
+            }
 
             try
             {
                 baiViet.NoiDung = (string)body.noiDung;
-                baiViet.NgayCapNhat = int.Parse(DateTime.Now.ToString("yyyyMMdd"));
+                baiViet.NgayCapNhat = GetUnixTimestamp();
 
                 await db.SaveChangesAsync();
 
-                return Ok(new { success = true, message = "Cập nhật nội dung thành công." });
+                return Ok(new
+                {
+                    success = true,
+                    message = "Cập nhật nội dung thành công."
+                });
             }
             catch (Exception ex)
             {
+                // Có thể log thêm ex.StackTrace nếu cần
                 return Content(HttpStatusCode.InternalServerError, new
                 {
                     success = false,
@@ -224,6 +279,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 });
             }
         }
+
 
         // GET: Lấy danh sách ảnh từ thư viện
         [HttpGet]

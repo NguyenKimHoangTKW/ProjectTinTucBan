@@ -166,6 +166,7 @@ $(document).ready(function () {
 
         const noiDung = CKEDITOR.instances.NoiDung.getData().trim();
         const id = $('#BaiVietID').val();
+        const tieuDe = $('#TieuDeBaiViet').val().trim();
 
         if (!noiDung || !id) {
             Swal.fire('Thiếu dữ liệu', 'Không có nội dung hoặc ID để cập nhật.', 'warning');
@@ -177,7 +178,7 @@ $(document).ready(function () {
                 url: `${BASE_URL}/update-noidung/${id}`,
                 type: 'PUT',
                 contentType: 'application/json',
-                data: JSON.stringify({ noiDung: noiDung })
+                data: JSON.stringify({ noiDung: noiDung, tieuDe: tieuDe })
             });
 
             if (res.success) {
@@ -185,17 +186,35 @@ $(document).ready(function () {
                     toast: true,
                     position: 'top-end',
                     icon: 'success',
-                    title: 'Lưu thông tin thành công!',
+                    title: res.message,
                     showConfirmButton: false,
-                    timer: 2000,
+                    timer: 1000,
                     timerProgressBar: true
                 });
             } else {
-                Swal.fire('Lỗi', res.message || 'Không thể cập nhật.', 'error');
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: res.message,
+                    showConfirmButton: false,
+                    timer: 1000,
+                    timerProgressBar: true
+                });
             }
+
+
         } catch (err) {
-            Swal.fire('Lỗi', 'Lỗi kết nối hoặc máy chủ.', 'error');
+            if (err.status === 403 && err.responseJSON && err.responseJSON.message) {
+                Swal.fire({ icon: 'warning', title: 'Không được phép', text: err.responseJSON.message });
+            } else if (err.status === 401) {
+                Swal.fire({ icon: 'warning', title: 'Chưa đăng nhập', text: 'Vui lòng đăng nhập lại.' });
+            } else {
+                Swal.fire({ icon: 'error', title: 'Lỗi', text: 'Đã xảy ra lỗi khi cập nhật nội dung.' });
+            }
         }
+
     });
 
     // ---------- Quay lại ----------
@@ -209,83 +228,6 @@ $(document).ready(function () {
         }
     });
 
-    // ---------- Xem trước PDF (đã cải thiện) ----------
-    //$('#btnPreviewPdf').on('click', async function () {
-    //    const result = await Swal.fire({
-    //        title: 'Bạn có muốn xem trước PDF không?',
-    //        icon: 'info',
-    //        showCancelButton: true,
-    //        confirmButtonText: 'Xem',
-    //        cancelButtonText: 'Hủy'
-    //    });
-
-    //    if (!result.isConfirmed) return;
-
-    //    // Hiển thị loading
-    //    Swal.fire({
-    //        title: 'Đang chuẩn bị PDF...',
-    //        allowOutsideClick: false,
-    //        didOpen: () => {
-    //            Swal.showLoading();
-    //        }
-    //    });
-
-    //    const title = $('.title').text().trim().toUpperCase();
-    //    const noiDung = CKEDITOR.instances.NoiDung.getData();
-
-    //    // Tạo container mới với class đặc biệt cho PDF
-    //    const container = document.createElement('div');
-    //    container.className = 'pdf-container'; // Thêm class đặc biệt
-    //    container.innerHTML = `
-    //    <div style="text-align: center;">
-    //        <h2>${title}</h2>
-    //        <hr />
-    //    </div>
-    //    <div>${noiDung}</div>
-    //`;
-
-    //    // Đợi CKEditor cập nhật xong và hình ảnh tải hoàn tất
-    //    await new Promise(resolve => setTimeout(resolve, 500));
-
-    //    // Chờ tất cả hình ảnh tải xong
-    //    await waitForImagesToLoad(container);
-
-    //    const opt = {
-    //        margin: 0.5,
-    //        image: { type: 'jpeg', quality: 0.98 },
-    //        html2canvas: {
-    //            scale: 2,
-    //            useCORS: true,
-    //            allowTaint: true,
-    //            logging: true,
-    //            ignoreElements: (element) => {
-    //                // Bỏ qua các phần tử không cần thiết khi tạo PDF
-    //                return element.classList.contains('main-content') ||
-    //                    element.classList.contains('btn');
-    //            }
-    //        },
-    //        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
-    //        pagebreak: { mode: ['css', 'legacy'] }
-    //    };
-
-    //    try {
-    //        const pdfBlob = await html2pdf().set(opt).from(container).outputPdf('blob');
-    //        const blobUrl = URL.createObjectURL(pdfBlob);
-
-    //        Swal.close();
-
-    //        Swal.fire({
-    //            title: 'Xem trước PDF',
-    //            html: `<iframe src="${blobUrl}" width="100%" height="500px" style="border:none;"></iframe>`,
-    //            width: '90%',
-    //            showCloseButton: true,
-    //            showConfirmButton: false
-    //        });
-    //    } catch (error) {
-    //        console.error('Error generating PDF:', error);
-    //        Swal.fire('Lỗi', 'Không thể tạo PDF. Vui lòng thử lại.', 'error');
-    //    }
-    //});
     // ---------- Xem trước PDF (phiên bản đã sửa hoàn chỉnh) ----------
     $('#btnPreviewPdf').on('click', async function () {
         const result = await Swal.fire({
@@ -308,7 +250,7 @@ $(document).ready(function () {
         });
 
         try {
-            const title = $('.title').text().trim().toUpperCase();
+            const title = $('#TieuDeBaiViet').val().trim().toUpperCase();
             const noiDung = CKEDITOR.instances.NoiDung.getData();
 
             // Tạo container mới với CSS đặc biệt cho PDF
@@ -398,7 +340,7 @@ $(document).ready(function () {
                     <iframe src="${blobUrl}" width="100%" height="100%" style="border: none;"></iframe>
                 </div>
             `,
-                width: '90%',
+                width: '60%',
                 showCloseButton: true,
                 showConfirmButton: false,
                 customClass: {
