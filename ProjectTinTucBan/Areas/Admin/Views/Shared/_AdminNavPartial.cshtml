@@ -80,8 +80,73 @@
                     <span class="title">Quản lý Slider hình ảnh</span>
                 </a>
             </li>
-
-
+            <li class="nav-item dropdown">
+                <a class="dropdown-toggle" href="javascript:void(0);">
+                    <span class="icon-holder">
+                        <i class="fas fa-user-graduate"></i>
+                    </span>
+                    <span class="title">Quản lý học phần người học</span>
+                    <span class="arrow">
+                        <i class="fas fa-chevron-down"></i>
+                    </span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a href="/admin/danh-sach-mon-hoc">Danh sách môn học</a>
+                    </li>
+                    <li>
+                        <a href="/admin/danh-sach-nguoi-hoc-co-hoc-phan">Danh sách người học có học phần</a>
+                    </li>
+                </ul>
+            </li>
+            <!-- Quản lý thống kê -->
+            <li class="nav-item dropdown">
+                <a class="dropdown-toggle" href="javascript:void(0);">
+                    <span class="icon-holder">
+                        <i class="fas fa-chart-area"></i>
+                    </span>
+                    <span class="title">Giám sát </span>
+                    <span class="arrow">
+                        <i class="fas fa-chevron-down"></i>
+                    </span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a href="/admin/giam-sat-ty-le-tham-gia-khao-sat">Giám sát tỷ lệ tham gia khảo sát</a>
+                    </li>
+                    <li>
+                        <a href="/admin/thong-ke-ket-qua-khao-sat">Giám sát tỷ lệ kết quả khảo sát</a>
+                    </li>
+                    <li>
+                        <a href="/admin/bao-cao-tong-hop-ket-qua-khao-sat">Báo cáo tổng hợp</a>
+                    </li>
+                </ul>
+            </li>
+            <!-- Phân quyền tài khoản -->
+            <li class="nav-item dropdown">
+                @* Thay đổi ở đây *@
+                <a class="dropdown-toggle" href="javascript:void(0);">
+                    @* Thay đổi ở đây *@
+                    <span class="icon-holder">
+                        <i class="fas fa-user-shield"></i>
+                    </span>
+                    <span class="title">Phân quyền tài khoản</span>
+                    <span class="arrow">
+                        @* Thêm mũi tên *@
+                        <i class="fas fa-chevron-down"></i>
+                    </span>
+                </a>
+                <ul class="dropdown-menu">
+                    @* Thêm danh sách con *@
+                    <li>
+                        <a href="@Url.Action("AccountList", "InterfaceAdmin", new { Area = "Admin" })">Danh sách tài khoản</a>
+                    </li>
+                    <li>
+                        <a href="@Url.Action("ManageRoles", "InterfaceAdmin", new { Area = "Admin" })">Quản lý vai trò</a> @* Mục mới *@
+                    </li>
+                    @* Bạn có thể thêm các mục khác liên quan đến phân quyền ở đây *@
+                </ul>
+            </li>
         </ul>
     </div>
 </div>

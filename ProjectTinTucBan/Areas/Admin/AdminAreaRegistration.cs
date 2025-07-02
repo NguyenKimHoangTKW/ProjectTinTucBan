@@ -56,6 +56,16 @@ namespace ProjectTinTucBan.Areas.Admin
                 new { controller = "InterfaceAdmin", action = "Menu" }
             );
             context.MapRoute(
+               "Admin_Khoi",
+               "Admin/Khoi",
+               new { controller = "InterfaceAdmin", action = "Index_Khoi" }
+           );
+            context.MapRoute(
+              "Admin_DonViTrucThuoc",
+              "Admin/DonViTrucThuoc",
+              new { controller = "InterfaceAdmin", action = "Index_DonViTrucThuoc" }
+          );
+            context.MapRoute(
                 "bai-viet",
                 "Admin/bai-viet",
                 new { controller = "InterfaceAdmin", action = "BaiViet" }
