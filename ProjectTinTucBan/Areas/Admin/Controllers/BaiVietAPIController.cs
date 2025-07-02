@@ -44,7 +44,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 .ToListAsync();
 
             return Ok(new { data, success = true });
-        } 
+        }
 
         // GET: Lấy bài viết theo ID
         [HttpGet]

@@ -324,6 +324,7 @@
     <Compile Include="Areas\Admin\AdminAreaRegistration.cs" />
     <Compile Include="Areas\Admin\Controllers\BaiVietAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\DonViTrucThuocController.cs" />
+    <Compile Include="Areas\Admin\Controllers\FunctionAdminAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\InterfaceAdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\KhoiController.cs" />
     <Compile Include="Areas\Admin\Controllers\LoginAPIController.cs" />
@@ -365,7 +366,9 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\SampleDirection.cs" />
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
+    <Compile Include="Controllers\BaiVietController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\MuclucAPIController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -381,19 +384,19 @@
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\dbTinTucKhaoThiModel.Context.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
       <DependentUpon>dbTinTucKhaoThiModel.Context.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="Models\dbTinTucKhaoThiModel.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="Models\dbTinTucKhaoThiModel.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
       <DependentUpon>dbTinTucKhaoThiModel.edmx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="Models\DonViTrucThuoc.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
@@ -1245,15 +1248,19 @@
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Models\dbTinTucKhaoThiModel.Context.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>dbTinTucKhaoThiModel.edmx</DependentUpon>
+      <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>dbTinTucKhaoThiModel.Context.cs</LastGenOutput>
     </Content>
-    <Content Include="Models\dbTinTucKhaoThiModel.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
+    <Content Include="Models\dbTinTucKhaoThiModel.edmx.diagram">
       <DependentUpon>dbTinTucKhaoThiModel.edmx</DependentUpon>
+    </Content>
+    <Content Include="Models\dbTinTucKhaoThiModel.tt">
+      <DependentUpon>dbTinTucKhaoThiModel.edmx</DependentUpon>
+      <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>dbTinTucKhaoThiModel.cs</LastGenOutput>
     </Content>
+    <Content Include="Scripts\BaiViet.js" />
     <Content Include="Scripts\bootstrap.bundle.js" />
     <Content Include="Scripts\bootstrap.bundle.min.js" />
     <Content Include="Scripts\bootstrap.esm.js" />
@@ -1279,13 +1286,6 @@
     <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\CollectionModelDescription.cshtml" />
     <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\ApiGroup.cshtml" />
     <Content Include="Areas\HelpPage\Views\Help\Api.cshtml" />
-    <EntityDeploy Include="Models\dbTinTucKhaoThiModel.edmx">
-      <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>dbTinTucKhaoThiModel.Designer.cs</LastGenOutput>
-    </EntityDeploy>
-    <Content Include="Models\dbTinTucKhaoThiModel.edmx.diagram">
-      <DependentUpon>dbTinTucKhaoThiModel.edmx</DependentUpon>
-    </Content>
     <Content Include="Areas\Admin\Views\web.config" />
     <Content Include="Areas\Admin\Views\Shared\_AdminLayout.cshtml" />
     <Content Include="Areas\Admin\Views\Shared\Error.cshtml" />
@@ -1568,6 +1568,7 @@
     <Content Include="Uploads\Thumbnails\BrainDmgPika_20250620090413.jpg" />
     <Content Include="Uploads\Thumbnails\BrainDmgPika_20250620090419.jpg" />
     <Content Include="Uploads\Thumbnails\museum_meme_20250619151223.jpg" />
+    <Content Include="Uploads\Thumbnails\Screenshot 2025-05-18 144017_20250702115238.png" />
     <Content Include="Uploads\Thumbnails\Screenshot 2025-05-28 130510_20250625161915.png" />
     <Content Include="Uploads\Thumbnails\z5904852926621_ea1a20e2a957ca24f66c1f2150af9c8e_20250619110751.jpg" />
     <Content Include="Web.config" />
@@ -1588,11 +1589,18 @@
     <Content Include="Uploads\PDFs\Bai thuc hanh 1_BT3,4 %28NHOM%29_20250619152631.pdf" />
     <Content Include="Uploads\PDFs\test_20250619152104.pdf" />
     <Content Include="Uploads\PDFs\test_20250619152157.pdf" />
+    <Content Include="Views\Home\Introduction.cshtml" />
+    <Content Include="Views\Home\Contact.cshtml" />
+    <Content Include="Views\Home\XemNoiDung.cshtml" />
+    <Content Include="Views\BaiViet\XemNoiDung.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Areas\Admin\Data\" />
+    <Folder Include="Areas\Admin\Views\TinTuc\" />
     <Folder Include="Uploads\Slider\" />
+    <Folder Include="Views\MuclucAPI\" />
+    <Folder Include="Views\TinTuc\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Scripts\bootstrap.min.js.map" />
@@ -1671,6 +1679,12 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="Areas\assets\vendors\popper.js\index.d.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <EntityDeploy Include="Models\dbTinTucKhaoThiModel.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>dbTinTucKhaoThiModel.Designer.cs</LastGenOutput>
+    </EntityDeploy>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
