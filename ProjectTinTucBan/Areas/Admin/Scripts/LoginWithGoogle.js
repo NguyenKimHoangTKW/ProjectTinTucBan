@@ -1,6 +1,6 @@
 ﻿function signIn() {
     google.accounts.oauth2.initTokenClient({
-        client_id: "678573924749-o17gesu5kjqachg7q87emoklr9ke020s.apps.googleusercontent.com", // New client ID
+        client_id: "678573924749-o17gesu5kjqachg7q87emoklr9ke020s.apps.googleusercontent.com",
         scope: "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
         callback: (response) => {
             if (response.access_token) {
@@ -9,15 +9,23 @@
                 })
                     .then(res => res.json())
                     .then(userInfo => {
-                        Session_Login(userInfo.email, userInfo.name);
+                        // Log all name-related fields for debugging
+                        console.log("Full Google response:", userInfo);
+
+                        // Call Session_Login with all name fields
+                        Session_Login(
+                            userInfo.email,
+                            userInfo.name || "",           // Full name as fallback
+                            userInfo.given_name || "",     // First name
+                            userInfo.family_name || ""     // Last name
+                        );
                     })
                     .catch(error => {
                         Sweet_Alert("error", "Lỗi khi lấy thông tin từ Google");
                     });
             }
         },
-        // Update redirect URI to match what's in Google Console
-        redirect_uri: "https://localhost:44305/signin-google" // Updated redirect URI
+        redirect_uri: "https://localhost:44305/signin-google"
     }).requestAccessToken();
 }
 
@@ -38,7 +46,7 @@ function togglePassword(inputId) {
 
 
 
-async function Session_Login(email, fullname) {
+async function Session_Login(email, fullname, given_name, family_name) {
     try {
         // Validate email domain
         if (!email.endsWith('@student.tdmu.edu.vn') && !email.endsWith('@tdmu.edu.vn')) {
@@ -55,6 +63,8 @@ async function Session_Login(email, fullname) {
             data: JSON.stringify({
                 email: email,
                 name: fullname,
+                given_name: given_name,
+                family_name: family_name
             }),
         });
 

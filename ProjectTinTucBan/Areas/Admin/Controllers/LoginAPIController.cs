@@ -55,6 +55,25 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 return BadRequest("Email không được để trống");
             }
 
+
+            if (!string.IsNullOrWhiteSpace(model.name))
+            {
+                // Xử lý tên nếu nhận được tên đầy đủ từ Google
+                string[] nameParts = model.name.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                if (nameParts.Length > 1)
+                {
+                    // Chuyển tên đầu (tên riêng) ra sau cùng theo kiểu tên tiếng Việt
+                    string firstName = nameParts[0];
+                    model.name = string.Join(" ", nameParts.Skip(1)) + " " + firstName;
+                }
+            }
+            else
+            {
+                // Nếu không có tên, dùng username từ email
+                model.name = model.email.Split('@')[0];
+            }
+
+
             // Validate email domain
             if (!model.email.EndsWith("@student.tdmu.edu.vn") && !model.email.EndsWith("@tdmu.edu.vn"))
             {
@@ -137,12 +156,21 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     if (existingAccount.TenTaiKhoan != username)
                     {
                         existingAccount.TenTaiKhoan = username;
+                        existingAccount.Name = model.name;
                         existingAccount.CountPasswordFail = 0;
                         existingAccount.LockTime = null;
                         existingAccount.NgayCapNhat = unixTimestamp;
                         existingAccount.LockTimeout = null;
 
                         await db.SaveChangesAsync();
+                    } else if (existingAccount.Name != model.name)
+                    {
+                        existingAccount.TenTaiKhoan = username;
+                        existingAccount.Name = model.name;
+                        existingAccount.CountPasswordFail = 0;
+                        existingAccount.LockTime = null;
+                        existingAccount.NgayCapNhat = unixTimestamp;
+                        existingAccount.LockTimeout = null;
                     }
                 }
 
@@ -768,7 +796,9 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
     public class GoogleLoginModel
     {
         public string email { get; set; }
-        public string name { get; set; } 
+        public string name { get; set; }
+        public string given_name { get; set; }
+        public string family_name { get; set; }
     }
 
     public class LoginModel
