@@ -130,7 +130,7 @@ namespace ProjectTinTucBan.Controllers.Api
         private void HandleError(Exception ex)
         {
             var errorMessage = ex.Message ?? "Không thể lưu dữ liệu.";
-       
+
         }
     }
 }

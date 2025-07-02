@@ -746,7 +746,7 @@ function resetModalForm() {
     $('#BaiVietID').val('');
     $('#LinkThumbnail').val('');
     $('#LinkPDF').val('');
-    $('#ID_MucLuc').val(''); 
+    $('#ID_MucLuc').val('');
     $('#previewThumbnail').html('');
     $('#previewPDF').html('');
     $('#btnXoaThumbnail').addClass('d-none');

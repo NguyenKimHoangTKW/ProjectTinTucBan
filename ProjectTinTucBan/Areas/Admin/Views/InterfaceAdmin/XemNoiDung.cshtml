@@ -1,4 +1,4 @@
-﻿@model ProjectTinTucBan.Models.BaiViet
+﻿﻿@model ProjectTinTucBan.Models.BaiViet
 
 @{
     ViewBag.Title = "Xem Nội Dung";
@@ -21,6 +21,7 @@
         body {
             background: linear-gradient(to right, #e3f2fd, #bbdefb);
         }
+
         .main-content {
             width: 100%;
             max-width: 750px;
@@ -85,9 +86,11 @@
             page-break-inside: avoid;
             break-inside: avoid;
         }
+
         textarea#NoiDung {
             min-height: 400px;
         }
+
         .pdf-preview-container {
             width: 100% !important;
             max-width: 100% !important;
@@ -119,7 +122,7 @@
         <h2 class="title">@Model.TieuDe</h2>
         <p class="text-muted font-italic small text-right mb-1 mt-0">
             Người đăng: <strong>@ViewBag.TenTaiKhoan</strong>
-      
+
         </p>
         <p class="text-muted font-italic small text-right mb-1">
             Ngày đăng bài: <strong>@DateTime.ParseExact(Model.NgayDang.ToString(), "yyyyMMdd", null).ToString("dd/MM/yyyy")</strong>
