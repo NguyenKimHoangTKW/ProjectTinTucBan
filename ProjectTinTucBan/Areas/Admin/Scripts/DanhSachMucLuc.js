@@ -45,7 +45,7 @@ function setupMucLucModalEvents() {
     });
 
     // Xử lý khi chuyển đổi trạng thái
-    $(document).on("change", ".toggle-status", function() {
+    $(document).on("change", ".toggle-status", function () {
         const id = $(this).data("id");
         const isChecked = $(this).prop("checked");
         toggleMucLucStatus(id, isChecked);
@@ -58,7 +58,7 @@ function openMucLucModalForAdd() {
     $("#mucLucForm")[0].reset();
     $("#mucLucId").val("");
     $("#formMode").val("add");
-    
+
     // Mặc định IsActive là true
     $("#isActive").prop("checked", true);
 

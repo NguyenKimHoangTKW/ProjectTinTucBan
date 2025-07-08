@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using ProjectTinTucBan.Helper;
 using System.Web.ModelBinding;
+using System.Runtime.CompilerServices;
 
 namespace ProjectTinTucBan.Areas.Admin.Controllers
 {
@@ -39,6 +40,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     MenuLink = m.Link,
                     IconName = m.IconName,
                     MenuOrder = m.ThuTuShow,
+                    IsImportant = m.IsImportant,
                     SubMenus = db.Menu_by_sub
                         .Where(x => x.id_menu == m.ID && x.id_sub != null)
                         .OrderBy(x => x.Sub_Menu.ThuTuShow)
@@ -92,8 +94,10 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                             MenuName = x.Ten,
                             MenuLink = x.Link,
                             IconName = x.IconName,
+                            IsImportant = x.IsImportant,
                             MenuOrder = x.ThuTuShow
-                        }).ToListAsync();
+                        }).Where(x => x.IsImportant!=2)
+                        .ToListAsync();
 
             if (menus == null || menus.Count == 0)
                 return NotFound();
@@ -117,6 +121,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
             // Gán giá trị ThuTuShow mới
             menu.ThuTuShow = maxThuTuShow + 1;
+            menu.IsImportant = 0;   
             menu.NgayDang = (int)unixTimestamp;
             menu.NgayCapNhat = (int)unixTimestamp;
 

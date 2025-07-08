@@ -323,6 +323,7 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Areas\Admin\AdminAreaRegistration.cs" />
     <Compile Include="Areas\Admin\Controllers\BaiVietAPIController.cs" />
+    <Compile Include="Areas\Admin\Controllers\DashboardController.cs" />
     <Compile Include="Areas\Admin\Controllers\DonViTrucThuocController.cs" />
     <Compile Include="Areas\Admin\Controllers\FunctionAdminAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\InterfaceAdminController.cs" />
@@ -334,6 +335,7 @@
     <Compile Include="Areas\Admin\Controllers\RolesAdminAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\MenuApiAdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\SliderApiAdminController.cs" />
+    <Content Include="Areas\Admin\Scripts\AdminHeaderPartial.js" />
     <Content Include="Areas\Admin\Scripts\AdminSideNavScript.js" />
     <Compile Include="Areas\Admin\Controllers\UploadPDFAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\UploadThumbnailAPIController.cs" />
@@ -377,6 +379,7 @@
     <Compile Include="Helper\EncryptionHelper.cs" />
     <Compile Include="Helper\SessionEnabledDelegatingHandler.cs" />
     <Compile Include="Helper\SessionHelper.cs" />
+    <Compile Include="Helper\UserAuthorizeAttribute.cs" />
     <Compile Include="Models\BaiViet.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
@@ -447,6 +450,7 @@
     <Content Include="Areas\Admin\Scripts\DanhSachChucNang.js" />
     <Content Include="Areas\Admin\Scripts\DanhSachMucluc.js" />
     <Content Include="Areas\Admin\Scripts\DanhSachRoles.js" />
+    <Content Include="Areas\Admin\Scripts\DashboardScript.js" />
     <Content Include="Areas\Admin\Scripts\DonViTrucThuoc.js" />
     <Content Include="Areas\Admin\Scripts\GroupMenuAdminScript.js" />
     <Content Include="Areas\Admin\Scripts\Khoi.js" />
@@ -458,18 +462,11 @@
     <Content Include="Areas\Admin\Scripts\DanhSachUser.js" />
     <Content Include="Areas\Admin\Scripts\LoginWithGoogle.js" />
     <Content Include="Areas\Admin\Scripts\XemNoiDung.js" />
-    <Content Include="Areas\Admin\Uploads\Slider\0dcd9495-dcb8-4fc7-b924-bc27c7ea3f57.jpeg" />
-    <Content Include="Areas\Admin\Uploads\Slider\19ffc442-085e-4f8f-84d8-4e2b7202a6ad.png" />
-    <Content Include="Areas\Admin\Uploads\Slider\2d0c6ee3-9230-454d-bab0-1884516b667c.jpg" />
-    <Content Include="Areas\Admin\Uploads\Slider\32f610cc-7cfe-42fa-9955-8e7e3049394b.jpg" />
-    <Content Include="Areas\Admin\Uploads\Slider\71e7bf3d-99aa-462c-b4b5-a21647f64f28.png" />
-    <Content Include="Areas\Admin\Uploads\Slider\c14ea662-cfbd-4085-bfe1-2b9fbe051c17.jpg" />
+    <Content Include="Areas\Admin\Uploads\Slider\7a70444e-f6b1-431d-bc95-3304b288e78f.png" />
+    <Content Include="Areas\Admin\Uploads\Slider\b54b5ec6-264e-4779-87ad-4cbc08c6962f.png" />
+    <Content Include="Areas\Admin\Uploads\Slider\ddcc75bc-2306-4787-b301-c49f31e87a29.png" />
+    <Content Include="Areas\Admin\Uploads\Slider\f81d2324-53a2-42e1-a8c6-34ae9084f56c.png" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Login.cshtml" />
-    <Content Include="Areas\Admin\Uploads\Slider\141625ba-0db3-409b-bfc0-b2f0a385af00.png" />
-    <Content Include="Areas\Admin\Uploads\Slider\309fcdd3-789a-4048-8b75-9cf8322ccd03.jpg" />
-    <Content Include="Areas\Admin\Uploads\Slider\8c8f483f-368a-4e83-9028-357440a60a56.png" />
-    <Content Include="Areas\Admin\Uploads\Slider\b40763c9-5dd7-45a4-a048-fe9177e1e4ca.png" />
-    <Content Include="Areas\Admin\Uploads\Slider\bf59e30c-e56a-402d-a957-46e4084da858.png" />
     <Content Include="Areas\Admin\Scripts\ThuVienAnh.js" />
     <Content Include="Areas\Admin\Scripts\Upload.js" />
     <Content Include="Areas\assets\css\app.min.css" />
@@ -1527,13 +1524,10 @@
     <Content Include="Areas\Admin\Views\Shared\_AdminHeaderPartial.cshtml" />
     <Content Include="Areas\Admin\Views\Shared\_AdminFooterPartial.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Index.cshtml" />
-    <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Function_Admin.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Khoi.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_MucLuc_Admin.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Roles_Admin.cshtml" />
-    <Content Include="Areas\Admin\Views\InterfaceAdmin\Menu.cshtml" />
     <Content Include="Areas\Admin\Views\Shared\TopNavTestPartial.cshtml" />
-    <Content Include="Areas\Admin\Views\InterfaceAdmin\Slider.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\BaiViet.cshtml" />
     <Content Include="assets\fonts\fontawesome-webfont.eot" />
     <Content Include="assets\fonts\fontawesome-webfont.ttf" />
@@ -1544,14 +1538,13 @@
     <Content Include="assets\fonts\line-awesome.ttf" />
     <Content Include="assets\fonts\line-awesome.woff" />
     <Content Include="assets\fonts\line-awesome.woff2" />
-    <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Function_Admin.cshtml" />
-    <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Users_Admin.cshtml" />
     <Content Include="Areas\Admin\Views\Shared\SliderTestShowPartial.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Users_Admin.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Menu.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Slider.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\XemNoiDung.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_DonViTrucThuoc.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Function_Admin.cshtml" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />

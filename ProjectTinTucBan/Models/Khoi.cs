@@ -25,6 +25,7 @@ namespace ProjectTinTucBan.Models
         public Nullable<int> ThuTuShow { get; set; }
         public Nullable<int> NgayDang { get; set; }
         public Nullable<int> NgayCapNhat { get; set; }
+        public Nullable<int> IsActive { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<DonViTrucThuoc> DonViTrucThuocs { get; set; }

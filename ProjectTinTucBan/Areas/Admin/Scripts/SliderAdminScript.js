@@ -16,41 +16,55 @@
                 $list.append('<tr><td colspan="6" class="text-center">Không có dữ liệu</td></tr>');
                 return;
             }
+            const maxOrder = Math.max(...data.map(slide => slide.ThuTuShow));
             data.forEach((slide, idx) => {
+                // Nếu là slide đầu, thay nút tăng bằng div rỗng
+                const increaseBtn = (slide.ThuTuShow === 1)
+                    ? '<div class="empty-order-btn"></div>'
+                    : `<button class="btn btn-sm btn-light btn-increase-order" data-id="${slide.ID}" title="Tăng">
+                        <i class="fa fa-arrow-up"></i>
+                   </button>`;
+                // Nếu là slide cuối, thay nút giảm bằng div rỗng
+                const decreaseBtn = (slide.ThuTuShow === maxOrder)
+                    ? '<div class="empty-order-btn"></div>'
+                    : `<button class="btn btn-sm btn-light btn-decrease-order" data-id="${slide.ID}" title="Giảm">
+                        <i class="fa fa-arrow-down"></i>
+                   </button>`;
                 $list.append(`
-                    <tr>
-                        <td class="text-center">${idx + 1}</td>
-                        <td class="text-center"><img src="${slide.LinkHinh}" alt="slide" style="max-width:120px;max-height:60px"></td>
-                        <td class="text-center">
-                            <button class="btn btn-sm btn-light btn-increase-order" data-id="${slide.ID}" title="Tăng">
-                                <i class="fa fa-arrow-up"></i>
-                            </button>
-                            <span class="mx-2">${slide.ThuTuShow ?? ''}</span>
-                            <button class="btn btn-sm btn-light btn-decrease-order" data-id="${slide.ID}" title="Giảm">
-                                <i class="fa fa-arrow-down"></i>
-                            </button>
-                        </td>
-                        <td class="text-center ">
+                <tr>
+                    <td class="text-center">${idx + 1}</td>
+                    <td class="text-center"><img src="${slide.LinkHinh}" alt="slide" style="max-width:120px;max-height:60px"></td>
+                    <td class="text-center">
+                        ${increaseBtn}
+                        <span class="mx-2">${slide.ThuTuShow ?? ''}</span>
+                        ${decreaseBtn}
+                    </td>
+                    <td class="text-center ">
+                        <label class="switch">
                             <input type="checkbox" class="toggle-active" data-id="${slide.ID}" ${slide.isActive ? 'checked' : ''} />
-                        </td>
-                        <td class="text-center">
-                            <button class="btn btn-warning btn-sm edit-slide-btn" 
-                                data-id="${slide.ID}" 
-                                data-linkhinh="${slide.LinkHinh}" 
-                                data-isactive="${slide.isActive}"
-                                data-target="editSlideModal">
-                                Sửa
-                            </button>
-                            <button class="btn btn-danger btn-sm delete-slide-btn" data-id="${slide.ID}">Xóa</button>
-                        </td>
-                    </tr>
-                `);
+                            <span class="slider"></span>
+                        </label>
+                    </td>
+                    <td class="text-center">
+                        <button class="btn btn-warning btn-sm edit-slide-btn" 
+                            data-id="${slide.ID}" 
+                            data-linkhinh="${slide.LinkHinh}" 
+                            data-isactive="${slide.isActive}"
+                            data-target="editSlideModal">
+                            Sửa
+                        </button>
+                        <button class="btn btn-danger btn-sm delete-slide-btn" data-id="${slide.ID}">Xóa</button>
+                    </td>
+                </tr>
+            `);
             });
         });
     }
 
     // Lấy danh sách khi load trang
     loadSlides();
+
+    
 
     // Xem trước ảnh khi chọn file (thêm)
     $('#addLinkHinh').on('change', function () {
@@ -117,15 +131,14 @@
                                 $('#add-slide-form')[0].reset();
                                 $('#addPreviewImg').hide();
 
-                                // Ẩn modal đúng cách
+                                // Ẩn modal
                                 $('#addSlideModal').modal('hide');
 
-                                // Dọn backdrop thủ công (phòng lỗi Bootstrap không xoá)
-                                setTimeout(() => {
+                                // Xóa backdrop
+                                $('#addSlideModal').on('hidden.bs.modal', function () {
                                     $('.modal-backdrop').remove();
-                                    $('body').removeClass('modal-open');
-                                    $('body').css('padding-right', '');
-                                }, 500); // đợi một chút để modal ẩn xong
+
+                                });
 
                                 // Hiển thị thông báo và reload
                                 showSwal(res2.message, 'success');
@@ -148,6 +161,26 @@
         });
     });
 
+
+
+    $(document).ready(function () {
+        // Toggle dropdown on click
+        $('[data-toggle="dropdown"]').on('click', function (e) {
+            e.preventDefault();
+            var $parent = $(this).closest('.dropdown');
+            // Đóng các dropdown khác
+            $('.dropdown').not($parent).removeClass('open');
+            // Toggle dropdown hiện tại
+            $parent.toggleClass('open');
+        });
+
+        // Đóng dropdown khi click ra ngoài
+        $(document).on('click', function (e) {
+            if (!$(e.target).closest('.dropdown').length) {
+                $('.dropdown').removeClass('open');
+            }
+        });
+    });
 
     // Hiển thị modal sửa
     $('#slider-list').on('click', '.edit-slide-btn', function () {

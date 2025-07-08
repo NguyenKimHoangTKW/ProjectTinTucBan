@@ -3,6 +3,341 @@
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
+
+<style>
+    .empty-order-btn {
+        display: inline-block;
+        width: 150px; 
+        height: 31px;
+        vertical-align: middle;
+    }
+    /* Định dạng DataTable giống như mẫu */
+    .dataTables_wrapper .dataTables_filter {
+        float: right;
+        text-align: right;
+        margin-bottom: 20px;
+    }
+
+    .dataTables_wrapper .dataTables_length {
+        float: left;
+        margin-bottom: 20px;
+    }
+
+    .dataTables_wrapper .dataTables_filter input {
+        margin-left: 10px;
+        padding: 6px 10px;
+        border: 1px solid ;
+        border-radius: 4px;
+        min-width: 220px;
+    }
+
+    #data-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        border-bottom:1px solid #000;
+    }
+
+        /* Thêm CSS để căn giữa nội dung trong tiêu đề và dữ liệu của bảng */
+        #data-table thead th {
+            padding: 15px 10px;
+            border-bottom: 1px solid;
+            font-weight: 500;
+            border-color: #000;
+            background-color: #5a8dee;
+            text-align: center !important;
+        }
+
+        #data-table tbody td {
+            padding: 15px 10px;
+            border-bottom: 1px solid;
+            color: #333;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        #data-table tbody tr:hover {
+            background-color: #f8f8f8;
+        }
+
+        #data-table tbody td:first-child,
+        #data-table tbody td:last-child,
+        #data-table tbody td:nth-child(4),
+        #data-table tbody td:nth-child(5),
+        #data-table tbody td:nth-child(6),
+        #data-table tbody td:nth-child(7) {
+            text-align: center;
+        }
+
+
+
+
+    /* Styling for status toggle switch */
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 30px;
+    }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 34px;
+    }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+    input:checked + .slider {
+        background-color: #20c997;
+    }
+
+    input:focus + .slider {
+        box-shadow: 0 0 1px #20c997;
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(30px);
+    }
+
+    /* Định dạng nút hình vuông */
+    .btn-icon {
+        width: 32px;
+        height: 32px;
+        padding: 5px;
+        line-height: 1;
+        border-radius: 4px;
+        background-color: transparent;
+        border: none;
+        margin-right: 5px;
+    }
+
+        .btn-icon:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+    /* Cải thiện hiển thị di động */
+    @@media screen and (max-width: 576px) {
+        #data-table {
+            display: block;
+            overflow-x: auto;
+        }
+
+        .modal-footer {
+            flex-direction: column;
+            align-items: stretch;
+            padding: 15px;
+        }
+
+            .modal-footer button {
+                margin: 5px 0;
+                width: 100%;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        /* Make modal body content more readable on mobile */
+        .modal-body {
+            padding: 15px;
+        }
+
+        .form-group small {
+            font-size: 11px;
+        }
+        /* Adjust input groups for better mobile display */
+        .input-group {
+            flex-wrap: nowrap;
+        }
+        /* Make sure modal header is properly displayed */
+        .modal-header h5 {
+            font-size: 16px;
+            margin-right: 25px; /* Ensure space for close button */
+        }
+        /* Improve form field spacing on mobile */
+        .row {
+            margin-right: -10px;
+            margin-left: -10px;
+        }
+
+        .col-md-6 {
+            padding-right: 10px;
+            padding-left: 10px;
+        }
+        /* Ensure checkbox is visible and properly aligned */
+        .checkbox {
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+        }
+
+            .checkbox input {
+                margin-right: 8px;
+            }
+    }
+
+
+    /* Tùy chỉnh các điều khiển DataTable */
+    .dataTables_paginate {
+        margin-top: 10px;
+    }
+
+        .dataTables_paginate .paginate_button {
+            padding: 5px 10px;
+            margin: 0 2px;
+            border: 1px solid ;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+        }
+
+            .dataTables_paginate .paginate_button.current {
+                background-color: #5a8dee;
+                color: white !important;
+                border-color: #5a8dee;
+            }
+
+            .dataTables_paginate .paginate_button:hover:not(.current) {
+                background-color: #f8f8f8;
+            }
+
+    /* Chỉnh mũi tên sắp xếp */
+    table.dataTable thead .sorting:after,
+    table.dataTable thead .sorting_asc:after,
+    table.dataTable thead .sorting_desc:after {
+        opacity: 0.4;
+        font-size: 0.8em;
+    }
+
+    /* Thiết lập tùy chỉnh hiển thị số mục */
+    .dataTables_length select {
+        padding: 5px 10px;
+        border: 1px solid ;
+        border-radius: 4px;
+    }
+
+    /*Chỉnh xuống dòng*/
+    #data-table th,
+    #data-table td {
+        white-space: normal !important; /* This allows text to wrap */
+        word-wrap: break-word; /* Break long words if necessary */
+        max-width: 200px; /* Maximum width for each column */
+        overflow: hidden;
+        text-overflow: ellipsis;
+        border:1px solid #000;
+    }
+
+        #data-table th:nth-child(6),
+        #data-table td:nth-child(6),
+        #data-table th:nth-child(7),
+        #data-table td:nth-child(7) {
+            width: 12.5%; /* Ngày tạo & Ngày cập nhật */
+        }
+
+    /* Làm cho phần Show entries và Search trông giống mẫu */
+    .dataTables_wrapper .dataTables_length label,
+    .dataTables_wrapper .dataTables_filter label {
+        font-weight: normal;
+    }
+
+    .main-content {
+        padding: calc(70px + -25px) 25px 25px !important;
+    }
+
+    /* Modal styling */
+    .modal-header {
+        border-bottom: 1px solid;
+        padding: 15px 20px;
+    }
+
+    .modal-footer {
+        border-top: 1px solid;
+        padding: 15px 20px;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .form-group label {
+        font-weight: 500;
+    }
+
+    .form-control {
+        padding: 10px 15px;
+        border: 1px solid #000; 
+        border-radius: 4px;
+    }
+
+        .form-control:focus {
+            border-color: #5a8dee;
+            box-shadow: 0 0 0 0.1rem rgba(90, 141, 238, 0.25);
+        }
+
+        .form-control[readonly] {
+            background-color: #f8f9fa;
+            cursor: not-allowed;
+        }
+
+    .input-group-text {
+        background-color: #f8f9fa;
+        border-color: #e8e8e8;
+    }
+
+    .btn-action {
+        width: 40px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-edit {
+        background-color: #ffc107; /* Màu vàng */
+        color: #212529;
+    }
+
+        .btn-edit:hover {
+            background-color: #e0a800;
+            color: #212529;
+        }
+
+    .btn-delete {
+        background-color: #dc3545; /* Màu đỏ */
+        color: white;
+    }
+
+        .btn-delete:hover {
+            background-color: #c82333;
+            color: white;
+        }
+</style>    
+
 <!-- Modal Thêm Slide -->
 <div class="modal fade" id="addSlideModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
@@ -107,6 +442,5 @@
     <script src="~/Areas/assets/js/sweetalert2@11.js"></script>
     <script src="~/Areas/assets/js/OptionPhanQuyen.js"></script>
     <script src="~/Areas/Admin/Scripts/SliderAdminScript.js"></script>
-    <script src="~/Areas/assets/js/vendors.min.js"></script>
-    <link href="~/Areas/assets/css/app.min.css" rel="stylesheet" />
+   
 }

@@ -76,7 +76,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 {
                     existingAccount = new TaiKhoan
                     {
-                        TenTaiKhoan = username, 
+                        TenTaiKhoan = username,
                         MatKhau = MatKhauMaHoa,
                         Name = model.name,
                         Gmail = model.email,
@@ -84,8 +84,8 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                         NgayTao = unixTimestamp,
                         NgayCapNhat = unixTimestamp,
                         IsBanned = 0,
-                        CountPasswordFail = 0,  
-                        LockTime = null,         
+                        CountPasswordFail = 0,
+                        LockTime = null,
                         LockTimeout = null
                     };
                     db.TaiKhoans.Add(existingAccount);
@@ -417,42 +417,42 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 {
                     // Sử dụng EmailService để gửi email
                     await _emailService.SendVerificationEmailAsync(model.email, verificationCode);
-                    
+
                     // Trong môi trường production, không nên trả về mã xác thực
-                    #if DEBUG
+#if DEBUG
                     return Ok(new
                     {
                         message = "Mã xác thực đã được gửi đến email của bạn",
                         success = true,
                         code = verificationCode // Chỉ trả về trong môi trường debug
                     });
-                    #else
+#else
                     return Ok(new
                     {
                         message = "Mã xác thực đã được gửi đến email của bạn",
                         success = true
                     });
-                    #endif
+#endif
                 }
                 catch (Exception emailEx)
                 {
                     System.Diagnostics.Debug.WriteLine($"Email sending error: {emailEx.Message}");
-                    
+
                     // Vẫn trả về mã trong môi trường phát triển để dễ test
-                    #if DEBUG
+#if DEBUG
                     return Ok(new
                     {
                         message = "Không thể gửi email, nhưng bạn có thể dùng mã này để test",
                         success = true,
                         code = verificationCode
                     });
-                    #else
+#else
                     return Ok(new
                     {
                         message = "Không thể gửi mã xác thực qua email. Vui lòng thử lại sau.",
                         success = false
                     });
-                    #endif
+#endif
                 }
             }
             catch (Exception ex)
@@ -553,40 +553,40 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 {
                     // Sử dụng EmailService để gửi email
                     await _emailService.SendVerificationEmailAsync(model.email, verificationCode);
-                    
-                    #if DEBUG
+
+#if DEBUG
                     return Ok(new
                     {
                         message = "Mã xác thực mới đã được gửi đến email của bạn",
                         success = true,
                         code = verificationCode // Chỉ trả về trong môi trường debug
                     });
-                    #else
+#else
                     return Ok(new
                     {
                         message = "Mã xác thực mới đã được gửi đến email của bạn",
                         success = true
                     });
-                    #endif
+#endif
                 }
                 catch (Exception emailEx)
                 {
                     System.Diagnostics.Debug.WriteLine($"Email resending error: {emailEx.Message}");
-                    
-                    #if DEBUG
+
+#if DEBUG
                     return Ok(new
                     {
                         message = "Không thể gửi email, nhưng bạn có thể dùng mã này để test",
                         success = true,
                         code = verificationCode
                     });
-                    #else
+#else
                     return Ok(new
                     {
                         message = "Không thể gửi lại mã xác thực qua email. Vui lòng thử lại sau.",
                         success = false
                     });
-                    #endif
+#endif
                 }
             }
             catch (Exception ex)
@@ -657,7 +657,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
     public class GoogleLoginModel
     {
         public string email { get; set; }
-        public string name { get; set; } 
+        public string name { get; set; }
     }
 
     public class LoginModel

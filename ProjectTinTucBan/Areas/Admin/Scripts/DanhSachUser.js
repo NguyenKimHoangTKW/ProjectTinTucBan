@@ -233,7 +233,7 @@ async function load_data() {
                         return newItem;
                     });
                 }
-                
+
                 // Khởi tạo DataTable với dữ liệu
                 dataTableInstance = $('#data-table').DataTable({
                     data: processedData || [],
@@ -349,7 +349,7 @@ async function load_data() {
                     </tbody>
                 `);
 
-     
+
                 Sweet_Alert("error", "Không thể tải danh sách: " + xhr.statusText);
             }
         });
@@ -412,12 +412,9 @@ async function openEditUserModal(userId) {
                 $("#UserModalLabel").text("Cập nhật tài khoản");
                 $("#btnSaveText").text("Cập nhật");
 
-                // Hide password fields, show edit-only fields and password change option
-                $("#passwordFields").hide();
+
                 $("#editOnlyFields").show();
-                $("#changePasswordSection").show();
-                $("#newPasswordFields").hide();
-                $("#changePasswordCheck").prop('checked', false);
+
 
                 // Show the modal
                 $("#UserModal").modal("show");
@@ -509,7 +506,7 @@ async function update_User_in_modal() {
         } else {
             Sweet_Alert("error", "Có lỗi xảy ra khi cập nhật tài khoản");
         }
-     
+
     }
 }
 
@@ -652,12 +649,12 @@ async function openPermissionsModal(userId, username) {
 function updateCheckAllState() {
     const totalCheckboxes = $("#functionsTableBody .function-checkbox").length;
     const checkedCheckboxes = $("#functionsTableBody .function-checkbox:checked").length;
-    
+
     if (totalCheckboxes === 0) {
         $("#checkAllFunctions").prop("checked", false);
         return;
     }
-    
+
     $("#checkAllFunctions").prop({
         "checked": totalCheckboxes === checkedCheckboxes,
         "indeterminate": checkedCheckboxes > 0 && checkedCheckboxes < totalCheckboxes
@@ -665,7 +662,7 @@ function updateCheckAllState() {
 }
 
 // Handle individual checkbox changes
-$(document).on("change", ".function-checkbox", function() {
+$(document).on("change", ".function-checkbox", function () {
     updateCheckAllState();
 });
 
@@ -673,13 +670,13 @@ $(document).on("change", ".function-checkbox", function() {
 async function saveUserPermissions() {
     try {
         const userId = $("#permissionUserId").val();
-        
+
         // Get all checked function IDs
         const selectedFunctionIds = [];
-        $("#functionsTableBody .function-checkbox:checked").each(function() {
+        $("#functionsTableBody .function-checkbox:checked").each(function () {
             selectedFunctionIds.push($(this).data("function-id"));
         });
-        
+
         const response = await $.ajax({
             url: '/api/v1/admin/Update-User-Permissions',
             type: 'POST',
@@ -689,7 +686,7 @@ async function saveUserPermissions() {
                 functionIds: selectedFunctionIds
             })
         });
-        
+
         if (response.success) {
             $("#UserPermissionModal").modal("hide");
             Sweet_Alert("success", response.message || "Phân quyền đã được cập nhật thành công");

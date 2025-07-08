@@ -102,14 +102,14 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             {
                 if (model == null || model.userId <= 0)
                 {
-                    return BadRequest("Dữ liệu không hợp lệ");
+                    return Ok(new { message = "Dữ liệu không hợp lệ", success = false });
                 }
 
                 // Check if user exists
                 var user = await db.TaiKhoans.FindAsync(model.userId);
                 if (user == null)
                 {
-                    return NotFound();
+                    return Ok(new { message = "Không tìm thấy người dùng", success = false });
                 }
 
                 // Get current user permissions
@@ -204,6 +204,8 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 existingUser.ID_role = Item.ID_role;
                 existingUser.IsBanned = Item.IsBanned;
                 existingUser.CountPasswordFail = 0;
+                existingUser.LockTime = null;
+                existingUser.LockTimeout = null;
                 unixTimestamp = (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
                 existingUser.NgayCapNhat = unixTimestamp;
 
@@ -220,19 +222,21 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         // Del: api/v1/admin/Delete-User
         [HttpPost]
         [Route("Delete-User")]
-        public async Task<IHttpActionResult> DeleteRole(TaiKhoan Item) 
+        public async Task<IHttpActionResult> DeleteRole(TaiKhoan Item)
         {
             try
             {
                 if (Item == null || Item.ID <= 0)
                 {
-                    return BadRequest("Dữ liệu không hợp lệ");
+                    return Ok(new { message = "Dữ liệu không hợp lệ", success = false });
+
                 }
                 // Kiểm tra xem role có tồn tại không
                 var existingRole = await db.TaiKhoans.FindAsync(Item.ID);
                 if (existingRole == null)
                 {
-                    return NotFound();
+                    return Ok(new { message = "Không tìm thấy tài khoản", success = false });
+
                 }
                 // Get BaiViet của tài khoản và update lại
                 var user_baiviet = await db.BaiViets
@@ -240,7 +244,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     .ToListAsync();
                 foreach (var post in user_baiviet)
                 {
-                    post.ID_NguoiDang = -1; 
+                    post.ID_NguoiDang = null;
                 }
                 // Get PhanQuyenUsers for the taikhoan
                 var userPermissions = await db.PhanQuyenUsers
@@ -254,7 +258,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 // Xóa TaiKhoan
                 db.TaiKhoans.Remove(existingRole);
                 await db.SaveChangesAsync();
-                return Ok(new { message = "Xóa tài khoản thành công", success = true }); 
+                return Ok(new { message = "Xóa tài khoản thành công", success = true });
             }
             catch (Exception ex)
             {
