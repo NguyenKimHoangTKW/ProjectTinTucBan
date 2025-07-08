@@ -8,11 +8,6 @@
     setupAdvancedSearch();
     load_data();
 
-    // Event handlers for the "Add Role" button
-    $("#btnAddRoles").on("click", function () {
-        openAddRoleModal();
-    });
-
     // Event handler for the "Save" button in the modal
     $("#btnSaveRole").on("click", function () {
         const formMode = $("#formMode").val();
@@ -21,6 +16,17 @@
         } else {
             update_Role_in_modal();
         }
+    });
+
+    // Event handlers for the "Add Role" button
+    $("#btnAddRoles").on("click", function () {
+        openAddRoleModal();
+    });
+
+    // Detail button click event
+    $(document).on("click", ".btn-detail", function () {
+        const id = $(this).data("id");
+        openViewRoleModal(id);
     });
 
     // Edit button click event
@@ -33,6 +39,41 @@
     $(document).on("click", ".btn-delete", function () {
         const id = $(this).data("id");
         deleteRole(id);
+    });
+
+    // Mở edit từ trong detail
+    $(document).on("click", "#btnEditFromView", function (e) {
+        e.preventDefault();
+        const roleId = $("#roleId").val();
+
+        if (!roleId) {
+            AdminShared.Sweet_Alert("error", "Không tìm thấy ID quyền để chỉnh sửa");
+            return;
+        }
+
+        // Store ID for later use
+        const storedId = roleId;
+
+        // Close the current modal
+        $("#RolesModal").modal("hide");
+
+        // Use setTimeout to ensure the modal is closed before opening edit modal
+        setTimeout(function () {
+            openEditRoleModal(storedId);
+        }, 500);
+    });
+
+    // Add modal close handler to reset state completely
+    $("#RolesModal").on("hidden.bs.modal", function () {
+        // Force complete reset of all modal elements
+        $(".form-fields").show();
+        $("#roleDetails").hide();
+        $("#formButtons").show();
+        $("#viewButtons").hide();
+        $("#editOnlyFields").hide();
+
+        $("#RolesForm")[0].reset();
+        $("#roleId").val("");
     });
 });
 
@@ -86,7 +127,7 @@ function applyAdvancedSearch() {
         // Thông báo kết quả tìm kiếm
         const visibleRows = dataTableInstance.rows({ search: 'applied' }).count();
         if (visibleRows === 0) {
-            Sweet_Alert("info", "Không tìm thấy kết quả phù hợp");
+            AdminShared.Sweet_Alert("info", "Không tìm thấy kết quả phù hợp");
         }
     }
 }
@@ -107,7 +148,7 @@ defaultContent = "Không có dữ liệu";
 async function load_data() {
     try {
         // Hiển thị loading
-        $('#data-table').empty().html('<div class="text-center my-4"><p>Đang tải dữ liệu...</p></div>');
+        AdminShared.showLoading('#data-table', 'Đang tải dữ liệu...');
 
         // Gọi API
         $.ajax({
@@ -145,15 +186,15 @@ async function load_data() {
 
                         // Xử lý cả hai trường hợp viết hoa và viết thường
                         if (item.NgayTao && !isNaN(parseInt(item.NgayTao))) {
-                            newItem.NgayTao = unixTimestampToDate(parseInt(item.NgayTao));
+                            newItem.NgayTao = AdminShared.formatTimestamp(parseInt(item.NgayTao));
                         } else if (item.ngayTao && !isNaN(parseInt(item.ngayTao))) {
-                            newItem.NgayTao = unixTimestampToDate(parseInt(item.ngayTao));
+                            newItem.NgayTao = AdminShared.formatTimestamp(parseInt(item.ngayTao));
                         }
 
                         if (item.NgayCapNhat && !isNaN(parseInt(item.NgayCapNhat))) {
-                            newItem.NgayCapNhat = unixTimestampToDate(parseInt(item.NgayCapNhat));
+                            newItem.NgayCapNhat = AdminShared.formatTimestamp(parseInt(item.NgayCapNhat));
                         } else if (item.ngayCapNhat && !isNaN(parseInt(item.ngayCapNhat))) {
-                            newItem.NgayCapNhat = unixTimestampToDate(parseInt(item.ngayCapNhat));
+                            newItem.NgayCapNhat = AdminShared.formatTimestamp(parseInt(item.ngayCapNhat));
                         }
 
                         return newItem;
@@ -162,6 +203,7 @@ async function load_data() {
 
                 // Khởi tạo DataTable với dữ liệu
                 dataTableInstance = $('#data-table').DataTable({
+                    ...AdminShared.dataTableDefaults,
                     data: processedData || [],
                     columns: [
                         {
@@ -170,8 +212,8 @@ async function load_data() {
                                 return meta.row + 1;
                             }
                         },
-                        { data: 'TenRole', defaultContent},
-                        { data: 'MoTa', defaultContent},
+                        { data: 'TenRole', defaultContent },
+                        { data: 'MoTa', defaultContent },
                         {
                             data: 'NgayTao',
                             defaultContent
@@ -186,37 +228,25 @@ async function load_data() {
                             render: function (data) {
                                 return `
                                     <div class="d-flex justify-content-center">
-                                        <button class="btn-action btn-edit" data-id="${data.ID}">
+                                        <button class="btn-action btn-detail mr-2" data-id="${data.ID}" title="Xem chi tiết">
+                                            <i class="anticon anticon-eye"></i>
+                                        </button>
+                                        <button class="btn-action btn-edit mr-2" data-id="${data.ID}" title="Chỉnh sửa">
                                             <i class="anticon anticon-edit"></i>
                                         </button>
-                                        <button class="btn-action btn-delete" data-id="${data.ID}">
+                                        <button class="btn-action btn-delete" data-id="${data.ID}" title="Xóa">
                                             <i class="anticon anticon-delete"></i>
                                         </button>
                                     </div>
                                 `;
                             }
                         }
-                    ],
-                    pageLength: 5,
-                    lengthMenu: [5, 10, 15, 25, 50],
-                    language: {
-                        paginate: {
-                            next: "Tiếp",
-                            previous: "Trước"
-                        },
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           search: "Tìm nhanh:",
-                        lengthMenu: "Hiển thị _MENU_ mục",
-                        emptyTable: "Không có dữ liệu",
-                        zeroRecords: "Không tìm thấy kết quả phù hợp",
-                        info: "Hiển thị _START_ đến _END_ của _TOTAL_ mục",
-                        infoEmpty: "Hiển thị 0 đến 0 của 0 mục",
-                        infoFiltered: "(lọc từ _MAX_ mục)"
-                    }
+                    ]
                 });
 
                 // Hiển thị thông báo nếu không có dữ liệu
                 if (!response.success) {
-                    Sweet_Alert("info", response.message || "Không có dữ liệu");
+                    AdminShared.Sweet_Alert("info", response.message || "Không có dữ liệu");
                 }
             },
             error: function (xhr, status, error) {
@@ -239,40 +269,31 @@ async function load_data() {
                     </tbody>
                 `);
 
-                Sweet_Alert("error", "Không thể tải danh sách: " + xhr.statusText);
+                AdminShared.Sweet_Alert("error", "Không thể tải danh sách: " + xhr.statusText);
             }
         });
     } catch (error) {
-        Sweet_Alert("error", "Lỗi JavaScript: " + error.message);
+        AdminShared.Sweet_Alert("error", "Lỗi JavaScript: " + error.message);
     }
-}
-
-// Format Unix timestamp to readable date
-function unixTimestampToDate(unixTimestamp) {
-    if (!unixTimestamp) return "N/A";
-
-    var date = new Date(unixTimestamp * 1000);
-    var weekdays = ['Chủ Nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
-    var dayOfWeek = weekdays[date.getDay()];
-    var month = ("0" + (date.getMonth() + 1)).slice(-2);
-    var day = ("0" + date.getDate()).slice(-2);
-    var year = date.getFullYear();
-    var hours = ("0" + date.getHours()).slice(-2);
-    var minutes = ("0" + date.getMinutes()).slice(-2);
-    var seconds = ("0" + date.getSeconds()).slice(-2);
-    var formattedDate = dayOfWeek + ', ' + day + "-" + month + "-" + year + " " + hours + ":" + minutes + ":" + seconds;
-    return formattedDate;
 }
 
 // Open modal for adding a new role
 function openAddRoleModal() {
-    // Reset the form
+    // Reset form and modal state completely
     $("#RolesForm")[0].reset();
     $("#roleId").val("");
     $("#formMode").val("add");
+
+    // Explicitly set what to show/hide
+    $(".form-fields").show();
+    $("#roleDetails").hide();
+    $("#formButtons").show();
+    $("#viewButtons").hide();
+    $("#editOnlyFields").hide();
+
+    // Set modal title and button text
     $("#RolesModalLabel").text("Thêm quyền admin mới");
     $("#btnSaveText").text("Thêm mới");
-    $("#editOnlyFields").hide();
 
     // Show the modal
     $("#RolesModal").modal("show");
@@ -280,11 +301,26 @@ function openAddRoleModal() {
 
 // Open modal for editing an existing role
 async function openEditRoleModal(roleId) {
+    // Reset modal state first
+    $("#RolesForm")[0].reset();
+
+    // Explicitly set what to show/hide
+    $(".form-fields").show();
+    $("#roleDetails").hide();
+    $("#formButtons").show();
+    $("#viewButtons").hide();
+
+    // Show loading overlay
+    AdminShared.showModalLoading(".modal-body");
+
     try {
         const response = await $.ajax({
             url: `/api/v1/admin/Get-Roles-By-Id/${roleId}`,
             type: 'GET'
         });
+
+        // Hide loading after data is loaded
+        AdminShared.hideModalLoading(".modal-body");
 
         if (response.success && response.data) {
             const role = response.data;
@@ -301,9 +337,9 @@ async function openEditRoleModal(roleId) {
             let ngayTao = role.NgayTao || role.ngayTao;
             let ngayCapNhat = role.NgayCapNhat || role.ngayCapNhat;
 
-            // Format and display timestamps using our custom function
-            $("#ngayTao").val(ngayTao ? unixTimestampToDate(parseInt(ngayTao)) : "N/A");
-            $("#ngayCapNhat").val(ngayCapNhat ? unixTimestampToDate(parseInt(ngayCapNhat)) : "N/A");
+            // Format and display timestamps using our shared function
+            $("#ngayTao").val(ngayTao ? AdminShared.formatTimestamp(parseInt(ngayTao)) : "Chưa cập nhật");
+            $("#ngayCapNhat").val(ngayCapNhat ? AdminShared.formatTimestamp(parseInt(ngayCapNhat)) : "Chưa cập nhật");
 
             // Update modal title and button text
             $("#RolesModalLabel").text("Cập nhật quyền admin");
@@ -315,10 +351,13 @@ async function openEditRoleModal(roleId) {
             // Show the modal
             $("#RolesModal").modal("show");
         } else {
-            Sweet_Alert("error", "Không tìm thấy thông tin quyền admin");
+            AdminShared.Sweet_Alert("error", "Không tìm thấy thông tin quyền admin");
         }
     } catch (error) {
-        Sweet_Alert("error", "Không thể tải thông tin quyền admin");
+        // Hide loading on error
+        AdminShared.hideModalLoading(".modal-body");
+
+        AdminShared.Sweet_Alert("error", "Không thể tải thông tin quyền admin");
     }
 }
 
@@ -329,12 +368,12 @@ async function add_new_Role_in_modal() {
 
     // Validate inputs
     if (!tenRole) {
-        Sweet_Alert("warning", "Vui lòng nhập tên quyền admin");
+        AdminShared.Sweet_Alert("warning", "Vui lòng nhập tên quyền admin");
         return;
     }
 
     if (!moTa) {
-        Sweet_Alert("warning", "Vui lòng nhập mô tả cho quyền admin");
+        AdminShared.Sweet_Alert("warning", "Vui lòng nhập mô tả cho quyền admin");
         return;
     }
 
@@ -351,17 +390,17 @@ async function add_new_Role_in_modal() {
 
         if (res.success) {
             $("#RolesModal").modal("hide");
-            Sweet_Alert("success", res.message);
+            AdminShared.Sweet_Alert("success", res.message);
             load_data();
         } else {
-            Sweet_Alert("error", res.message);
+            AdminShared.Sweet_Alert("error", res.message);
         }
     } catch (error) {
         // Extract error message from response if available
         if (error.responseJSON) {
-            Sweet_Alert("error", error.responseJSON.message || "Đã xảy ra lỗi khi thêm quyền admin");
+            AdminShared.Sweet_Alert("error", error.responseJSON.message || "Đã xảy ra lỗi khi thêm quyền admin");
         } else {
-            Sweet_Alert("error", "Đã xảy ra lỗi khi thêm quyền admin");
+            AdminShared.Sweet_Alert("error", "Đã xảy ra lỗi khi thêm quyền admin");
         }
     }
 }
@@ -374,12 +413,12 @@ async function update_Role_in_modal() {
 
     // Validate inputs
     if (!tenRole) {
-        Sweet_Alert("warning", "Vui lòng nhập tên quyền admin");
+        AdminShared.Sweet_Alert("warning", "Vui lòng nhập tên quyền admin");
         return;
     }
 
     if (!moTa) {
-        Sweet_Alert("warning", "Vui lòng nhập mô tả cho quyền admin");
+        AdminShared.Sweet_Alert("warning", "Vui lòng nhập mô tả cho quyền admin");
         return;
     }
 
@@ -397,16 +436,16 @@ async function update_Role_in_modal() {
 
         if (res.success) {
             $("#RolesModal").modal("hide");
-            Sweet_Alert("success", res.message);
+            AdminShared.Sweet_Alert("success", res.message);
             load_data();
         } else {
-            Sweet_Alert("error", res.message);
+            AdminShared.Sweet_Alert("error", res.message);
         }
     } catch (error) {
         if (error.responseJSON) {
-            Sweet_Alert("error", error.responseJSON.message || "Đã xảy ra lỗi khi cập nhật quyền admin");
+            AdminShared.Sweet_Alert("error", error.responseJSON.message || "Đã xảy ra lỗi khi cập nhật quyền admin");
         } else {
-            Sweet_Alert("error", "Đã xảy ra lỗi khi cập nhật quyền admin");
+            AdminShared.Sweet_Alert("error", "Đã xảy ra lỗi khi cập nhật quyền admin");
         }
     }
 }
@@ -433,29 +472,77 @@ function deleteRole(roleId) {
                 });
 
                 if (res.success) {
-                    Sweet_Alert("success", res.message);
+                    AdminShared.Sweet_Alert("success", res.message);
                     load_data();
                 } else {
-                    Sweet_Alert("error", res.message);
+                    AdminShared.Sweet_Alert("error", res.message);
                 }
             } catch (error) {
                 if (error.responseJSON) {
-                    Sweet_Alert("error", error.responseJSON.message || "Đã xảy ra lỗi khi xóa quyền admin");
+                    AdminShared.Sweet_Alert("error", error.responseJSON.message || "Đã xảy ra lỗi khi xóa quyền admin");
                 } else {
-                    Sweet_Alert("error", "Đã xảy ra lỗi khi xóa quyền admin");
+                    AdminShared.Sweet_Alert("error", "Đã xảy ra lỗi khi xóa quyền admin");
                 }
             }
         }
     });
 }
 
-// Display SweetAlert notifications
-function Sweet_Alert(icon, title) {
-    Swal.fire({
-        position: "center",
-        icon: icon,
-        title: title,
-        showConfirmButton: false,
-        timer: 2500
-    });
+// Xử lý mở và show trang detail role
+async function openViewRoleModal(roleId) {
+    // Reset form and explicitly set what to show/hide for view mode
+    $("#RolesForm")[0].reset();
+
+    // Pre-set the view mode settings BEFORE loading data
+    $(".form-fields").hide();
+    $("#roleDetails").show();
+    $("#formButtons").hide();
+    $("#viewButtons").show();
+    $("#editOnlyFields").hide();
+
+    // Show loading overlay
+    AdminShared.showModalLoading(".modal-body");
+
+    try {
+        const response = await $.ajax({
+            url: `/api/v1/admin/Get-Roles-By-Id/${roleId}`,
+            type: 'GET'
+        });
+
+        // Hide loading after data is loaded
+        AdminShared.hideModalLoading(".modal-body");
+
+        if (response.success && response.data) {
+            const role = response.data;
+
+            // Set role ID in hidden field
+            $("#roleId").val(role.ID);
+
+            // Fill the view-only fields
+            $("#viewRoleId").text(role.ID);
+            $("#viewTenRole").text(role.TenRole);
+            $("#viewMoTa").text(role.MoTa);
+
+            // Handle both case variations for timestamps
+            let ngayTao = role.NgayTao || role.ngayTao;
+            let ngayCapNhat = role.NgayCapNhat || role.ngayCapNhat;
+
+            // Format and display timestamps using our shared function
+            $("#viewNgayTao").text(ngayTao ? AdminShared.formatTimestamp(parseInt(ngayTao)) : "N/A");
+            $("#viewNgayCapNhat").text(ngayCapNhat ? AdminShared.formatTimestamp(parseInt(ngayCapNhat)) : "N/A");
+
+            // Update modal title
+            $("#RolesModalLabel").text("Chi tiết quyền Admin");
+
+            // Show the modal
+            $("#RolesModal").modal("show");
+        } else {
+            AdminShared.Sweet_Alert("error", "Không tìm thấy thông tin quyền admin");
+        }
+    } catch (error) {
+        // Hide loading on error
+        AdminShared.hideModalLoading(".modal-body");
+
+        AdminShared.Sweet_Alert("error", "Không thể tải thông tin quyền admin");
+    }
 }

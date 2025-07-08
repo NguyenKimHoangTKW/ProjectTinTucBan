@@ -16,9 +16,8 @@ using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using ProjectTinTucBan.Models;
 using Microsoft.Owin.Security.Cookies;
-// Quan trọng: Using models
-using System.Data.Entity; // Thêm using này cho Include
-using System.Collections.Generic; // << --- THÊM DÒNG NÀY ---
+using System.Data.Entity;
+using System.Collections.Generic; 
 
 
 namespace ProjectTinTucBan.Areas.Admin.Controllers

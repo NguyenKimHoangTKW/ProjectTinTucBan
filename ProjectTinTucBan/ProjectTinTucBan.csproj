@@ -453,6 +453,7 @@
     <Content Include="Areas\Admin\Scripts\GroupMenuAdminScript.js" />
     <Content Include="Areas\Admin\Scripts\Khoi.js" />
     <Content Include="Areas\Admin\Scripts\MenuScript.js" />
+    <Content Include="Areas\Admin\Scripts\Module_Chung.js" />
     <Content Include="Areas\Admin\Scripts\SliderAdminScript.js" />
     <Content Include="Areas\Admin\Scripts\SliderShowScript.js" />
     <Content Include="Areas\Admin\Scripts\TopNavShowScript.js" />
@@ -1546,10 +1547,8 @@
     <Content Include="assets\fonts\line-awesome.ttf" />
     <Content Include="assets\fonts\line-awesome.woff" />
     <Content Include="assets\fonts\line-awesome.woff2" />
-    <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Function_Admin.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Users_Admin.cshtml" />
     <Content Include="Areas\Admin\Views\Shared\SliderTestShowPartial.cshtml" />
-    <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Users_Admin.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\XemNoiDung.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_DonViTrucThuoc.cshtml" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />

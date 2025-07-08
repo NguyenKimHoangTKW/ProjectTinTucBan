@@ -1,28 +1,6 @@
 ﻿const BASE_URL = `/api/v1/admin`;
 
 $(document).ready(async function () {
-    let loginStatus = false;
-    try {
-        const res = await $.ajax({
-            url: '/api/v1/admin/check-login',
-            type: 'GET',
-            dataType: 'json'
-        });
-        loginStatus = res && res.success;
-    } catch {
-        loginStatus = false;
-    }
-
-    if (!loginStatus) {
-        await Swal.fire({
-            icon: 'warning',
-            title: 'Chưa đăng nhập',
-            text: 'Vui lòng đăng nhập trước khi sử dụng chức năng này.',
-            confirmButtonText: 'Đăng nhập tài khoản'
-        });
-        window.location.href = 'https://localhost:44305/Admin/InterfaceAdmin/Login';
-        return;
-    }
 
     loadMucLucOptions();
     await GetAllBaiViet();

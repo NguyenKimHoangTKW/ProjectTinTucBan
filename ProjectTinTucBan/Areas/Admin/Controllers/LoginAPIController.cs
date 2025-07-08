@@ -79,7 +79,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             {
                 return Ok(new
                 {
-                    message = "Gmail không hợp lệ.",
+                    message = "Đang đăng nhập bằng mail cá nhân, vui lòng đăng nhập bằng mail trường",
                     success = false
                 });
             }
