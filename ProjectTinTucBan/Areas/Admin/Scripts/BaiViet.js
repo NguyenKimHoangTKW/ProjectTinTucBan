@@ -491,7 +491,8 @@ $(document).on('click', '.btn-xem-danh-sach-pdf', function () {
         const parts = link.split('|');
         const fileUrl = parts[0].trim(); // đường dẫn file lưu trữ
         const serverFileName = decodeURIComponent(fileUrl.split('/').pop()); // upload_abc.pdf
-        const originalName = decodeURIComponent(parts[1] || serverFileName);  // fallback nếu thiếu
+        let originalName = decodeURIComponent(parts[1] || serverFileName);  // fallback nếu thiếu
+        originalName = originalName.replace(/\.pdf$/i, '');
 
         // Tạo URL download qua API, truyền đúng 2 tham số
         const downloadUrl = `${BASE_URL}/download-pdf?fileName=${encodeURIComponent(serverFileName)}&originalName=${encodeURIComponent(originalName)}`;
