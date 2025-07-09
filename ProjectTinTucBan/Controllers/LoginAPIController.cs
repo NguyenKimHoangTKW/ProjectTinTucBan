@@ -179,6 +179,16 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 existingAccount.CountPasswordFail = 0;
                 await db.SaveChangesAsync();
 
+                // Kiểm tra vai trò của người dùng
+                if (existingAccount.ID_role == null)
+                {
+                    return Ok(new
+                    {
+                        message = "Tài khoản của bạn chưa được phân quyền. Vui lòng liên hệ quản trị viên.",
+                        success = false
+                    });
+                }
+
                 // Lưu vào session
                 SessionHelper.SetUser(existingAccount, GetCurrentContext());
 
@@ -279,6 +289,16 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                             });
                         }
 
+                        // Kiểm tra vai trò của người dùng
+                        if (user.ID_role == null)
+                        {
+                            return Ok(new
+                            {
+                                message = "Tài khoản của bạn chưa được phân quyền. Vui lòng liên hệ quản trị viên.",
+                                success = false
+                            });
+                        }
+
                         // Tạo Account cho session từ TaiKhoan
                         var accountForSession = new TaiKhoan
                         {
@@ -288,7 +308,6 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                             ID_role = user.ID_role ?? 4
                         };
 
-
                         SessionHelper.SetUser(user, GetCurrentContext());
 
                         return Ok(new
@@ -297,10 +316,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                             userId = user.ID,
                             message = "Đăng nhập thành công",
                             success = true
-
                         });
-
-
                     }
                     else
                     {
@@ -371,7 +387,6 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 }
                 catch (Exception decryptEx)
                 {
-
                     return Ok(new
                     {
                         message = "Đã xảy ra lỗi khi xác thực mật khẩu",

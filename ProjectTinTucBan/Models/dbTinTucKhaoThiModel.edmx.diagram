@@ -57,7 +57,7 @@
         <EntityTypeShape EntityType="WebTinTucTDMUModel.Role" Width="1.5" PointX="7.0879622898474155" PointY="28.506807519358958" />
         <EntityTypeShape EntityType="WebTinTucTDMUModel.Slider" Width="1.5" PointX="4.9644399997612645" PointY="30.166152461509292" />
         <EntityTypeShape EntityType="WebTinTucTDMUModel.Sub_Menu" Width="1.5" PointX="4.9411503956379139" PointY="8.3242127040048182" />
-        <EntityTypeShape EntityType="WebTinTucTDMUModel.sysdiagram" Width="1.5" PointX="6.0605166675804725" PointY="8.42116044853868" />
+        <EntityTypeShape EntityType="WebTinTucTDMUModel.sysdiagram" Width="1.5" PointX="6.875" PointY="7.875" />
         <EntityTypeShape EntityType="WebTinTucTDMUModel.TaiKhoan" Width="1.5" PointX="7.8420880696932258" PointY="17.408973299622989" />
         <AssociationConnector Association="WebTinTucTDMUModel.FK__BaiViet__ID_MucL__49C3F6B7" />
         <AssociationConnector Association="WebTinTucTDMUModel.FK__BaiViet__ID_Nguo__4AB81AF0" />

@@ -748,6 +748,7 @@ function loadMenuTable() {
 
         // Check if the table exists
         if (tableBody.length === 0) {
+            console.error('Menu table not found in the DOM');
             resolve();
             return;
         }
@@ -757,14 +758,22 @@ function loadMenuTable() {
 
         // Use jQuery AJAX for consistency with your other code
         $.ajax({
-            url: '/api/v1/admin/get-menus',
+            url: '/api/v1/admin/get-menus-QL',
             type: 'GET',
             dataType: 'json',
             success: function (data) {
-                if (data && data.length > 0) {
+                console.log('Menu API response:', data); // Debug the API response
+
+                // Handle different response formats
+                let menuData = data;
+                if (data && data.data) {
+                    menuData = data.data; // If API returns { data: [...] }
+                }
+
+                if (menuData && menuData.length > 0) {
                     let tableContent = '';
 
-                    data.forEach((menu, index) => {
+                    menuData.forEach((menu, index) => {
                         tableContent += `
                         <tr>
                             <td style="text-align: center;">
@@ -774,19 +783,22 @@ function loadMenuTable() {
                                     <label class="custom-control-label" for="menu${menu.MenuId}"></label>
                                 </div>
                             </td>
-                            <td>${menu.MenuName}</td>
+                            <td>${menu.MenuName || ''}</td>
                             <td>${menu.MenuLink || ''}</td>
                         </tr>`;
                     });
 
                     tableBody.html(tableContent);
+                    console.log('Menu table populated with', menuData.length, 'items');
                     resolve();
                 } else {
                     tableBody.html('<tr><td colspan="3" class="text-center">Không có menu nào</td></tr>');
+                    console.warn('No menu items returned from API');
                     resolve();
                 }
             },
             error: function (xhr, status, error) {
+                console.error('Menu API error:', error, xhr.responseText);
                 tableBody.html(`<tr><td colspan="3" class="text-center text-danger">Lỗi: ${error}</td></tr>`);
                 reject(error);
             }

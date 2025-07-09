@@ -72,38 +72,38 @@ async function Session_Login(email, fullname, given_name, family_name) {
                 email: email,
                 name: fullname,
                 role: res.idRole,
-                userId: res.idUser,
                 userId: res.userId,
                 time: new Date().toISOString()
             }));
 
-            // Chuyển hướng dựa trên vai trò
-            if (res.idRole == 4 || res.idRole == 1) {
-                // Hiển thị thông báo đăng nhập thành công
-                Swal.fire({
-                    position: "center",
-                    icon: "success",
-                    title: "Đăng nhập thành công!",
-                    text: "Hệ thống sẽ chuyển hướng sau vài giây...",
-                    showConfirmButton: false,
-                    timer: 2000
-                }).then(() => {
-                    // Sử dụng jQuery thay vì JS thuần
-                    $(location).attr('href', "/Admin/InterfaceAdmin/Index");
-                });
-            } else {
-                Sweet_Alert("error", "Tài khoản bạn không thuộc phân quyền Admin...");
-            }
+            // Hiển thị thông báo đăng nhập thành công và chuyển hướng
+            Swal.fire({
+                position: "center",
+                icon: "success",
+                title: "Đăng nhập thành công!",
+                text: "Hệ thống sẽ chuyển hướng sau vài giây...",
+                showConfirmButton: false,
+                timer: 2000
+            }).then(() => {
+                $(location).attr('href', "/Admin/InterfaceAdmin/Index");
+            });
         } else {
             // Xử lý các trường hợp đăng nhập thất bại
             if (res.isLocked) {
-                // Các xử lý khóa tài khoản giữ nguyên...
+                if (res.isPermanent) {
+                    Sweet_Alert("error", "Tài khoản của bạn đã bị khóa vĩnh viễn");
+                } else if (res.remainingSeconds) {
+                    // Hiển thị thời gian còn lại
+                    showLockCountdown(res.unlockTime || (Math.floor(Date.now() / 1000) + res.remainingSeconds),
+                        res.countPasswordFail || 0);
+                }
             } else {
                 // Các lỗi khác
                 Sweet_Alert("error", res.message || "Đăng nhập thất bại");
             }
         }
     } catch (error) {
+        console.error("Google login error:", error);
         Sweet_Alert("error", "Đã xảy ra lỗi khi đăng nhập");
     }
 }
