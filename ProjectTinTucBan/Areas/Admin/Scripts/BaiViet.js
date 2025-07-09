@@ -168,119 +168,6 @@ function setupBaiVietTableEvents() {
         $('#tieuDeDayDuContent').text(tieuDe);
         $('#modalTieuDeDayDu').modal('show');
     });
-
-    $(document).on('click', '.btn-sua', async function () {
-        const id = $(this).data('id');
-        try {
-            const res = await $.ajax({
-                url: `${BASE_URL}/get-baiviet-by-id/${id}`,
-                type: 'GET'
-            });
-
-            if (res.success) {
-                const b = res.data;
-                const noiDung = b.NoiDung || '';
-                $('#modalBaiVietLabel').text('Sửa Bài Viết');
-                $('#BaiVietID').val(b.ID);
-                $('#TieuDe').val(b.TieuDe);
-                $('#LinkThumbnail').val(b.LinkThumbnail);
-                $('#LinkPDF').val(b.LinkPDF);
-                if (b.ID_MucLuc) {
-                    $('#ID_MucLuc').val(b.ID_MucLuc);
-                } else {
-                    $('#ID_MucLuc').val('');
-                }
-
-                // Khởi tạo lại CKEditor sau khi modal show
-                $('#modalBaiViet').off('shown.bs.modal').on('shown.bs.modal', function () {
-                    setTimeout(() => {
-                        if (CKEDITOR.instances.NoiDung) {
-                            CKEDITOR.instances.NoiDung.destroy(true);
-                        }
-
-                        CKEDITOR.replace('NoiDung', {
-                            extraPlugins: 'justify',
-                            allowedContent: true,
-                            height: '500px',
-                            resize_enabled: false,
-                            toolbar: [
-                                { name: 'clipboard', items: ['Cut', 'Copy', 'Paste', 'Undo', 'Redo'] },
-                                { name: 'styles', items: ['Format', 'Font', 'FontSize'] },
-                                { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', '-', 'RemoveFormat'] },
-                                { name: 'paragraph', items: ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'NumberedList', 'BulletedList'] },
-                                { name: 'links', items: ['Link', 'Unlink'] },
-                                { name: 'insert', items: ['Image', 'Table', 'HorizontalRule'] },
-                                { name: 'tools', items: ['Maximize'] }
-                            ]
-                        });
-
-                        CKEDITOR.instances.NoiDung.on('instanceReady', function () {
-                            const editor = CKEDITOR.instances.NoiDung;
-                            editor.setData(noiDung, function () {
-                                // Resize ban đầu
-                                setTimeout(() => {
-                                    const body = editor.document?.$?.body;
-                                    if (body) {
-                                        const scrollHeight = body.scrollHeight;
-                                        const newHeight = Math.min(scrollHeight + 100, 1000);
-                                        editor.resize('100%', newHeight);
-                                    }
-                                }, 100);
-                            });
-
-                            autoResizeCKEditor(editor);
-
-                            // Chặn ảnh gốc nếu dán ảnh duy nhất
-                            editor.on('paste', function (evt) {
-                                const data = evt.data;
-                                const transfer = data?.dataTransfer?._ || data?.dataTransfer?.$;
-                                if (transfer?.files?.length > 0) {
-                                    let hasImage = false;
-                                    for (const f of transfer.files) {
-                                        if (f.type.startsWith('image/')) {
-                                            hasImage = true;
-                                        }
-                                    }
-                                    if (hasImage && transfer.files.length === 1) {
-                                        evt.cancel(); // Chỉ cancel nếu là ảnh duy nhất
-                                    }
-                                }
-                            });
-
-                            // Xử lý ảnh paste hoặc drag-drop (resize)
-                            editor.document.on('paste', function (e) {
-                                handlePasteOrDrop(e.data.$, editor);
-                            });
-                            editor.document.on('drop', function (e) {
-                                handlePasteOrDrop(e.data.$, editor);
-                            });
-                        });
-
-                    }, 200); // Chờ modal render xong
-                });
-
-
-                // Ảnh & PDF
-                if (b.LinkThumbnail) {
-                    $('#previewThumbnail').html(`<img src="${b.LinkThumbnail}" style="max-width: 200px;" />`);
-                    $('#btnXoaThumbnail').removeClass('d-none');
-                } else {
-                    $('#previewThumbnail').html('');
-                    $('#btnXoaThumbnail').addClass('d-none');
-                }
-
-                $('#previewPDF').html(b.LinkPDF ? `<a href="${b.LinkPDF}" target="_blank">Xem PDF</a>` : '');
-
-                $('#modalBaiViet').modal('show');
-            } else {
-                Swal.fire({ icon: 'error', title: 'Lỗi', text: res.message || 'Không tải được dữ liệu.' });
-            }
-        } catch {
-            Swal.fire({ icon: 'error', title: 'Lỗi', text: 'Không thể kết nối đến server.' });
-        }
-    });
-
-
     $(document).on('click', '.btn-xoa', async function () {
         const baiVietID = $(this).data('id');
         const result = await Swal.fire({
@@ -306,15 +193,63 @@ function setupBaiVietTableEvents() {
                 } else {
                     Swal.fire({ icon: 'error', title: 'Thất bại', text: res.message });
                 }
-            } catch (err) {
-                Swal.fire({ icon: 'error', title: 'Lỗi', text: 'Không thể xóa bài viết.' });
+            } catch(err) {
+                if (err.status === 403) {
+                    Swal.fire({ icon: 'error', title: 'Từ chối', text: err.responseJSON?.message || 'Bạn không có quyền xóa bài viết này!' });
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Lỗi', text: 'Không thể xóa bài viết.' });
+                }
             }
+
         }
     });
     $(document).on('click', '.btn-xem', function () {
         const id = $(this).data('id');
         const url = `/admin/xem-noi-dung?id=${id}`; // Đúng tên Controller + Action
         window.open(url, '_blank');
+    });
+    $(document).on('click', '#btnLuuBaiViet', async function () {
+        $('#savingSpinner').removeClass('d-none'); // 👉 Hiện spinner
+
+        const tieuDe = $('#TieuDe').val().trim();
+        const noiDung = CKEDITOR.instances.NoiDung.getData().trim();
+        const idNguoiDang = sessionStorage.getItem('loginInfo') ? JSON.parse(sessionStorage.getItem('loginInfo')).id : null;
+
+        if (!tieuDe || !noiDung || !idNguoiDang) {
+            $('#savingSpinner').addClass('d-none');
+            Swal.fire('Thiếu thông tin', 'Vui lòng nhập đầy đủ tiêu đề và nội dung.', 'warning');
+            return;
+        }
+
+        try {
+            const res = await $.ajax({
+                url: `${BASE_URL}/them-baiviet`,
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    TieuDe: tieuDe,
+                    NoiDung: noiDung,
+                    ID_NguoiDang: idNguoiDang
+                })
+            });
+
+            if (res.success) {
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Đã lưu bài viết!',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                $('#modalBaiViet').modal('hide');
+                await GetAllBaiViet();
+            } else {
+                Swal.fire({ icon: 'error', title: 'Lỗi', text: res.message });
+            }
+        } catch (err) {
+            Swal.fire({ icon: 'error', title: 'Lỗi', text: 'Không thể lưu bài viết.' });
+        } finally {
+            $('#savingSpinner').addClass('d-none'); //
+        }
     });
 
 
@@ -388,7 +323,6 @@ async function GetAllBaiViet() {
                     <td>${item.ViewCount ?? 0}</td>
                     <td>
                         <div class="text-center d-flex flex-column align-items-center">
-                            <button class="btn btn-warning btn-sm py-1 px-2 w-100 btn-sua" data-id="${item.ID}" style="max-width: 80px;">Sửa</button>
                             <button class="btn btn-danger btn-sm py-1 px-2 w-100 mt-1 btn-xoa" data-id="${item.ID}" style="max-width: 80px;">Xóa</button>
                         </div>
                     </td>
@@ -410,11 +344,15 @@ function shortenTitle(title, maxLength = 10) {
     return title.length > maxLength ? `${title.substring(0, maxLength)}...` : title;
 }
 
-function formatDateFromInt(dateInt) {
-    if (!dateInt) return '';
-    const str = dateInt.toString();
-    return `${str.slice(6, 8)}/${str.slice(4, 6)}/${str.slice(0, 4)}`;
+function formatDateFromInt(unixTimestamp) {
+    if (!unixTimestamp) return '';
+    const date = new Date(unixTimestamp * 1000); // chuyển từ giây sang mili giây
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // tháng bắt đầu từ 0
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
 }
+
 function autoResizeCKEditor(editorInstance) {
     if (!editorInstance) return;
     editorInstance.on('change', function () {
@@ -581,6 +519,7 @@ function setupModalFormEvents() {
 
     $('#form_baiviet').on('submit', async function (e) {
         e.preventDefault();
+        $('#savingSpinner').removeClass('d-none');
         const id = $('#BaiVietID').val();
         const isUpdate = !!id;
 
@@ -622,6 +561,8 @@ function setupModalFormEvents() {
             }
         } catch (err) {
             Swal.fire({ icon: 'error', title: 'Lỗi', text: 'Không thể gửi dữ liệu bài viết.' });
+        } finally {
+            $('#savingSpinner').addClass('d-none'); // 👉 Luôn ẩn spinner sau khi xử lý xong
         }
     });
 
