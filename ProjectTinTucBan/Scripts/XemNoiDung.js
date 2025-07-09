@@ -164,20 +164,20 @@ $(document).ready(function () {
                 baiVietKhac.forEach(item => {
                     const tieuDe = escapeHtml((item.TieuDe || "Không có tiêu đề").toUpperCase());
                     const thumb = item.LinkThumbnail?.trim() || "https://navigates.vn/wp-content/uploads/2023/06/logo-dai-hoc-thu-dau-mot.jpg";
-                    const ngayDang = formatDate(item.NgayDang);
+                    const ngayDang = formatDate(bv.NgayDang); // ✅ đúng đối tượng
 
                     htmlList += `
-                        <div class="border border-gray-200 rounded-md p-3 my-4 hover:shadow-md transition">
-                            <a href="/bai-viet/${item.ID}">
-                                <img src="${thumb}" class="w-full h-auto rounded-md shadow-sm mb-4 object-cover" alt="Ảnh liên quan">
-                            </a>
-                            <a href="/bai-viet/${item.ID}" class="block font-semibold text-base text-gray-800 hover:text-red-600 leading-snug line-clamp-2 mb-1">
-                                ${tieuDe}
-                            </a>
-                            <p class="text-sm text-gray-500">
-                                📅${ngayDang}
-                            </p>
-                        </div>`;
+        <div class="border border-gray-200 rounded-md p-3 my-4 hover:shadow-md transition">
+            <a href="/bai-viet/${item.ID}">
+                <img src="${thumb}" class="w-full h-auto rounded-md shadow-sm mb-4 object-contain" alt="Ảnh liên quan">
+            </a>
+            <a href="/bai-viet/${item.ID}" class="block font-semibold text-base text-gray-800 hover:text-red-600 leading-snug line-clamp-2 mb-1">
+                ${tieuDe}
+            </a>
+            <p class="text-sm text-gray-500 mb-4">
+                📅${ngayDang}
+            </p>
+        </div>`;
                 });
 
                 htmlList += `</div>`;
@@ -191,7 +191,7 @@ $(document).ready(function () {
     });
 });
 
-// Scroll to mục lục sau khi chuyển về trang chủ
+// Xử lý scroll khi click vào các thẻ có class scroll-to
 $(document).on("click", ".scroll-to", function (e) {
     const slug = $(this).data("target");
     if (window.location.pathname !== "/") {
@@ -204,12 +204,15 @@ $(document).on("click", ".scroll-to", function (e) {
         $("html, body").animate({ scrollTop: offset - 100 }, 500);
     }
 });
+
+// Nếu trở về từ nút Back, reload lại trang để cập nhật
 window.addEventListener("pageshow", function (event) {
-    // Kiểm tra nếu trang được load từ cache (trở về từ nút Back)
     if (event.persisted) {
         window.location.reload();
     }
 });
+
+// Khi vào trang chủ, nếu có slug đã lưu thì scroll đến đó
 $(document).ready(function () {
     const savedSlug = localStorage.getItem("scrollToSlug");
     if (savedSlug) {

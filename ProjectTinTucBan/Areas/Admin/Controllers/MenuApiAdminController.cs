@@ -47,6 +47,34 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             return Ok(menus);
         }
 
+        [HttpGet]
+        [Route("menus-with-submenus-by-asignto/{asignTo}")]
+        public async Task<IHttpActionResult> GetMenusByAsignTo(int asignTo)
+        {
+            var menus = await db.Menu_Group
+                .Where(g => g.AsignTo == asignTo)
+                .Select(g => new {
+                    GroupId = g.ID,
+                    GroupName = g.Ten,
+                    Menus = g.Group_By_Menu_And_Sub.Select(gbm => new {
+                        MenuId = gbm.Menu.ID,
+                        MenuName = gbm.Menu.Ten,
+                        MenuLink = gbm.Menu.Link,
+                        Thutushow =gbm.Menu.ThuTuShow,
+                        Icon = gbm.Menu.IconName,
+
+                        SubMenus = gbm.Menu.Menu_by_sub.Select(x => new {
+                            SubMenuId = x.Sub_Menu.id_sub,
+                            SubMenuName = x.Sub_Menu.name_sub,
+                            SubMenuLink = x.Sub_Menu.Link
+                        })
+                    }).OrderBy(gbm => gbm.Thutushow)
+                }).ToListAsync();
+
+            return Ok(menus);
+        }
+
+
         // 2. Thêm menu mới
         [HttpPost]
         [Route("add-menu")]

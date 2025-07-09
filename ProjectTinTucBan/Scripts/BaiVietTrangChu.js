@@ -1,7 +1,17 @@
 ﻿
-    function toSlug(str) {
-        return str.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-    }
+function stripHtml(html) {
+    const tmp = document.createElement("DIV");
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || "";
+}
+
+function toSlug(str) {
+    return stripHtml(str).toLowerCase()
+        .normalize("NFD")
+        .replace(/\p{Diacritic}/gu, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)+/g, '');
+}
 
 function formatDate(unixTimestamp) {
     if (!unixTimestamp) return "N/A";
@@ -82,7 +92,8 @@ $(document).ready(function () {
 
             // --- PHẦN THÔNG BÁO ---
             res.data.filter(muc => muc.TenMucLuc?.toLowerCase().includes("thông báo")).forEach(muc => {
-                const mucId = toSlug(muc.TenMucLuc);
+                const mucId = toSlug(stripHtml(muc.TenMucLuc));
+
                 const allBaiViets = muc.BaiViets || [];
 
                 const moiNhat = [...allBaiViets]
@@ -95,7 +106,8 @@ $(document).ready(function () {
                 html += `<div id="${mucId}">
     <div class="text-center ">
         <h3 class="inline-block bg-red-600 text-white text-sm sm:text-base md:text-lg font-semibold rounded-full px-6 py-2 mb-6 uppercase shadow">
-            ${muc.TenMucLuc}
+           ${stripHtml(muc.TenMucLuc)}
+
         </h3>
     </div>
 
@@ -167,7 +179,7 @@ $(document).ready(function () {
 
 <!-- Nút Xem thêm thông báo -->
 <div class="text-center mt-8">
-   <a href="/danh-sach-bai-viet?mucId=${muc.ID}&slug=${toSlug(muc.TenMucLuc)}" class="inline-block bg-blue border-2 border-red-600 text-red-600 px-6 py-2 rounded hover:bg-red-600 hover:text-white transition">
+   <a href="/danh-sach-bai-viet?mucId=${muc.ID}&slug=${stripHtml(muc.TenMucLuc)}" class="inline-block bg-blue border-2 border-red-600 text-red-600 px-6 py-2 rounded hover:bg-red-600 hover:text-white transition">
     XEM THÊM ${muc.TenMucLuc.toUpperCase()}
 </a>
 </div>
@@ -178,7 +190,8 @@ $(document).ready(function () {
 
             // --- PHẦN CÁC MỤC KHÁC (bao gồm Sự kiện) ---
             res.data.filter(muc => !muc.TenMucLuc?.toLowerCase().includes("thông báo")).forEach(muc => {
-                const mucId = toSlug(muc.TenMucLuc);
+                const mucId = toSlug(stripHtml(muc.TenMucLuc));
+
                 const allBaiViets = muc.BaiViets || [];
                 const isSuKien = muc.TenMucLuc?.toLowerCase().includes("sự kiện");
                 const isTinTuc = muc.TenMucLuc?.toLowerCase().includes("tin tức");
@@ -200,7 +213,7 @@ $(document).ready(function () {
                     const rightItems = sortedByViews.slice(0, 6);   // Bài nổi bật bên phải
 
                     html += `
-                    <div class="max-w-7xl mx-auto px-4">
+<div id="${mucId}" class="max-w-7xl mx-auto px-4">
                         <div class="text-center mb-8">
                             <h3 class="inline-block text-red-600 text-2xl font-bold uppercase">TIN TỨC</h3>
                         </div>
@@ -267,7 +280,7 @@ $(document).ready(function () {
         </div>
     </div>
     <div class="text-center mt-8">
-        <a href="/danh-sach-bai-viet?mucId=${muc.ID}&slug=${toSlug(muc.TenMucLuc)}" class="inline-block bg-blue border-2 border-red-600 text-red-600 px-6 py-2 rounded hover:bg-red-600 hover:text-white transition">
+        <a href="/danh-sach-bai-viet?mucId=${muc.ID}&slug=${stripHtml(muc.TenMucLuc)}" class="inline-block bg-blue border-2 border-red-600 text-red-600 px-6 py-2 rounded hover:bg-red-600 hover:text-white transition">
     XEM THÊM ${muc.TenMucLuc.toUpperCase()}
 </a>
 
@@ -282,7 +295,8 @@ $(document).ready(function () {
                     : ''}">
                     <div class="text-center mb-8">
                         <h3 class="${isSuKien ? 'text-white text-2xl sm:text-3xl font-bold uppercase' : 'inline-block bg-blue-600 text-white text-sm sm:text-base md:text-lg font-semibold rounded-full px-6 py-2 uppercase shadow'}">
-                            ${muc.TenMucLuc}
+                           ${stripHtml(muc.TenMucLuc)}
+
                         </h3>
                     </div>`;
 
@@ -341,62 +355,57 @@ $(document).ready(function () {
         });
 
     // Hàm phân trang bài viết
-    function renderBaiVietForMucLuc(mucId) {
+        function renderBaiVietForMucLuc(mucId) {
             const container = $(`#list-${mucId}`);
-    const muc = window.mucLucData[mucId];
-    if (!muc) return;
+            const muc = window.mucLucData[mucId];
+            if (!muc) return;
 
-        const start = (muc.page - 1) * muc.perPage;
-        const end = muc.page * muc.perPage;
-        const currentList = muc.data.slice(start, end);
-    const isSuKien = mucId.includes("su-kien");
+            const start = (muc.page - 1) * muc.perPage;
+            const end = muc.page * muc.perPage;
+            const currentList = muc.data.slice(start, end);
+            const isSuKien = mucId.includes("su-kien");
 
-    let html = "";
-        currentList.forEach(bv => {
-            const thumb = bv.LinkThumbnail?.trim() || "/images/default.jpg";
-            const date = formatDate(bv.NgayDang);
-            const views = bv.LuotXem ?? 0;
-            const moTa = bv.MoTa ?? '';
-            const tieuDe = bv.TieuDe ?? 'KHÔNG CÓ TIÊU ĐỀ';
+            let html = "";
+            currentList.forEach(bv => {
+                const thumb = bv.LinkThumbnail?.trim() || "/images/default.jpg";
+                const date = formatDate(bv.NgayDang);
+                const views = bv.LuotXem ?? 0;
+                const moTa = bv.MoTa ?? '';
+                const tieuDe = escapeHtml(bv.TieuDe || "Không có tiêu đề").toUpperCase();
 
-            if(isSuKien) {
-                html += `
-    <div class="w-full flex justify-center">
-        <div class="bg-white w-[355px] h-[auto] rounded overflow-hidden shadow hover:shadow-lg transition">
-            <img src="${thumb}" class="w-full h-[205.525px] object-cover" alt="Thumbnail" />
-            <div class="p-4">
-                <a href="/noi-dung/${bv.ID}" class="text-lg font-semibold text-gray-800 hover:text-orange-600 line-clamp-2">${tieuDe.toUpperCase()}</a>
-                <div class="text-sm text-gray-500 mt-2 flex items-center gap-4">
-                    <span><i class="far fa-clock mr-1"></i>${date}</span>
-                    <span><i class="far fa-eye mr-1"></i>${views} lượt xem</span>
-                </div>
-            </div>
+                if (isSuKien) {
+                    html += `
+<div class="bg-white rounded-lg overflow-hidden shadow hover:shadow-lg transition flex flex-col">
+    <img src="${thumb}" class="w-full h-[230px] object-cover" alt="Thumbnail" />
+    <div class="p-4 flex flex-col justify-between flex-grow">
+        <a href="/noi-dung/${bv.ID}" class="font-bold text-base text-gray-900 hover:text-red-600 line-clamp-2 leading-snug mb-2">${tieuDe}</a>
+        <div class="text-sm text-gray-600 flex items-center justify-between mt-auto">
+            <span><i class="far fa-calendar-alt mr-1"></i>${date}</span>
+            <span><i class="far fa-eye mr-1"></i>${views} lượt xem</span>
         </div>
-    </div>`;
-            }
+    </div>
+</div>`;
+                } else {
+                    html += `
+<div class="bg-white rounded-lg shadow-sm hover:shadow-md transition overflow-hidden flex flex-col h-auto p-3 text-sm space-y-2">
+    <img src="${thumb}" class="w-full h-auto" alt="Thumbnail" />
+    <div class="p-2 flex-1 flex flex-col space-y-1">
+        <a href="/noi-dung/${bv.ID}" class="font-bold text-blue-800 text-base sm:text-lg hover:underline break-words whitespace-normal leading-snug">${tieuDe}</a>
+        <div class="text-sm text-gray-500 flex items-center gap-3">
+            <span><i class="far fa-clock mr-1"></i>${date}</span>
+            <span><i class="far fa-eye mr-1"></i>${views} lượt xem</span>
+        </div>
+        <p class="text-sm text-gray-700 line-clamp-2 break-words whitespace-normal">${moTa}</p>
+    </div>
+</div>`;
+                }
+            });
 
- else {
-                html += `
-        <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition overflow-hidden flex flex-col h-auto p-3 text-sm">
-            <img src="${thumb}" class="w-full h-auto" alt="Thumbnail" />
-            <div class="p-4 flex-1 flex flex-col">
-                <a href="/noi-dung/${bv.ID}" class="font-bold text-blue-800 text-base sm:text-lg mb-2 hover:underline break-words whitespace-normal">${tieuDe}</a>
-                <div class="text-sm text-gray-500 mb-2 flex items-center gap-3">
-                    <span><i class="far fa-clock mr-1"></i>${date}</span>
-                    <span><i class="far fa-eye mr-1"></i>${views} lượt xem</span>
-                </div>
-                <p class="text-sm text-gray-700 line-clamp-2 break-words whitespace-normal">${moTa}</p>
-            </div>
-        </div>`;
-            }
-        });
-
-
-        container.append(html);
-
+            container.append(html);
 
             if (end >= muc.data.length) {
-        $(`button[data-id="${mucId}"]`).hide();
+                $(`button[data-id="${mucId}"]`).hide();
             }
         }
+
     });

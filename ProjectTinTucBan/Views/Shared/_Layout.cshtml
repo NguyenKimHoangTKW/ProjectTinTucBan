@@ -30,6 +30,7 @@
             display: block;
         }
     </style>
+
 </head>
 
 <body class="min-h-screen flex flex-col bg-white text-gray-800 overflow-x-hidden">
@@ -87,25 +88,40 @@
                 res.data.forEach(muc => {
                     const slug = toSlug(muc.TenMucLuc);
                     const ten = muc.TenMucLuc.toUpperCase();
-                    nav.append(`<a href="/" class="hover:text-blue-600 scroll-to" data-target="${slug}">${ten}</a>`);
+
+                    // ✅ Dùng jQuery tạo thẻ <a> và đặt text bằng .text() để tránh render HTML
+                    // Sửa đoạn này trong Layout.cshtml
+                    const link = $("<a>")
+                        .attr("href", `#${slug}`) // để scroll nếu đang ở trang chủ
+                        .attr("data-target", slug) // để xác định mục tiêu
+                        .addClass("hover:text-blue-600 scroll-to")
+                        .text(ten);
+
+                    nav.append(link);
                 });
             });
 
             // Xử lý click -> scroll
+            // Xử lý click vào mục lục
             $(document).on("click", ".scroll-to", function (e) {
                 const slug = $(this).data("target");
 
+                // Nếu không đang ở trang chủ thì lưu slug rồi redirect về "/"
                 if (window.location.pathname !== "/") {
+                    e.preventDefault();
                     localStorage.setItem("scrollToSlug", slug);
+                    window.location.href = "/";
                     return;
                 }
 
+                // Nếu đang ở trang chủ thì scroll mượt
                 e.preventDefault();
                 const offset = $(`#${slug}`).offset()?.top;
                 if (offset) {
                     $("html, body").animate({ scrollTop: offset - 100 }, 500);
                 }
             });
+
 
             // Khi về từ trang khác, scroll tới mục
             const savedSlug = localStorage.getItem("scrollToSlug");
@@ -118,10 +134,12 @@
                         }, 500);
                     }
                     localStorage.removeItem("scrollToSlug");
-                }, 400);
+                }, 400); // Chờ DOM render xong
             }
+
         });
     </script>
+
 </body>
 
 </html>

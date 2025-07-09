@@ -64,8 +64,12 @@
     <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
 
     <script>
-        window.mucIdFromView = @mucId;
+        // Truyền biến từ Razor View sang JavaScript một cách an toàn
+        window.mucIdFromView = @Html.Raw(mucId ?? "0");
+        window.mucTen = "@mucTenCoDau";
+
         $(document).ready(function () {
+            // Gọi API banner và khởi tạo Swiper
             $.get("/api/v1/home/get-slider", function (data) {
                 let html = "";
                 if (!data || data.length === 0) {
@@ -104,3 +108,4 @@
     <!-- Danh sách bài viết -->
     <script src="~/Scripts/DanhSachBaiViet.js"></script>
 }
+
