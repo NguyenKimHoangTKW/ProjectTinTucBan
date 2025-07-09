@@ -1,4 +1,4 @@
-﻿@{
+﻿﻿@{
     ViewBag.Title = "Quản lý mục lục";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
@@ -280,68 +280,63 @@
 
     /* Cải thiện hiển thị di động */
     @@media screen and (max-width: 576px) {
-    #data-table {
-        display: block;
-        overflow-x: auto;
-    }
+        #data-table {
+            display: block;
+            overflow-x: auto;
+        }
 
-    .modal-footer {
-        flex-direction: column;
-        align-items: stretch;
-        padding: 15px;
-    }
+        .modal-footer {
+            flex-direction: column;
+            align-items: stretch;
+            padding: 15px;
+        }
 
-    .modal-footer button {
-        margin: 5px 0;
-        width: 100%;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
+            .modal-footer button {
+                margin: 5px 0;
+                width: 100%;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        /* Make modal body content more readable on mobile */
+        .modal-body {
+            padding: 15px;
+        }
 
-    /* Make modal body content more readable on mobile */
-    .modal-body {
-        padding: 15px;
-    }
+        .form-group small {
+            font-size: 11px;
+        }
+        /* Adjust input groups for better mobile display */
+        .input-group {
+            flex-wrap: nowrap;
+        }
+        /* Make sure modal header is properly displayed */
+        .modal-header h5 {
+            font-size: 16px;
+            margin-right: 25px; /* Ensure space for close button */
+        }
+        /* Improve form field spacing on mobile */
+        .row {
+            margin-right: -10px;
+            margin-left: -10px;
+        }
 
-    .form-group small {
-        font-size: 11px;
-    }
+        .col-md-6 {
+            padding-right: 10px;
+            padding-left: 10px;
+        }
+        /* Ensure checkbox is visible and properly aligned */
+        .checkbox {
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+        }
 
-    /* Adjust input groups for better mobile display */
-    .input-group {
-        flex-wrap: nowrap;
+            .checkbox input {
+                margin-right: 8px;
+            }
     }
-
-    /* Make sure modal header is properly displayed */
-    .modal-header h5 {
-        font-size: 16px;
-        margin-right: 25px; /* Ensure space for close button */
-    }
-
-    /* Improve form field spacing on mobile */
-    .row {
-        margin-right: -10px;
-        margin-left: -10px;
-    }
-
-    .col-md-6 {
-        padding-right: 10px;
-        padding-left: 10px;
-    }
-
-    /* Ensure checkbox is visible and properly aligned */
-    .checkbox {
-        display: flex;
-        align-items: center;
-        margin-top: 5px;
-    }
-
-    .checkbox input {
-        margin-right: 8px;
-    }
-}
 
 
     /* Tùy chỉnh các điều khiển DataTable */

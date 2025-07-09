@@ -23,6 +23,9 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             unixTimestamp = (int)(now.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
         }
 
+        
+
+
         // Upload hình ảnh cho slide
         [HttpPost]
         [Route("upload-slide-image")]
@@ -109,8 +112,21 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             db.Sliders.Add(slide);
             await db.SaveChangesAsync();
 
+            await ReindexSlideOrderAsync();
             return Ok(new { success = true, message = "Thêm slide thành công." });
         }
+
+        private async Task ReindexSlideOrderAsync()
+        {
+            var slides = await db.Sliders.OrderBy(s => s.ThuTuShow).ToListAsync();
+            int order = 1;
+            foreach (var slide in slides)
+            {
+                slide.ThuTuShow = order++;
+            }
+            await db.SaveChangesAsync();
+        }
+
 
         // Sửa slide
         [HttpPost]
@@ -128,8 +144,11 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 existing.LinkHinh = slide.LinkHinh;
             existing.isActive = slide.isActive;
             existing.NgayCapNhat = unixTimestamp;
+            existing.isActive = slide.isActive;
 
+            
             await db.SaveChangesAsync();
+            await ReindexSlideOrderAsync();
             return Ok(new { success = true, message = "Cập nhật slide thành công." });
         }
 
@@ -142,8 +161,31 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             if (slide == null)
                 return Ok(new { success = false, message = "Không tìm thấy slide." });
 
+            // Lưu lại đường dẫn hình trước khi xóa DB
+            var linkHinh = slide.LinkHinh;
+
             db.Sliders.Remove(slide);
             await db.SaveChangesAsync();
+            await ReindexSlideOrderAsync();
+
+            // Xóa file hình nếu tồn tại
+            if (!string.IsNullOrWhiteSpace(linkHinh))
+            {
+                try
+                {
+                    // Đường dẫn vật lý trên server
+                    var filePath = HttpContext.Current.Server.MapPath(linkHinh);
+                    if (File.Exists(filePath))
+                    {
+                        File.Delete(filePath);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Có thể log lỗi nếu cần
+                }
+            }
+
             return Ok(new { success = true, message = "Xóa slide thành công." });
         }
 
@@ -191,6 +233,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             swapSlide.ThuTuShow = temp;
 
             await db.SaveChangesAsync();
+            await ReindexSlideOrderAsync();
             return Ok(new { success = true });
         }
 
@@ -215,7 +258,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             slide.isActive = req.isActive;
             slide.NgayCapNhat = unixTimestamp;
             await db.SaveChangesAsync();
-
+            await ReindexSlideOrderAsync();
             return Ok(new { success = true, message = "Cập nhật trạng thái thành công." });
         }
 

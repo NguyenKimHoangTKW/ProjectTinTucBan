@@ -4,12 +4,20 @@
         scope: "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
         callback: (response) => {
             if (response.access_token) {
+<<<<<<< HEAD:ProjectTinTucBan/Scripts/LoginWithGoogle.js
                 $.ajax({
                     url: "https://www.googleapis.com/oauth2/v3/userinfo",
                     type: "GET",
                     headers: { "Authorization": `Bearer ${response.access_token}` },
                     dataType: "json",
                     success: function (userInfo) {
+=======
+                fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+                    headers: { "Authorization": `Bearer ${response.access_token}` }
+                })
+                    .then(res => res.json())
+                    .then(userInfo => {
+>>>>>>> Khiem:ProjectTinTucBan/Areas/Admin/Scripts/LoginWithGoogle.js
                         // Log all name-related fields for debugging
                         console.log("Full Google response:", userInfo);
 
@@ -20,8 +28,13 @@
                             userInfo.given_name || "",     // First name
                             userInfo.family_name || ""     // Last name
                         );
+<<<<<<< HEAD:ProjectTinTucBan/Scripts/LoginWithGoogle.js
                     },
                     error: function (error) {
+=======
+                    })
+                    .catch(error => {
+>>>>>>> Khiem:ProjectTinTucBan/Areas/Admin/Scripts/LoginWithGoogle.js
                         Sweet_Alert("error", "Lỗi khi lấy thông tin từ Google");
                     }
                 });
@@ -44,11 +57,20 @@ function togglePassword(inputId) {
     }
 }
 
+<<<<<<< HEAD:ProjectTinTucBan/Scripts/LoginWithGoogle.js
+=======
+
+
+>>>>>>> Khiem:ProjectTinTucBan/Areas/Admin/Scripts/LoginWithGoogle.js
 async function Session_Login(email, fullname, given_name, family_name) {
     try {
         // Validate email domain
         if (!email.endsWith('@student.tdmu.edu.vn') && !email.endsWith('@tdmu.edu.vn')) {
+<<<<<<< HEAD:ProjectTinTucBan/Scripts/LoginWithGoogle.js
             Sweet_Alert("error", "Đang đăng nhập bằng mail cá nhân, vui lòng đăng nhập bằng mail trường");
+=======
+            Sweet_Alert("error", "Gmail không hợp lệ.");
+>>>>>>> Khiem:ProjectTinTucBan/Areas/Admin/Scripts/LoginWithGoogle.js
             return;
         }
 
@@ -72,10 +94,15 @@ async function Session_Login(email, fullname, given_name, family_name) {
                 email: email,
                 name: fullname,
                 role: res.idRole,
+<<<<<<< HEAD:ProjectTinTucBan/Scripts/LoginWithGoogle.js
+=======
+                userId: res.idUser,
+>>>>>>> Khiem:ProjectTinTucBan/Areas/Admin/Scripts/LoginWithGoogle.js
                 userId: res.userId,
                 time: new Date().toISOString()
             }));
 
+<<<<<<< HEAD:ProjectTinTucBan/Scripts/LoginWithGoogle.js
             // Hiển thị thông báo đăng nhập thành công và chuyển hướng
             Swal.fire({
                 position: "center",
@@ -87,15 +114,36 @@ async function Session_Login(email, fullname, given_name, family_name) {
             }).then(() => {
                 $(location).attr('href', "/Admin/InterfaceAdmin/Index");
             });
+=======
+            // Chuyển hướng dựa trên vai trò
+            if (res.idRole == 4 || res.idRole == 1) {
+                window.location.href = `/Admin/InterfaceAdmin/Index`;
+            } else {
+                Sweet_Alert("error", "Tài khoản bạn không thuộc phân quyền Admin...");
+            }
+>>>>>>> Khiem:ProjectTinTucBan/Areas/Admin/Scripts/LoginWithGoogle.js
         } else {
             // Xử lý các trường hợp đăng nhập thất bại
             if (res.isLocked) {
                 if (res.isPermanent) {
+<<<<<<< HEAD:ProjectTinTucBan/Scripts/LoginWithGoogle.js
                     Sweet_Alert("error", "Tài khoản của bạn đã bị khóa vĩnh viễn");
                 } else if (res.remainingSeconds) {
                     // Hiển thị thời gian còn lại
                     showLockCountdown(res.unlockTime || (Math.floor(Date.now() / 1000) + res.remainingSeconds),
                         res.countPasswordFail || 0);
+=======
+                    // Tài khoản bị khóa vĩnh viễn
+                    Sweet_Alert("error", "Tài khoản của bạn đã bị khóa vĩnh viễn. Vui lòng liên hệ quản trị viên.");
+                } else if (res.remainingSeconds) {
+                    // Tài khoản bị khóa tạm thời
+                    const currentTime = Math.floor(Date.now() / 1000);
+                    const unlockTime = currentTime + res.remainingSeconds;
+                    showLockCountdown(unlockTime);
+                    Sweet_Alert("error", res.message);
+                } else {
+                    Sweet_Alert("error", "Tài khoản bạn bị khóa tạm thời.");
+>>>>>>> Khiem:ProjectTinTucBan/Areas/Admin/Scripts/LoginWithGoogle.js
                 }
             } else {
                 // Các lỗi khác
@@ -103,7 +151,11 @@ async function Session_Login(email, fullname, given_name, family_name) {
             }
         }
     } catch (error) {
+<<<<<<< HEAD:ProjectTinTucBan/Scripts/LoginWithGoogle.js
         console.error("Google login error:", error);
+=======
+        console.error("Login error:", error);
+>>>>>>> Khiem:ProjectTinTucBan/Areas/Admin/Scripts/LoginWithGoogle.js
         Sweet_Alert("error", "Đã xảy ra lỗi khi đăng nhập");
     }
 }
@@ -177,6 +229,10 @@ function checkAccountLockStatus() {
 // Improved showLockCountdown function
 let currentCountdownInterval = null;
 function showLockCountdown(unlockTimeValue, failedAttempts) {
+<<<<<<< HEAD:ProjectTinTucBan/Scripts/LoginWithGoogle.js
+=======
+
+>>>>>>> Khiem:ProjectTinTucBan/Areas/Admin/Scripts/LoginWithGoogle.js
     $("#btnLogin").prop("disabled", true).addClass("disabled");
     // xoá bộ đếm hiện có
     if (currentCountdownInterval) {
@@ -214,6 +270,7 @@ function showLockCountdown(unlockTimeValue, failedAttempts) {
         }
     } catch (e) {
         // Default to 15 minutes from now as fallback
+<<<<<<< HEAD:ProjectTinTucBan/Scripts/LoginWithGoogle.js
         unlockTime = $.now() + (15 * 60 * 1000);
     }
 
@@ -224,15 +281,31 @@ function showLockCountdown(unlockTimeValue, failedAttempts) {
 
         if (timeLeft <= 0) {
             clearInterval(currentCountdownInterval);
+=======
+        unlockTime = Date.now() + (15 * 60 * 1000);
+    }
+
+    // Set up the countdown timer
+    const updateCountdown = setInterval(function () {
+        const now = Date.now();
+        const timeLeft = unlockTime - now;
+
+        if (timeLeft <= 0) {
+            clearInterval(updateCountdown);
+>>>>>>> Khiem:ProjectTinTucBan/Areas/Admin/Scripts/LoginWithGoogle.js
             $("#lockCountdownContainer").html(`
                 <div class="alert alert-success">
                     <i class="fas fa-unlock mr-2"></i>
                     <span>Tài khoản đã được mở khóa. Bạn có thể đăng nhập lại.</span>
                 </div>
             `);
+<<<<<<< HEAD:ProjectTinTucBan/Scripts/LoginWithGoogle.js
             setTimeout(function () {
                 $("#lockCountdownContainer").fadeOut('slow');
             }, 5000);
+=======
+            setTimeout(() => $("#lockCountdownContainer").fadeOut('slow'), 5000);
+>>>>>>> Khiem:ProjectTinTucBan/Areas/Admin/Scripts/LoginWithGoogle.js
 
             // Kích hoạt lại nút đăng nhập
             $("#btnLogin").prop("disabled", false).removeClass("disabled");
@@ -266,6 +339,10 @@ $(document).ready(function () {
 
     checkAccountLockStatus();
 
+<<<<<<< HEAD:ProjectTinTucBan/Scripts/LoginWithGoogle.js
+=======
+
+>>>>>>> Khiem:ProjectTinTucBan/Areas/Admin/Scripts/LoginWithGoogle.js
     // Modify the btnLogin click handler to save the username
     $("#btnLogin").click(function (e) {
         e.preventDefault();
@@ -326,6 +403,7 @@ $(document).ready(function () {
                         $(location).attr('href', "/Admin/InterfaceAdmin/Index");
                     });
                 } else {
+<<<<<<< HEAD:ProjectTinTucBan/Scripts/LoginWithGoogle.js
                     // Xử lý thông báo đăng nhập thất bại
                     if (response.isLocked) {
                         if (response.isPermanent) {
@@ -338,6 +416,33 @@ $(document).ready(function () {
                     } else {
                         // Các thông báo lỗi khác
                         Sweet_Alert("error", response.message || "Đăng nhập thất bại");
+=======
+                    // Check if account is locked
+                    if (response.isLocked) {
+                        if (response.isPermanent) {
+                            // Permanent lock
+                            $("#lockCountdownContainer").remove(); // Remove any existing countdown
+                            $(".password-container").after(`
+                            <div id="lockCountdownContainer" class="alert alert-danger mt-2">
+                                <i class="fas fa-lock mr-2"></i>
+                                <span>Tài khoản bị khóa vĩnh viễn. Vui lòng liên hệ quản trị viên.</span>
+                            </div>
+                        `);
+                            Sweet_Alert("error", "Tài khoản bị khóa vĩnh viễn");
+                        } else {
+                            // For temporary locks
+                            if (response.unlockTime) {
+                                showLockCountdown(response.unlockTime, response.countPasswordFail || 0);
+                            } else if (response.remainingSeconds) {
+                                const currentTime = Math.floor(Date.now() / 1000);
+                                const unlockTime = currentTime + response.remainingSeconds;
+                                showLockCountdown(unlockTime, response.countPasswordFail || 0);
+                            }
+                        }
+                    } else {
+                        // Handle other login failure reasons
+                        Sweet_Alert("error", response.message || "Đăng nhập không thành công");
+>>>>>>> Khiem:ProjectTinTucBan/Areas/Admin/Scripts/LoginWithGoogle.js
                     }
                 }
             },

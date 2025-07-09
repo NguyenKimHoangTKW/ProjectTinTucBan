@@ -97,8 +97,11 @@ body {
 
 hr {
     box-sizing: content-box;
-    height: 0;
-    overflow: visible
+    overflow: visible;
+    border: 0 !important;
+    height: 1px !important;
+    background-color: #333 !important;
+    margin: 16px 0 !important
 }
 
 hr {
