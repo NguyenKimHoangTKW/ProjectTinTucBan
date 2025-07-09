@@ -23,6 +23,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         {
             return (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
         }
+
         // GET: Lấy tất cả bài viết
         [HttpGet]
         [Route("get-all-baiviet")]
@@ -45,7 +46,12 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                         x.MucLuc.ID,
                         x.MucLuc.TenMucLuc
                     } : null,
-                    ID_MucLuc = x.ID_MucLuc
+                    ID_MucLuc = x.ID_MucLuc,
+                    NguoiDang = x.TaiKhoan != null ? new
+                    {
+                        x.TaiKhoan.ID,
+                        x.TaiKhoan.TenTaiKhoan
+                    } : null
                 })
                 .ToListAsync();
 
@@ -95,7 +101,6 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 success = true
             });
         }
-
 
         // POST: Thêm bài viết
         [HttpPost]

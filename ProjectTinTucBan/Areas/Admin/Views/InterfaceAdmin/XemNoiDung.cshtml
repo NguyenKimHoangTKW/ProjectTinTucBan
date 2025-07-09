@@ -117,41 +117,38 @@
 <body>
     <div class="main-content">
         <div class="form-group">
-            <input type="text" class="form-control font-weight-bold text-uppercase title" id="TieuDeBaiViet" value="@Model.TieuDe" />
+            <input type="text" class="form-control font-weight-bold text-uppercase title" id="TieuDeBaiViet" />
         </div>
+
+        <p class="text-muted font-italic small text-right mb-1 d-none">
+            ID người đăng: <strong class="id-nguoi-dang">Đang tải...</strong>
+        </p>
+
         <p class="text-muted font-italic small text-right mb-1 mt-0">
-            Người đăng: <strong>@ViewBag.TenTaiKhoan</strong>
-
+            Người đăng: <strong class="nguoi-dang">Đang tải...</strong>
         </p>
-        @{
-            var ngayDang = Model.NgayDang.HasValue
-                ? DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(Model.NgayDang.Value)).ToLocalTime().ToString("dd/MM/yyyy")
-                : "Không xác định";
 
-            var ngayCapNhat = Model.NgayCapNhat.HasValue
-                ? DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(Model.NgayCapNhat.Value)).ToLocalTime().ToString("dd/MM/yyyy")
-                : "Không xác định";
-        }
         <p class="text-muted font-italic small text-right mb-1">
-            Ngày đăng bài: <strong>@ngayDang</strong>
-        </p>
-        <p class="text-muted font-italic small text-right mb-1">
-            Cập nhật lần cuối: <strong>@ngayCapNhat</strong>
+            Ngày đăng bài: <strong class="ngay-dang">Đang tải...</strong>
         </p>
 
+        <p class="text-muted font-italic small text-right mb-1">
+            Cập nhật lần cuối: <strong class="ngay-capnhat">Đang tải...</strong>
+        </p>
 
         <!-- ID ẩn -->
         <input type="hidden" id="BaiVietID" value="@Model.ID" />
-
+        <!-- Nếu bạn cũng muốn bỏ Razor Model.ID thì cần lấy ID từ URL hoặc truyền từ trước -->
         <!-- CKEditor -->
         <div id="xemNoiDungContainer">
-            <textarea id="NoiDung">@Html.Raw(Model.NoiDung)</textarea>
+            <textarea id="NoiDung"></textarea>
         </div>
+
 
         <!-- Nút thao tác -->
         <div class="mt-4 text-right">
             <button id="btnQuayLai" class="btn btn-outline-dark ml-2">Quay lại</button>
-            <button id="btnLuuNoiDung" class="btn btn-primary">Lưu nội dung</button>
+            <button id="btnLuuNoiDung" class="btn btn-primary" style="display: none;">Lưu nội dung</button>
             <button id="btnPreviewPdf" class="btn btn-secondary ml-2">Xem trước PDF</button>
         </div>
     </div>

@@ -21,6 +21,7 @@ $(document).ready(async function () {
     }
 
     loadMucLucOptions();
+    await restoreSessionStorageFromServer(); // đợi session đồng bộ xong
     await GetAllBaiViet();
     setupBaiVietTableEvents();
     setupModalFormEvents();
@@ -66,6 +67,30 @@ $(document).on('click', '#btnCopyTieuDe', function () {
         });
     });
 });
+function restoreSessionStorageFromServer() {
+    return new Promise((resolve) => {
+        $.ajax({
+            url: '/api/v1/admin/current-user',
+            type: 'GET',
+            dataType: 'json',
+            success: function (res) {
+                if (res.success && res.isLoggedIn && res.user) {
+                    sessionStorage.setItem('loginInfo', JSON.stringify({
+                        userId: res.user.id,
+                        name: res.user.name,
+                        email: res.user.email,
+                        role: res.user.role
+                    }));
+                } else {
+                }
+                resolve(); // luôn resolve để tiếp tục
+            },
+            error: function () {
+                resolve(); // vẫn resolve để không làm treo flow
+            }
+        });
+    });
+}
 
 // Load all mục lục for dropdown selection
 function loadMucLucOptions() {
@@ -338,6 +363,7 @@ function setupBaiVietTableEvents() {
 
         }
     });
+
     $(document).on('click', '.btn-xem', function () {
         const id = $(this).data('id');
         const url = `/admin/xem-noi-dung?id=${id}`; // Đúng tên Controller + Action
@@ -406,9 +432,11 @@ async function GetAllBaiViet() {
 
     if (res.success) {
         let html = '';
+        const currentUser = JSON.parse(sessionStorage.getItem('loginInfo') || '{}');
+        const isAdmin = currentUser.role === 1;
         res.data.forEach((item, index) => {
             const isTitleLong = item.TieuDe.length > 10;
-            const encodedTitle = encodeURIComponent(item.TieuDe);       // dùng cho data-tieude
+            //const encodedTitle = encodeURIComponent(item.TieuDe);       // dùng cho data-tieude
             const safeFullTitle = escapeHtml(item.TieuDe);              // dùng để hiển thị an toàn
             const shortened = shortenTitle(item.TieuDe);                // rút gọn hiển thị
 
@@ -425,6 +453,17 @@ async function GetAllBaiViet() {
             let mucLucInfo = 'Khác';
             if (item.MucLuc?.TenMucLuc) {
                 mucLucInfo = escapeHtml(item.MucLuc.TenMucLuc);
+            }
+
+            let actionButtons = '';
+            const isOwner = currentUser.userId === item.NguoiDang?.ID;
+            if (isAdmin || isOwner) {
+                actionButtons = `
+                    <button class="btn btn-warning btn-sm py-1 px-2 w-100 mt-1 btn-sua"
+                            data-id="${item.ID}" style="max-width: 80px;">Sửa</button>
+                    <button class="btn btn-danger btn-sm py-1 px-2 w-100 mt-1 btn-xoa"
+                            data-id="${item.ID}" style="max-width: 80px;">Xóa</button>
+                `;
             }
 
             const linkThumb = item.LinkThumbnail
@@ -463,8 +502,7 @@ async function GetAllBaiViet() {
                     <td>${item.ViewCount ?? 0}</td>
                     <td>
                         <div class="text-center d-flex flex-column align-items-center">
-                            <button class="btn btn-warning btn-sm py-1 px-2 w-100 mt-1 btn-sua" data-id="${item.ID}" style="max-width: 80px;">Sửa</button>
-                            <button class="btn btn-danger btn-sm py-1 px-2 w-100 mt-1 btn-xoa" data-id="${item.ID}" style="max-width: 80px;">Xóa</button>
+                            ${actionButtons}
                         </div>
                     </td>
                 </tr>`;
