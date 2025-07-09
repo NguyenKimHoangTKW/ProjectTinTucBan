@@ -1,4 +1,4 @@
-﻿// Initialize Select2 components if available
+﻿
 $(document).ready(function () {
     if ($.fn.select2) {
         $(".select2").select2();
@@ -252,7 +252,7 @@ defaultContent = "Không có dữ liệu";
 async function load_data() {
     try {
         // Hiển thị loading
-        $('#data-table').empty().html('<div class="text-center my-4"><p>Đang tải dữ liệu...</p></div>');
+        showLoading('#data-table', 'Đang tải dữ liệu...');
 
         // Gọi API
         $.ajax({
@@ -291,10 +291,10 @@ async function load_data() {
 
                         // Chuyển đổi timestamp thành định dạng ngày tháng
                         if (item.NgayDang) {
-                            newItem.NgayDang = unixTimestampToDate(parseInt(item.NgayDang));
+                            newItem.NgayDang = formatTimestamp(parseInt(item.NgayDang));
                         }
                         if (item.NgayCapNhat) {
-                            newItem.NgayCapNhat = unixTimestampToDate(parseInt(item.NgayCapNhat));
+                            newItem.NgayCapNhat = formatTimestamp(parseInt(item.NgayCapNhat));
                         }
 
                         return newItem;
@@ -311,7 +311,12 @@ async function load_data() {
                                 return meta.row + 1;
                             }
                         },
-                        { data: 'TenMucLuc', defaultContent },
+                        {
+                            data: 'TenMucLuc', defaultContent,
+                            render: function (data, type, row) {
+                                return type === 'display' ? escapeHtml(data) : data;
+                            }
+                        },
                         { data: 'Link', defaultContent },
                         { data: 'ThuTuShow', defaultContent },
                         {
@@ -399,10 +404,13 @@ async function load_data() {
 // Get muc luc details for edit form
 async function get_muc_luc_by_id(id) {
     try {
+        showLoading('#mucLucModal .modal-body', 'Đang tải thông tin mục lục...');
+
         const res = await $.ajax({
             url: `/api/v1/admin/Get-Muc-Luc-By-Id/${id}`,
             type: 'GET'
         });
+        hideLoading('#mucLucModal .modal-body');
 
         if (res.success && res.data) {
 
@@ -427,14 +435,14 @@ async function get_muc_luc_by_id(id) {
 
             // Chuyển đổi timestamp ngày đăng sang định dạng ngày tháng
             if (res.data.NgayDang && !isNaN(parseInt(res.data.NgayDang))) {
-                $("#ngayDang").val(unixTimestampToDate(parseInt(res.data.NgayDang)));
+                $("#ngayDang").val(formatTimestamp(parseInt(res.data.NgayDang)));
             } else {
                 $("#ngayDang").val(res.data.NgayDang || "");
             }
 
             // Chuyển đổi timestamp ngày cập nhật sang định dạng ngày tháng
             if (res.data.NgayCapNhat && !isNaN(parseInt(res.data.NgayCapNhat))) {
-                $("#ngayCapNhat").val(unixTimestampToDate(parseInt(res.data.NgayCapNhat)));
+                $("#ngayCapNhat").val(formatTimestamp(parseInt(res.data.NgayCapNhat)));
             } else {
                 $("#ngayCapNhat").val(res.data.NgayCapNhat || "");
             }
@@ -446,16 +454,7 @@ async function get_muc_luc_by_id(id) {
     }
 }
 
-// Helper function for alerts
-function Sweet_Alert(icon, title) {
-    Swal.fire({
-        position: "center",
-        icon: icon,
-        title: title,
-        showConfirmButton: false,
-        timer: 2500
-    });
-}
+
 
 // Convert string to URL-friendly slug
 function convertToSlug(text) {
@@ -474,20 +473,6 @@ function convertToSlug(text) {
         .replace(/-+/g, '-');
 
     return slug;
-}
-
-function unixTimestampToDate(unixTimestamp) {
-    var date = new Date(unixTimestamp * 1000);
-    var weekdays = ['Chủ Nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
-    var dayOfWeek = weekdays[date.getDay()];
-    var month = ("0" + (date.getMonth() + 1)).slice(-2);
-    var day = ("0" + date.getDate()).slice(-2);
-    var year = date.getFullYear();
-    var hours = ("0" + date.getHours()).slice(-2);
-    var minutes = ("0" + date.getMinutes()).slice(-2);
-    var seconds = ("0" + date.getSeconds()).slice(-2);
-    var formattedDate = dayOfWeek + ', ' + day + "-" + month + "-" + year + " " + hours + ":" + minutes + ":" + seconds;
-    return formattedDate;
 }
 
 // Thay đổi trạng thái mục lục

@@ -5,6 +5,8 @@
 
 <div class="main-content">
     <div class="container-fluid">
+        <h2 class="header-title">Quản lý tài khoản</h2>
+        <hr />
         <!-- Header và breadcrumb -->
         <div class="page-header">
             <h2 class="header-title">Quản lý tài khoản</h2>
@@ -23,7 +25,6 @@
                     <div class="col-lg-8">
                         <h4>Danh sách tài khoản</h4>
                     </div>
-                    
                 </div>
 
                 <!-- Bảng dữ liệu -->
@@ -32,8 +33,7 @@
                         <tr>
                             <th>STT</th>
                             <th>Tên tài khoản</th>
-                            <th>Gmail</th>
-                            <th>Số điện thoại</th>
+                            <th>Tên người dùng</th>
                             <th>Vai trò</th>
                             <th>Trạng thái</th>
                             <th>Ngày tạo</th>
@@ -50,7 +50,7 @@
     </div>
 </div>
 
-<!-- Modal Quản lý tài khoản (dùng chung cho cả thêm và sửa) -->
+<!-- Unified Modal for User Management (Add/Edit/View/Permissions) -->
 <div class="modal fade" id="UserModal" tabindex="-1" role="dialog" aria-labelledby="UserModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -61,225 +61,281 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form id="UserForm">
-                    <input type="hidden" id="userId" value="" />
-                    <input type="hidden" id="formMode" value="add" /> <!-- 'add' hoặc 'edit' -->
+                <!-- Tab navigation -->
+                <ul class="nav nav-tabs" id="userModalTabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="info-tab" data-toggle="tab" href="#info-content" role="tab">
+                            Thông tin tài khoản
+                        </a>
+                    </li>
+                    <li class="nav-item" id="permissions-tab-item">
+                        <a class="nav-link" id="permissions-tab" data-toggle="tab" href="#permissions-content" role="tab">
+                            Phân quyền
+                        </a>
+                    </li>
+                </ul>
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="tenTaiKhoan">Tên tài khoản <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="tenTaiKhoan" name="tenTaiKhoan" placeholder="Nhập tên tài khoản" required>
-                                <small class="form-text text-muted">Tên đăng nhập của tài khoản</small>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="ID_role">Vai trò <span class="text-danger">*</span></label>
-                                <select class="form-control" id="ID_role" name="ID_role" required>
-                                    <option value="">-- Chọn vai trò --</option>
-                                    <!-- Options will be loaded from API -->
-                                </select>
-                                <small class="form-text text-muted">Quyền hạn của tài khoản</small>
-                            </div>
-                        </div>
-                    </div>
+                <!-- Tab content -->
+                <div class="tab-content mt-3" id="userModalTabsContent">
+                    <!-- Tab thông tin tài khoản -->
+                    <div class="tab-pane fade show active" id="info-content" role="tabpanel">
+                        <form id="UserForm">
+                            <input type="hidden" id="userId" value="" />
+                            <input type="hidden" id="formMode" value="add" />
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="Gmail">Gmail <span class="text-danger">*</span></label>
-                                <input type="email" class="form-control" id="Gmail" name="Gmail" placeholder="Nhập địa chỉ Gmail" required>
-                                <small class="form-text text-muted">Địa chỉ Gmail liên kết</small>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="SDT">Số điện thoại</label>
-                                <input type="tel" class="form-control" id="SDT" name="SDT" placeholder="Nhập số điện thoại">
-                                <small class="form-text text-muted">Số điện thoại liên hệ</small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Password fields - show only in add mode -->
-                    <div id="passwordFields">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="MatKhau">Mật khẩu <span class="text-danger">*</span></label>
-                                    <input type="password" class="form-control" id="MatKhau" name="MatKhau" placeholder="Nhập mật khẩu">
-                                    <small class="form-text text-muted">Mật khẩu đăng nhập</small>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="xacNhanMatKhau">Xác nhận mật khẩu <span class="text-danger">*</span></label>
-                                    <input type="password" class="form-control" id="xacNhanMatKhau" name="xacNhanMatKhau" placeholder="Nhập lại mật khẩu">
-                                    <small class="form-text text-muted">Nhập lại mật khẩu để xác nhận</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Chỉ hiển thị khi ở chế độ sửa -->
-                    <div id="editOnlyFields" class="row" style="display:none">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="IsBanned">Trạng thái tài khoản</label>
-                                <select class="form-control" id="IsBanned" name="IsBanned">
-                                    <option value="0">Hoạt động</option>
-                                    <option value="1">Khóa</option>
-                                </select>
-                                <small class="form-text text-muted">Trạng thái hoạt động của tài khoản</small>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Thời gian</label>
+                            <div class="form-fields">
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" id="NgayTao" name="NgayTao" readonly placeholder="Ngày tạo">
-                                        <small class="form-text text-muted">Ngày tạo</small>
+                                        <div class="form-group">
+                                            <label for="tenTaiKhoan">Tên tài khoản <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="tenTaiKhoan" name="tenTaiKhoan" placeholder="Nhập tên tài khoản" required>
+                                            <small class="form-text text-muted">Tên đăng nhập của tài khoản</small>
+                                        </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" id="NgayCapNhat" name="NgayCapNhat" readonly placeholder="Ngày cập nhật">
-                                        <small class="form-text text-muted">Cập nhật gần nhất</small>
+                                        <div class="form-group">
+                                            <label for="tenNguoiDung">Tên người dùng <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="tenNguoiDung" name="tenNguoiDung" placeholder="Nhập tên người dùng" required>
+                                            <small class="form-text text-muted">Tên hiển thị của người dùng</small>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- Khu vực đổi mật khẩu (chỉ hiển thị khi edit) -->
-                    <div id="changePasswordSection" class="mt-3" style="display:none;">
-                        <div class="custom-control custom-checkbox mb-2">
-                            <input type="checkbox" class="custom-control-input" id="changePasswordCheck">
-                            <label class="custom-control-label" for="changePasswordCheck">Đổi mật khẩu</label>
-                        </div>
-                        <div id="newPasswordFields" style="display:none;">
-                            <div class="row">
-                                <div class="col-md-6">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="Gmail">Gmail <span class="text-danger">*</span></label>
+                                            <input type="email" class="form-control" id="Gmail" name="Gmail" placeholder="Nhập địa chỉ Gmail" required>
+                                            <small class="form-text text-muted">Địa chỉ Gmail liên kết</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="ID_role">Vai trò <span class="text-danger">*</span></label>
+                                            <select class="form-control" id="ID_role" name="ID_role" required>
+                                                <option value="">-- Chọn vai trò --</option>
+                                                <!-- Options will be loaded from API -->
+                                            </select>
+                                            <small class="form-text text-muted">Quyền hạn của tài khoản</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="SDT">Số điện thoại</label>
+                                            <input type="tel" class="form-control" id="SDT" name="SDT" placeholder="Nhập số điện thoại">
+                                            <small class="form-text text-muted">Số điện thoại liên hệ</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="IsBanned">Trạng thái tài khoản</label>
+                                            <select class="form-control" id="IsBanned" name="IsBanned">
+                                                <option value="0">Hoạt động</option>
+                                                <option value="1">Khóa</option>
+                                            </select>
+                                            <small class="form-text text-muted">Trạng thái hoạt động của tài khoản</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Chỉ hiển thị khi ở chế độ sửa -->
+                                <div id="editOnlyFields" style="display:none">
                                     <div class="form-group">
-                                        <label for="matKhauMoi">Mật khẩu mới</label>
-                                        <input type="password" class="form-control" id="matKhauMoi" name="matKhauMoi" placeholder="Nhập mật khẩu mới">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="xacNhanMatKhauMoi">Xác nhận mật khẩu mới</label>
-                                        <input type="password" class="form-control" id="xacNhanMatKhauMoi" name="xacNhanMatKhauMoi" placeholder="Nhập lại mật khẩu mới">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-primary" id="btnSaveUser">
-                    <i class="anticon anticon-save m-r-5"></i>
-                    <span id="btnSaveText">Lưu</span>
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<div class="modal fade" id="UserPermissionModal" tabindex="-1" role="dialog" aria-labelledby="UserPermissionModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="UserPermissionModalLabel">Phân quyền người dùng</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" id="permissionUserId" value="" />
-
-                <div class="row mb-3">
-                    <div class="col-md-12">
-                        <div class="alert alert-info">
-                            <div class="d-flex align-items-center">
-                                <i class="anticon anticon-info-circle mr-2"></i>
-                                <span>Chọn các chức năng để phân quyền cho người dùng <strong id="permissionUserName"></strong></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <div class="input-group mb-3">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text">
-                                        <i class="anticon anticon-search"></i>
-                                    </span>
-                                </div>
-                                <input type="text" class="form-control" id="searchFunctions" placeholder="Tìm kiếm chức năng...">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="table-responsive">
-                            <table class="table table-hover" id="functionsTable">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 10%">
-                                            <div class="custom-control custom-checkbox">
-                                                <input type="checkbox" class="custom-control-input" id="checkAllFunctions">
-                                                <label class="custom-control-label" for="checkAllFunctions"></label>
+                                        <label>Thông tin thời gian</label>
+                                        <div class="row">
+                                            <div class="col-md-6 col-sm-12 mb-3">
+                                                <input type="text" class="form-control" id="NgayTao" name="NgayTao" readonly placeholder="Ngày tạo">
+                                                <small class="form-text text-muted">Ngày tạo</small>
                                             </div>
-                                        </th>
-                                        <th style="width: 30%">Tên chức năng</th>
-                                        <th style="width: 20%">Mã chức năng</th>
-                                        <th style="width: 40%">Mô tả</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="functionsTableBody">
-                                    <!-- Chức năng sẽ được load từ API -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+                                            <div class="col-md-6 col-sm-12">
+                                                <input type="text" class="form-control" id="NgayCapNhat" name="NgayCapNhat" readonly placeholder="Ngày cập nhật">
+                                                <small class="form-text text-muted">Cập nhật gần nhất</small>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                <div class="row mt-3">
-                    <div class="col-md-12">
-                        <div class="alert alert-warning" id="noFunctionsMessage" style="display: none;">
-                            <div class="d-flex align-items-center">
-                                <i class="anticon anticon-exclamation-circle mr-2"></i>
-                                <span>Không tìm thấy chức năng nào.</span>
+                                    <!-- Khu vực đổi mật khẩu (chỉ hiển thị khi edit) -->
+                                    <div id="changePasswordSection" class="mt-3">
+                                        <div class="custom-control custom-checkbox mb-2">
+                                            <input type="checkbox" class="custom-control-input" id="changePasswordCheck">
+                                            <label class="custom-control-label" for="changePasswordCheck">Đổi mật khẩu</label>
+                                        </div>
+                                        <div id="newPasswordFields" style="display:none;">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="matKhauMoi">Mật khẩu mới</label>
+                                                        <input type="password" class="form-control" id="matKhauMoi" name="matKhauMoi" placeholder="Nhập mật khẩu mới">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="xacNhanMatKhauMoi">Xác nhận mật khẩu mới</label>
+                                                        <input type="password" class="form-control" id="xacNhanMatKhauMoi" name="xacNhanMatKhauMoi" placeholder="Nhập lại mật khẩu mới">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Detail view for View mode -->
+                            <div id="userDetails" style="display:none;">
+                                <div class="detail-group">
+                                    <label>ID:</label>
+                                    <p id="viewUserId" class="detail-value"></p>
+                                </div>
+                                <div class="detail-group">
+                                    <label>Tên tài khoản:</label>
+                                    <p id="viewTenTaiKhoan" class="detail-value"></p>
+                                </div>
+                                <div class="detail-group">
+                                    <label>Tên người dùng:</label>
+                                    <p id="viewTenNguoiDung" class="detail-value"></p>
+                                </div>
+                                <div class="detail-group">
+                                    <label>Gmail:</label>
+                                    <p id="viewGmail" class="detail-value"></p>
+                                </div>
+                                <div class="detail-group">
+                                    <label>Số điện thoại:</label>
+                                    <p id="viewSDT" class="detail-value"></p>
+                                </div>
+                                <div class="detail-group">
+                                    <label>Vai trò:</label>
+                                    <p id="viewRole" class="detail-value"></p>
+                                </div>
+                                <div class="detail-group">
+                                    <label>Trạng thái:</label>
+                                    <p id="viewIsBanned" class="detail-value"></p>
+                                </div>
+                                <div class="detail-group">
+                                    <label>Ngày tạo:</label>
+                                    <p id="viewNgayTao" class="detail-value"></p>
+                                </div>
+                                <div class="detail-group">
+                                    <label>Ngày cập nhật:</label>
+                                    <p id="viewNgayCapNhat" class="detail-value"></p>
+                                </div>
+
+                                <!-- User Permissions Section -->
+                                <div class="detail-group">
+                                    <label>Quyền đã được cấp:</label>
+                                    <div class="table-responsive functions-table-container">
+                                        <table class="table table-sm" id="viewPermissionsTable">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 40%">Tên chức năng</th>
+                                                    <th style="width: 20%">Mã chức năng</th>
+                                                    <th style="width: 40%">Mô tả</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="viewPermissionsTableBody">
+                                                <!-- Permissions will be loaded here -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div id="noPermissionsMessage" class="text-center text-muted" style="display: none;">
+                                        <p>Người dùng này chưa được cấp quyền nào</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Tab phân quyền (chuyển từ UserPermissionModal) -->
+                    <div class="tab-pane fade" id="permissions-content" role="tabpanel">
+                        <input type="hidden" id="permissionUserId" value="" />
+
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <div class="alert alert-info">
+                                    <div class="d-flex align-items-center">
+                                        <i class="anticon anticon-info-circle mr-2"></i>
+                                        <span>Chọn các chức năng để phân quyền cho người dùng <strong id="permissionUserName"></strong></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="table-responsive functions-table-container">
+                                    <table class="table table-hover" id="functionsTable">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 10%">
+                                                    <div class="custom-control custom-checkbox">
+                                                        <input type="checkbox" class="custom-control-input" id="checkAllFunctions">
+                                                        <label class="custom-control-label" for="checkAllFunctions"></label>
+                                                    </div>
+                                                </th>
+                                                <th style="width: 30%">Tên chức năng</th>
+                                                <th style="width: 20%">Mã chức năng</th>
+                                                <th style="width: 40%">Mô tả</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="functionsTableBody">
+                                            <!-- Chức năng sẽ được load từ API -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <div class="alert alert-warning" id="noFunctionsMessage" style="display: none;">
+                                    <div class="d-flex align-items-center">
+                                        <i class="anticon anticon-exclamation-circle mr-2"></i>
+                                        <span>Không tìm thấy chức năng nào.</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
-                <button type="button" class="btn btn-primary" id="btnSavePermissions">
-                    <i class="anticon anticon-save m-r-5"></i>
-                    <span>Lưu phân quyền</span>
-                </button>
+            <div class="modal-footer flex-wrap justify-content-center">
+                <!-- Nút cho thông tin tài khoản -->
+                <div id="formButtons">
+                    <button type="button" class="btn btn-primary m-1" id="btnSaveUser">
+                        <i class="anticon anticon-save m-r-5"></i>
+                        <span id="btnSaveText">Lưu</span>
+                    </button>
+                    <button type="button" class="btn btn-default m-1" data-dismiss="modal">Hủy</button>
+                </div>
+
+                <!-- Nút cho xem chi tiết -->
+                <div id="viewButtons" style="display:none;">
+                    <button type="button" class="btn btn-primary m-1" id="btnEditFromView" data-id="">
+                        <i class="anticon anticon-edit m-r-5"></i>
+                        <span>Chỉnh sửa</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary m-1" data-dismiss="modal">Đóng</button>
+                </div>
+
+                <!-- Nút cho phân quyền -->
+                <div id="permissionButtons" style="display:none;">
+                    <button type="button" class="btn btn-primary m-1" id="btnSavePermissions">
+                        <i class="anticon anticon-save m-r-5"></i>
+                        <span>Lưu phân quyền</span>
+                    </button>
+                    <button type="button" class="btn btn-default m-1" data-dismiss="modal">Đóng</button>
+                </div>
             </div>
         </div>
     </div>
 </div>
-
-
 
 <style>
-    /* Định dạng DataTable giống như mẫu */
+    /* ===== DATA TABLE STYLES ===== */
     .dataTables_wrapper .dataTables_filter {
         float: right;
-        text-align: right;
         margin-bottom: 20px;
     }
 
@@ -302,29 +358,83 @@
         margin-bottom: 20px;
     }
 
-        /* Thêm CSS để căn giữa nội dung trong tiêu đề và dữ liệu của bảng */
         #data-table thead th {
             padding: 15px 10px;
             border-bottom: 1px solid #e8e8e8;
             font-weight: 500;
             color: #fff;
             background-color: #5a8dee;
-            text-align: center;
+            text-align: center !important;
         }
 
         #data-table tbody td {
             padding: 15px 10px;
-            border-bottom: 1px solid #e8e8e8;
             color: #333;
             text-align: center;
             vertical-align: middle;
+            border: 1px solid #dee2e6 !important;
+            border-collapse: collapse !important;
         }
 
         #data-table tbody tr:hover {
             background-color: #f8f8f8;
         }
 
-    /* Định dạng badge */
+    /* ===== ACTION BUTTONS ===== */
+    .btn-action {
+        width: 40px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-right: 5px;
+        border-radius: 4px;
+    }
+
+    .btn-detail {
+        background-color: #1890ff;
+        color: white;
+    }
+
+        .btn-detail:hover {
+            background-color: #40a9ff;
+            color: white;
+        }
+
+    .btn-edit {
+        background-color: #ffc107;
+        color: #212529;
+    }
+
+        .btn-edit:hover {
+            background-color: #e0a800;
+            color: #212529;
+        }
+
+    .btn-delete {
+        background-color: #dc3545;
+        color: white;
+    }
+
+        .btn-delete:hover {
+            background-color: #c82333;
+            color: white;
+        }
+
+    .btn-permissions {
+        background-color: #17a2b8;
+        color: white;
+    }
+
+        .btn-permissions:hover {
+            background-color: #138496;
+            color: white;
+        }
+
+    /* ===== BADGE STYLES ===== */
     .badge {
         padding: 5px 10px;
         border-radius: 4px;
@@ -341,292 +451,7 @@
         color: #fff;
     }
 
-    /* Định dạng nút hình vuông */
-    .btn-icon {
-        width: 32px;
-        height: 32px;
-        padding: 5px;
-        line-height: 1;
-        border-radius: 4px;
-        background-color: transparent;
-        border: none;
-        margin-right: 5px;
-    }
-
-        .btn-icon:hover {
-            background-color: rgba(0, 0, 0, 0.05);
-        }
-
-    /* Định dạng nút thao tác */
-    .btn-action {
-        width: 40px;
-        height: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: none;
-        cursor: pointer;
-        transition: all 0.3s;
-        margin-right: 5px;
-    }
-
-    .btn-edit {
-        background-color: #ffc107; /* Màu vàng */
-        color: #212529;
-    }
-
-        .btn-edit:hover {
-            background-color: #e0a800;
-            color: #212529;
-        }
-
-    .btn-delete {
-        background-color: #dc3545; /* Màu đỏ */
-        color: white;
-    }
-
-        .btn-delete:hover {
-            background-color: #c82333;
-            color: white;
-        }
-
-    /* Cải thiện hiển thị di động */
-    @@media screen and (max-width: 576px) {
-        #data-table {
-            display: block;
-            overflow-x: auto;
-        }
-
-        .container-fluid {
-            padding-left: 10px;
-            padding-right: 10px;
-        }
-
-        .header-title {
-            font-size: 1.3rem;
-        }
-
-        /* DataTables mobile improvements */
-        .dataTables_wrapper .dataTables_filter input {
-            min-width: 150px;
-        }
-
-        .dataTables_wrapper .dataTables_length,
-        .dataTables_wrapper .dataTables_filter {
-            float: none;
-            text-align: left;
-            width: 100%;
-            margin-bottom: 10px;
-        }
-
-        /* Improved modal display on mobile */
-        .modal-dialog {
-            margin: 0.5rem;
-        }
-
-        .modal-header {
-            padding: 12px 15px;
-        }
-
-        .modal-body {
-            padding: 15px;
-            overflow-y: auto;
-            max-height: calc(100vh - 150px);
-        }
-
-        .modal-footer {
-            flex-direction: column;
-            align-items: stretch;
-            padding: 10px 15px;
-        }
-
-            .modal-footer button {
-                margin: 5px 0;
-                width: 100%;
-                height: 40px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-        /* Form fields improvements */
-        .form-group {
-            margin-bottom: 0.8rem;
-        }
-
-            .form-group small {
-                font-size: 0.7rem;
-            }
-
-            .form-group label {
-                font-size: 0.9rem;
-            }
-
-        .form-control {
-            font-size: 0.9rem;
-            padding: 8px 12px;
-        }
-
-        /* Improve row spacing */
-        .row {
-            margin-right: -7px;
-            margin-left: -7px;
-        }
-
-        .col-md-6, .col-md-12 {
-            padding-right: 7px;
-            padding-left: 7px;
-        }
-
-        /* Fix nested rows in edit mode */
-        #editOnlyFields .row {
-            margin-right: -5px;
-            margin-left: -5px;
-        }
-
-        #editOnlyFields .col-md-6 {
-            padding-right: 5px;
-            padding-left: 5px;
-        }
-
-        /* User permission modal improvements */
-        #functionsTable th,
-        #functionsTable td {
-            padding: 8px 5px;
-            font-size: 0.9rem;
-        }
-
-            /* Table header adjustments */
-            #functionsTable th:nth-child(1) {
-                width: 15%;
-            }
-
-            #functionsTable th:nth-child(2) {
-                width: 40%;
-            }
-
-            #functionsTable th:nth-child(3) {
-                width: 45%;
-            }
-
-        /* Hide description column on very small devices */
-        @@media screen and (max-width: 400px) {
-            #functionsTable th:nth-child(4),
-            #functionsTable td:nth-child(4) {
-                display: none;
-            }
-
-            #functionsTable th:nth-child(2) {
-                width: 50%;
-            }
-
-            #functionsTable th:nth-child(3) {
-                width: 35%;
-            }
-        }
-        /* Alert boxes in modals */
-        .alert {
-            padding: 10px;
-            font-size: 0.85rem;
-        }
-
-        /* Improve password change section */
-        #changePasswordSection .custom-control-label {
-            font-size: 0.9rem;
-        }
-
-        #newPasswordFields .form-group {
-            margin-bottom: 10px;
-        }
-
-        /* Badge improvements for mobile */
-        .badge {
-            padding: 4px 6px;
-            font-size: 0.75rem;
-        }
-
-        /* Action buttons in data table */
-        .btn-action {
-            width: 36px;
-            height: 36px;
-            margin-bottom: 5px;
-        }
-
-        /* More efficient use of space for datatable action column */
-        #data-table th:nth-child(9),
-        #data-table td:nth-child(9) {
-            width: auto;
-            min-width: 120px;
-        }
-    }
-
-    /* Extreme small device optimizations */
-    @@media screen and (max-width: 350px) {
-        .modal-title {
-            font-size: 1rem;
-        }
-
-        .form-group label {
-            font-size: 0.85rem;
-        }
-
-        /* Adjust form layout on very small screens */
-        .row .col-md-6 {
-            flex: 0 0 100%;
-            max-width: 100%;
-        }
-    }
-
-    /* Tùy chỉnh các điều khiển DataTable */
-    .dataTables_paginate {
-        margin-top: 10px;
-    }
-
-        .dataTables_paginate .paginate_button {
-            padding: 5px 10px;
-            margin: 0 2px;
-            border: 1px solid #e8e8e8;
-            border-radius: 4px;
-            background: white;
-            cursor: pointer;
-        }
-
-            .dataTables_paginate .paginate_button.current {
-                background-color: #5a8dee;
-                color: white !important;
-                border-color: #5a8dee;
-            }
-
-            .dataTables_paginate .paginate_button:hover:not(.current) {
-                background-color: #f8f8f8;
-            }
-
-    /* Chỉnh mũi tên sắp xếp */
-    table.dataTable thead .sorting:after,
-    table.dataTable thead .sorting_asc:after,
-    table.dataTable thead .sorting_desc:after {
-        opacity: 0.4;
-        font-size: 0.8em;
-    }
-
-    /* Thiết lập tùy chỉnh hiển thị số mục */
-    .dataTables_length select {
-        padding: 5px 10px;
-        border: 1px solid #e8e8e8;
-        border-radius: 4px;
-    }
-
-    /* Làm cho phần Show entries và Search trông giống mẫu */
-    .dataTables_wrapper .dataTables_length label,
-    .dataTables_wrapper .dataTables_filter label {
-        font-weight: normal;
-    }
-
-    .main-content {
-        padding: calc(70px + -25px) 25px 25px;
-    }
-
-    /* Modal styling */
+    /* ===== MODAL STYLES ===== */
     .modal-header {
         border-bottom: 1px solid #e8e8e8;
         padding: 15px 20px;
@@ -641,141 +466,92 @@
         padding: 20px;
     }
 
-    .form-group label {
-        font-weight: 500;
+    /* ===== DETAIL VIEW STYLES ===== */
+    .detail-group {
+        margin-bottom: 15px;
     }
 
-    .form-control {
-        padding: 10px 15px;
+        .detail-group label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+    .detail-value {
+        padding: 10px 12px;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+        min-height: 24px;
+        word-break: break-word;
+        border: 1px solid #e8e8e8;
+    }
+
+    /* ===== FUNCTIONS TABLE STYLES ===== */
+    .functions-table-container {
+        max-height: 300px;
+        overflow-y: auto;
         border: 1px solid #e8e8e8;
         border-radius: 4px;
     }
 
-        .form-control:focus {
-            border-color: #5a8dee;
-            box-shadow: 0 0 0 0.1rem rgba(90, 141, 238, 0.25);
+    #functionsTable thead,
+    #viewPermissionsTable thead {
+        position: sticky;
+        top: 0;
+        background-color: #5a8dee;
+        z-index: 1;
+    }
+
+        #functionsTable thead th {
+            color: #fff;
+            border-top: none;
         }
 
-        .form-control[readonly] {
-            background-color: #f8f9fa;
-            cursor: not-allowed;
+        #viewPermissionsTable thead th {
+            background-color: #e9ecef;
+            color: #333;
+            padding: 8px;
         }
 
-    .input-group-text {
+    /* Tab styles */
+    .nav-tabs .nav-link {
+        border: 1px solid transparent;
+        border-top-left-radius: .25rem;
+        border-top-right-radius: .25rem;
+        color: #495057;
         background-color: #f8f9fa;
-        border-color: #e8e8e8;
     }
 
-    /* Style cho card tìm kiếm */
-    #advancedSearchCard .card-title {
-        color: #333;
-        font-size: 1.1rem;
-    }
-
-    #advancedSearchCard {
-        background-color: #f8f9fa;
-        border: 1px solid #e0e0e0;
-        border-radius: 4px;
-    }
-
-        #advancedSearchCard label {
+        .nav-tabs .nav-link.active {
+            color: #495057;
+            background-color: #fff;
+            border-color: #dee2e6 #dee2e6 #fff;
             font-weight: 500;
-            color: #555;
         }
 
-    #data-table th,
-    #data-table td {
-        white-space: normal !important; /* This allows text to wrap */
-        word-wrap: break-word; /* Break long words if necessary */
-        max-width: 200px; /* Maximum width for each column */
-        overflow: hidden;
-        text-overflow: ellipsis;
+    /* ===== RESPONSIVE STYLES ===== */
+    @@media screen and (max-width: 576px) {
+        .functions-table-container {
+            max-height: 250px;
+        }
+
+        .modal-footer {
+            flex-direction: column;
+        }
+
+            .modal-footer .btn {
+                width: 100%;
+                margin: 5px 0;
+            }
+
+        .btn-action {
+            width: 36px;
+            height: 36px;
+        }
     }
-
-        /* Adjust column widths */
-        #data-table th:nth-child(1),
-        #data-table td:nth-child(1) {
-            width: 5%; /* STT */
-        }
-
-        #data-table th:nth-child(2),
-        #data-table td:nth-child(2) {
-            width: 12%; /* Tên tài khoản */
-        }
-
-        #data-table th:nth-child(3),
-        #data-table td:nth-child(3) {
-            width: 18%; /* Gmail */
-        }
-
-        #data-table th:nth-child(4),
-        #data-table td:nth-child(4) {
-            width: 10%; /* Số điện thoại */
-        }
-
-        #data-table th:nth-child(5),
-        #data-table td:nth-child(5) {
-            width: 10%; /* Vai trò */
-        }
-
-        #data-table th:nth-child(6),
-        #data-table td:nth-child(6) {
-            width: 10%; /* Trạng thái */
-        }
-
-        #data-table th:nth-child(7),
-        #data-table td:nth-child(7),
-        #data-table th:nth-child(8),
-        #data-table td:nth-child(8) {
-            width: 12.5%; /* Ngày tạo & Ngày cập nhật */
-        }
-
-        #data-table th:nth-child(9),
-        #data-table td:nth-child(9) {
-            width: 10%; /* Thao tác */
-        }
-
-    /* Fix DataTables overrides */
-    .dataTables_scrollHeadInner,
-    .dataTables_scrollHeadInner table {
-        width: 100% !important;
-    }
-
-    /* Ensure consistent column widths */
-    .dataTable {
-        width: 100% !important;
-        margin: 0 !important;
-    }
-
-    /* Add tooltips for truncated text */
-    #data-table td {
-        position: relative;
-    }
-
-        #data-table td:hover::after {
-            content: attr(title);
-            position: absolute;
-            left: 0;
-            top: 100%;
-            z-index: 1;
-            background: white;
-            padding: 5px;
-            border: 1px solid #ddd;
-            border-radius: 3px;
-            box-shadow: 0 0 5px rgba(0,0,0,0.2);
-            white-space: normal;
-            word-break: break-word;
-            min-width: 200px;
-            max-width: 300px;
-            display: none; /* Only show for cells with truncated content */
-        }
-
-        #data-table td.text-truncated:hover::after {
-            display: block;
-        }
 </style>
 
 @section scriptsAdmin {
-    <script src="~/Scripts/sweetalert2.all.min.js"></script>
     <script src="~/Areas/Admin/Scripts/DanhSachUser.js"></script>
 }

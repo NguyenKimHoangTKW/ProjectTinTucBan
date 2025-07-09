@@ -2,17 +2,17 @@
 
 namespace ProjectTinTucBan.Areas.Admin
 {
-    public class AdminAreaRegistration : AreaRegistration 
+    public class AdminAreaRegistration : AreaRegistration
     {
-        public override string AreaName 
+        public override string AreaName
         {
-            get 
+            get
             {
                 return "Admin";
             }
         }
 
-        public override void RegisterArea(AreaRegistrationContext context) 
+        public override void RegisterArea(AreaRegistrationContext context)
         {
             // Custom routes for InterfaceAdmin controller
             context.MapRoute(
@@ -26,7 +26,7 @@ namespace ProjectTinTucBan.Areas.Admin
                 "Admin/quan-ly-muc-luc",
                 new { controller = "InterfaceAdmin", action = "Index_MucLuc_Admin" }
             );
-            
+
             context.MapRoute(
                 "Index_Roles_Admin",
                 "Admin/quan-ly-quyen-admin",

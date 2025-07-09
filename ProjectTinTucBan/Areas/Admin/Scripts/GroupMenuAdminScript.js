@@ -3,12 +3,12 @@ function loadGroupMenus() {
     $.ajax({
         url: `${BASE_URL}/groupmenus-with-menus`,
         type: 'GET',
-        success: function(data) {
-            
+        success: function (data) {
+
             renderGroupMenuTabs(data);
         },
-        error: function(xhr, status, error) {
-            
+        error: function (xhr, status, error) {
+
             Swal.fire({
                 icon: 'error',
                 title: 'Lỗi tải group menu',
@@ -557,18 +557,18 @@ $('#add-new-menu-to-group-form').submit(function (e) {
 
 
 function formatUnixToDate(unixTime) {
-        if (!unixTime) return '';
-        if (unixTime < 10000000000) unixTime *= 1000;
-        var date = new Date(unixTime);
-        var days = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
-        var dayName = days[date.getDay()];
-        var day = ('0' + date.getDate()).slice(-2);
-        var month = ('0' + (date.getMonth() + 1)).slice(-2);
-        var year = date.getFullYear();
-        var hours = ('0' + date.getHours()).slice(-2);
-        var minutes = ('0' + date.getMinutes()).slice(-2);
-        var seconds = ('0' + date.getSeconds()).slice(-2);
-        return `${dayName}, ${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+    if (!unixTime) return '';
+    if (unixTime < 10000000000) unixTime *= 1000;
+    var date = new Date(unixTime);
+    var days = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+    var dayName = days[date.getDay()];
+    var day = ('0' + date.getDate()).slice(-2);
+    var month = ('0' + (date.getMonth() + 1)).slice(-2);
+    var year = date.getFullYear();
+    var hours = ('0' + date.getHours()).slice(-2);
+    var minutes = ('0' + date.getMinutes()).slice(-2);
+    var seconds = ('0' + date.getSeconds()).slice(-2);
+    return `${dayName}, ${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
 }
 
 
@@ -670,10 +670,10 @@ $(document).ready(function () {
     });
 
     $(document).on('shown.bs.tab', 'a[data-toggle="tab"]', function (e) {
-    var activeTabId = $(e.target).attr('id'); // e.g., groupmenu-tab-1
-    $('.tab-action-buttons').hide(); // Hide all button groups
-    $('.tab-pane.active .tab-action-buttons').show(); // Show for active tab
-});
+        var activeTabId = $(e.target).attr('id'); // e.g., groupmenu-tab-1
+        $('.tab-action-buttons').hide(); // Hide all button groups
+        $('.tab-pane.active .tab-action-buttons').show(); // Show for active tab
+    });
 
     // Xử lý click nút xóa group menu  
     $(document).on('click', '.delete-groupmenu-btn', function (e) {
@@ -707,7 +707,7 @@ $(document).ready(function () {
 
         var id = $(this).data('id');
         var ten = $(this).data('ten');
-        var asignTo = $(this).data('asignto') || 0; 
+        var asignTo = $(this).data('asignto') || 0;
         var isImportant = $(this).data('isimportant') || 0;
         $('#editGroupMenuId').val(id);
         $('#editGroupMenuName').val(ten);

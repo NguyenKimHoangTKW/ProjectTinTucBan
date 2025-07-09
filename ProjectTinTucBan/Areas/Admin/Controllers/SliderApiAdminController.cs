@@ -219,6 +219,6 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             return Ok(new { success = true, message = "Cập nhật trạng thái thành công." });
         }
 
-        
+
     }
 }

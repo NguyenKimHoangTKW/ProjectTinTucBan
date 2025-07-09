@@ -5,6 +5,10 @@
 
 <div class="main-content">
     <div class="container-fluid">
+
+        <h2 class="header-title">Quản lý mục lục</h2>
+        <hr />
+
         <!-- Header và breadcrumb -->
         <div class="page-header">
             <h2 class="header-title">Quản lý mục lục</h2>
@@ -134,17 +138,18 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Hủy</button>
                 <button type="button" class="btn btn-primary" id="btnSaveMucLuc">
                     <i class="anticon anticon-save m-r-5"></i>
                     <span id="btnSaveText">Lưu</span>
                 </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Hủy</button>
             </div>
         </div>
     </div>
 </div>
 
 <style>
+
     /* Định dạng DataTable giống như mẫu */
     .dataTables_wrapper .dataTables_filter {
         float: right;
@@ -187,6 +192,8 @@
             color: #333;
             text-align: left;
             vertical-align: middle;
+            border: 1px solid #dee2e6 !important;
+            border-collapse: collapse !important;
         }
 
         #data-table tbody tr:hover {
@@ -400,7 +407,7 @@
     }
 
     .main-content {
-        padding: calc(70px + -25px) 25px 25px;
+        padding: calc(70px + -25px) 25px 25px !important;
     }
 
     /* Modal styling */

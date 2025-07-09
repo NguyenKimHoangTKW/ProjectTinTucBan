@@ -5,6 +5,8 @@
 
 <div class="main-content">
     <div class="container-fluid">
+        <h2 class="header-title">Quản ly quyền admin</h2>
+        <hr />
         <!-- Header và breadcrumb -->
         <div class="page-header">
             <h2 class="header-title">Quản lý quyền Admin</h2>
@@ -19,7 +21,6 @@
         <!-- Card chứa bảng dữ liệu -->
         <div class="card">
             <div class="card-body">
-
                 <div class="row m-b-30">
                     <div class="col-lg-8">
                         <h4>Danh sách quyền Admin</h4>
@@ -53,8 +54,7 @@
     </div>
 </div>
 
-
-<!-- Modal Quản lý Quyền Admin (dùng chung cho cả thêm và sửa) -->
+<!-- Unified Modal for Role Management (Add/Edit/View) -->
 <div class="modal fade" id="RolesModal" tabindex="-1" role="dialog" aria-labelledby="RolesModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -68,54 +68,88 @@
                 <form id="RolesForm">
                     <input type="hidden" id="roleId" value="" />
                     <input type="hidden" id="formMode" value="add" /> <!-- 'add' hoặc 'edit' -->
-
-                    <div class="form-group">
-                        <label for="tenRole">Tên quyền <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="tenRole" name="tenRole" placeholder="Nhập tên quyền admin" required>
-                        <small class="form-text text-muted">Tên quyền trong hệ thống</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="moTa">Mô tả <span class="text-danger">*</span></label>
-                        <textarea class="form-control" id="moTa" name="moTa" rows="3" placeholder="Nhập mô tả quyền admin" required></textarea>
-                        <small class="form-text text-muted">Mô tả chi tiết về quyền này</small>
-                    </div>
-
-                    <!-- Chỉ hiển thị khi ở chế độ sửa -->
-                    <div id="editOnlyFields" style="display:none">
+                    <!-- Form for Add/Edit modes -->
+                    <div class="form-fields">
                         <div class="form-group">
-                            <label>Thông tin thời gian</label>
-                            <div class="row">
-                                <div class="col-md-6 col-sm-12 mb-3">
-                                    <input type="text" class="form-control" id="ngayTao" name="ngayTao" readonly placeholder="Ngày tạo">
-                                    <small class="form-text text-muted">Ngày tạo</small>
-                                </div>
-                                <div class="col-md-6 col-sm-12">
-                                    <input type="text" class="form-control" id="ngayCapNhat" name="ngayCapNhat" readonly placeholder="Ngày cập nhật">
-                                    <small class="form-text text-muted">Cập nhật gần nhất</small>
+                            <label for="tenRole">Tên quyền <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="tenRole" name="tenRole" placeholder="Nhập tên quyền admin" required>
+                            <small class="form-text text-muted">Tên quyền trong hệ thống</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="moTa">Mô tả <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="moTa" name="moTa" rows="3" placeholder="Nhập mô tả quyền admin" required></textarea>
+                            <small class="form-text text-muted">Mô tả chi tiết về quyền này</small>
+                        </div>
+
+                        <!-- Chỉ hiển thị khi ở chế độ sửa -->
+                        <div id="editOnlyFields" style="display:none">
+                            <div class="form-group">
+                                <label>Thông tin thời gian</label>
+                                <div class="row">
+                                    <div class="col-md-6 col-sm-12 mb-3">
+                                        <input type="text" class="form-control" id="ngayTao" name="ngayTao" readonly placeholder="Ngày tạo">
+                                        <small class="form-text text-muted">Ngày tạo</small>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <input type="text" class="form-control" id="ngayCapNhat" name="ngayCapNhat" readonly placeholder="Ngày cập nhật">
+                                        <small class="form-text text-muted">Cập nhật gần nhất</small>
+                                    </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Detail view for View mode -->
+                    <div id="roleDetails" style="display:none;">
+                        <div class="detail-group">
+                            <label>ID:</label>
+                            <p id="viewRoleId" class="detail-value"></p>
+                        </div>
+                        <div class="detail-group">
+                            <label>Tên quyền:</label>
+                            <p id="viewTenRole" class="detail-value"></p>
+                        </div>
+                        <div class="detail-group">
+                            <label>Mô tả:</label>
+                            <p id="viewMoTa" class="detail-value"></p>
+                        </div>
+                        <div class="detail-group">
+                            <label>Ngày tạo:</label>
+                            <p id="viewNgayTao" class="detail-value"></p>
+                        </div>
+                        <div class="detail-group">
+                            <label>Ngày cập nhật:</label>
+                            <p id="viewNgayCapNhat" class="detail-value"></p>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer flex-wrap justify-content-center">
-                <button type="button" class="btn btn-default m-1" data-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-primary m-1" id="btnSaveRole">
-                    <i class="anticon anticon-save m-r-5"></i>
-                    <span id="btnSaveText">Lưu</span>
-                </button>
+                <div id="formButtons">
+                    <button type="button" class="btn btn-primary m-1" id="btnSaveRole">
+                        <i class="anticon anticon-save m-r-5"></i>
+                        <span id="btnSaveText">Lưu</span>
+                    </button>
+                    <button type="button" class="btn btn-default m-1" data-dismiss="modal">Hủy</button>
+                </div>
+
+                <div id="viewButtons" style="display:none;">
+                    <button type="button" class="btn btn-primary m-1" id="btnEditFromView" data-id="">
+                        <i class="anticon anticon-edit m-r-5"></i>
+                        <span>Chỉnh sửa</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary m-1" data-dismiss="modal">Đóng</button>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-
 <style>
-    /* Định dạng DataTable giống như mẫu */
+    /* ===== DATA TABLE STYLES ===== */
     .dataTables_wrapper .dataTables_filter {
         float: right;
-        text-align: right;
         margin-bottom: 20px;
     }
 
@@ -138,7 +172,6 @@
         margin-bottom: 20px;
     }
 
-        /* Thêm CSS để căn giữa nội dung trong tiêu đề và dữ liệu của bảng */
         #data-table thead th {
             padding: 15px 10px;
             border-bottom: 1px solid #e8e8e8;
@@ -154,6 +187,8 @@
             color: #333;
             text-align: left;
             vertical-align: middle;
+            border: 1px solid #dee2e6 !important;
+            border-collapse: collapse !important;
         }
 
         #data-table tbody tr:hover {
@@ -169,12 +204,12 @@
         #data-table tbody td:nth-child(5) {
             text-align: center;
         }
-        /*Chỉnh xuống dòng*/
+
         #data-table th,
         #data-table td {
-            white-space: normal !important; /* This allows text to wrap */
-            word-wrap: break-word; /* Break long words if necessary */
-            max-width: 200px; /* Maximum width for each column */
+            white-space: normal !important;
+            word-wrap: break-word;
+            max-width: 200px;
             overflow: hidden;
             text-overflow: ellipsis;
         }
@@ -183,42 +218,10 @@
             #data-table td:nth-child(4),
             #data-table th:nth-child(5),
             #data-table td:nth-child(5) {
-                width: 12.5%; /* Ngày tạo & Ngày cập nhật */
+                width: 12.5%;
             }
-    /* Định dạng badge */
-    .badge {
-        padding: 5px 10px;
-        border-radius: 4px;
-        font-weight: normal;
-    }
 
-    .badge-success {
-        background-color: #20c997;
-        color: #fff;
-    }
-
-    .badge-danger {
-        background-color: #dc3545;
-        color: #fff;
-    }
-
-    /* Định dạng nút hình vuông */
-    .btn-icon {
-        width: 32px;
-        height: 32px;
-        padding: 5px;
-        line-height: 1;
-        border-radius: 4px;
-        background-color: transparent;
-        border: none;
-        margin-right: 5px;
-    }
-
-        .btn-icon:hover {
-            background-color: rgba(0, 0, 0, 0.05);
-        }
-
-    /* Định dạng nút thao tác */
+    /* ===== ACTION BUTTONS ===== */
     .btn-action {
         width: 40px;
         height: 32px;
@@ -229,10 +232,21 @@
         cursor: pointer;
         transition: all 0.3s;
         margin-right: 5px;
+        border-radius: 4px;
     }
 
+    .btn-detail {
+        background-color: #1890ff;
+        color: white;
+    }
+
+        .btn-detail:hover {
+            background-color: #40a9ff;
+            color: white;
+        }
+
     .btn-edit {
-        background-color: #ffc107; /* Màu vàng */
+        background-color: #ffc107;
         color: #212529;
     }
 
@@ -242,7 +256,7 @@
         }
 
     .btn-delete {
-        background-color: #dc3545; /* Màu đỏ */
+        background-color: #dc3545;
         color: white;
     }
 
@@ -251,136 +265,70 @@
             color: white;
         }
 
-    /* Cải thiện hiển thị di động */
-    @@media screen and (max-width: 767px) {
-        #data-table {
+    /* ===== MODAL STYLES ===== */
+    .modal-header {
+        border-bottom: 1px solid #e8e8e8;
+        padding: 15px 20px;
+    }
+
+    .modal-footer {
+        border-top: 1px solid #e8e8e8;
+        padding: 15px 20px;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .modal-content {
+        border-radius: 8px;
+        border: none;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    /* Form controls */
+    .form-group label {
+        font-weight: 500;
+    }
+
+    .form-control {
+        padding: 10px 15px;
+        border: 1px solid #e8e8e8;
+        border-radius: 4px;
+    }
+
+        .form-control:focus {
+            border-color: #5a8dee;
+            box-shadow: 0 0 0 0.1rem rgba(90, 141, 238, 0.25);
+        }
+
+        .form-control[readonly] {
+            background-color: #f8f9fa;
+            cursor: not-allowed;
+        }
+
+    /* ===== DETAIL VIEW STYLES ===== */
+    .detail-group {
+        margin-bottom: 15px;
+    }
+
+        .detail-group label {
+            font-weight: bold;
             display: block;
-            overflow-x: auto;
+            margin-bottom: 5px;
+            color: #333;
         }
 
-        /* Bổ sung các style cho mobile */
-        .main-content {
-            padding: calc(70px + -25px) 15px 15px;
+        .detail-group .detail-value {
+            padding: 10px 12px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            min-height: 24px;
+            word-break: break-word;
+            border: 1px solid #e8e8e8;
         }
 
-        /* Nút thêm quyền admin */
-        .col-lg-4.text-right {
-            text-align: center !important;
-            margin-top: 15px;
-        }
-
-        #btnAddRoles {
-            width: 100%;
-        }
-
-        /* Modal styling cho mobile */
-        .modal-dialog {
-            margin: 10px auto;
-            max-width: 95%;
-        }
-
-        .modal-header {
-            padding: 12px 15px;
-        }
-
-        .modal-body {
-            padding: 15px;
-        }
-
-        .modal-footer {
-            padding: 12px 15px;
-            flex-direction: row;
-        }
-
-        .modal-footer .btn {
-            flex: 1;
-            margin: 5px;
-            white-space: nowrap;
-            min-width: unset;
-        }
-
-        /* Tối ưu form trên điện thoại */
-        .form-control {
-            font-size: 14px;
-            padding: 8px 10px;
-        }
-
-        .form-group {
-            margin-bottom: 12px;
-        }
-
-        /* Nút thao tác trong bảng */
-        .btn-action {
-            width: 36px;
-            height: 36px;
-            margin: 2px;
-        }
-
-        /* Table styling */
-        #data-table th,
-        #data-table td {
-            max-width: 150px;
-        }
-
-        /* Các cột thời gian */
-        #data-table th:nth-child(4),
-        #data-table td:nth-child(4),
-        #data-table th:nth-child(5),
-        #data-table td:nth-child(5) {
-            display: none;
-        }
-
-        /* Styling cho các nút trong modal */
-        .modal-dialog .btn {
-            font-size: 14px;
-            padding: 8px 12px;
-        }
-
-        /* Tối ưu cho việc nhấn vào input/textarea */
-        input, textarea, select, button {
-            font-size: 16px !important; /* Ngăn iOS zoom khi focus */
-        }
-
-        /* Fix cho modal tràn khỏi màn hình */
-        .modal-open {
-            overflow: hidden;
-            position: fixed;
-            width: 100%;
-            height: 100%;
-        }
-
-        /* Căn giữa modal */
-        .modal-dialog-centered {
-            display: flex;
-            align-items: center;
-            min-height: calc(100% - 20px);
-        }
-    }
-
-    /* Style chung cho modal */
-.modal-content {
-    border-radius: 8px;
-    border: none;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-    /* Tối ưu cho các màn hình nhỏ hơn */
-    @@media screen and (max-width: 480px) {
-        .page-header .header-title {
-            font-size: 1.5rem;
-        }
-
-        .modal-footer {
-            flex-direction: column;
-        }
-
-        .modal-footer .btn {
-            width: 100%;
-            margin: 5px 0;
-        }
-    }
-
-    /* Tùy chỉnh các điều khiển DataTable */
+    /* ===== PAGINATION ===== */
     .dataTables_paginate {
         margin-top: 10px;
     }
@@ -404,90 +352,74 @@
                 background-color: #f8f8f8;
             }
 
-    /* Chỉnh mũi tên sắp xếp */
-    table.dataTable thead .sorting:after,
-    table.dataTable thead .sorting_asc:after,
-    table.dataTable thead .sorting_desc:after {
-        opacity: 0.4;
-        font-size: 0.8em;
-    }
-
-    /* Thiết lập tùy chỉnh hiển thị số mục */
-    .dataTables_length select {
-        padding: 5px 10px;
-        border: 1px solid #e8e8e8;
-        border-radius: 4px;
-    }
-
-    /* Làm cho phần Show entries và Search trông giống mẫu */
-    .dataTables_wrapper .dataTables_length label,
-    .dataTables_wrapper .dataTables_filter label {
-        font-weight: normal;
-    }
-
+    /* ===== RESPONSIVE STYLES ===== */
     .main-content {
-        padding: calc(70px + -25px) 25px 25px;
+        padding: calc(70px + -25px) 25px 25px !important;
     }
 
-    /* Modal styling */
-    .modal-header {
-        border-bottom: 1px solid #e8e8e8;
-        padding: 15px 20px;
-    }
-
-    .modal-footer {
-        border-top: 1px solid #e8e8e8;
-        padding: 15px 20px;
-    }
-
-    .modal-body {
-        padding: 20px;
-    }
-
-    .form-group label {
-        font-weight: 500;
-    }
-
-    .form-control {
-        padding: 10px 15px;
-        border: 1px solid #e8e8e8;
-        border-radius: 4px;
-    }
-
-        .form-control:focus {
-            border-color: #5a8dee;
-            box-shadow: 0 0 0 0.1rem rgba(90, 141, 238, 0.25);
+    @@media screen and (max-width: 767px) {
+        #data-table {
+            display: block;
+            overflow-x: auto;
         }
 
-        .form-control[readonly] {
-            background-color: #f8f9fa;
-            cursor: not-allowed;
+        .main-content {
+            padding: calc(70px + -25px) 15px 15px;
         }
 
-    .input-group-text {
-        background-color: #f8f9fa;
-        border-color: #e8e8e8;
-    }
-
-    /* Style cho card tìm kiếm */
-    #advancedSearchCard .card-title {
-        color: #333;
-        font-size: 1.1rem;
-    }
-
-    #advancedSearchCard {
-        background-color: #f8f9fa;
-        border: 1px solid #e0e0e0;
-        border-radius: 4px;
-    }
-
-        #advancedSearchCard label {
-            font-weight: 500;
-            color: #555;
+        .col-lg-4.text-right {
+            text-align: center !important;
+            margin-top: 15px;
         }
+
+        #btnAddRoles {
+            width: 100%;
+        }
+
+        .modal-dialog {
+            margin: 10px auto;
+            max-width: 95%;
+        }
+
+        .modal-footer {
+            flex-direction: row;
+        }
+
+            .modal-footer .btn {
+                flex: 1;
+                margin: 5px;
+                white-space: nowrap;
+            }
+
+        .btn-action {
+            width: 36px;
+            height: 36px;
+            margin: 2px;
+        }
+
+        #data-table th,
+        #data-table td {
+            max-width: 150px;
+        }
+    }
+
+    @@media screen and (max-width: 480px) {
+        .page-header .header-title {
+            font-size: 1.5rem;
+        }
+
+        .modal-footer {
+            flex-direction: column;
+        }
+
+            .modal-footer .btn {
+                width: 100%;
+                margin: 5px 0;
+            }
+    }
 </style>
 
 @section scriptsAdmin {
-    <script src="~/Scripts/sweetalert2.all.min.js"></script>
+ 
     <script src="~/Areas/Admin/Scripts/DanhSachRoles.js"></script>
 }

@@ -841,5 +841,51 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("get-menus-user")]
+        public async Task<IHttpActionResult> Getmenus_U()
+        {
+            var menus = await db.Menus.
+                OrderBy(x => x.ThuTuShow)
+                        .Select(x => new
+                        {
+                            MenuId = x.ID,
+                            MenuName = x.Ten,
+                            MenuLink = x.Link,
+                            IconName = x.IconName,
+                            IsImportant = x.IsImportant,
+                            MenuOrder = x.ThuTuShow
+                        }).Where(x => x.IsImportant != 2)
+                        .ToListAsync();
+
+            if (menus == null || menus.Count == 0)
+                return NotFound();
+            else
+                return Ok(menus);
+        }
+
+        [HttpGet]
+        [Route("get-menus-QL")]
+        public async Task<IHttpActionResult> Getmenus_A()
+        {
+            var menus = await db.Menus.
+                OrderBy(x => x.ThuTuShow)
+                        .Select(x => new
+                        {
+                            MenuId = x.ID,
+                            MenuName = x.Ten,
+                            MenuLink = x.Link,
+                            IconName = x.IconName,
+                            IsImportant = x.IsImportant,
+                            MenuOrder = x.ThuTuShow
+                        }).Where(x => x.IsImportant == 2)
+                        .ToListAsync();
+
+            if (menus == null || menus.Count == 0)
+                return NotFound();
+            else
+                return Ok(menus);
+        }
+
     }
 }

@@ -1,4 +1,5 @@
-﻿using ProjectTinTucBan.Models;
+﻿using ProjectTinTucBan.Helper;
+using ProjectTinTucBan.Models;
 using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
@@ -15,23 +16,16 @@ namespace ProjectTinTucBan.Controllers
             return View(); // ~/Views/Home/Index.cshtml
         }
 
-        // Chi tiết bài viết
-        [Route("noi-dung/{id:int}")]
-        public ActionResult XemNoiDung(int id)
+        // Gọi hàm thiết kế giao diện đăng nhập
+        public ActionResult Login()
         {
-            var baiViet = db.BaiViets
-                            .Include(b => b.MucLuc)
-                            .FirstOrDefault(b => b.ID == id);
-
-            if (baiViet == null)
+            if (SessionHelper.IsUserLoggedIn())
             {
-                return HttpNotFound("Không tìm thấy bài viết.");
+                return Redirect("~/Admin/InterfaceAdmin/Index");
             }
 
-            // ❌ Bỏ tăng view tại đây để JavaScript sau 30s mới tăng
-            // baiViet.ViewCount = (baiViet.ViewCount ?? 0) + 1;
-            // db.SaveChanges();
+            return View();
+        }
 
-            return View("XemNoiDung", baiViet);
-        }}
+    }
 }

@@ -1,4 +1,4 @@
-﻿@import url("https://fonts.googleapis.com/css?family=Poppins:300,400,500,700"); /*!
+﻿﻿@import url("https://fonts.googleapis.com/css?family=Poppins:300,400,500,700"); /*!
  * Bootstrap v4.3.1 (https://getbootstrap.com/)
  * Copyright 2011-2019 The Bootstrap Authors
  * Copyright 2011-2019 Twitter, Inc.
@@ -47,9 +47,11 @@ html {
     -webkit-text-size-adjust: 100%;
     -webkit-tap-highlight-color: rgba(0,0,0,0)
 }
+
 .d-flex.flex-wrap {
     gap: 10px;
 }
+
 article, aside, figcaption, figure, footer, header, hgroup, main, nav, section {
     display: block
 }
@@ -65,6 +67,7 @@ body {
     background-color: #fff;
     font-weight: 500
 }
+
 .btn {
     min-width: 150px;
     font-weight: 500;
@@ -87,21 +90,24 @@ body {
 .gap-3 {
     gap: 1rem; /* Bootstrap 5 spacing, dùng nếu bạn đang dùng Bootstrap 5 */
 }
+
 [tabindex="-1"]:focus {
     outline: 0 !important
 }
+
+hr {
+    box-sizing: content-box;
+    height: 0;
+    overflow: visible
+}
+
 hr {
     border: 0 !important;
     height: 1px !important;
     background-color: #333 !important;
-    margin: 16px 0 !important; /* thêm nếu muốn khoảng cách ổn định */
+    margin: 16px 0 !important;
 }
-hr {
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-    border: 0;
-    border-top: 1px solid rgba(0,0,0,0.1)
-}
+
 h1, h2, h3, h4, h5, h6 {
     margin-top: 0;
     margin-bottom: 0.5rem
@@ -416,7 +422,12 @@ h6, .h6 {
     line-height: 1.2
 }
 
-
+hr {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    border: 0;
+    border-top: 1px solid rgba(0,0,0,0.1)
+}
 
 small, .small {
     font-size: 80%;
@@ -1507,7 +1518,7 @@ pre {
     width: 100%;
     margin-bottom: 1rem;
     color: #212529;
-    font-weight:500
+    font-weight: 500
 }
 
     .table th, .table td {
@@ -3850,7 +3861,6 @@ input[type="submit"].btn-block, input[type="reset"].btn-block, input[type="butto
 
     .nav-tabs .nav-item {
         margin-bottom: -1px;
-        
     }
 
     .nav-tabs .nav-link {
@@ -27241,8 +27251,8 @@ body {
     background: radial-gradient(circle closest-side,#000 94%,#0000) right/calc(200% - 1em) 100%;
     animation: l24 1s infinite alternate linear;
     padding: 10px;
-    z-index: 1000; 
-    background-color:white;
+    z-index: 1000;
+    background-color: white;
     border-radius: 5px 5px 5px 5px;
 }
 

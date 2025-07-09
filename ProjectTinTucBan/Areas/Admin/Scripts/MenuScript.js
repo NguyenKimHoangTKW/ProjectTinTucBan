@@ -22,137 +22,137 @@ $(function () {
         });
     }
     function loadMenus() {
-    $.getJSON(`${BASE_URL}/menus-with-submenus`, function (data) {
-        const $menuList = $('#menu-list').empty();
+        $.getJSON(`${BASE_URL}/menus-with-submenus`, function (data) {
+            const $menuList = $('#menu-list').empty();
 
-        const getMenuIconElement = (iconName) => {
-            return iconName
-                ? $('<i>').addClass(iconName + ' mr-2')
-                : $('<img>')
-                    .attr('src', '~/Areas/assets/images/logo/favicon.png')
-                    .addClass('mr-2')
-                    .css({ width: '20px', height: '20px', objectFit: 'contain' });
-        };
+            const getMenuIconElement = (iconName) => {
+                return iconName
+                    ? $('<i>').addClass(iconName + ' mr-2')
+                    : $('<img>')
+                        .attr('src', '~/Areas/assets/images/logo/favicon.png')
+                        .addClass('mr-2')
+                        .css({ width: '20px', height: '20px', objectFit: 'contain' });
+            };
 
-        data.forEach(menu => {
-            const $icon = getMenuIconElement(menu.IconName);
+            data.forEach(menu => {
+                const $icon = getMenuIconElement(menu.IconName);
 
-            const $order = $('<span>')
-                .addClass('badge badge-secondary mr-2')
-                .text(`${menu.MenuOrder}`);
+                const $order = $('<span>')
+                    .addClass('badge badge-secondary mr-2')
+                    .text(`${menu.MenuOrder}`);
 
-            
 
-            const hasSubMenus = menu.SubMenus?.length > 0;
 
-            // Nút toggle submenu nếu có
-            const $toggleSubBtn = hasSubMenus
-                ? $('<button type="button" class="btn btn-xs-custom btn-light toggle-submenu-btn">')
-                    .html('<i class="fa fa-chevron-down small"></i>') // icon nhỏ
-                    .attr('title', 'Ẩn/hiện menu con')
-                    .on('click', function () {
-                        $subList.slideToggle();
-                        const $icon = $(this).find('i');
-                        $icon.toggleClass('fa-chevron-down fa-chevron-up');
-                    })
-                : $('<span class="mr-2" style="width:20px;"></span>');
+                const hasSubMenus = menu.SubMenus?.length > 0;
 
-            const $left = $('<div>')
-                .addClass('menu-info d-flex align-items-center')
-                .append(
-                    $toggleSubBtn,
-                    $('<span class="badge badge-secondary mr-2">').text(`${menu.MenuOrder}`),
-                    getMenuIconElement(menu.IconName),
-                    $('<span>').text(menu.MenuName),
-                    menu.MenuLink ? $('<span class="text-muted ml-1">').text(' (' + menu.MenuLink + ')') : ''
-                );
+                // Nút toggle submenu nếu có
+                const $toggleSubBtn = hasSubMenus
+                    ? $('<button type="button" class="btn btn-xs-custom btn-light toggle-submenu-btn">')
+                        .html('<i class="fa fa-chevron-down small"></i>') // icon nhỏ
+                        .attr('title', 'Ẩn/hiện menu con')
+                        .on('click', function () {
+                            $subList.slideToggle();
+                            const $icon = $(this).find('i');
+                            $icon.toggleClass('fa-chevron-down fa-chevron-up');
+                        })
+                    : $('<span class="mr-2" style="width:20px;"></span>');
 
-            const $right = $('<div>')
-                .addClass('d-flex menu-action-buttons flex-row justify-content-end align-items-center flex-wrap gap-1 m-t-25')
-                .append(
-                    $('<button class="btn btn-sm btn-link add-submenu-btn">')
-                        .text('Thêm menu con')
-                        .attr('data-menu-id', menu.MenuId),
-                    $('<button class="btn btn-sm btn-warning edit-menu-btn">')
-                        .text('Sửa')
-                        .attr('data-menu-id', menu.MenuId)
-                        .attr('data-menu-name', menu.MenuName)
-                        .attr('data-menu-link', menu.MenuLink || '')
-                        .attr('data-menu-order', menu.MenuOrder)
-                        .attr('data-icon-name', menu.IconName || '')
-                        .prop('disabled', menu.IsLocked),
-                    $('<button class="btn btn-sm btn-danger delete-menu-btn">')
-                        .text('Xóa')
-                        .attr('data-menu-id', menu.MenuId)
-                        .prop('disabled', menu.IsLocked || hasSubMenus)
-                );
+                const $left = $('<div>')
+                    .addClass('menu-info d-flex align-items-center')
+                    .append(
+                        $toggleSubBtn,
+                        $('<span class="badge badge-secondary mr-2">').text(`${menu.MenuOrder}`),
+                        getMenuIconElement(menu.IconName),
+                        $('<span>').text(menu.MenuName),
+                        menu.MenuLink ? $('<span class="text-muted ml-1">').text(' (' + menu.MenuLink + ')') : ''
+                    );
 
-            const $menuRow = $('<div>')
-                .addClass('d-flex justify-content-between align-items-start menu-row-responsive')
-                .append( $left, $right);
+                const $right = $('<div>')
+                    .addClass('d-flex menu-action-buttons flex-row justify-content-end align-items-center flex-wrap gap-1 m-t-25')
+                    .append(
+                        $('<button class="btn btn-sm btn-link add-submenu-btn">')
+                            .text('Thêm menu con')
+                            .attr('data-menu-id', menu.MenuId),
+                        $('<button class="btn btn-sm btn-warning edit-menu-btn">')
+                            .text('Sửa')
+                            .attr('data-menu-id', menu.MenuId)
+                            .attr('data-menu-name', menu.MenuName)
+                            .attr('data-menu-link', menu.MenuLink || '')
+                            .attr('data-menu-order', menu.MenuOrder)
+                            .attr('data-icon-name', menu.IconName || '')
+                            .prop('disabled', menu.IsLocked),
+                        $('<button class="btn btn-sm btn-danger delete-menu-btn">')
+                            .text('Xóa')
+                            .attr('data-menu-id', menu.MenuId)
+                            .prop('disabled', menu.IsLocked || hasSubMenus)
+                    );
 
-            const $menuItem = $('<li class="list-group-item">').append($menuRow);
+                const $menuRow = $('<div>')
+                    .addClass('d-flex justify-content-between align-items-start menu-row-responsive')
+                    .append($left, $right);
 
-            let $subList = $('<div class="submenu-container mt-2 mb-2" style="display:none;"></div>'); // Ban đầu ẩn
+                const $menuItem = $('<li class="list-group-item">').append($menuRow);
 
-            if (hasSubMenus) {
-                const $ul = $('<ul class="list-group">');
-                menu.SubMenus.forEach(sub => {
-                    const $subIcon = getMenuIconElement(sub.IconName);
+                let $subList = $('<div class="submenu-container mt-2 mb-2" style="display:none;"></div>'); // Ban đầu ẩn
 
-                    const $order = $('<span>')
-                        .addClass('badge badge-secondary mr-2')
-                        .text(`${menu.MenuOrder}.${sub.SubMenuOrder}`);
+                if (hasSubMenus) {
+                    const $ul = $('<ul class="list-group">');
+                    menu.SubMenus.forEach(sub => {
+                        const $subIcon = getMenuIconElement(sub.IconName);
 
-                    const $name = $('<span>').text(sub.SubMenuName);
-                    let $link = '';
-                    if (sub.SubMenuLink) {
-                        $link = $('<a>')
-                            .attr('href', sub.SubMenuLink)
-                            .attr('target', '_blank')
-                            .addClass('ml-2 text-primary')
-                            .text(sub.SubMenuLink);
-                    }
+                        const $order = $('<span>')
+                            .addClass('badge badge-secondary mr-2')
+                            .text(`${menu.MenuOrder}.${sub.SubMenuOrder}`);
 
-                    const $left = $('<div>')
-                        .addClass('menu-info d-flex align-items-center')
-                        .append($order, $subIcon, $name, $link);
+                        const $name = $('<span>').text(sub.SubMenuName);
+                        let $link = '';
+                        if (sub.SubMenuLink) {
+                            $link = $('<a>')
+                                .attr('href', sub.SubMenuLink)
+                                .attr('target', '_blank')
+                                .addClass('ml-2 text-primary')
+                                .text(sub.SubMenuLink);
+                        }
 
-                    const $right = $('<div>')
-                        .addClass('d-flex menu-action-buttons flex-row justify-content-end align-items-center flex-wrap gap-1')
-                        .append(
-                            $('<button class="btn btn-sm btn-warning edit-submenu-btn m-t-5">')
-                                .text('Sửa')
-                                .attr('data-submenu-id', sub.SubMenuId)
-                                .attr('data-menu-name', sub.SubMenuName)
-                                .attr('data-menu-link', sub.SubMenuLink || '')
-                                .attr('data-menu-order', sub.SubMenuOrder)
-                                .attr('data-menu-icon', sub.SubIconName || ''),
-                            $('<button class="btn btn-sm btn-danger delete-submenu-btn">')
-                                .text('Xóa')
-                                .attr('data-submenu-id', sub.SubMenuId)
-                        );
+                        const $left = $('<div>')
+                            .addClass('menu-info d-flex align-items-center')
+                            .append($order, $subIcon, $name, $link);
 
-                    const $subItem = $('<li class="list-group-item py-1 px-3">')
-                        .append(
-                            $('<div>')
-                                .addClass('d-flex justify-content-between align-items-start menu-row-responsive')
-                                .append($left, $right)
-                        );
+                        const $right = $('<div>')
+                            .addClass('d-flex menu-action-buttons flex-row justify-content-end align-items-center flex-wrap gap-1')
+                            .append(
+                                $('<button class="btn btn-sm btn-warning edit-submenu-btn m-t-5">')
+                                    .text('Sửa')
+                                    .attr('data-submenu-id', sub.SubMenuId)
+                                    .attr('data-menu-name', sub.SubMenuName)
+                                    .attr('data-menu-link', sub.SubMenuLink || '')
+                                    .attr('data-menu-order', sub.SubMenuOrder)
+                                    .attr('data-menu-icon', sub.SubIconName || ''),
+                                $('<button class="btn btn-sm btn-danger delete-submenu-btn">')
+                                    .text('Xóa')
+                                    .attr('data-submenu-id', sub.SubMenuId)
+                            );
 
-                    $ul.append($subItem);
-                });
+                        const $subItem = $('<li class="list-group-item py-1 px-3">')
+                            .append(
+                                $('<div>')
+                                    .addClass('d-flex justify-content-between align-items-start menu-row-responsive')
+                                    .append($left, $right)
+                            );
 
-                $subList.append($ul);
-                $menuItem.append($subList);
-            }
+                        $ul.append($subItem);
+                    });
 
-            $menuList.append($menuItem);
+                    $subList.append($ul);
+                    $menuItem.append($subList);
+                }
+
+                $menuList.append($menuItem);
+            });
+
+            updateButtonStates();
         });
-
-        updateButtonStates();
-    });
-}
+    }
 
 
 
@@ -229,7 +229,7 @@ $(function () {
                         if (res.success) {
                             loadMenus();
                             showSwal('Xóa menu thành công!', 'success');
-                            
+
                         } else {
                             showSwal('Xóa thất bại: ' + (res.message || ''), 'error');
                         }
@@ -247,7 +247,7 @@ $(function () {
         const currentName = $(this).data('menu-name');
         const currentLink = $(this).data('menu-link');
         const currentOrder = $(this).data('menu-order') || '';
-        const currentIcon = $(this).data('icon-name') || ''; 
+        const currentIcon = $(this).data('icon-name') || '';
 
         Swal.fire({
             title: 'Chỉnh sửa Menu',
@@ -297,13 +297,13 @@ $(function () {
                         Ten: result.value.name,
                         Link: result.value.link,
                         thuTuShow: result.value.order ? parseInt(result.value.order) : null,
-                        IconName: result.value.iconName || null 
+                        IconName: result.value.iconName || null
                     }),
                     success: function (res) {
                         if (res.success) {
                             loadMenus();
                             showSwal('Cập nhật menu thành công!', 'success');
-                            
+
                         } else {
                             showSwal('Cập nhật thất bại: ' + (res.message || ''), 'error');
                         }
@@ -322,7 +322,7 @@ $(function () {
         const menuId = $(this).data('menu-id');
         $('#parentMenuId').val(menuId);
         $('#subMenuName').val('');
-        $('#subLink').val('');  
+        $('#subLink').val('');
         $('#addSubMenuModal').modal('show');
     });
 
@@ -367,7 +367,7 @@ $(function () {
         const currentName = $(this).data('menu-name');
         const currentLink = $(this).data('menu-link') || '';
         const currentOrder = $(this).data('menu-order') || '';
-        const currentIcon = $(this).data('menu-icon'|| '')
+        const currentIcon = $(this).data('menu-icon' || '')
 
 
 
@@ -399,8 +399,8 @@ $(function () {
                     Swal.showValidationMessage('Thứ tự show phải là số nguyên không âm!');
                     return false;
                 }
-                
-                return { name, link,order,icon };
+
+                return { name, link, order, icon };
             }
         }).then((result) => {
             if (result.isConfirmed) {
@@ -420,7 +420,7 @@ $(function () {
                         if (res.success) {
                             loadMenus();
                             showSwal('Cập nhật menu con thành công!', 'success');
-                            
+
                         } else {
                             showSwal('Cập nhật thất bại: ' + (res.message || ''), 'error');
                         }
@@ -452,7 +452,7 @@ $(function () {
                         if (res.success) {
                             loadMenus();
                             showSwal('Xóa menu con thành công!', 'success');
-                            
+
                         } else {
                             showSwal('Xóa thất bại: ' + (res.message || ''), 'error');
                         }

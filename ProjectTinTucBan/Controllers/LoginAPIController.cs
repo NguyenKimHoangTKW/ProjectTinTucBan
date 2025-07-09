@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 
+
 namespace ProjectTinTucBan.Areas.Admin.Controllers
 {
     [RoutePrefix("api/v1/admin")]
@@ -54,29 +55,49 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 return BadRequest("Email không được để trống");
             }
 
+
+            if (!string.IsNullOrWhiteSpace(model.name))
+            {
+                // Xử lý tên nếu nhận được tên đầy đủ từ Google
+                string[] nameParts = model.name.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                if (nameParts.Length > 1)
+                {
+                    // Chuyển tên đầu (tên riêng) ra sau cùng theo kiểu tên tiếng Việt
+                    string firstName = nameParts[0];
+                    model.name = string.Join(" ", nameParts.Skip(1)) + " " + firstName;
+                }
+            }
+            else
+            {
+                // Nếu không có tên, dùng username từ email
+                model.name = model.email.Split('@')[0];
+            }
+
+
             // Validate email domain
             if (!model.email.EndsWith("@student.tdmu.edu.vn") && !model.email.EndsWith("@tdmu.edu.vn"))
             {
                 return Ok(new
                 {
-                    message = "Gmail không hợp lệ.",
+                    message = "Đang đăng nhập bằng mail cá nhân, vui lòng đăng nhập bằng mail trường",
                     success = false
                 });
             }
 
             try
             {
-
                 // Lấy phần trước @ từ email để làm tên đăng nhập
                 string username = model.email.Split('@')[0];
 
                 var existingAccount = await db.TaiKhoans.FirstOrDefaultAsync(x => x.Gmail == model.email);
                 string MatKhauMaHoa = EncryptionHelper.Encrypt("@123");
+
                 if (existingAccount == null)
                 {
+                    // Tạo tài khoản mới nếu chưa tồn tại
                     existingAccount = new TaiKhoan
                     {
-                        TenTaiKhoan = username, 
+                        TenTaiKhoan = username,
                         MatKhau = MatKhauMaHoa,
                         Name = model.name,
                         Gmail = model.email,
@@ -84,8 +105,8 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                         NgayTao = unixTimestamp,
                         NgayCapNhat = unixTimestamp,
                         IsBanned = 0,
-                        CountPasswordFail = 0,  
-                        LockTime = null,         
+                        CountPasswordFail = 0,
+                        LockTime = null,
                         LockTimeout = null
                     };
                     db.TaiKhoans.Add(existingAccount);
@@ -93,24 +114,88 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 }
                 else
                 {
+                    // Kiểm tra nếu tài khoản đã bị khóa vĩnh viễn
+                    if (existingAccount.IsBanned == 1)
+                    {
+                        return Ok(new
+                        {
+                            message = "Tài khoản của bạn đã bị khóa vui lòng liên hệ quản trị viên",
+                            success = false,
+                            isLocked = true,
+                            isPermanent = true
+                        });
+                    }
+
+                    // Kiểm tra thời gian khóa tạm thời
+                    if (existingAccount.LockTime.HasValue && existingAccount.LockTimeout.HasValue)
+                    {
+                        // Tính thời gian khóa còn lại
+                        DateTime lockEndTime = DateTimeOffset.FromUnixTimeSeconds(existingAccount.LockTime.Value)
+                            .AddSeconds(existingAccount.LockTimeout.Value).UtcDateTime;
+
+                        if (DateTime.UtcNow < lockEndTime)
+                        {
+                            TimeSpan remainingTime = lockEndTime - DateTime.UtcNow;
+                            return Ok(new
+                            {
+                                message = $"Tài khoản tạm thời bị khóa. Vui lòng thử lại sau {(int)remainingTime.TotalSeconds} giây.",
+                                success = false,
+                                isLocked = true,
+                                remainingSeconds = (int)remainingTime.TotalSeconds
+                            });
+                        }
+                        else
+                        {
+                            // Thời gian khóa đã hết, đặt lại các trường liên quan
+                            existingAccount.LockTime = null;
+                            existingAccount.LockTimeout = null;
+                        }
+                    }
+
                     // Cập nhật tên đăng nhập nếu cần
                     if (existingAccount.TenTaiKhoan != username)
                     {
                         existingAccount.TenTaiKhoan = username;
+                        existingAccount.Name = model.name;
                         existingAccount.CountPasswordFail = 0;
                         existingAccount.LockTime = null;
+                        existingAccount.NgayCapNhat = unixTimestamp;
                         existingAccount.LockTimeout = null;
 
                         await db.SaveChangesAsync();
                     }
+                    else if (existingAccount.Name != model.name)
+                    {
+                        existingAccount.TenTaiKhoan = username;
+                        existingAccount.Name = model.name;
+                        existingAccount.CountPasswordFail = 0;
+                        existingAccount.LockTime = null;
+                        existingAccount.NgayCapNhat = unixTimestamp;
+                        existingAccount.LockTimeout = null;
+                    }
                 }
 
+                // Đặt lại số lần nhập sai mật khẩu (nếu có)
+                existingAccount.CountPasswordFail = 0;
+                await db.SaveChangesAsync();
+
+                // Kiểm tra vai trò của người dùng
+                if (existingAccount.ID_role == null)
+                {
+                    return Ok(new
+                    {
+                        message = "Tài khoản của bạn chưa được phân quyền. Vui lòng liên hệ quản trị viên.",
+                        success = false
+                    });
+                }
+
+                // Lưu vào session
                 SessionHelper.SetUser(existingAccount, GetCurrentContext());
 
                 return Ok(new
                 {
                     idRole = existingAccount.ID_role,
-                    isBanner = existingAccount.IsBanned,
+                    userId = existingAccount.ID,
                     message = "Đăng nhập thành công",
                     success = true
                 });
@@ -152,7 +237,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 {
                     return Ok(new
                     {
-                        message = "Tài khoản của bạn đã bị khóa vĩnh viễn",
+                        message = "Tài khoản của bạn đã bị khóa vui lòng liên hệ quản trị viên",
                         success = false
                     });
                 }
@@ -204,6 +289,16 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                             });
                         }
 
+                        // Kiểm tra vai trò của người dùng
+                        if (user.ID_role == null)
+                        {
+                            return Ok(new
+                            {
+                                message = "Tài khoản của bạn chưa được phân quyền. Vui lòng liên hệ quản trị viên.",
+                                success = false
+                            });
+                        }
+
                         // Tạo Account cho session từ TaiKhoan
                         var accountForSession = new TaiKhoan
                         {
@@ -213,18 +308,15 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                             ID_role = user.ID_role ?? 4
                         };
 
-
                         SessionHelper.SetUser(user, GetCurrentContext());
 
                         return Ok(new
                         {
                             idRole = user.ID_role,
+                            userId = user.ID,
                             message = "Đăng nhập thành công",
                             success = true
-
                         });
-
-
                     }
                     else
                     {
@@ -263,7 +355,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                                 remainingSeconds = LockoutDurationInSecondsExtended
                             });
                         }
-                        else if (user.CountPasswordFail == MaxFailedAttemptsBeforeLockout - 1)
+                        else if (user.CountPasswordFail == MaxFailedAttemptsBeforeLockout)
                         {
                             // Khóa tạm thời
                             user.LockTime = unixTimestamp;
@@ -295,7 +387,6 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 }
                 catch (Exception decryptEx)
                 {
-
                     return Ok(new
                     {
                         message = "Đã xảy ra lỗi khi xác thực mật khẩu",
@@ -312,7 +403,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         // POST: api/v1/admin/clear_session
         [HttpPost]
         [Route("clear_session")]
-        public IHttpActionResult Logout()
+        public IHttpActionResult clear_session()
         {
             try
             {
@@ -417,7 +508,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 {
                     // Sử dụng EmailService để gửi email
                     await _emailService.SendVerificationEmailAsync(model.email, verificationCode);
-                    
+
                     // Trong môi trường production, không nên trả về mã xác thực
                     #if DEBUG
                     return Ok(new
@@ -437,7 +528,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 catch (Exception emailEx)
                 {
                     System.Diagnostics.Debug.WriteLine($"Email sending error: {emailEx.Message}");
-                    
+
                     // Vẫn trả về mã trong môi trường phát triển để dễ test
                     #if DEBUG
                     return Ok(new
@@ -553,7 +644,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 {
                     // Sử dụng EmailService để gửi email
                     await _emailService.SendVerificationEmailAsync(model.email, verificationCode);
-                    
+
                     #if DEBUG
                     return Ok(new
                     {
@@ -572,7 +663,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 catch (Exception emailEx)
                 {
                     System.Diagnostics.Debug.WriteLine($"Email resending error: {emailEx.Message}");
-                    
+
                     #if DEBUG
                     return Ok(new
                     {
@@ -634,30 +725,96 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             }
         }
 
-        [HttpGet]
-        [Route("check-login")]
-        public IHttpActionResult CheckLogin()
+
+        // POST: api/v1/admin/check-account-lock
+        [HttpPost]
+        [Route("check-account-lock")]
+        public async Task<IHttpActionResult> CheckAccountLock(CheckLockModel model)
         {
+            if (string.IsNullOrEmpty(model.username))
+            {
+                return BadRequest("Username cannot be empty");
+            }
+
             try
             {
-                bool isLoggedIn = SessionHelper.IsUserLoggedIn();
+                // Find the account by username
+                var user = await db.TaiKhoans.FirstOrDefaultAsync(u => u.TenTaiKhoan == model.username || u.Gmail == model.username);
+
+                if (user == null)
+                {
+                    return Ok(new
+                    {
+                        isLocked = false,
+                        message = "User not found",
+                        success = false
+                    });
+                }
+
+                // Check if account is permanently locked
+                if (user.IsBanned == 1)
+                {
+                    return Ok(new
+                    {
+                        isLocked = true,
+                        isPermanent = true,
+                        message = "Account is permanently locked",
+                        success = true
+                    });
+                }
+
+                // Check if account is temporarily locked
+                if (user.LockTime.HasValue && user.LockTimeout.HasValue)
+                {
+                    // Calculate remaining lock time
+                    DateTime lockEndTime = DateTimeOffset.FromUnixTimeSeconds(user.LockTime.Value)
+                        .AddSeconds(user.LockTimeout.Value).UtcDateTime;
+
+                    if (DateTime.UtcNow < lockEndTime)
+                    {
+                        // Account is still locked
+                        TimeSpan remainingTime = lockEndTime - DateTime.UtcNow;
+
+                        return Ok(new
+                        {
+                            isLocked = true,
+                            isPermanent = false,
+                            unlockTime = user.LockTime.Value + user.LockTimeout.Value, // Unix timestamp when lock expires
+                            countPasswordFail = user.CountPasswordFail ?? 0,
+                            remainingSeconds = (int)remainingTime.TotalSeconds,
+                            message = "Account is temporarily locked",
+                            success = true
+                        });
+                    }
+                }
+
+                // Account is not locked
                 return Ok(new
                 {
-                    success = isLoggedIn
+                    isLocked = false,
+                    message = "Account is not locked",
+                    success = true
                 });
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Session error: {ex.Message}");
-                return Ok(new { success = false });
+                return InternalServerError(ex);
             }
         }
+
+    }
+
+    public class CheckLockModel
+    {
+        public string username { get; set; }
     }
 
     public class GoogleLoginModel
     {
         public string email { get; set; }
-        public string name { get; set; } 
+        public string name { get; set; }
+        public string given_name { get; set; }
+        public string family_name { get; set; }
     }
 
     public class LoginModel

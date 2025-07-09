@@ -1,4 +1,5 @@
 ﻿using ProjectTinTucBan.Models;
+using ProjectTinTucBan.Helper;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -32,6 +33,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                        x.ID,
                        x.ID_role,
                        x.TenTaiKhoan,
+                       x.Name,
                        x.MatKhau,
                        x.Gmail,
                        x.SDT,
@@ -102,14 +104,14 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             {
                 if (model == null || model.userId <= 0)
                 {
-                    return BadRequest("Dữ liệu không hợp lệ");
+                    return Ok(new { message = "Dữ liệu không hợp lệ", success = false });
                 }
 
                 // Check if user exists
                 var user = await db.TaiKhoans.FindAsync(model.userId);
                 if (user == null)
                 {
-                    return NotFound();
+                    return Ok(new { message = "Không tìm thấy người dùng", success = false });
                 }
 
                 // Get current user permissions
@@ -169,13 +171,13 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         {
             try
             {
-                if (Item == null || Item.ID <= 0) // Change Item.Id to Item.ID
+                if (Item == null || Item.ID <= 0)
                 {
                     return BadRequest("Dữ liệu không hợp lệ");
                 }
 
                 // Find user in database
-                var existingUser = await db.TaiKhoans.FindAsync(Item.ID); // Change Item.Id to Item.ID
+                var existingUser = await db.TaiKhoans.FindAsync(Item.ID);
                 if (existingUser == null)
                 {
                     return NotFound();
@@ -183,7 +185,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
                 // Check for unique username with different ID
                 var duplicateUsername = await db.TaiKhoans
-                    .FirstOrDefaultAsync(u => u.TenTaiKhoan == Item.TenTaiKhoan && u.ID != Item.ID); // Change Item.Id to Item.ID
+                    .FirstOrDefaultAsync(u => u.TenTaiKhoan == Item.TenTaiKhoan && u.ID != Item.ID);
                 if (duplicateUsername != null)
                 {
                     return Content(HttpStatusCode.BadRequest, new { message = "Tên tài khoản đã tồn tại trong hệ thống", success = false });
@@ -191,7 +193,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
                 // Check for unique email with different ID
                 var duplicateEmail = await db.TaiKhoans
-                    .FirstOrDefaultAsync(u => u.Gmail == Item.Gmail && u.ID != Item.ID); // Change Item.Id to Item.ID
+                    .FirstOrDefaultAsync(u => u.Gmail == Item.Gmail && u.ID != Item.ID);
                 if (duplicateEmail != null)
                 {
                     return Content(HttpStatusCode.BadRequest, new { message = "Gmail đã được sử dụng bởi tài khoản khác", success = false });
@@ -201,11 +203,21 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 existingUser.TenTaiKhoan = Item.TenTaiKhoan;
                 existingUser.Gmail = Item.Gmail;
                 existingUser.SDT = Item.SDT;
+                existingUser.Name = Item.Name;
                 existingUser.ID_role = Item.ID_role;
                 existingUser.IsBanned = Item.IsBanned;
                 existingUser.CountPasswordFail = 0;
+                existingUser.LockTime = null;
+                existingUser.LockTimeout = null;
                 unixTimestamp = (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
                 existingUser.NgayCapNhat = unixTimestamp;
+
+                // Handle password update if provided
+                if (!string.IsNullOrEmpty(Item.MatKhau))
+                {
+                    string encryptedPassword = EncryptionHelper.Encrypt(Item.MatKhau);
+                    existingUser.MatKhau = encryptedPassword;
+                }
 
                 await db.SaveChangesAsync();
 
@@ -226,13 +238,15 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             {
                 if (Item == null || Item.ID <= 0)
                 {
-                    return BadRequest("Dữ liệu không hợp lệ");
+                    return Ok(new { message = "Dữ liệu không hợp lệ", success = false });
+
                 }
                 // Kiểm tra xem role có tồn tại không
                 var existingRole = await db.TaiKhoans.FindAsync(Item.ID);
                 if (existingRole == null)
                 {
-                    return NotFound();
+                    return Ok(new { message = "Không tìm thấy tài khoản", success = false });
+
                 }
                 // Get BaiViet của tài khoản và update lại
                 var user_baiviet = await db.BaiViets
@@ -240,7 +254,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     .ToListAsync();
                 foreach (var post in user_baiviet)
                 {
-                    post.ID_NguoiDang = -1; 
+                    post.ID_NguoiDang = null; 
                 }
                 // Get PhanQuyenUsers for the taikhoan
                 var userPermissions = await db.PhanQuyenUsers
@@ -255,6 +269,43 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 db.TaiKhoans.Remove(existingRole);
                 await db.SaveChangesAsync();
                 return Ok(new { message = "Xóa tài khoản thành công", success = true }); 
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        // GET: api/v1/admin/Get-User-By-Id/{id}
+        [HttpGet]
+        [Route("Get-User-By-Id/{id:int}")]
+        public async Task<IHttpActionResult> GetUserById(int id)
+        {
+            try
+            {
+                // Find user by ID
+                var user = await db.TaiKhoans.FindAsync(id);
+
+                if (user == null)
+                {
+                    return Ok(new { message = "Không tìm thấy tài khoản", success = false });
+                }
+
+                // Return user data in a consistent format
+                var userData = new
+                {
+                    user.ID,
+                    user.ID_role,
+                    user.TenTaiKhoan,
+                    user.Name,
+                    user.Gmail,
+                    user.SDT,
+                    user.IsBanned,
+                    user.NgayTao,
+                    user.NgayCapNhat
+                };
+
+                return Ok(new { data = userData, success = true });
             }
             catch (Exception ex)
             {
