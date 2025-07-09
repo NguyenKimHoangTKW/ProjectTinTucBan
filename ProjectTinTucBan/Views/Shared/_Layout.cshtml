@@ -1,17 +1,19 @@
 ﻿@{ Layout = null; }
 
 <!DOCTYPE html>
-<html lang="vi" class="overflow-x-hidden">
+<html lang="vi" class="h-full">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>@ViewBag.Title – ĐBCL TDMU</title>
+    <title>@ViewBag.Title Quản trị - Ban khảo thí, kiểm định và đảm bảo chất lượng - TDMU</title>
+    <link rel="shortcut icon" href="https://tdmu.edu.vn/hinh/Icon.png" />
 
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
-
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
     <style>
         body {
@@ -28,69 +30,20 @@
             display: block;
         }
     </style>
+
 </head>
-<body class="bg-white text-gray-800 overflow-x-hidden">
-    <!-- Top bar -->
-    <div class="bg-[#29A3E0] text-white text-sm">
-        <div class="flex flex-wrap justify-between items-center px-4 sm:px-8 lg:px-12 py-2 gap-2 w-full">
-            <div class="flex flex-wrap items-center gap-3 text-xs sm:text-sm">
-                <span>📧 Bdbcl@tdmu.edu.vn</span>
-                <span>📞 (0274) 3822518-3-114</span>
-            </div>
-            <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs sm:text-sm">
-                <a href="https://tdmu.edu.vn/" class="hover:underline">Trang chủ TDMU</a>
-                <a href="https://dkmh.tdmu.edu.vn/#/home" class="hover:underline">Cổng thông tin GV | SV</a>
-                <a href="https://tdmu.edu.vn/lich-cong-tac" class="hover:underline">Lịch công tác</a>
-                <a href="#" class="hover:underline">Liên kết</a>
-                <a href="https://tdmu.edu.vn/lien-he" class="hover:underline">Liên hệ</a>
-            </div>
-        </div>
-    </div>
 
+<body class="min-h-screen flex flex-col bg-white text-gray-800 overflow-x-hidden">
     <!-- Header -->
-    <header class="bg-white shadow">
-        <div class="w-full px-4 sm:px-8 lg:px-12 py-3 flex flex-col md:flex-row justify-between items-center gap-4 border-b">
-
-            <!-- Logo -->
-            <div class="flex items-center gap-4">
-                <img src="https://bdbcl.tdmu.edu.vn/img/Logo-BKTKD-BCL.jpg" alt="Logo ĐBCL TDMU" class="max-h-16 w-auto" />
-            </div>
-
-            <!-- Navbar -->
-            <nav id="dynamicNav" class="flex flex-wrap justify-center md:justify-end items-center gap-4 font-semibold text-sm sm:text-base text-black">
-                <a href="/" class="active">TRANG CHỦ</a>
-
-                <div class="relative dropdown">
-                    <button class="hover:text-blue-600 flex items-center gap-1">
-                        GIỚI THIỆU
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </button>
-                    <!-- Dropdown menu -->
-                    <ul class="absolute dropdown-menu hidden mt-2 bg-white text-black rounded shadow-md w-56 z-50">
-                        <li><a href="#" class="block px-4 py-2 hover:bg-gray-100">Chức năng - Nhiệm vụ</a></li>
-                        <li><a href="#" class="block px-4 py-2 hover:bg-gray-100">Sơ đồ tổ chức</a></li>
-                    </ul>
-                </div>
-
-                <!-- Mục lục động sẽ được thêm tại đây -->
-            </nav>
-        </div>
-    </header>
+    @Html.Partial("TrangChuHeaderPartial")
 
     <!-- Nội dung chính -->
-    <main class="w-full">
+    <main class="flex-grow w-full">
         @RenderBody()
     </main>
 
     <!-- Footer -->
-    <footer class="bg-[#29A3E0] text-white text-sm py-6">
-        <div class="max-w-7xl mx-auto px-4 space-y-2 text-center sm:text-left">
-            <p>&copy; 2021 Bản quyền thuộc Ban Khảo thí, kiểm định và đảm bảo chất lượng – Trường đại học Thủ Dầu Một</p>
-            <p>Ghi rõ nguồn "Trường đại học Thủ Dầu Một" khi sử dụng lại nội dung trên cổng thông tin.</p>
-        </div>
-    </footer>
+    @Html.Partial("TrangChuFooterPartial")
 
     <!-- Back to top button -->
     <button id="backToTop"
@@ -98,11 +51,13 @@
             title="Lên đầu trang">
         <i class="fas fa-chevron-up"></i>
     </button>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
 
-
-    <!-- Scripts -->
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+    <!-- Back to top logic -->
     <script>
         const btn = document.getElementById("backToTop");
         window.addEventListener("scroll", () => {
@@ -113,11 +68,7 @@
         });
     </script>
 
-    @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/bootstrap")
-    @RenderSection("scripts", required: false)
-
-    <!-- JS tạo mục lục động trong Navbar -->
+    <!-- Mục lục động trong Navbar -->
     <script>
         function toSlug(str) {
             return str.toLowerCase()
@@ -128,6 +79,7 @@
         }
 
         $(document).ready(function () {
+            // Load mục lục động
             $.get("/api/v1/home/get-mucluc-with-baiviet", function (res) {
                 if (!res.success || !res.data) return;
 
@@ -137,20 +89,57 @@
                     const slug = toSlug(muc.TenMucLuc);
                     const ten = muc.TenMucLuc.toUpperCase();
 
-                    nav.append(`<a href="#${slug}" class="hover:text-blue-600 scroll-to">${ten}</a>`);
+                    // ✅ Dùng jQuery tạo thẻ <a> và đặt text bằng .text() để tránh render HTML
+                    // Sửa đoạn này trong Layout.cshtml
+                    const link = $("<a>")
+                        .attr("href", `#${slug}`) // để scroll nếu đang ở trang chủ
+                        .attr("data-target", slug) // để xác định mục tiêu
+                        .addClass("hover:text-blue-600 scroll-to")
+                        .text(ten);
+
+                    nav.append(link);
                 });
             });
 
-            // Cuộn mượt
+            // Xử lý click -> scroll
+            // Xử lý click vào mục lục
             $(document).on("click", ".scroll-to", function (e) {
+                const slug = $(this).data("target");
+
+                // Nếu không đang ở trang chủ thì lưu slug rồi redirect về "/"
+                if (window.location.pathname !== "/") {
+                    e.preventDefault();
+                    localStorage.setItem("scrollToSlug", slug);
+                    window.location.href = "/";
+                    return;
+                }
+
+                // Nếu đang ở trang chủ thì scroll mượt
                 e.preventDefault();
-                const target = $(this).attr("href");
-                const offset = $(target).offset()?.top;
+                const offset = $(`#${slug}`).offset()?.top;
                 if (offset) {
                     $("html, body").animate({ scrollTop: offset - 100 }, 500);
                 }
             });
+
+
+            // Khi về từ trang khác, scroll tới mục
+            const savedSlug = localStorage.getItem("scrollToSlug");
+            if (savedSlug) {
+                setTimeout(() => {
+                    const target = $(`#${savedSlug}`);
+                    if (target.length) {
+                        $("html, body").animate({
+                            scrollTop: target.offset().top - 100
+                        }, 500);
+                    }
+                    localStorage.removeItem("scrollToSlug");
+                }, 400); // Chờ DOM render xong
+            }
+
         });
     </script>
+
 </body>
+
 </html>

@@ -462,25 +462,21 @@
     <Content Include="Areas\Admin\Scripts\TopNavShowScript.js" />
     <Content Include="Areas\Admin\Scripts\BaiViet.js" />
     <Content Include="Areas\Admin\Scripts\DanhSachUser.js" />
+    <Content Include="Areas\Admin\Uploads\Slider\6ed8e7cc-bb74-4005-92e6-282072ad1acf.jpg" />
+    <Content Include="Areas\Admin\Uploads\Slider\fd280219-2c9f-4fce-ac27-b525dd2c145f.png" />
     <Content Include="Scripts\LoginWithGoogle.js" />
     <Content Include="Areas\Admin\Scripts\XemNoiDung.js" />
-    <Content Include="Areas\Admin\Uploads\Slider\0dcd9495-dcb8-4fc7-b924-bc27c7ea3f57.jpeg" />
-    <Content Include="Areas\Admin\Uploads\Slider\19ffc442-085e-4f8f-84d8-4e2b7202a6ad.png" />
-    <Content Include="Areas\Admin\Uploads\Slider\2d0c6ee3-9230-454d-bab0-1884516b667c.jpg" />
-    <Content Include="Areas\Admin\Uploads\Slider\32f610cc-7cfe-42fa-9955-8e7e3049394b.jpg" />
-    <Content Include="Areas\Admin\Uploads\Slider\71e7bf3d-99aa-462c-b4b5-a21647f64f28.png" />
-    <Content Include="Areas\Admin\Uploads\Slider\c14ea662-cfbd-4085-bfe1-2b9fbe051c17.jpg" />
+    <Content Include="Areas\Admin\Uploads\Slider\0b5f243b-7900-434f-a448-782df0e12e5d.png" />
+    <Content Include="Areas\Admin\Uploads\Slider\1dc28ab9-5825-418b-986f-0195bb6a8600.png" />
     <Content Include="Views\Home\Login.cshtml" />
-    <Content Include="Areas\Admin\Uploads\Slider\141625ba-0db3-409b-bfc0-b2f0a385af00.png" />
-    <Content Include="Areas\Admin\Uploads\Slider\309fcdd3-789a-4048-8b75-9cf8322ccd03.jpg" />
-    <Content Include="Areas\Admin\Uploads\Slider\8c8f483f-368a-4e83-9028-357440a60a56.png" />
-    <Content Include="Areas\Admin\Uploads\Slider\b40763c9-5dd7-45a4-a048-fe9177e1e4ca.png" />
-    <Content Include="Areas\Admin\Uploads\Slider\bf59e30c-e56a-402d-a957-46e4084da858.png" />
+    <Content Include="Areas\Admin\Uploads\Slider\750dc5f4-cbcf-4811-8d9e-fd84eea809f5.png" />
+    <Content Include="Areas\Admin\Uploads\Slider\80a320ff-3dcf-450f-a53d-30db654ffcae.jpg" />
+    <Content Include="Areas\Admin\Uploads\Slider\a0026dfe-6ddf-45d3-8148-5acadda54ac4.png" />
+    <Content Include="Areas\Admin\Uploads\Slider\f81d2324-53a2-42e1-a8c6-34ae9084f56c.png.png" />
     <Content Include="Areas\Admin\Uploads\Slider\7a70444e-f6b1-431d-bc95-3304b288e78f.png" />
     <Content Include="Areas\Admin\Uploads\Slider\b54b5ec6-264e-4779-87ad-4cbc08c6962f.png" />
     <Content Include="Areas\Admin\Uploads\Slider\ddcc75bc-2306-4787-b301-c49f31e87a29.png" />
     <Content Include="Areas\Admin\Uploads\Slider\f81d2324-53a2-42e1-a8c6-34ae9084f56c.png" />
-    <Content Include="Areas\Admin\Views\InterfaceAdmin\Login.cshtml" />
     <Content Include="Areas\Admin\Scripts\ThuVienAnh.js" />
     <Content Include="Areas\Admin\Scripts\Upload.js" />
     <Content Include="Areas\assets\css\app.min.css" />
@@ -1271,7 +1267,7 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>dbTinTucKhaoThiModel.cs</LastGenOutput>
     </Content>
-    <Content Include="Scripts\BaiViet.js" />
+    <Content Include="Scripts\BaiVietTrangChu.js" />
     <Content Include="Scripts\bootstrap.bundle.js" />
     <Content Include="Scripts\bootstrap.bundle.min.js" />
     <Content Include="Scripts\bootstrap.esm.js" />
@@ -1560,12 +1556,16 @@
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Menu.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Slider.cshtml" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
+    <Content Include="Scripts\DanhSachBaiViet.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />
     <Content Include="Scripts\jquery-3.7.0.slim.js" />
     <Content Include="Scripts\jquery-3.7.0.slim.min.js" />
+    <Content Include="Scripts\LayoutTrangChu.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
     <Content Include="Uploads\Thumbnails\28363-nem-lai-vung_20250702110115.jpeg" />
+    <Content Include="Scripts\TopMenuShowScript.js" />
+    <Content Include="Scripts\XemNoiDung.js" />
     <Content Include="Uploads\Thumbnails\b0889e80c49d8aaa34420069b227c298_20250619105646.jpg" />
     <Content Include="Uploads\Thumbnails\b0889e80c49d8aaa34420069b227c298_20250619110010.jpg" />
     <Content Include="Uploads\Thumbnails\b0889e80c49d8aaa34420069b227c298_20250619110112.jpg" />
@@ -1600,6 +1600,12 @@
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\XemNoiDung.cshtml" />
     <Content Include="Views\BaiViet\XemNoiDung.cshtml" />
+    <Content Include="Views\Shared\TrangChuHeaderPartial.cshtml" />
+    <Content Include="Views\Shared\TrangChuNavPartial.cshtml" />
+    <Content Include="Views\Shared\TrangChuFooterPartial.cshtml" />
+    <Content Include="Views\Home\TinTuc.cshtml" />
+    <Content Include="Views\Home\DanhSachBaiViet.cshtml" />
+    <Content Include="Views\Shared\SliderShowPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

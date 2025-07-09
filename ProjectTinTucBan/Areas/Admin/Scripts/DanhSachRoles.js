@@ -1,5 +1,4 @@
-﻿const BASE_URL = '/api/v1/admin/';
-$(document).ready(function () {
+﻿$(document).ready(function () {
     // Initialize Select2 components if available
     if ($.fn.select2) {
         $(".select2").select2();
@@ -153,7 +152,7 @@ async function load_data() {
 
         // Gọi API
         $.ajax({
-            url: `${BASE_URL}/Get-All-Roles`,
+            url: '/api/v1/admin/Get-All-Roles',
             type: 'GET',
             dataType: 'json',
             cache: false,
@@ -242,23 +241,7 @@ async function load_data() {
                                 `;
                             }
                         }
-
-                    ],
-                    pageLength: 5,
-                    lengthMenu: [5, 10, 15, 25, 50],
-                    language: {
-                        paginate: {
-                            next: "Tiếp",
-                            previous: "Trước"
-                        },
-                        search: "Tìm nhanh:",
-                        lengthMenu: "Hiển thị _MENU_ mục",
-                        emptyTable: "Không có dữ liệu",
-                        zeroRecords: "Không tìm thấy kết quả phù hợp",
-                        info: "Hiển thị _START_ đến _END_ của _TOTAL_ mục",
-                        infoEmpty: "Hiển thị 0 đến 0 của 0 mục",
-                        infoFiltered: "(lọc từ _MAX_ mục)"
-                    }
+                    ]
                 });
 
                 // Hiển thị thông báo nếu không có dữ liệu
@@ -373,6 +356,7 @@ async function openEditRoleModal(roleId) {
     } catch (error) {
         // Hide loading on error
         hideLoading(".modal-body");
+
         Sweet_Alert("error", "Không thể tải thông tin quyền admin");
     }
 }
@@ -395,7 +379,7 @@ async function add_new_Role_in_modal() {
 
     try {
         const res = await $.ajax({
-            url: `${BASE_URL}/Create-Roles`,
+            url: '/api/v1/admin/Create-Roles',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({
@@ -440,7 +424,7 @@ async function update_Role_in_modal() {
 
     try {
         const res = await $.ajax({
-            url: `${BASE_URL}/Update-Roles`,
+            url: '/api/v1/admin/Update-Roles',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({
@@ -481,7 +465,7 @@ function deleteRole(roleId) {
         if (result.isConfirmed) {
             try {
                 const res = await $.ajax({
-                    url: `${BASE_URL}/Delete-Roles`,
+                    url: '/api/v1/admin/Delete-Roles',
                     type: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify({ ID: parseInt(roleId) })
