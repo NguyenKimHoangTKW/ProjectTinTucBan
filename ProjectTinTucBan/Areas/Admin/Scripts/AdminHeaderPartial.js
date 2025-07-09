@@ -12,8 +12,7 @@
             },
             success: function (data) {
                 if (data.success) {
-                    // Chuyển hướng đến trang đăng nhập khi thành công
-                    window.location.href = '/Admin/InterfaceAdmin/Index';
+                    $(location).attr('href', '/Home/Login');
                 } else {
                     Sweet_Alert('Đăng xuất không thành công, vui lòng thử lại.');
                 }

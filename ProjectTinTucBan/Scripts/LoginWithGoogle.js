@@ -116,7 +116,7 @@ function Logout_Session() {
             if (res.success) {
                 localStorage.removeItem('authInfo');
                 // Sử dụng jQuery thay vì JS thuần
-                $(location).attr('href', "/Admin/InterfaceAdmin/Login");
+                $(location).attr('href', "/Home/Login");
             }
         },
         error: function (error) {
