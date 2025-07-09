@@ -26,7 +26,12 @@ namespace ProjectTinTucBan.Areas.Admin
                 "Admin/quan-ly-muc-luc",
                 new { controller = "InterfaceAdmin", action = "Index_MucLuc_Admin" }
             );
-            
+            context.MapRoute(
+              "EditFooter",
+              "Admin/Edit-Footer",
+              new { controller = "Footer", action = "Edit" }
+          );
+
             context.MapRoute(
                 "Index_Roles_Admin",
                 "Admin/quan-ly-quyen-admin",

@@ -21,6 +21,7 @@ namespace ProjectTinTucBan.Models
         public string Link { get; set; }
         public Nullable<int> NgayDang { get; set; }
         public Nullable<int> NgayCapNhat { get; set; }
+        public Nullable<int> IsActive { get; set; }
     
         public virtual Khoi Khoi { get; set; }
     }

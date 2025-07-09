@@ -324,7 +324,9 @@
     <Compile Include="Areas\Admin\AdminAreaRegistration.cs" />
     <Compile Include="Areas\Admin\Controllers\BaiVietAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\DonViTrucThuocController.cs" />
+    <Compile Include="Areas\Admin\Controllers\FooterController.cs" />
     <Compile Include="Areas\Admin\Controllers\FunctionAdminAPIController.cs" />
+    <Compile Include="Areas\Admin\Controllers\EditTaiKhoanControllers.cs" />
     <Compile Include="Areas\Admin\Controllers\InterfaceAdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\KhoiController.cs" />
     <Compile Include="Areas\Admin\Controllers\LoginAPIController.cs" />
@@ -1544,14 +1546,13 @@
     <Content Include="assets\fonts\line-awesome.ttf" />
     <Content Include="assets\fonts\line-awesome.woff" />
     <Content Include="assets\fonts\line-awesome.woff2" />
-    <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Function_Admin.cshtml" />
-    <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Users_Admin.cshtml" />
     <Content Include="Areas\Admin\Views\Shared\SliderTestShowPartial.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Users_Admin.cshtml" />
-    <Content Include="Areas\Admin\Views\InterfaceAdmin\Menu.cshtml" />
-    <Content Include="Areas\Admin\Views\InterfaceAdmin\Slider.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\XemNoiDung.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_DonViTrucThuoc.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\EditTaiKhoan.cshtml" />
+    <Content Include="Content\data.json" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\EditFooter.cshtml" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />

@@ -42,6 +42,7 @@
           <Property Name="Link" Type="nvarchar(max)" />
           <Property Name="NgayDang" Type="int" />
           <Property Name="NgayCapNhat" Type="int" />
+          <Property Name="IsActive" Type="int" />
         </EntityType>
         <EntityType Name="Function_By_Menu">
           <Key>
@@ -69,6 +70,7 @@
           <Property Name="ThuTuShow" Type="int" />
           <Property Name="NgayDang" Type="int" />
           <Property Name="NgayCapNhat" Type="int" />
+          <Property Name="IsActive" Type="int" />
         </EntityType>
         <EntityType Name="Menu">
           <Key>
@@ -524,6 +526,7 @@
           <Property Name="Link" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="NgayDang" Type="Int32" />
           <Property Name="NgayCapNhat" Type="Int32" />
+          <Property Name="IsActive" Type="Int32" />
           <NavigationProperty Name="Khoi" Relationship="WebTinTucTDMUModel.FK__DonViTruc__ID_Kh__4E88ABD4" FromRole="DonViTrucThuoc" ToRole="Khoi" />
         </EntityType>
         <EntityType Name="Function_By_Menu">
@@ -557,6 +560,7 @@
           <Property Name="ThuTuShow" Type="Int32" />
           <Property Name="NgayDang" Type="Int32" />
           <Property Name="NgayCapNhat" Type="Int32" />
+          <Property Name="IsActive" Type="Int32" />
           <NavigationProperty Name="DonViTrucThuocs" Relationship="WebTinTucTDMUModel.FK__DonViTruc__ID_Kh__4E88ABD4" FromRole="Khoi" ToRole="DonViTrucThuoc" />
         </EntityType>
         <EntityType Name="Menu">
@@ -880,6 +884,7 @@
           <EntitySetMapping Name="DonViTrucThuocs">
             <EntityTypeMapping TypeName="WebTinTucTDMUModel.DonViTrucThuoc">
               <MappingFragment StoreEntitySet="DonViTrucThuoc">
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
                 <ScalarProperty Name="NgayCapNhat" ColumnName="NgayCapNhat" />
                 <ScalarProperty Name="NgayDang" ColumnName="NgayDang" />
                 <ScalarProperty Name="Link" ColumnName="Link" />
@@ -912,6 +917,7 @@
           <EntitySetMapping Name="Khois">
             <EntityTypeMapping TypeName="WebTinTucTDMUModel.Khoi">
               <MappingFragment StoreEntitySet="Khoi">
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
                 <ScalarProperty Name="NgayCapNhat" ColumnName="NgayCapNhat" />
                 <ScalarProperty Name="NgayDang" ColumnName="NgayDang" />
                 <ScalarProperty Name="ThuTuShow" ColumnName="ThuTuShow" />
