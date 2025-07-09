@@ -186,8 +186,8 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 {
                     return Ok(new { message = "Không tìm thấy quyền admin", success = false });
                 }
-                // Kiểm tra và ko cho xoá ID 1 VÀ ID 4
-                var importantRoleIds = new[] { 1, 4 };
+                // Kiểm tra và ko cho xoá ID 1
+                var importantRoleIds = new[] { 1 };
                 if (importantRoleIds.Contains(Item.ID))
                 {
                     return Ok(new { message = "Không thể xóa quyền hệ thống quan trọng này", success = false });

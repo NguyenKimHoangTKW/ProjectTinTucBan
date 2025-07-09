@@ -13,10 +13,12 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
             return View();
         }
+        [UserAuthorizeAttribute()]
         public ActionResult EditTaiKhoan()
         {
             return RedirectToAction("EditTaiKhoan", "EditTaiKhoan");
         }
+        [UserAuthorizeAttribute()]
         public ActionResult EditFooter()
         {
 
@@ -24,38 +26,38 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         }
 
         // Gọi hàm thiết kế giao diện Quản lý mục lục
-        [UserAuthorizeAttribute(1, 4)]
+        [UserAuthorizeAttribute()]
         public ActionResult Index_MucLuc_Admin()
         {
             return View();
         }
 
         // Gọi hàm thiết kế giao diện quản lý quyền Admin
-        [UserAuthorizeAttribute(1, 4)]
+        [UserAuthorizeAttribute(1)]
         public ActionResult Index_Roles_Admin()
         {
             return View();
         }
 
-        [UserAuthorizeAttribute(1, 4)]
+        [UserAuthorizeAttribute()]
         public ActionResult Menu()
         {
             return View();
         }
 
-        [UserAuthorizeAttribute(1, 4)]
+        [UserAuthorizeAttribute()]
         public ActionResult Slider()
         {
             return View();
         }
 
-        [UserAuthorizeAttribute(1, 4)]
+        [UserAuthorizeAttribute()]
         public ActionResult BaiViet()
         {
             return View();
         }
 
-        [UserAuthorizeAttribute(1, 4)]
+        [UserAuthorizeAttribute(1)]
         // Gọi hàm thiết kế giao diện quản lý người dùng Admin
         public ActionResult Index_Users_Admin()
         {
@@ -63,18 +65,14 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         }
 
         // Gọi hàm thiết kế giao diện quản lý chức năng admin
-        [UserAuthorizeAttribute(1, 4)]
+        [UserAuthorizeAttribute(1)]
         public ActionResult Index_Function_Admin()
         {
             return View();
         }
 
-        // Gọi hàm thiết kế giao diện đăng nhập
-        public ActionResult Login()
-        {
-            return View();
-        }
-        [UserAuthorizeAttribute(1, 4)]
+    
+        [UserAuthorizeAttribute()]
         public ActionResult XemNoiDung(int id)
         {
             using (var db = new WebTinTucTDMUEntities())
@@ -99,11 +97,12 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 return View("XemNoiDung", baiViet);
             }
         }
-
+        [UserAuthorizeAttribute()]
         public ActionResult Index_DonViTrucThuoc()
         {
             return View();
         }
+        [UserAuthorizeAttribute()]
         public ActionResult Index_Khoi()
         {
             return View("Index_Khoi");
