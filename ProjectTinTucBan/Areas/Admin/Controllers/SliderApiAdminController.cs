@@ -23,6 +23,9 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             unixTimestamp = (int)(now.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
         }
 
+        
+
+
         // Upload hình ảnh cho slide
         [HttpPost]
         [Route("upload-slide-image")]
@@ -123,6 +126,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             }
             await db.SaveChangesAsync();
         }
+
 
         // Sửa slide
         [HttpPost]
@@ -229,6 +233,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             swapSlide.ThuTuShow = temp;
 
             await db.SaveChangesAsync();
+            await ReindexSlideOrderAsync();
             return Ok(new { success = true });
         }
 
@@ -253,7 +258,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             slide.isActive = req.isActive;
             slide.NgayCapNhat = unixTimestamp;
             await db.SaveChangesAsync();
-
+            await ReindexSlideOrderAsync();
             return Ok(new { success = true, message = "Cập nhật trạng thái thành công." });
         }
 

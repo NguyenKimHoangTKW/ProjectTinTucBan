@@ -1,4 +1,6 @@
 ﻿using Microsoft.Ajax.Utilities;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using ProjectTinTucBan.Helper;
 using ProjectTinTucBan.Models;
 using System;
 using System.Collections.Generic;
@@ -7,11 +9,11 @@ using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Web.Http;
-using ProjectTinTucBan.Helper;
 using System.Web.ModelBinding;
-using System.Runtime.CompilerServices;
+using System.Web.Security;
 
 namespace ProjectTinTucBan.Areas.Admin.Controllers
 {
@@ -31,8 +33,17 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("menus-with-submenus")]
         public async Task<IHttpActionResult> GetMenusWithSubmenus()
         {
-            var menus = await db.Menus
-                .OrderBy(m => m.ThuTuShow)
+            var user = SessionHelper.GetUser();
+            if (user == null)
+                return Unauthorized();
+
+            IQueryable<Menu> query = db.Menus.OrderBy(x => x.ThuTuShow);
+            if (user.ID_role != 1)
+            {
+                query = query.Where(x => x.IsImportant != 2);
+            }
+
+            var menus = await query
                 .Select(m => new
                 {
                     MenuId = m.ID,
@@ -41,8 +52,8 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     IconName = m.IconName,
                     MenuOrder = m.ThuTuShow,
                     IsImportant = m.IsImportant,
-                    SubMenus = db.Menu_by_sub
-                        .Where(x => x.id_menu == m.ID && x.id_sub != null)
+                    SubMenus = m.Menu_by_sub
+                        .Where(x => x.id_sub != null)
                         .OrderBy(x => x.Sub_Menu.ThuTuShow)
                         .Select(x => new
                         {
@@ -51,15 +62,15 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                             SubMenuLink = x.Sub_Menu.Link,
                             IconName = x.Sub_Menu.IconName,
                             SubMenuOrder = x.Sub_Menu.ThuTuShow
-                        }).ToList()
-                }).ToListAsync();
+                        })
+                        .ToList()
+                })
+                .ToListAsync();
 
             if (menus == null || menus.Count == 0)
                 return NotFound();
             else
                 return Ok(menus);
-
-
         }
 
         [HttpGet]
@@ -82,22 +93,46 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 return Ok(submenus);
         }
 
+        public class MenuDto
+        {
+            public int MenuId { get; set; }
+            public string MenuName { get; set; }
+            public string MenuLink { get; set; }
+            public string IconName { get; set; }
+            public int? IsImportant { get; set; }
+            public int? MenuOrder { get; set; }
+        }
+
         [HttpGet]
         [Route("get-menus")]
         public async Task<IHttpActionResult> Getmenus()
         {
-            var menus = await db.Menus.
-                OrderBy(x => x.ThuTuShow)
-                        .Select(x => new
-                        {
-                            MenuId = x.ID,
-                            MenuName = x.Ten,
-                            MenuLink = x.Link,
-                            IconName = x.IconName,
-                            IsImportant = x.IsImportant,
-                            MenuOrder = x.ThuTuShow
-                        }).Where(x => x.IsImportant!=2)
-                        .ToListAsync();
+            var user = SessionHelper.GetUser();
+            if (user == null)
+                return Unauthorized();
+
+            int userId = (int)user.ID_role;
+
+            IQueryable<Menu> query = db.Menus
+            .OrderBy(x => x.ThuTuShow);
+
+            if (userId != 1)
+            {
+                query = query.Where(x => x.IsImportant != 2);
+            }
+
+            var menus = await query
+                .Select(x => new MenuDto
+                {
+                    MenuId = x.ID,
+                    MenuName = x.Ten,
+                    MenuLink = x.Link,
+                    IconName = x.IconName,
+                    IsImportant = x.IsImportant,
+                    MenuOrder = x.ThuTuShow
+                })
+                .ToListAsync();
+
 
             if (menus == null || menus.Count == 0)
                 return NotFound();
@@ -663,6 +698,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("groupmenus-with-menus")]
         public async Task<IHttpActionResult> GetGroupMenusWithMenus()
         {
+
             var groups = await db.Menu_Group
                         .Select(g => new
                         {

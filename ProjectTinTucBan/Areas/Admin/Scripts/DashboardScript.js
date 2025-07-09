@@ -1,20 +1,20 @@
 ﻿const BASE_URL = '/api/v1/admin/';
 
+function showChart(type) {
+    $.ajax({
+        url: `${BASE_URL}/dashboard/chart?type=` + type,
+        method: 'GET',
+        success: function (result) {
+            renderChartist(result.labels, result.data, type);
+            $('#chartContainer').show();
+        },
+        error: function () {
+            alert('Không thể tải dữ liệu biểu đồ.');
+        }
+    });
+}
 
 document.addEventListener("DOMContentLoaded", function () {
-    function showChart(type) {
-        $.ajax({
-            url: `${BASE_URL}/dashboard/chart?type=` + type,
-            method: 'GET',
-            success: function (result) {
-                renderChartist(result.labels, result.data, type);
-                $('#chartContainer').show();
-            },
-            error: function () {
-                alert('Không thể tải dữ liệu biểu đồ.');
-            }
-        });
-    }
     showChart('day');
 });
 
@@ -92,14 +92,16 @@ function renderChartist(labels, data, type) {
     if (type === 'month') title = 'Lượt xem theo ngày trong tháng';
     if (type === 'year') title = 'Lượt xem theo tháng trong năm';
 
-    // Vẽ biểu đồ Chartist với plugin tooltip
-    new Chartist.Line('#viewsChart', {
+    var chart = new Chartist.Line('#viewsChart', {
         labels: labels,
         series: [data]
     }, {
         fullWidth: true,
-        chartPadding: { right: 40 },
+        chartPadding: { right: 40, top: 30 },
         low: 0,
+        showPoint: true,
+        lineSmooth: true,
+        width: '100%',
         axisX: {
             labelInterpolationFnc: function (value, index) {
                 if (type === 'day') return value + 'h';
@@ -107,7 +109,26 @@ function renderChartist(labels, data, type) {
                 if (type === 'year') return 'Th' + value;
                 return value;
             }
-        },
+        }
+    });
+
+    chart.on('draw', function (dataDraw) {
+        if (dataDraw.type === 'point') {
+            var value = dataDraw.value.y;
+            if (value === 0) return;
+            var x = dataDraw.x;
+            var y = dataDraw.y;
+            var svg = dataDraw.group._node.ownerSVGElement;
+            var text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('x', x + 10);
+            text.setAttribute('y', y - 10); 
+            text.setAttribute('text-anchor', 'middle');
+            text.setAttribute('font-size', '12px');
+            text.setAttribute('fill', '#333');
+            text.setAttribute('transform', 'rotate(-25 ' + x + ' ' + (y - 10) + ')');
+            text.textContent = value;
+            svg.appendChild(text);
+        }
     });
 
     $('#viewsChart').prepend('<div style="text-align:center;font-weight:bold;margin-bottom:10px;">' + title + '</div>');

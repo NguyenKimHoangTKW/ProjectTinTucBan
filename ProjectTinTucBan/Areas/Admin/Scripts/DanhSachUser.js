@@ -1,4 +1,5 @@
-﻿$(document).ready(function () {
+﻿const BASE_URL ='/api/v1/admin/';
+$(document).ready(function () {
     // Initialize Select2 components if available
     if ($.fn.select2) {
         $(".select2").select2();
@@ -63,7 +64,7 @@ let dataTableInstance = null;
 // Load roles for dropdown
 function loadRoles() {
     $.ajax({
-        url: '/api/v1/admin/Get-All-Roles',
+        url: `${BASE_URL}/Get-All-Roles`,
         type: 'GET',
         dataType: 'json',
         success: function (response) {
@@ -168,7 +169,7 @@ async function load_data() {
         let rolesData = [];
         try {
             const rolesResponse = await $.ajax({
-                url: '/api/v1/admin/Get-All-Roles',
+                url: `${BASE_URL}/Get-All-Roles`,
                 type: 'GET',
                 dataType: 'json'
             });
@@ -182,7 +183,7 @@ async function load_data() {
 
         // Gọi API tải danh sách người dùng
         $.ajax({
-            url: '/api/v1/admin/Get-All-Users',
+            url: `${BASE_URL}/Get-All-Users`,
             type: 'GET',
             dataType: 'json',
             cache: false,
@@ -381,7 +382,7 @@ async function openEditUserModal(userId) {
     try {
         // Chỉ sử dụng API Get-All-Users và tìm người dùng cụ thể
         const allUsersResponse = await $.ajax({
-            url: '/api/v1/admin/Get-All-Users',
+            url: `${BASE_URL}/Get-All-Users`,
             type: 'GET',
             dataType: 'json'
         });
@@ -479,7 +480,7 @@ async function update_User_in_modal() {
 
         // Call API to update user
         const response = await $.ajax({
-            url: '/api/v1/admin/Update-User',
+            url: `${BASE_URL}/Update-User`,
             type: 'PUT',
             contentType: 'application/json',
             data: JSON.stringify(updateData)
@@ -525,7 +526,7 @@ function deleteUser(userId) {
         if (result.isConfirmed) {
             try {
                 const res = await $.ajax({
-                    url: '/api/v1/admin/Delete-User',
+                    url: `${BASE_URL}/Delete-User`,
                     type: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify({
@@ -585,7 +586,7 @@ async function openPermissionsModal(userId, username) {
         // Get all functions and user permissions
         const [functionsResponse, userPermissionsResponse] = await Promise.all([
             $.ajax({
-                url: '/api/v1/admin/Get-All-Functions',
+                url: `${BASE_URL}/Get-All-Functions`,
                 type: 'GET',
                 dataType: 'json'
             }),
@@ -678,7 +679,7 @@ async function saveUserPermissions() {
         });
 
         const response = await $.ajax({
-            url: '/api/v1/admin/Update-User-Permissions',
+            url: `${BASE_URL}/Update-User-Permissions`,
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({

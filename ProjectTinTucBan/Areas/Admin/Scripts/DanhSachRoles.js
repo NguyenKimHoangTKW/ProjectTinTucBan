@@ -1,4 +1,5 @@
-﻿$(document).ready(function () {
+﻿const BASE_URL = '/api/v1/admin/';
+$(document).ready(function () {
     // Initialize Select2 components if available
     if ($.fn.select2) {
         $(".select2").select2();
@@ -111,7 +112,7 @@ async function load_data() {
 
         // Gọi API
         $.ajax({
-            url: '/api/v1/admin/Get-All-Roles',
+            url: `${BASE_URL}/Get-All-Roles`,
             type: 'GET',
             dataType: 'json',
             cache: false,
@@ -340,7 +341,7 @@ async function add_new_Role_in_modal() {
 
     try {
         const res = await $.ajax({
-            url: '/api/v1/admin/Create-Roles',
+            url: `${BASE_URL}/Create-Roles`,
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({
@@ -385,7 +386,7 @@ async function update_Role_in_modal() {
 
     try {
         const res = await $.ajax({
-            url: '/api/v1/admin/Update-Roles',
+            url: `${BASE_URL}/Update-Roles`,
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({
@@ -426,7 +427,7 @@ function deleteRole(roleId) {
         if (result.isConfirmed) {
             try {
                 const res = await $.ajax({
-                    url: '/api/v1/admin/Delete-Roles',
+                    url: `${BASE_URL}/Delete-Roles`,
                     type: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify({ ID: parseInt(roleId) })

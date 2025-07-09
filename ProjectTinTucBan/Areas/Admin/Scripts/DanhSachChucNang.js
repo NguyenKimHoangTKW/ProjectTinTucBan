@@ -1,9 +1,10 @@
-﻿$(document).ready(function () {
+﻿const  BASE_URL= '/api/v1/admin';
+$(document).ready(function () {
     // Biến toàn cục
     let dataTableInstance = null;
     let isMobile = window.innerWidth < 768;
-
-    // Khởi tạo các thành phần và sự kiện
+    
+    // Khởi tạo các thành phần và sự kiện`${BASE_URL}
     initializeComponents();
     setupEventHandlers();
     loadFunctionList();
@@ -161,7 +162,7 @@
         showLoading();
 
         $.ajax({
-            url: '/api/v1/admin/Get-All-Functions',
+            url: `${BASE_URL}/Get-All-Functions`,
             type: 'GET',
             dataType: 'json',
             cache: false,
@@ -330,7 +331,7 @@
 
 
             const response = await $.ajax({
-                url: `/api/v1/admin/Get-All-Functions`,
+                url: `${BASE_URL}/Get-All-Functions`,
                 type: 'GET'
             });
 
@@ -391,7 +392,7 @@
             showLoading();
 
             const response = await $.ajax({
-                url: `/api/v1/admin/Get-All-Functions`,
+                url: `${BASE_URL}/Get-All-Functions`,
                 type: 'GET'
             });
 
@@ -449,7 +450,7 @@
             showLoading();
 
             const res = await $.ajax({
-                url: '/api/v1/admin/Create-Function',
+                url: `${BASE_URL}/Create-Function`,
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({
@@ -516,7 +517,7 @@
             showLoading();
 
             const res = await $.ajax({
-                url: `/api/v1/admin/Update-Function/${functionId}`,
+                url: `${BASE_URL}/Update-Function/${functionId}`,
                 type: 'PUT',
                 contentType: 'application/json',
                 data: JSON.stringify({
@@ -578,7 +579,7 @@
                     showLoading();
 
                     const res = await $.ajax({
-                        url: `/api/v1/admin/Delete-Function/${functionId}`,
+                        url: `${BASE_URL}/Delete-Function/${functionId}`,
                         type: 'DELETE'
                     });
 
@@ -793,7 +794,7 @@ function loadMenuTable() {
 
     // Use jQuery AJAX for consistency with your other code
     $.ajax({
-        url: '/api/v1/admin/get-menus',
+        url: `${BASE_URL}/get-menus`,
         type: 'GET',
         dataType: 'json',
         success: function (data) {
@@ -837,7 +838,7 @@ async function loadFunctionMenus(functionId) {
 
         // Then fetch the function's associated menus
         const response = await $.ajax({
-            url: `/api/v1/admin/function-menus/${functionId}`,
+            url: `${BASE_URL}/function-menus/${functionId}`,
             type: 'GET'
         });
 

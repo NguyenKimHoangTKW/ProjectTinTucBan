@@ -36,9 +36,6 @@
 
             data.forEach(menu => {
                 // Skip menus where IsImportant === 2
-                if (menu.IsImportant === 2) {
-                    return;
-                }
 
                 const $icon = getMenuIconElement(menu.IconName);
 

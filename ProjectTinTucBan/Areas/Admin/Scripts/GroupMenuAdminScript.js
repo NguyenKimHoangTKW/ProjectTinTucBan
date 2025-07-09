@@ -24,7 +24,33 @@ function loadGroupMenus() {
 // Biến toàn cục theo dõi trạng thái tab hiện tại
 var currentActiveTabId = null;
 var foundActive = false;
+/*
+function wrapText(text, maxLength) {
+    if (text.includes(' ')) {
+        const words = text.split(' ');
+        let result = '';
+        let line = '';
 
+        for (let word of words) {
+            if ((line + word).length > maxLength) {
+                result += line.trim() + '\n';
+                line = '';
+            }
+            line += word + ' ';
+        }
+        result += line.trim();
+
+        return result;
+    } else {
+        return text.match(new RegExp('.{1,' + maxLength + '}', 'g')).join('\n');
+    }
+}*/
+function truncateString(str, maxLength) {
+    if (str.length <= maxLength) {
+        return str;
+    }
+    return str.slice(0, maxLength - 3) + '...';
+}
 function renderGroupMenuTabs(groupMenus) {
     if (!groupMenus || groupMenus.length === 0) {
         $('#groupMenuTabsContainer').html('<div class="alert alert-info">Không có group menu nào.</div>');
@@ -39,6 +65,8 @@ function renderGroupMenuTabs(groupMenus) {
             default: return 'Không xác định';
         }
     }
+
+    
 
     var tabList = '';
     var tabContent = '';
@@ -58,6 +86,8 @@ function renderGroupMenuTabs(groupMenus) {
             isActive = true;
             currentActiveTabId = tabId;
         }
+
+        
 
         // Tạo nút xóa chỉ khi IsImportant !== 1
         var deleteButtonHtml = '';
@@ -83,12 +113,12 @@ function renderGroupMenuTabs(groupMenus) {
                         ${group.Ten}
                     </a>
                     <div class="btn-group btn-group-sm d-flex flex-wrap flex-md-nowrap ml-md-2 mt-2 mt-md-0" role="group">
-                        <button class="btn btn-primary add-menu-to-group-btn" 
+                        <button class="btn btn-sm btn-primary add-menu-to-group-btn" 
                                 data-id="${group.ID}" 
                                 title="Thêm menu vào group">
                             <i class="fas fa-plus"></i><span class="d-none d-md-inline ml-1">Thêm</span>
                         </button>
-                        <button class="btn btn-warning edit-groupmenu-btn" 
+                        <button class="btn btn-sm btn-warning edit-groupmenu-btn" 
                                 data-id="${group.ID}" 
                                 data-ten="${group.Ten}"
                                 data-asignto="${group.AsignTo}"
@@ -132,13 +162,16 @@ function renderGroupMenuTabs(groupMenus) {
                 }
             });
 
+            
+
             menuContent = '<ul class="list-group list-group-flush">';
             menuMap.forEach(function (menu) {
+                var MnName = escapeHtml(truncateString(menu.MenuName, 30)); 
                 menuContent += `
                     <li class="list-group-item">
                         <div class="d-flex justify-content-between align-items-center flex-wrap">
                             <div>
-                                <strong>${menu.MenuName}</strong>
+                                <strong>${MnName}</strong>
                                 ${menu.MenuLink ? `<span class="text-muted ml-2">(${menu.MenuLink})</span>` : ''}
                             </div>
                             <button class="btn btn-sm btn-outline-danger delete-menu-from-group-btn mt-2 mt-md-0" 
@@ -278,10 +311,11 @@ function renderSubMenus(subMenus, menuId, groupId) {
 
     var html = '<ul class="list-group list-group-flush ml-3 mt-2">';
     subMenus.forEach(function (sub) {
+        var SubName = escapeHtml(truncateString(sub.SubMenuName, 30)); 
         html += `
             <li class="list-group-item py-1 px-2">
                 <div class="d-flex justify-content-between align-items-center">
-                    <span>${sub.SubMenuName} ${sub.SubMenuLink ? `<span class="text-muted ml-2">(${sub.SubMenuLink})</span>` : ''}</span>
+                    <span>${SubName} ${sub.SubMenuLink ? `<span class="text-muted ml-2">(${sub.SubMenuLink})</span>` : ''}</span>
                     <button class="btn btn-sm btn-outline-danger delete-submenu-btn"
                             data-submenuid="${sub.SubMenuId}" 
                             data-menuid="${menuId}" 

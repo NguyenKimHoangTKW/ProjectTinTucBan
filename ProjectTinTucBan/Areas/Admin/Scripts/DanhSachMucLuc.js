@@ -1,4 +1,5 @@
-﻿// Initialize Select2 components if available
+﻿const BASE_URL ='/api/v1/admin/';
+// Initialize Select2 components if available
 $(document).ready(function () {
     if ($.fn.select2) {
         $(".select2").select2();
@@ -152,7 +153,7 @@ $(document).on("click", "#btnDelete", function () {
 async function delete_muc_luc(id) {
     try {
         const res = await $.ajax({
-            url: `/api/v1/admin/Delete-Muc-Luc`,
+            url: `${BASE_URL}/Delete-Muc-Luc`,
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({
@@ -400,7 +401,7 @@ async function load_data() {
 async function get_muc_luc_by_id(id) {
     try {
         const res = await $.ajax({
-            url: `/api/v1/admin/Get-Muc-Luc-By-Id/${id}`,
+            url: `${BASE_URL}/Get-Muc-Luc-By-Id/${id}`,
             type: 'GET'
         });
 

@@ -29,11 +29,7 @@
     <div class="container-fluid">
         <!-- Session info will be displayed here by JavaScript -->
         <!-- Thống kê -->
-        <div class="row">
-            <div id="chartContainer" style="width:100%; max-width:700px; margin:40px auto; display:none;">
-                <div id="viewsChart"></div>
-            </div>
-        </div>
+
         <div class="row">
             <div class="col-md-3">
                 <div class="card">
@@ -77,7 +73,7 @@
                                 <p class="m-b-0 text-muted">Lượt xem theo năm</p>
                             </div>
                         </div>
-                    </div>
+                    </div>  
                 </div>
             </div>
             <div class="col-md-3">
@@ -97,6 +93,11 @@
             </div>
         </div>
 
+        <div class="row">
+            <div id="chartContainer" style="width:100%; max-width:1000px; height:500px; margin:40px auto; display:none; ">
+                <div id="viewsChart" style="height:100%; "></div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -105,17 +106,38 @@
         width: 50px;
         height: 50px;
     }
+    #chartContainer {
+        width: 100%;
+        max-width: 1000px;
+        height: 500px;
+        margin: 40px auto;
+    }
+
+    #viewsChart {
+        height: 100%;
+    }
+
+
 </style>
 
 
 @section scriptsAdmin {
     <script src="~/Areas/Admin/Scripts/CheckSession.js"></script>
 
-    <!-- Chartist CSS -->
+    <script src="~/Scripts/jquery-3.7.0.min.js"></script>
+
+    <!-- Chartist CSS (local) -->
     <link href="~/Areas/assets/vendors/chartist/chartist.min.css" rel="stylesheet" />
-    <!-- Chartist JS -->
+
+    <!-- Chartist Tooltip CSS (CDN hoặc local nếu có) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chartist-plugin-tooltips@0.0.17/dist/chartist-plugin-tooltip.css" />
+
+    <!-- Chartist JS (local) -->
     <script src="~/Areas/assets/vendors/chartist/chartist.min.js"></script>
-    <!-- DashboardScript.js -->
+
+    <!-- Chartist Tooltip JS (CDN hoặc local nếu có) -->
+    <script src="https://cdn.jsdelivr.net/npm/chartist-plugin-tooltips@0.0.17/dist/chartist-plugin-tooltip.min.js"></script>
+
     <script src="~/Areas/Admin/Scripts/DashboardScript.js"></script>
 }
 
