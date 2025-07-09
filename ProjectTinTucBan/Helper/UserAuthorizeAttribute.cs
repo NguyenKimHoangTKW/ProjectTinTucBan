@@ -44,12 +44,14 @@ namespace ProjectTinTucBan.Helper
             if (user != null)
             {
                 // User is logged in but doesn't have permission
-                filterContext.Result = new RedirectResult("~/Admin/InterfaceAdmin/Index");
+
+                filterContext.Result = new RedirectResult("~/Admin/InterfaceAmin/Index");
             }
             else
             {
                 // User is not logged in, redirect to login page
-                filterContext.Result = new RedirectResult("~/Home/Login");
+
+                filterContext.Result = new RedirectResult("~/Admin/InterfaceAdmin/Login");
             }
         }
     }

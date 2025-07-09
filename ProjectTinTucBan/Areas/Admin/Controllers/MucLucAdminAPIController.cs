@@ -36,7 +36,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                        x.NgayCapNhat,
                        x.NgayDang,
                        x.IsActive
-  
+
                    })
                    .ToListAsync();
 
@@ -140,7 +140,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     ThuTuShow = Item.ThuTuShow,
                     NgayDang = unixTimestamp,
                     NgayCapNhat = unixTimestamp,
-                    IsActive = Item.IsActive 
+                    IsActive = Item.IsActive
                 };
 
                 db.MucLucs.Add(newMucLuc);

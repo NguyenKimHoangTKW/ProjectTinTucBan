@@ -15,6 +15,24 @@ namespace ProjectTinTucBan.Controllers
         {
             return View(); // ~/Views/Home/Index.cshtml
         }
+        public ActionResult TinTuc()
+        {
+            return View();
+        }
+        [Route("danh-sach-bai-viet")]
+        public ActionResult DanhSachBaiViet(int mucId, string slug)
+        {
+            var muc = db.MucLucs.FirstOrDefault(m => m.ID == mucId);
+            if (muc == null)
+                return HttpNotFound();
+
+            ViewBag.MucId = mucId;
+            ViewBag.Slug = slug;
+            ViewBag.TenMucLuc = muc.TenMucLuc; // ✅ Gán tên có dấu cho View hiển thị
+
+            return View();
+        }
+
 
         // Gọi hàm thiết kế giao diện đăng nhập
         public ActionResult Login()

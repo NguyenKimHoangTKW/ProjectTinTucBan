@@ -24,7 +24,8 @@ namespace ProjectTinTucBan.Controllers.Api
                 tenKhoi = k.TenKhoi,
                 thuTuShow = k.ThuTuShow,
                 ngayDang = k.NgayDang,
-                ngayCapNhat = k.NgayCapNhat
+                ngayCapNhat = k.NgayCapNhat,
+                isActive = k.IsActive == 1
             }).ToList();
             return Ok(khois);
         }
@@ -41,7 +42,8 @@ namespace ProjectTinTucBan.Controllers.Api
                     tenKhoi = k.TenKhoi,
                     thuTuShow = k.ThuTuShow,
                     ngayDang = k.NgayDang,
-                    ngayCapNhat = k.NgayCapNhat
+                    ngayCapNhat = k.NgayCapNhat,
+                    isActive = k.IsActive == 1
                 })
                 .FirstOrDefault();
             if (khoi == null)
@@ -63,12 +65,7 @@ namespace ProjectTinTucBan.Controllers.Api
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            // Kiểm tra trùng thứ tự
-            bool isDuplicate = db.Khois.Any(x => x.ThuTuShow == khoi.ThuTuShow);
-            if (isDuplicate)
-                return BadRequest("Thứ tự đã tồn tại, vui lòng chọn giá trị khác.");
-
-            khoi.NgayDang = khoi.NgayCapNhat = (int)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds;
+            khoi.NgayDang = khoi.NgayCapNhat = GetUnixTimestamp();
             db.Khois.Add(khoi);
             db.SaveChanges();
             return Ok(new
@@ -77,7 +74,8 @@ namespace ProjectTinTucBan.Controllers.Api
                 tenKhoi = khoi.TenKhoi,
                 thuTuShow = khoi.ThuTuShow,
                 ngayDang = khoi.NgayDang,
-                ngayCapNhat = khoi.NgayCapNhat
+                ngayCapNhat = khoi.NgayCapNhat,
+                isActive = khoi.IsActive == 1
             });
         }
 
@@ -93,14 +91,9 @@ namespace ProjectTinTucBan.Controllers.Api
             if (existing == null)
                 return NotFound();
 
-            // Kiểm tra trùng thứ tự (loại trừ chính bản ghi đang sửa)
-            bool isDuplicate = db.Khois.Any(x => x.ThuTuShow == khoi.ThuTuShow && x.ID != id);
-            if (isDuplicate)
-                return BadRequest("Thứ tự đã tồn tại, vui lòng chọn giá trị khác.");
-
             existing.TenKhoi = khoi.TenKhoi;
             existing.ThuTuShow = khoi.ThuTuShow;
-            existing.NgayCapNhat = (int)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds;
+            existing.NgayCapNhat = GetUnixTimestamp();
             db.SaveChanges();
             return Ok(new
             {
@@ -108,8 +101,29 @@ namespace ProjectTinTucBan.Controllers.Api
                 tenKhoi = existing.TenKhoi,
                 thuTuShow = existing.ThuTuShow,
                 ngayDang = existing.NgayDang,
-                ngayCapNhat = existing.NgayCapNhat
+                ngayCapNhat = existing.NgayCapNhat,
+                isActive = existing.IsActive == 1
             });
+        }
+
+        // PUT: api/Khoi/ToggleTrangThai/5
+        [HttpPut]
+        [Route("ToggleTrangThai/{id:int}")]
+        public IHttpActionResult ToggleTrangThai(int id, [FromBody] ToggleTrangThaiModel model)
+        {
+            var khoi = db.Khois.Find(id);
+            if (khoi == null)
+                return NotFound();
+
+            khoi.IsActive = model.IsActive ? 1 : 0;
+            khoi.NgayCapNhat = GetUnixTimestamp();
+            db.SaveChanges();
+            return Ok();
+        }
+
+        public class ToggleTrangThaiModel
+        {
+            public bool IsActive { get; set; }
         }
 
         // DELETE: api/Khoi/5
@@ -130,7 +144,6 @@ namespace ProjectTinTucBan.Controllers.Api
         private void HandleError(Exception ex)
         {
             var errorMessage = ex.Message ?? "Không thể lưu dữ liệu.";
-
         }
     }
 }

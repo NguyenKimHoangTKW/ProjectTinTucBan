@@ -1,6 +1,8 @@
-﻿﻿$(function () {
+
+﻿$(function () {
+    const BASE_URL = '/api/v1/admin';
     function loadSideNav() {
-        $.getJSON('/api/v1/admin/get-user-menus')
+        $.getJSON(`${BASE_URL}/get-user-menus`)
             .done(function (menus) {
                 if (!menus || !Array.isArray(menus) || menus.length === 0) return;
 
@@ -123,4 +125,5 @@
     }
 
     loadSideNav();
- });
+
+}); 

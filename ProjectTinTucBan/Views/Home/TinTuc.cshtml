@@ -1,0 +1,69 @@
+﻿@{
+    ViewBag.Title = "Tin tức";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-center text-blue-800 mb-8 uppercase">Tin tức</h1>
+
+    <div id="tinTucList" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+    <!-- Nút Xem thêm -->
+    <div class="text-center mt-6">
+        <a href="#" class="inline-block border border-gray-300 hover:border-orange-600 text-gray-700 hover:text-orange-600 px-6 py-2 rounded transition">Xem thêm</a>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+
+        function formatDate(unixTimestamp) {
+            if (!unixTimestamp) return "N/A";
+
+            var date = new Date(unixTimestamp * 1000);
+            var weekdays = ['Chủ Nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+            var dayOfWeek = weekdays[date.getDay()];
+            var month = ("0" + (date.getMonth() + 1)).slice(-2);
+            var day = ("0" + date.getDate()).slice(-2);
+            var year = date.getFullYear();
+            var hours = ("0" + date.getHours()).slice(-2);
+            var minutes = ("0" + date.getMinutes()).slice(-2);
+            var seconds = ("0" + date.getSeconds()).slice(-2);
+            var formattedDate = dayOfWeek + ', ' + day + "-" + month + "-" + year + " " + hours + ":" + minutes + ":" + seconds;
+            return formattedDate;
+        }
+
+        $(document).ready(function () {
+            $.get("/api/v1/home/get-mucluc-with-baiviet", function (res) {
+                if (!res.success || !res.data) {
+                    $("#tinTucList").html("<p class='col-span-3 text-center text-gray-500'>Không có dữ liệu.</p>");
+                    return;
+                }
+
+                const mucTinTuc = res.data.find(m => m.TenMucLuc.toLowerCase().includes("tin tức"));
+                if (!mucTinTuc || mucTinTuc.BaiViets.length === 0) {
+                    $("#tinTucList").html("<p class='col-span-3 text-center text-gray-500'>Không có bài viết nào trong mục Tin tức.</p>");
+                    return;
+                }
+
+                let html = "";
+                mucTinTuc.BaiViets.forEach(bv => {
+                    const date = formatDate(bv.NgayDang);
+                    const thumb = bv.LinkThumbnail || "/images/default.jpg";
+                    const moTa = bv.MoTa || "";
+                    const tieuDe = bv.TieuDe || "Không có tiêu đề";
+
+                    html += `
+                        <div class="bg-white rounded shadow hover:shadow-md transition overflow-hidden flex flex-col h-full">
+                            <img src="${thumb}" class="w-full h-[180px] object-cover" alt="Ảnh">
+                            <div class="p-4 flex flex-col flex-1">
+                                <a href="/noi-dung/${bv.ID}" class="text-base font-semibold text-gray-800 hover:text-orange-600 leading-snug line-clamp-2">${tieuDe}</a>
+                                <p class="text-sm text-gray-500 mt-2"><i class="fa-regular fa-calendar-days mr-1"></i>${date}</p>
+                            </div>
+                        </div>`;
+                });
+
+                $("#tinTucList").html(html);
+            });
+        });
+    </script>
+}

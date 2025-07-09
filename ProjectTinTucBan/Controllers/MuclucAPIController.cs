@@ -10,7 +10,22 @@ namespace ProjectTinTucBan.ApiControllers
     public class MuclucAPIController : ApiController
     {
         private WebTinTucTDMUEntities db = new WebTinTucTDMUEntities();
-       
+
+        [HttpGet]
+        [Route("get-slider")]
+        public IHttpActionResult GetSlider()
+        {
+            var sliders = db.Sliders
+                .Where(s => s.isActive == true)
+                .OrderBy(s => s.ThuTuShow)
+                .Select(s => new
+                {
+                    s.ID,
+                    s.LinkHinh
+                }).ToList();
+
+            return Ok(sliders);
+        }
 
         [HttpGet]
         [Route("get-baiviet-by-id/{id:int}")]

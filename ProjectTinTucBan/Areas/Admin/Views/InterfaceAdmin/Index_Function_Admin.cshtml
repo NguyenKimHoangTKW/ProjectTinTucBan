@@ -1,12 +1,10 @@
-﻿@{
+﻿﻿﻿@{
     ViewBag.Title = "Quản lý chức năng admin";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
 <div class="main-content">
     <div class="container-fluid">
-        <h2 class="header-title">Quản lý chức năng</h2>
-        <hr />
         <!-- Header và breadcrumb -->
         <div class="page-header">
             <h2 class="header-title">Quản lý chức năng Admin</h2>
@@ -234,14 +232,14 @@
         margin-bottom: 20px;
     }
 
-    #data-table thead th {
-        padding: 15px 10px;
-        border-bottom: 1px solid #e8e8e8;
-        font-weight: 500;
-        color: #fff;
-        background-color: #5a8dee;
-        text-align: center !important;
-    }
+        #data-table thead th {
+            padding: 15px 10px;
+            border-bottom: 1px solid #e8e8e8;
+            font-weight: 500;
+            color: #fff;
+            background-color: #5a8dee;
+            text-align: center !important;
+        }
 
         #data-table tbody td {
             padding: 15px 10px;
@@ -249,20 +247,18 @@
             color: #333;
             text-align: left;
             vertical-align: middle;
-            border: 1px solid #dee2e6 !important;
-            border-collapse: collapse !important;
         }
 
-    #data-table tbody td:first-child,
-    #data-table tbody td:last-child,
-    #data-table tbody td:nth-child(5),
-    #data-table tbody td:nth-child(6) {
-        text-align: center;
-    }
+            #data-table tbody td:first-child,
+            #data-table tbody td:last-child,
+            #data-table tbody td:nth-child(5),
+            #data-table tbody td:nth-child(6) {
+                text-align: center;
+            }
 
-    #data-table tbody tr:hover {
-        background-color: #f8f8f8;
-    }
+        #data-table tbody tr:hover {
+            background-color: #f8f8f8;
+        }
 
     /* Table Responsive */
     .table-responsive {
@@ -277,24 +273,24 @@
         justify-content: flex-end;
     }
 
-    .dataTables_paginate .paginate_button {
-        padding: 5px 10px;
-        margin: 0 2px;
-        border: 1px solid #e8e8e8;
-        border-radius: 4px;
-        background: white;
-        cursor: pointer;
-    }
+        .dataTables_paginate .paginate_button {
+            padding: 5px 10px;
+            margin: 0 2px;
+            border: 1px solid #e8e8e8;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+        }
 
-    .dataTables_paginate .paginate_button.current {
-        background-color: #5a8dee;
-        color: white !important;
-        border-color: #5a8dee;
-    }
+            .dataTables_paginate .paginate_button.current {
+                background-color: #5a8dee;
+                color: white !important;
+                border-color: #5a8dee;
+            }
 
-    .dataTables_paginate .paginate_button:hover:not(.current) {
-        background-color: #f8f8f8;
-    }
+            .dataTables_paginate .paginate_button:hover:not(.current) {
+                background-color: #f8f8f8;
+            }
 
     /* Thiết lập tùy chỉnh hiển thị số mục */
     .dataTables_length select {
@@ -330,30 +326,30 @@
         color: white;
     }
 
-    .btn-detail:hover {
-        background-color: #40a9ff;
-        color: white;
-    }
+        .btn-detail:hover {
+            background-color: #40a9ff;
+            color: white;
+        }
 
     .btn-edit {
         background-color: #ffc107;
         color: #212529;
     }
 
-    .btn-edit:hover {
-        background-color: #e0a800;
-        color: #212529;
-    }
+        .btn-edit:hover {
+            background-color: #e0a800;
+            color: #212529;
+        }
 
     .btn-delete {
         background-color: #dc3545;
         color: white;
     }
 
-    .btn-delete:hover {
-        background-color: #c82333;
-        color: white;
-    }
+        .btn-delete:hover {
+            background-color: #c82333;
+            color: white;
+        }
 
     /* ===== MODAL STYLES ===== */
     .modal-header {
@@ -387,10 +383,10 @@
             box-shadow: 0 0 0 0.1rem rgba(90, 141, 238, 0.25);
         }
 
-    
-    .form-control[readonly] {
-        cursor: not-allowed;
-    }
+
+        .form-control[readonly] {
+            cursor: not-allowed;
+        }
 
     .input-group-text {
         background-color: #f8f9fa;
@@ -413,21 +409,21 @@
         margin-bottom: 15px;
     }
 
-    .detail-group label {
-        font-weight: bold;
-        display: block;
-        margin-bottom: 5px;
-        color: #333;
-    }
+        .detail-group label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
 
-    .detail-group .detail-value {
-        padding: 10px 12px;
-        background-color: #f8f9fa;
-        border-radius: 4px;
-        min-height: 24px;
-        word-break: break-word;
-        border: 1px solid #e8e8e8;
-    }
+        .detail-group .detail-value {
+            padding: 10px 12px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            min-height: 24px;
+            word-break: break-word;
+            border: 1px solid #e8e8e8;
+        }
 
     /* ===== RESPONSIVE STYLES ===== */
     /* Utility classes */
@@ -450,18 +446,15 @@
         .text-md-right {
             text-align: center !important;
         }
-
         /* Header */
         .header-title {
             font-size: 1.5rem;
         }
-
         /* Button adjustments */
         #btnAddFunction {
             margin-bottom: 1rem;
             width: 100%;
         }
-
         /* Table adjustments */
         #data-table,
         #data-table thead,
@@ -471,7 +464,6 @@
         #data-table tr {
             font-size: 14px;
         }
-
         /* Mobile search */
         .dataTables_filter {
             display: none; /* Hidden on mobile */
@@ -481,7 +473,6 @@
             display: block;
             margin-bottom: 15px;
         }
-
         /* Action buttons adjustment */
         .action-buttons {
             display: flex;
@@ -495,10 +486,9 @@
             width: auto;
         }
 
-        .btn-action .anticon {
-            font-size: 14px;
-        }
-
+            .btn-action .anticon {
+                font-size: 14px;
+            }
         /* Pagination */
         .dataTables_paginate {
             display: flex;
@@ -507,10 +497,10 @@
             margin-top: 15px;
         }
 
-        .dataTables_paginate .paginate_button {
-            padding: 8px 12px;
-            margin: 3px;
-        }
+            .dataTables_paginate .paginate_button {
+                padding: 8px 12px;
+                margin: 3px;
+            }
 
         .dataTables_length,
         .dataTables_info {
@@ -519,7 +509,6 @@
             display: block !important;
             margin: 10px 0 !important;
         }
-
         /* Modal adjustments */
         .modal-dialog {
             margin: 10px auto;
@@ -537,12 +526,11 @@
             flex-wrap: wrap;
         }
 
-        .modal-footer .btn {
-            margin: 5px;
-            min-width: 45%;
-            padding: 8px 16px;
-        }
-
+            .modal-footer .btn {
+                margin: 5px;
+                min-width: 45%;
+                padding: 8px 16px;
+            }
         /* Detail view adjustments */
         .detail-group label {
             font-size: 14px;

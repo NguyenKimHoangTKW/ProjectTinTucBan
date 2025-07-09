@@ -1,4 +1,6 @@
-﻿
+
+﻿const BASE_URL ='/api/v1/admin/';
+// Initialize Select2 components if available
 $(document).ready(function () {
     if ($.fn.select2) {
         $(".select2").select2();
@@ -45,7 +47,7 @@ function setupMucLucModalEvents() {
     });
 
     // Xử lý khi chuyển đổi trạng thái
-    $(document).on("change", ".toggle-status", function() {
+    $(document).on("change", ".toggle-status", function () {
         const id = $(this).data("id");
         const isChecked = $(this).prop("checked");
         toggleMucLucStatus(id, isChecked);
@@ -58,7 +60,7 @@ function openMucLucModalForAdd() {
     $("#mucLucForm")[0].reset();
     $("#mucLucId").val("");
     $("#formMode").val("add");
-    
+
     // Mặc định IsActive là true
     $("#isActive").prop("checked", true);
 
@@ -152,7 +154,7 @@ $(document).on("click", "#btnDelete", function () {
 async function delete_muc_luc(id) {
     try {
         const res = await $.ajax({
-            url: `/api/v1/admin/Delete-Muc-Luc`,
+            url: `${BASE_URL}/Delete-Muc-Luc`,
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({
@@ -407,7 +409,7 @@ async function get_muc_luc_by_id(id) {
         showLoading('#mucLucModal .modal-body', 'Đang tải thông tin mục lục...');
 
         const res = await $.ajax({
-            url: `/api/v1/admin/Get-Muc-Luc-By-Id/${id}`,
+            url: `${BASE_URL}/Get-Muc-Luc-By-Id/${id}`,
             type: 'GET'
         });
         hideLoading('#mucLucModal .modal-body');

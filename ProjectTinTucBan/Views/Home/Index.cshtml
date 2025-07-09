@@ -1,4 +1,4 @@
-﻿@model ProjectTinTucBan.Models.BaiViet
+﻿﻿@model ProjectTinTucBan.Models.BaiViet
 @{
     ViewBag.Title = "Trang chủ";
     var imageList = new[] {
@@ -51,8 +51,6 @@
                     </div>
                 }
             </div>
-
-            <!-- Nút điều hướng Swiper -->
             <div class="swiper-button-next text-white"></div>
             <div class="swiper-button-prev text-white"></div>
             <div class="swiper-pagination"></div>
@@ -73,7 +71,7 @@
             <div class="w-full aspect-video">
                 <iframe id="video"
                         class="w-full h-full rounded shadow-lg"
-                        src="https://www.youtube.com/embed/oFdIkvZf6Wg?enablejsapi=1"
+                        src=""
                         title="YouTube video player"
                         frameborder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -94,9 +92,7 @@
                         </div>
                         <div>
                             <p class="font-semibold text-gray-700">Tên đầy đủ</p>
-                            <p class="text-red-600 font-bold">
-                                BAN KHẢO THÍ, KIỂM ĐỊNH VÀ ĐẢM BẢO CHẤT LƯỢNG
-                            </p>
+                            <p class="text-red-600 font-bold" id="fullName"></p>
                         </div>
                     </div>
 
@@ -106,10 +102,7 @@
                         </div>
                         <div>
                             <p class="font-semibold text-gray-700">Tên tiếng Anh</p>
-                            <p class="text-red-600 font-bold leading-snug">
-                                DEPARTMENT OF EDUCATIONAL TESTING,<br />
-                                ACCREDITATION AND QUALITY ASSURANCE
-                            </p>
+                            <p class="text-red-600 font-bold leading-snug" id="englishName"></p>
                         </div>
                     </div>
 
@@ -119,16 +112,16 @@
                         </div>
                         <div>
                             <p class="font-semibold text-gray-700">Ngày thành lập</p>
-                            <p class="text-blue-700 font-bold">17/7/2024</p>
+                            <p class="text-blue-700 font-bold" id="established"></p>
                         </div>
                     </div>
                 </div>
 
                 <div class="flex items-center gap-4 mb-8">
-                    <button class="bg-blue-600 text-white px-6 py-2 rounded shadow hover:bg-blue-700 transition">
+                    <button id="btnChiTiet" class="bg-blue-600 text-white px-6 py-2 rounded shadow hover:bg-blue-700 transition">
                         CHI TIẾT
                     </button>
-                    <a href="#video" class="flex items-center gap-2 text-black hover:text-blue-700">
+                    <a href="#video" id="btnWatchVideo" class="flex items-center gap-2 text-black hover:text-blue-700">
                         <div class="border border-blue-600 rounded-full p-2 text-blue-600">
                             <i class="fas fa-play"></i>
                         </div>
@@ -139,22 +132,36 @@
                 <div class="border-t pt-4 text-sm space-y-2 text-gray-800">
                     <div class="flex items-center gap-2">
                         <i class="fas fa-map-marker-alt text-blue-600"></i>
-                        <span>Đây G, Số 06, đường Trần Văn Ơn, phường Phú Hòa, Tp. Thủ Dầu Một, Bình Dương</span>
+                        <span id="address"></span>
                     </div>
                     <div class="flex items-center gap-2">
                         <i class="fas fa-phone text-blue-600"></i>
-                        <span>(0274) 3822518-3-114</span>
+                        <span id="phone"></span>
                     </div>
                     <div class="flex items-center gap-2">
                         <i class="fas fa-envelope text-blue-600"></i>
-                        <a href="mailto:bdbcl@tdmu.edu.vn" class="text-blue-600 hover:underline">
-                            Bdbcl@tdmu.edu.vn
-                        </a>
+                        <a id="email" class="text-blue-600 hover:underline"></a>
                     </div>
                 </div>
             </div>
         </div>
     </section>
+
+    <!-- Video Modal Popup -->
+    <div id="videoModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 hidden">
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden relative w-full max-w-2xl">
+            <button id="closeVideoModal" class="absolute top-2 right-2 text-gray-600 hover:text-red-600 text-2xl font-bold">&times;</button>
+            <div class="aspect-video w-full">
+                <iframe id="popupVideo"
+                        class="w-full h-full"
+                        src=""
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowfullscreen>
+                </iframe>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
@@ -180,6 +187,59 @@
         window.mucLucData = {};
 
         $(document).ready(function () {
+            // Nạp dữ liệu giới thiệu + video + footer từ JSON
+            fetch('/Content/data.json')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('video').src = data.videoUrl;
+                    document.getElementById('fullName').textContent = data.fullName;
+                    document.getElementById('englishName').innerHTML = data.englishName.replaceAll(',', '<br>');
+                    document.getElementById('established').textContent = data.established;
+                    document.getElementById('address').textContent = data.address;
+                    document.getElementById('phone').textContent = data.phone;
+                    document.getElementById('email').textContent = data.email;
+                    document.getElementById('email').href = 'mailto:' + data.email;
+
+                    // Footer động
+                    document.getElementById('footerCopyright').textContent = data.footerCopyright || "";
+                    document.getElementById('footerNote').textContent = data.footerNote || "";
+
+                    // Xử lý play video khi nhấn "Watch Video" (hiện popup)
+                    document.getElementById('btnWatchVideo').addEventListener('click', function (e) {
+                        e.preventDefault();
+                        var modal = document.getElementById('videoModal');
+                        var popupVideo = document.getElementById('popupVideo');
+                        var url = data.videoUrl;
+                        if (!url.includes('autoplay=1')) {
+                            url += (url.includes('?') ? '&' : '?') + 'autoplay=1';
+                        }
+                        popupVideo.src = url;
+                        modal.classList.remove('hidden');
+                    });
+
+                    // Đóng modal khi nhấn nút đóng
+                    document.getElementById('closeVideoModal').addEventListener('click', function () {
+                        var modal = document.getElementById('videoModal');
+                        var popupVideo = document.getElementById('popupVideo');
+                        modal.classList.add('hidden');
+                        popupVideo.src = "";
+                    });
+
+                    // Đóng modal khi click ra ngoài nội dung
+                    document.getElementById('videoModal').addEventListener('click', function (e) {
+                        if (e.target === this) {
+                            this.classList.add('hidden');
+                            document.getElementById('popupVideo').src = "";
+                        }
+                    });
+
+                    // Xử lý chuyển hướng khi nhấn "CHI TIẾT"
+                    document.getElementById('btnChiTiet').addEventListener('click', function (e) {
+                        e.preventDefault();
+                        window.open('https://bdbcl.tdmu.edu.vn/danh-muc/Gioi-thieu/gioi-thieu-chung', '_blank');
+                    });
+                });
+
             $.get("/api/v1/home/get-mucluc-with-baiviet", function (res) {
                 if (!res.success || !res.data) {
                     $("#mucLucContainer").html("<p class='text-center text-gray-500'>Không có dữ liệu mục lục.</p>");
@@ -194,11 +254,11 @@
                     const allBaiViets = muc.BaiViets || [];
 
                     html += `<div id="${mucId}">
-                                <div class="text-center">
-                        <h3 class="inline-block bg-red-600 text-white text-sm sm:text-base md:text-lg font-semibold rounded-full px-6 py-2 mb-6 uppercase shadow">
-                            ${muc.TenMucLuc}
-                        </h3>
-                    </div>`;
+                                                    <div class="text-center">
+                                            <h3 class="inline-block bg-red-600 text-white text-sm sm:text-base md:text-lg font-semibold rounded-full px-6 py-2 mb-6 uppercase shadow">
+                                                ${muc.TenMucLuc}
+                                            </h3>
+                                        </div>`;
 
                     if (!allBaiViets.length) {
                         html += `<p class="text-gray-500 italic mb-4">Hiện tại chưa cập nhật bài viết nào.</p>`;
@@ -207,44 +267,44 @@
                         const xemNhieu = [...allBaiViets].sort((a, b) => (b.LuotXem ?? 0) - (a.LuotXem ?? 0)).slice(0, 5);
 
                         html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <h4 class="text-xl font-bold text-orange-600 mb-4 border-b border-orange-400 pb-2 uppercase">Thông báo mới</h4>
-                                        <ul class="space-y-4">`;
+                                                        <div>
+                                                            <h4 class="text-xl font-bold text-orange-600 mb-4 border-b border-orange-400 pb-2 uppercase">Thông báo mới</h4>
+                                                            <ul class="space-y-4">`;
 
                         moiNhat.forEach(bv => {
                             const date = formatDate(bv.NgayDang);
                             html += `<li class="flex gap-4 items-start">
-                            <div class="w-24 h-16 overflow-hidden rounded border flex-shrink-0">
-                                <img src="${bv.LinkThumbnail?.trim() || '/images/thong-bao-icon.png'}" class="w-full h-full object-cover" />
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <a href="/noi-dung/${bv.ID}" class="font-semibold text-lg text-blue-800 hover:underline block break-words">${bv.TieuDe}</a>
-                                <div class="text-sm text-gray-600 mt-1"><i class="far fa-clock mr-1"></i>${date}</div>
-                            </div>
-                        </li>`;
+                                                <div class="w-24 h-16 overflow-hidden rounded border flex-shrink-0">
+                                                    <img src="${bv.LinkThumbnail?.trim() || '/images/thong-bao-icon.png'}" class="w-full h-full object-cover" />
+                                                </div>
+                                                <div class="flex-1 min-w-0">
+                                                    <a href="/noi-dung/${bv.ID}" class="font-semibold text-lg text-blue-800 hover:underline block break-words">${bv.TieuDe}</a>
+                                                    <div class="text-sm text-gray-600 mt-1"><i class="far fa-clock mr-1"></i>${date}</div>
+                                                </div>
+                                            </li>`;
                         });
 
                         html += `</ul>
-                                    </div>
-                                    <div>
-                                        <h4 class="text-xl font-bold text-orange-600 mb-4 border-b border-orange-400 pb-2 uppercase">Thông báo được xem nhiều</h4>
-                                        <ul class="space-y-4">`;
+                                                        </div>
+                                                        <div>
+                                                            <h4 class="text-xl font-bold text-orange-600 mb-4 border-b border-orange-400 pb-2 uppercase">Thông báo được xem nhiều</h4>
+                                                            <ul class="space-y-4">`;
 
                         xemNhieu.forEach(bv => {
                             const date = formatDate(bv.NgayDang);
                             html += `<li class="flex gap-4 items-start">
-                            <div class="w-24 h-16 overflow-hidden rounded border flex-shrink-0 shadow-sm">
-                                <img src="${bv.LinkThumbnail?.trim() || '/images/thong-bao-icon.png'}" class="w-full h-full object-cover" />
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <a href="/noi-dung/${bv.ID}" class="font-semibold text-lg text-blue-800 hover:underline block break-words leading-snug">${bv.TieuDe}</a>
-                                <div class="text-sm text-gray-600 mt-1"><i class="far fa-eye mr-1"></i>${bv.LuotXem ?? 0} lượt xem</div>
-                            </div>
-                        </li>`;
+                                                <div class="w-24 h-16 overflow-hidden rounded border flex-shrink-0 shadow-sm">
+                                                    <img src="${bv.LinkThumbnail?.trim() || '/images/thong-bao-icon.png'}" class="w-full h-full object-cover" />
+                                                </div>
+                                                <div class="flex-1 min-w-0">
+                                                    <a href="/noi-dung/${bv.ID}" class="font-semibold text-lg text-blue-800 hover:underline block break-words leading-snug">${bv.TieuDe}</a>
+                                                    <div class="text-sm text-gray-600 mt-1"><i class="far fa-eye mr-1"></i>${bv.LuotXem ?? 0} lượt xem</div>
+                                                </div>
+                                            </li>`;
                         });
                         html += `</ul>
-                                    </div>
-                                </div>`;
+                                                        </div>
+                                                    </div>`;
                     } else {
                         // Lưu dữ liệu để phân trang
                         window.mucLucData[mucId] = {
@@ -253,16 +313,16 @@
                             perPage: 6
                         };
                         html += `
-                        <div id="muc-${mucId}">
-                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="list-${mucId}">
-                            </div>
-                            ${allBaiViets.length > 6
+                                            <div id="muc-${mucId}">
+                                                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="list-${mucId}">
+                                                </div>
+                                                ${allBaiViets.length > 6
                                 ? `<div class="text-center mt-6">
-                                        <button data-id="${mucId}" class="btn-xem-them bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Xem thêm</button>
-                                   </div>`
+                                                            <button data-id="${mucId}" class="btn-xem-them bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Xem thêm</button>
+                                                       </div>`
                                 : ''
                             }
-                        </div>`;
+                                            </div>`;
                     }
 
                     html += `</div>`;
@@ -312,17 +372,17 @@
                     const tieuDe = bv.TieuDe?.toUpperCase() ?? 'KHÔNG CÓ TIÊU ĐỀ';
 
                     html += `
-                    <div class="bg-white rounded shadow hover:shadow-md transition overflow-hidden flex flex-col h-full">
-                      <img src="${thumb}" class="w-full h-auto" alt="Thumbnail" />
-                        <div class="p-4 flex-1 flex flex-col">
-                            <a href="/noi-dung/${bv.ID}" class="font-bold text-blue-800 text-base sm:text-lg mb-2 hover:underline break-words whitespace-normal">${tieuDe}</a>
-                            <div class="text-sm text-gray-500 mb-2 flex items-center gap-3">
-                                <span><i class="far fa-clock mr-1"></i>${date}</span>
-                                <span><i class="far fa-eye mr-1"></i>${views}</span>
-                            </div>
-                            <p class="text-sm text-gray-700 line-clamp-2 break-words whitespace-normal">${moTa}</p>
-                        </div>
-                    </div>`;
+                                        <div class="bg-white rounded shadow hover:shadow-md transition overflow-hidden flex flex-col h-full">
+                                          <img src="${thumb}" class="w-full h-auto" alt="Thumbnail" />
+                                            <div class="p-4 flex-1 flex flex-col">
+                                                <a href="/noi-dung/${bv.ID}" class="font-bold text-blue-800 text-base sm:text-lg mb-2 hover:underline break-words whitespace-normal">${tieuDe}</a>
+                                                <div class="text-sm text-gray-500 mb-2 flex items-center gap-3">
+                                                    <span><i class="far fa-clock mr-1"></i>${date}</span>
+                                                    <span><i class="far fa-eye mr-1"></i>${views}</span>
+                                                </div>
+                                                <p class="text-sm text-gray-700 line-clamp-2 break-words whitespace-normal">${moTa}</p>
+                                            </div>
+                                        </div>`;
                 });
 
                 container.html(html);
@@ -335,5 +395,11 @@
             }
         });
     </script>
+    <footer class="bg-[#29A3E0] text-white text-sm py-6">
+        <div class="max-w-7xl mx-auto px-4 space-y-2 text-center sm:text-left">
+            <p id="footerCopyright"></p>
+            <p id="footerNote"></p>
+        </div>
+    </footer>
 </body>
 </html>

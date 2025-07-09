@@ -232,7 +232,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         // Del: api/v1/admin/Delete-User
         [HttpPost]
         [Route("Delete-User")]
-        public async Task<IHttpActionResult> DeleteRole(TaiKhoan Item) 
+        public async Task<IHttpActionResult> DeleteRole(TaiKhoan Item)
         {
             try
             {
@@ -268,7 +268,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 // Xóa TaiKhoan
                 db.TaiKhoans.Remove(existingRole);
                 await db.SaveChangesAsync();
-                return Ok(new { message = "Xóa tài khoản thành công", success = true }); 
+                return Ok(new { message = "Xóa tài khoản thành công", success = true });
             }
             catch (Exception ex)
             {

@@ -1,6 +1,6 @@
-﻿$(document).ready(function () {
+$(document).ready(function () {
     // Bắt sự kiện click vào nút đăng xuất
-    $('#logoutButton').on('click', function () {
+    $('#logoutButtons').on('click', function () {
         // Gọi API để xóa session
         $.ajax({
             url: '/api/v1/admin/clear_session',

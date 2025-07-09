@@ -1,0 +1,192 @@
+﻿@model ProjectTinTucBan.Models.TaiKhoan
+
+@{
+    ViewBag.Title = "Chỉnh sửa tài khoản";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+<!-- Ant Design Icons CDN -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ant-design/icons@4.7.0/dist/anticons.min.css" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<style>
+    .edit-container {
+        max-width: 600px;
+        margin: 50px auto;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+        padding: 32px 40px 24px 40px;
+    }
+
+    .edit-title {
+        text-align: center;
+        font-weight: 600;
+        margin-bottom: 32px;
+        color: #2c3e50;
+        letter-spacing: 1px;
+    }
+
+    .form-group label {
+        font-weight: 500;
+        color: #34495e;
+    }
+
+    .form-control[readonly] {
+        background-color: #f5f6fa;
+        color: #7f8c8d;
+        cursor: not-allowed;
+    }
+
+    .edit-icon {
+        transition: color 0.2s;
+        display: inline-flex;
+        align-items: center;
+        margin-left: 8px;
+    }
+
+        .edit-icon:hover {
+            color: #1890ff;
+        }
+
+    .btn-primary {
+        min-width: 100px;
+    }
+
+    .modal-title {
+        color: #1890ff;
+    }
+</style>
+
+<div class="edit-container">
+    <h2 class="edit-title">Chỉnh sửa tài khoản</h2>
+
+    @using (Html.BeginForm("EditTaiKhoan", "EditTaiKhoan", FormMethod.Post, new { id = "editTaiKhoanForm", autocomplete = "off" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-group row">
+            @Html.LabelFor(model => model.TenTaiKhoan, htmlAttributes: new { @class = "col-sm-4 col-form-label" })
+            <div class="col-sm-8">
+                @Html.EditorFor(model => model.TenTaiKhoan, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                @Html.ValidationMessageFor(model => model.TenTaiKhoan, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group row">
+            @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "col-sm-4 col-form-label" })
+            <div class="col-sm-8 d-flex align-items-center">
+                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control", id = "NameInput", @readonly = "readonly", style = "flex:1;" } })
+                <span class="edit-icon" data-target="#editModal" data-field="Name" style="font-size:20px; cursor:pointer;">
+                    <i class="anticon anticon-edit"></i>
+                </span>
+            </div>
+            <div class="col-sm-8 offset-sm-4">
+                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger w-100" })
+            </div>
+        </div>
+
+        <div class="form-group row">
+            @Html.LabelFor(model => model.Gmail, htmlAttributes: new { @class = "col-sm-4 col-form-label" })
+            <div class="col-sm-8">
+                @Html.EditorFor(model => model.Gmail, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                @Html.ValidationMessageFor(model => model.Gmail, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group row">
+            @Html.LabelFor(model => model.SDT, htmlAttributes: new { @class = "col-sm-4 col-form-label" })
+            <div class="col-sm-8 d-flex align-items-center">
+                @Html.EditorFor(model => model.SDT, new { htmlAttributes = new { @class = "form-control", id = "SDTInput", @readonly = "readonly", style = "flex:1;" } })
+                <span class="edit-icon" data-target="#editModal" data-field="SDT" style="font-size:20px; cursor:pointer;">
+                    <i class="anticon anticon-edit"></i>
+                </span>
+            </div>
+            <div class="col-sm-8 offset-sm-4">
+                @Html.ValidationMessageFor(model => model.SDT, "", new { @class = "text-danger w-100" })
+            </div>
+        </div>
+
+        <div class="form-group row mt-4">
+            <div class="col-sm-12 text-center">
+                <button type="submit" class="btn btn-primary" id="mainSaveBtn">Lưu thay đổi</button>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Chỉnh sửa thông tin</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Đóng">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="modalInput" class="form-control" />
+                <input type="hidden" id="modalField" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" id="saveModalBtn">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        // Khi nhấn icon edit
+        $('.edit-icon').on('click', function () {
+            var field = $(this).data('field');
+            var value = $('#' + field + 'Input').val();
+            $('#modalInput').val(value);
+            $('#modalField').val(field);
+            $('#editModal').modal('show');
+        });
+
+        // Khi nhấn Lưu trong modal
+        $('#saveModalBtn').on('click', function () {
+            var field = $('#modalField').val();
+            var value = $('#modalInput').val();
+            $('#' + field + 'Input').val(value);
+            $('#editModal').modal('hide');
+        });
+
+        // Khi nhấn Lưu thay đổi ở form chính
+        $('#mainSaveBtn').on('click', function (e) {
+            e.preventDefault();
+            submitEditTaiKhoanForm();
+        });
+
+        function submitEditTaiKhoanForm() {
+            var form = $('#editTaiKhoanForm');
+            var formData = form.serialize();
+            $.ajax({
+                url: form.attr('action'),
+                type: 'POST',
+                data: formData,
+                success: function (response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công',
+                        text: 'Đã thay đổi thành công!'
+                    });
+                },
+                error: function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: 'Có lỗi xảy ra, vui lòng thử lại.'
+                    });
+                }
+            });
+        }
+    });
+</script>
