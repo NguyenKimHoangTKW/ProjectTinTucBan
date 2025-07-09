@@ -3,9 +3,171 @@
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
+<style>
+    .main-content {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+        margin-top: 70px;
+    }
+
+        .main-content .table-responsive {
+            padding-left: 15px !important;
+            padding-right: 15px !important;
+        }
+
+    .ckeditor-content img {
+        display: block;
+        margin-top: 12px;
+        margin-bottom: 12px;
+        max-width: 100%;
+        height: auto;
+    }
+
+    .ckeditor-content p {
+        margin-top: 6px;
+        margin-bottom: 6px;
+    }
+
+    #NoiDung,
+    .cke_contents {
+        min-height: 300px !important;
+    }
+
+    #table_load_baiviet {
+        width: 100%;
+        border: 2px solid #5a8dee !important;
+        border-radius: 6px;
+        border-collapse: collapse !important;
+        border-spacing: 0 !important;
+        background-color: #fff;
+    }
+
+        #table_load_baiviet th,
+        #table_load_baiviet td {
+            padding: 10px !important;
+            border: 1px solid #5a8dee !important;
+        }
+
+        #table_load_baiviet thead th {
+            background-color: #5a8dee;
+            color: white;
+            text-align: center;
+            padding: 15px 10px;
+            border: 1px solid #5a8dee !important;
+        }
+
+    .table-responsive {
+        padding: 10px;
+        background-color: #fff;
+    }
+
+    /* Căn giữa và border trái cho cột STT */
+    #table_load_baiviet th:nth-child(2),
+    #table_load_baiviet td:nth-child(2) {
+        text-align: center !important;
+        border-left: 1px solid #5a8dee !important;
+    }
+
+    /* Căn giữa thumbnail (cột 7) */
+    #table_load_baiviet th:nth-child(7),
+    #table_load_baiviet td:nth-child(7) {
+        text-align: center !important;
+        vertical-align: middle !important;
+    }
+
+    /* Căn giữa nút Sửa/Xóa (cột 10) */
+    #table_load_baiviet th:nth-child(10),
+    #table_load_baiviet td:nth-child(10) {
+        text-align: center !important;
+        vertical-align: middle !important;
+    }
+
+    /* ✅ Mở rộng cột Mục lục (cột 5) */
+    #table_load_baiviet th:nth-child(5),
+    #table_load_baiviet td:nth-child(5) {
+        width: 180px !important;
+        max-width: 200px;
+        white-space: normal !important;
+    }
+
+    /* ✅ Thu nhỏ cột PDF (cột 9) */
+    #table_load_baiviet th:nth-child(9),
+    #table_load_baiviet td:nth-child(9) {
+        width: 60px !important;
+        max-width: 70px;
+        text-align: center;
+    }
+
+    /* Bổ sung viền trái/phải cho dòng đầu & cuối (đảm bảo hiển thị rõ ràng) */
+    #table_load_baiviet td:first-child,
+    #table_load_baiviet td:last-child,
+    #table_load_baiviet th:first-child,
+    #table_load_baiviet th:last-child {
+        border-left: 1px solid #5a8dee !important;
+        border-right: 1px solid #5a8dee !important;
+    }
+
+    /* Nếu bạn đang dùng bảng khác */
+    #data-table tbody td {
+        padding: 15px 10px;
+        border-bottom: 1px solid #e8e8e8;
+        color: #333;
+        text-align: left;
+        vertical-align: middle;
+    }
+
+    #data-table tbody tr:hover {
+        background-color: #f8f8f8;
+    }
+
+    table.dataTable thead .sorting:after,
+    table.dataTable thead .sorting_asc:after,
+    table.dataTable thead .sorting_desc:after {
+        opacity: 0.4;
+        font-size: 0.8em;
+    }
+
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter {
+        margin-bottom: 1rem;
+    }
+
+    .dataTables_wrapper .dataTables_paginate {
+        margin-top: 1rem;
+    }
+
+    .modal-footer {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    @@media (max-width: 576px) {
+        .modal-footer {
+            justify-content: space-between;
+        }
+
+            .modal-footer .btn {
+                flex: 0 0 48%;
+                max-width: 48%;
+            }
+    }
+</style>
+
 <div class="container-fluid main-content py-3">
     <!-- ========== Danh sách Bài Viết ========== -->
-    <h2>Bài Viết</h2>
+    <!-- Header và breadcrumb -->
+    <h2 class="header-title">BÀI VIẾT</h2>
+    <div class="page-header">
+        <h2 class="header-title">Quản lý bài viết</h2>
+        <div class="header-sub-title">
+            <nav class="breadcrumb breadcrumb-dash">
+                <a href="/Admin/InterfaceAdmin/Index" class="breadcrumb-item"><i class="anticon anticon-home m-r-5"></i>Trang chủ</a>
+                <span class="breadcrumb-item active">Quản lý bài viết</span>
+            </nav>
+        </div>
+    </div>
     <button id="btnThemBaiViet" class="btn btn-success mb-3">Thêm bài viết</button>
 
     <div class="table-responsive p-3">
@@ -16,6 +178,7 @@
                     <th class="text-center">STT</th>
                     <th class="text-center">Tiêu đề</th>
                     <th class="text-center">Nội dung</th>
+                    <th class="text-center">Mục lục</th>
                     <th class="text-center">Ngày đăng</th>
                     <th class="text-center">Ngày cập nhật</th>
                     <th class="text-center">Thumbnail</th>
@@ -30,7 +193,7 @@
 </div>
 
 <div class="modal fade" id="modalBaiViet" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-xl" role="document">
         <form id="form_baiviet" class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="modalLabel">Thêm/Sửa Bài Viết</h5>
@@ -47,11 +210,18 @@
                     <label for="TieuDe">Tiêu đề</label>
                     <input type="text" class="form-control" id="TieuDe">
                 </div>
+                <!-- Mục lục -->
+                <div class="form-group">
+                    <label for="ID_MucLuc">Mục lục</label>
+                    <select id="ID_MucLuc" name="ID_MucLuc" class="form-control">
+                        <!-- Options will be populated by loadMucLucOptions() -->
+                    </select>
+                </div>
 
                 <!-- Nội dung -->
                 <div class="form-group">
                     <label for="NoiDung">Nội dung</label>
-                    <textarea id="NoiDung" class="form-control" rows="10"></textarea>
+                    <textarea id="NoiDung" class="form-control" style="min-height: 300px;"></textarea>
                 </div>
 
                 <!-- Thumbnail -->
@@ -117,7 +287,7 @@
             </div>
             <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
                 <!-- giới hạn chiều cao -->
-                <div id="xemNoiDungContainer"
+                <div id="xemNoiDungContainer" class="ckeditor-content"
                      style="padding: 10px; border: 1px solid #ddd; border-radius: 4px; background: #fff;
                         white-space: normal; word-wrap: break-word; overflow-wrap: break-word;">
                 </div>
@@ -127,25 +297,33 @@
     </div>
 </div>
 
-<div class="modal fade" id="modalTieuDeDayDu" tabindex="-1" role="dialog" aria-labelledby="modalTieuDeLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
+<!-- Modal Tiêu Đề Đầy Đủ -->
+<div class="modal fade" id="modalTieuDeDayDu" tabindex="-1" role="dialog" aria-labelledby="modalTieuDeDayDuLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Tiêu đề đầy đủ</h5>
+                <h5 class="modal-title" id="modalTieuDeDayDuLabel">Tiêu đề đầy đủ</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Đóng">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body" id="tieuDeDayDuContent" style="word-break: break-word;"></div>
+            <div class="modal-body d-flex align-items-center justify-content-between">
+                <p id="tieuDeDayDuContent" class="mb-0 mr-2 flex-grow-1"></p>
+                <button id="btnCopyTieuDe"
+                        class="border-0 bg-transparent"
+                        style="padding: 0; margin: 0; line-height: 1; height: auto; width: auto;"
+                        title="Sao chép tiêu đề">
+                    <i class="anticon anticon-copy" style="font-size: 16px;"></i>
+                </button>
+            </div>
         </div>
     </div>
 </div>
 
 @section scriptsAdmin {
     <!-- Bootstrap & DataTables -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <link href="~/Areas/assets/css/app.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css" />
-
     <!-- SweetAlert2 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
@@ -163,43 +341,5 @@
     <script src="~/Areas/Admin/Scripts/BaiViet.js"></script>
     <script src="~/Areas/Admin/Scripts/Upload.js"></script>
     <script src="~/Areas/Admin/Scripts/ThuVienAnh.js"></script>
+
 }
-
-<style>
-    .main-content {
-        padding-left: 20px !important;
-        padding-right: 20px !important;
-    }
-
-        .main-content .table-responsive {
-            padding-left: 15px !important;
-            padding-right: 15px !important;
-        }
-
-    #table_load_baiviet th,
-    #table_load_baiviet td {
-        padding-left: 10px !important;
-        padding-right: 10px !important;
-        vertical-align: middle;
-        border: 1px solid #dee2e6 !important;
-    }
-
-        /* Căn giữa và đảm bảo border trái cột STT hiển thị */
-        #table_load_baiviet th:nth-child(2),
-        #table_load_baiviet td:nth-child(2) {
-            text-align: center !important;
-            border-left: 1px solid #dee2e6 !important;
-        }
-
-        #table_load_baiviet td:nth-child(7),
-        #table_load_baiviet th:nth-child(7) {
-            text-align: center !important;
-            vertical-align: middle !important;
-        }
-        /* Căn giữa nút Sửa/Xóa trong cột Hành động */
-        #table_load_baiviet th:nth-child(10),
-        #table_load_baiviet td:nth-child(10) {
-            text-align: center !important;
-            vertical-align: middle !important;
-        }
-</style>

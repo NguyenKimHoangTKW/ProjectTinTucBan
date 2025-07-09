@@ -1,68 +1,156 @@
 ﻿@model ProjectTinTucBan.Models.BaiViet
+
 @{
-    ViewBag.Title = "XemNộiDung";
+    ViewBag.Title = "Xem Nội Dung";
     Layout = null;
 }
 
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
-    <title>@Model.TieuDe</title>
+    <title>Nội dung bài viết</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="shortcut icon" href="https://tdmu.edu.vn/hinh/Icon.png" />
+
+    <!-- CSS: Bootstrap -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+
+    <!-- Style tùy chỉnh -->
     <style>
         body {
             background: linear-gradient(to right, #e3f2fd, #bbdefb);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #0d47a1;
+        }
+        .main-content {
+            width: 100%;
+            max-width: 750px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 0;
+            padding: 20px;
+            box-shadow: none;
         }
 
-        .content-wrapper {
-            background-color: #ffffff;
-            border-radius: 10px;
-            padding: 30px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            max-width: 850px;
-            margin: 50px auto;
-        }
-
-        h2.title {
-            color: #1565c0;
-            font-weight: bold;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #90caf9;
-            padding-bottom: 15px;
+        .title {
             text-align: center;
-        }
-
-        .post-content {
-            color: #1a237e;
-            font-size: 1.05rem;
-            line-height: 1.8;
-        }
-
-        a {
             color: #0d47a1;
+            text-transform: uppercase;
+            font-weight: bold;
+            border-bottom: 2px solid #90caf9;
+            padding-bottom: 10px;
         }
 
-        a:hover {
-            color: #0b3c91;
+        #xemNoiDungContainer {
+            max-width: 800px;
+            margin: 0 auto;
         }
 
-        @@media (max-width: 576px) {
-            .content-wrapper {
-                padding: 20px;
+        .cke_editable {
+            overflow-wrap: break-word;
+            word-break: break-word;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #000;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+            .cke_editable img {
+                display: block;
+                max-width: 100%;
+                height: auto;
+                margin: 10px auto;
+                clear: both;
             }
+
+        .cke_contents {
+            min-height: 400px !important;
         }
+
+        img.portrait {
+            max-height: 600px;
+            width: auto;
+        }
+
+        img.landscape {
+            max-width: 100%;
+            height: auto;
+        }
+
+        img {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        h2, p, table, div {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        textarea#NoiDung {
+            min-height: 400px;
+        }
+        .pdf-preview-container {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 20px !important;
+            box-sizing: border-box !important;
+            background: white !important;
+        }
+
+            .pdf-preview-container img {
+                display: block !important;
+                margin: 15px auto !important;
+                max-width: 100% !important;
+                height: auto !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+
+            .pdf-preview-container p {
+                margin: 10px 0 !important;
+                page-break-inside: avoid !important;
+            }
     </style>
+
+
 </head>
 <body>
-    <div class="content-wrapper">
+    <div class="main-content">
         <h2 class="title">@Model.TieuDe</h2>
-        <div class="post-content">
-            @Html.Raw(Model.NoiDung)
+        <p class="text-muted font-italic small text-right mb-1 mt-0">
+            Người đăng: <strong>@ViewBag.TenTaiKhoan</strong>
+      
+        </p>
+        <p class="text-muted font-italic small text-right mb-1">
+            Ngày đăng bài: <strong>@DateTime.ParseExact(Model.NgayDang.ToString(), "yyyyMMdd", null).ToString("dd/MM/yyyy")</strong>
+        </p>
+        <p class="text-muted font-italic small text-right mb-1">
+            Cập nhật lần cuối: <strong>@DateTime.ParseExact(Model.NgayCapNhat.ToString(), "yyyyMMdd", null).ToString("dd/MM/yyyy")</strong>
+        </p>
+
+        <!-- ID ẩn -->
+        <input type="hidden" id="BaiVietID" value="@Model.ID" />
+
+        <!-- CKEditor -->
+        <div id="xemNoiDungContainer">
+            <textarea id="NoiDung">@Html.Raw(Model.NoiDung)</textarea>
+        </div>
+
+        <!-- Nút thao tác -->
+        <div class="mt-4 text-right">
+            <button id="btnQuayLai" class="btn btn-outline-dark ml-2">Quay lại</button>
+            <button id="btnLuuNoiDung" class="btn btn-primary">Lưu Nội Dung</button>
+            <button id="btnPreviewPdf" class="btn btn-secondary ml-2">Xem trước PDF</button>
         </div>
     </div>
+
+    <!-- Script: jQuery, CKEditor, SweetAlert2, html2pdf -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.ckeditor.com/4.21.0/full/ckeditor.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- Script riêng -->
+    <script src="~/Areas/Admin/Scripts/XemNoiDung.js"></script>
 </body>
 </html>

@@ -25,17 +25,12 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
     public class InterfaceAdminController : Controller
     {
-        private WebTinTucTDMUEntities db = new WebTinTucTDMUEntities();
-        
+        WebTinTucTDMUEntities db = new WebTinTucTDMUEntities();
+
         // Gọi hàm thiết kế giao diện tại đây
         public ActionResult Index()
         {
-            /*if (Session["AdminUser"] == null)
-            {
-                return RedirectToAction("Login");
-            }
-            ViewBag.Username = Session["AdminUser"]?.ToString();
-            ViewBag.Message = "Chào mừng đến trang quản trị!"; */
+
             return View();
         }
 
@@ -61,47 +56,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         public ActionResult BaiViet()
         {
             return View();
-        }
-        // Trang đăng nhập (GET)
-        [HttpGet]
-        public ActionResult Login()
-        {
-            // Nếu đã đăng nhập, chuyển hướng về trang Index
-            if (Session["AdminUser"] != null)
-            {
-                return RedirectToAction("Index");
-            }
-            return View();
-        }
-
-        // Trang đăng ký (GET)
-        [HttpGet]
-        public ActionResult Register()
-        {
-            // Nếu đã đăng nhập, chuyển hướng về trang Index
-            if (Session["AdminUser"] != null)
-            {
-                return RedirectToAction("Index");
-            }
-            return View();
-        }
-
-        
-
-        public ActionResult Logout()
-        {
-            Session.Clear(); // Xóa tất cả session variables
-            return RedirectToAction("Login");
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
-        }
+        }        
         // Gọi hàm thiết kế giao diện quản lý người dùng Admin
         public ActionResult Index_Users_Admin()
         {
@@ -114,7 +69,10 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             return View();
         }
         // Gọi hàm thiết kế giao diện đăng nhập
-
+        public ActionResult Login()
+        {
+            return View();
+        }
         public ActionResult XemNoiDung(int id)
         {
             using (var db = new WebTinTucTDMUEntities())
@@ -125,9 +83,21 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     return HttpNotFound();
                 }
 
-                return View("XemNoiDung", baiViet); // View nằm trong Views/InterfaceAdmin/
+                // Load người đăng
+                if (baiViet.ID_NguoiDang.HasValue)
+                {
+                    db.Entry(baiViet).Reference(x => x.TaiKhoan).Load();
+                    ViewBag.TenTaiKhoan = baiViet.TaiKhoan?.TenTaiKhoan ?? "Không rõ";
+                }
+                else
+                {
+                    ViewBag.TenTaiKhoan = "Không rõ";
+                }
+
+                return View("XemNoiDung", baiViet);
             }
         }
+
         public ActionResult Index_DonViTrucThuoc()
         {
             return View();
@@ -137,4 +107,4 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             return View("Index_Khoi");
         }
     }
-}  
+}

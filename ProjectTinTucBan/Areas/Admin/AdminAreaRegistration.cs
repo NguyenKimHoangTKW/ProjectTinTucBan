@@ -33,21 +33,27 @@ namespace ProjectTinTucBan.Areas.Admin
                 new { controller = "InterfaceAdmin", action = "Index_Roles_Admin" }
             );
 
-            // Default route for other controllers/actions
             context.MapRoute(
-                "Admin_default2",
-                "Admin/dashboard",
-                new { controller = "InterfaceAdmin", action = "Index" }
+                "Index_Users_Admin",
+                "Admin/quan-ly-admin",
+                new { controller = "InterfaceAdmin", action = "Index_Users_Admin" }
             );
+
+            context.MapRoute(
+                "Index_Function_Admin",
+                "Admin/quan-ly-chuc-nang",
+                new { controller = "InterfaceAdmin", action = "Index_Function_Admin" }
+            );
+
             context.MapRoute(
                 "Admin_Slider",
                 "Admin/quan-ly-slide",
-                new {controller = "InterfaceAdmin", action = "Slider"}
+                new { controller = "InterfaceAdmin", action = "Slider" }
             );
             context.MapRoute(
                 "Admin_Menu",
                 "Admin/quan-ly-menu",
-                new { controller= "InterfaceAdmin", action = "Menu"}
+                new { controller = "InterfaceAdmin", action = "Menu" }
             );
             context.MapRoute(
                "Admin_Khoi",
@@ -61,14 +67,22 @@ namespace ProjectTinTucBan.Areas.Admin
           );
             context.MapRoute(
                 "bai-viet",
-                "admin/bai-viet",
+                "Admin/bai-viet",
                 new { controller = "InterfaceAdmin", action = "BaiViet" }
             );
             context.MapRoute(
                 "xem-noi-dung",
-                "admin/xem-noi-dung/{id}",
+                "Admin/xem-noi-dung/{id}",
                 new { controller = "InterfaceAdmin", action = "XemNoiDung", id = UrlParameter.Optional }
             );
+            context.MapRoute(
+                "Admin-dang-nhap",
+                "Admin/dang-nhap",
+                new { controller = "InterfaceAdmin", action = "Login" }
+            );
+
+            // Default route for other controllers/actions
+
             context.MapRoute(
                 "Admin_default",
                 "Admin/{controller}/{action}/{id}",

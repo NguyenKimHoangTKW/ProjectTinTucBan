@@ -1,13 +1,13 @@
 ﻿$(function () {
     function loadTopMenu() {
-        $.getJSON('/api/v1/admin/menus-with-submenus')
-            .done(function (data) {
+        $.getJSON('/api/v1/admin/groupmenu-menus/15')// id cứng để test, sau này đổi
+            .done(function (group) {
                 const $nav = $('.admin-topmenu-nav').empty();
-                if (!Array.isArray(data) || data.length === 0) {
+                if (!group || !Array.isArray(group.Menus) || group.Menus.length === 0) {
                     $nav.append('<li><span class="admin-topmenu-link">Không có menu</span></li>');
                     return;
                 }
-                data.forEach(menu => {
+                group.Menus.forEach(menu => {
                     const hasSub = Array.isArray(menu.SubMenus) && menu.SubMenus.length > 0;
                     const $li = $('<li></li>');
                     const $a = $('<a></a>')

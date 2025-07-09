@@ -19,44 +19,58 @@
         <!-- Card chứa bảng dữ liệu -->
         <div class="card">
             <div class="card-body">
-                <div class="row m-b-30">
-                    <div class="col-lg-8">
-                        <h4>Danh sách chức năng admin</h4>
+                <div class="row mb-3">
+                    <div class="col-md-8 col-sm-12 mb-3">
+                        <h4 class="card-title">Danh sách chức năng admin</h4>
                     </div>
-                    <div class="col-lg-4 text-right">
-                        <button class="btn btn-primary" id="btnAddFunction">
+                    <div class="col-md-4 col-sm-12 text-md-right">
+                        <button class="btn btn-primary w-100 w-md-auto" id="btnAddFunction">
                             <i class="anticon anticon-plus-circle m-r-5"></i>
-                            <span>Thêm chức năng admin mới</span>
+                            <span>Thêm chức năng admin</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- Bảng dữ liệu -->
-                <table id="data-table" class="display hover nowrap" style="width:100%">
-                    <thead>
-                        <tr>
-                            <th>STT</th>
-                            <th>Tên chức năng</th>
-                            <th>Mã chức năng</th>
-                            <th>Mô tả</th>
-                            <th>Ngày tạo</th>
-                            <th>Ngày cập nhật</th>
-                            <th>Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Data will be loaded here -->
-                    </tbody>
-                </table>
+                <!-- Bộ lọc và tìm kiếm di động - Cải thiện -->
+                <div class="d-md-none mb-3">
+                    <div class="input-group">
+                        <input type="text" id="mobileSearch" class="form-control" placeholder="Tìm kiếm...">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" id="btnMobileSearch">
+                                <i class="anticon anticon-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wrapper cho bảng có thể scroll ngang trên mobile -->
+                <div class="table-responsive">
+                    <!-- Bảng dữ liệu -->
+                    <table id="data-table" class="display hover nowrap w-100">
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Tên chức năng</th>
+                                <th>Mã chức năng</th>
+                                <th data-priority="2">Mô tả</th>
+                                <th class="d-none d-lg-table-cell">Ngày tạo</th>
+                                <th class="d-none d-lg-table-cell">Ngày cập nhật</th>
+                                <th data-priority="1">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-
 <!-- Modal Quản lý Chức năng Admin (dùng chung cho cả thêm và sửa) -->
 <div class="modal fade" id="FunctionModal" tabindex="-1" role="dialog" aria-labelledby="FunctionModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="FunctionModalLabel">Quản lý chức năng Admin</h5>
@@ -69,59 +83,45 @@
                     <input type="hidden" id="functionId" value="" />
                     <input type="hidden" id="formMode" value="add" /> <!-- 'add' hoặc 'edit' -->
 
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="tenFunction">Tên chức năng <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="tenFunction" name="tenFunction" placeholder="Nhập tên chức năng admin" required>
-                                <small class="form-text text-muted">Tên chức năng trong hệ thống</small>
-                            </div>
-                        </div>
+                    <div class="form-group">
+                        <label for="tenFunction">Tên chức năng <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="tenFunction" name="tenFunction" placeholder="Nhập tên chức năng admin" required>
+                        <small class="form-text text-muted">Tên chức năng trong hệ thống</small>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="maFunction">Mã chức năng <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="maFunction" name="maFunction" placeholder="Nhập mã chức năng admin" required>
-                                <small class="form-text text-muted">Mã nhận dạng chức năng trong hệ thống</small>
-                            </div>
-                        </div>
+                    <div class="form-group">
+                        <label for="maFunction">Mã chức năng <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="maFunction" name="maFunction" placeholder="Nhập mã chức năng admin" required>
+                        <small class="form-text text-muted">Mã nhận dạng chức năng trong hệ thống</small>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="moTa">Mô tả <span class="text-danger">*</span></label>
-                                <textarea class="form-control" id="moTa" name="moTa" rows="3" placeholder="Nhập mô tả chức năng admin" required></textarea>
-                                <small class="form-text text-muted">Mô tả chi tiết về chức năng này</small>
-                            </div>
-                        </div>
+                    <div class="form-group">
+                        <label for="moTa">Mô tả <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="moTa" name="moTa" rows="3" placeholder="Nhập mô tả chức năng admin" required></textarea>
+                        <small class="form-text text-muted">Mô tả chi tiết về chức năng này</small>
                     </div>
 
                     <!-- Chỉ hiển thị khi ở chế độ sửa -->
-                    <div id="editOnlyFields" class="row" style="display:none">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Thông tin thời gian</label>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <input type="text" class="form-control" id="ngayTao" name="ngayTao" readonly placeholder="Ngày tạo">
-                                        <small class="form-text text-muted">Ngày tạo</small>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <input type="text" class="form-control" id="ngayCapNhat" name="ngayCapNhat" readonly placeholder="Ngày cập nhật">
-                                        <small class="form-text text-muted">Cập nhật gần nhất</small>
-                                    </div>
+                    <div id="editOnlyFields" style="display:none">
+                        <div class="form-group">
+                            <label>Thông tin thời gian</label>
+                            <div class="row">
+                                <div class="col-md-6 col-sm-12 mb-3">
+                                    <input type="text" class="form-control" id="ngayTao" name="ngayTao" readonly placeholder="Ngày tạo">
+                                    <small class="form-text text-muted">Ngày tạo</small>
+                                </div>
+                                <div class="col-md-6 col-sm-12">
+                                    <input type="text" class="form-control" id="ngayCapNhat" name="ngayCapNhat" readonly placeholder="Ngày cập nhật">
+                                    <small class="form-text text-muted">Cập nhật gần nhất</small>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-primary" id="btnSaveFunction">
+            <div class="modal-footer flex-wrap justify-content-center">
+                <button type="button" class="btn btn-default m-1" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary m-1" id="btnSaveFunction">
                     <i class="anticon anticon-save m-r-5"></i>
                     <span id="btnSaveText">Lưu</span>
                 </button>
@@ -129,7 +129,6 @@
         </div>
     </div>
 </div>
-
 
 <style>
     /* Định dạng DataTable giống như mẫu */
@@ -165,16 +164,23 @@
             font-weight: 500;
             color: #fff;
             background-color: #5a8dee;
-            text-align: center;
+            text-align: center !important;
         }
 
         #data-table tbody td {
             padding: 15px 10px;
             border-bottom: 1px solid #e8e8e8;
             color: #333;
-            text-align: center;
+            text-align: left;
             vertical-align: middle;
         }
+
+            #data-table tbody td:first-child,
+            #data-table tbody td:last-child,
+            #data-table tbody td:nth-child(5),
+            #data-table tbody td:nth-child(6) {
+                text-align: center;
+            }
 
         #data-table tbody tr:hover {
             background-color: #f8f8f8;
@@ -217,13 +223,14 @@
     .btn-action {
         width: 40px;
         height: 32px;
-        display: flex;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
         border: none;
         cursor: pointer;
         transition: all 0.3s;
-        margin-right: 5px;
+        margin: 3px;
+        border-radius: 4px;
     }
 
     .btn-edit {
@@ -247,11 +254,9 @@
         }
 
     /* Cải thiện hiển thị di động */
-    @@media screen and (max-width: 767px) {
-        #data-table {
-            display: block;
-            overflow-x: auto;
-        }
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     /* Tùy chỉnh các điều khiển DataTable */
@@ -333,10 +338,10 @@
             box-shadow: 0 0 0 0.1rem rgba(90, 141, 238, 0.25);
         }
 
-        .form-control[readonly] {
-            background-color: #f8f9fa;
-            cursor: not-allowed;
-        }
+    background-color: #f8f9fa;
+    .form-control[readonly] {
+        cursor: not-allowed;
+    }
 
     .input-group-text {
         background-color: #f8f9fa;
@@ -359,9 +364,166 @@
             font-weight: 500;
             color: #555;
         }
+
+    /* Cải thiện responsive styles for mobile */
+    @@media screen and (max-width: 767px) {
+        /* Ẩn tìm kiếm mặc định của DataTable */
+        .dataTables_filter {
+            display: none;
+        }
+        /* Hiển thị tất cả nút thao tác trên mobile */
+        .action-buttons {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto;
+        }
+
+        .btn-action {
+            margin: 3px;
+            min-width: 40px;
+        }
+        /* Tối ưu hóa phân trang trên di động */
+        .dataTables_paginate {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+            .dataTables_paginate .paginate_button {
+                padding: 8px 12px;
+                margin: 3px;
+            }
+        /* Điều chỉnh hiển thị số mục trên trang */
+        .dataTables_length select {
+            width: 80px;
+        }
+        /* Đảm bảo modal hiển thị đúng trên di động */
+        .modal-dialog {
+            margin: 10px;
+            width: calc(100% - 20px);
+            max-width: none;
+        }
+
+        .modal-body {
+            padding: 15px;
+        }
+
+        .modal-footer {
+            justify-content: space-between;
+            padding: 10px;
+        }
+
+            .modal-footer button {
+                margin: 5px;
+                min-width: 45%;
+            }
+        /* Đảm bảo khoảng cách */
+        .mb-3 {
+            margin-bottom: 1rem !important;
+        }
+        /* Cải thiện hiển thị của bảng */
+        #data-table,
+        #data-table thead,
+        #data-table tbody,
+        #data-table th,
+        #data-table td,
+        #data-table tr {
+            font-size: 14px;
+        }
+        /* Điều chỉnh tiêu đề trang */
+        .header-title {
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+    }
+
+    /* Styling cho nút tìm kiếm di động */
+    #mobileSearch {
+        height: 38px;
+    }
+
+    /* Làm mịn góc cho các phần tử UI */
+    .card, .modal-content, .btn, .form-control, .input-group-text {
+        border-radius: 6px;
+    }
+
+        /* Đảm bảo văn bản trên nút không bị tràn */
+        .btn span {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+    /* Tối ưu hoá cột ẩn theo kích thước màn hình */
+    /* Đối với màn hình tablet */
+    @@media (min-width: 768px) and (max-width: 991px) {
+        .d-md-none {
+            display: none !important;
+        }
+
+        .d-md-block {
+            display: block !important;
+        }
+    }
+
+    /* Đối với màn hình di động nhỏ */
+    @@media (max-width: 575px) {
+        /* Hiển thị các cột quan trọng nhất */
+        #data-table tbody td:nth-child(2) { /* Tên chức năng */
+            min-width: 120px;
+        }
+        /* Thu nhỏ font chữ */
+        body, .btn, .form-control, table {
+            font-size: 14px;
+        }
+        /* Thêm thụt lề cho nội dung chính */
+        .main-content {
+            padding: calc(70px + -25px) 10px 10px;
+        }
+        /* Tăng kích thước nút cho dễ chạm */
+        .btn-action {
+            width: 38px;
+            height: 38px;
+        }
+        /* Điều chỉnh khoảng cách trong bảng */
+        #data-table tbody td {
+            padding: 10px 5px;
+        }
+    }
+
+    /* Utility class */
+    .w-md-auto {
+        width: auto;
+    }
+
+    @@media (max-width: 767px) {
+        .text-md-right {
+            text-align: center !important;
+        }
+        /* Thêm lề dưới cho nút thêm */
+        #btnAddFunction {
+            margin-bottom: 1rem;
+        }
+    }
+
+    /* Màu nền cho modal trên di động */
+    @@media (max-width: 767px) {
+        .modal-backdrop {
+            opacity: 0.7;
+        }
+    }
+
+    /* Meta tag để đảm bảo viewport đúng */
+    /* Thêm thẻ này vào _AdminLayout.cshtml nếu chưa có */
 </style>
 
 @section scriptsAdmin {
     <script src="~/Scripts/sweetalert2.all.min.js"></script>
     <script src="~/Areas/Admin/Scripts/DanhSachChucNang.js"></script>
+
 }

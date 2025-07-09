@@ -322,20 +322,22 @@
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Areas\Admin\AdminAreaRegistration.cs" />
+    <Compile Include="Areas\Admin\Controllers\BaiVietAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\DonViTrucThuocController.cs" />
+    <Compile Include="Areas\Admin\Controllers\FunctionAdminAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\InterfaceAdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\KhoiController.cs" />
     <Compile Include="Areas\Admin\Controllers\LoginAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\MucLucAdminAPIController.cs" />
+    <Compile Include="Areas\Admin\Controllers\TestController.cs" />
     <Compile Include="Areas\Admin\Controllers\UserAdminAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\RolesAdminAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\MenuApiAdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\SliderApiAdminController.cs" />
-    <Compile Include="Areas\Admin\Controllers\TestController.cs" />
-    <Content Include="Areas\Admin\Scripts\DanhSachMucLuc.js" />
-    <Compile Include="Areas\Admin\Controllers\TestController.cs" />
+    <Content Include="Areas\Admin\Scripts\AdminSideNavScript.js" />
     <Compile Include="Areas\Admin\Controllers\UploadPDFAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\UploadThumbnailAPIController.cs" />
+    <Compile Include="Areas\Admin\Controllers\UserSession.cs" />
     <Compile Include="Areas\HelpPage\ApiDescriptionExtensions.cs" />
     <Compile Include="Areas\HelpPage\App_Start\HelpPageConfig.cs" />
     <Compile Include="Areas\HelpPage\Controllers\HelpController.cs" />
@@ -364,11 +366,17 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\SampleDirection.cs" />
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
+    <Compile Include="Controllers\BaiVietController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\MuclucAPIController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helper\EmailService.cs" />
+    <Compile Include="Helper\EncryptionHelper.cs" />
+    <Compile Include="Helper\SessionEnabledDelegatingHandler.cs" />
+    <Compile Include="Helper\SessionHelper.cs" />
     <Compile Include="Models\BaiViet.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
@@ -376,19 +384,19 @@
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\dbTinTucKhaoThiModel.Context.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
       <DependentUpon>dbTinTucKhaoThiModel.Context.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="Models\dbTinTucKhaoThiModel.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="Models\dbTinTucKhaoThiModel.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
       <DependentUpon>dbTinTucKhaoThiModel.edmx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="Models\DonViTrucThuoc.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
@@ -435,8 +443,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Areas\Admin\Scripts\CheckSession.js" />
     <Content Include="Areas\Admin\Scripts\DanhSachChucNang.js" />
-    <Content Include="Areas\Admin\Scripts\DanhSachMucLuc.js" />
+    <Content Include="Areas\Admin\Scripts\DanhSachMucluc.js" />
     <Content Include="Areas\Admin\Scripts\DanhSachRoles.js" />
     <Content Include="Areas\Admin\Scripts\DonViTrucThuoc.js" />
     <Content Include="Areas\Admin\Scripts\GroupMenuAdminScript.js" />
@@ -444,14 +453,18 @@
     <Content Include="Areas\Admin\Scripts\MenuScript.js" />
     <Content Include="Areas\Admin\Scripts\SliderAdminScript.js" />
     <Content Include="Areas\Admin\Scripts\SliderShowScript.js" />
-    <Content Include="Areas\Admin\Scripts\TopMenuShowScript.js" />
+    <Content Include="Areas\Admin\Scripts\TopNavShowScript.js" />
     <Content Include="Areas\Admin\Scripts\BaiViet.js" />
     <Content Include="Areas\Admin\Scripts\DanhSachUser.js" />
     <Content Include="Areas\Admin\Scripts\LoginWithGoogle.js" />
+    <Content Include="Areas\Admin\Scripts\XemNoiDung.js" />
     <Content Include="Areas\Admin\Uploads\Slider\0dcd9495-dcb8-4fc7-b924-bc27c7ea3f57.jpeg" />
     <Content Include="Areas\Admin\Uploads\Slider\19ffc442-085e-4f8f-84d8-4e2b7202a6ad.png" />
     <Content Include="Areas\Admin\Uploads\Slider\2d0c6ee3-9230-454d-bab0-1884516b667c.jpg" />
+    <Content Include="Areas\Admin\Uploads\Slider\32f610cc-7cfe-42fa-9955-8e7e3049394b.jpg" />
     <Content Include="Areas\Admin\Uploads\Slider\71e7bf3d-99aa-462c-b4b5-a21647f64f28.png" />
+    <Content Include="Areas\Admin\Uploads\Slider\c14ea662-cfbd-4085-bfe1-2b9fbe051c17.jpg" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\Login.cshtml" />
     <Content Include="Areas\Admin\Uploads\Slider\141625ba-0db3-409b-bfc0-b2f0a385af00.png" />
     <Content Include="Areas\Admin\Uploads\Slider\309fcdd3-789a-4048-8b75-9cf8322ccd03.jpg" />
     <Content Include="Areas\Admin\Uploads\Slider\8c8f483f-368a-4e83-9028-357440a60a56.png" />
@@ -1235,15 +1248,19 @@
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Models\dbTinTucKhaoThiModel.Context.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>dbTinTucKhaoThiModel.edmx</DependentUpon>
+      <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>dbTinTucKhaoThiModel.Context.cs</LastGenOutput>
     </Content>
-    <Content Include="Models\dbTinTucKhaoThiModel.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
+    <Content Include="Models\dbTinTucKhaoThiModel.edmx.diagram">
       <DependentUpon>dbTinTucKhaoThiModel.edmx</DependentUpon>
+    </Content>
+    <Content Include="Models\dbTinTucKhaoThiModel.tt">
+      <DependentUpon>dbTinTucKhaoThiModel.edmx</DependentUpon>
+      <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>dbTinTucKhaoThiModel.cs</LastGenOutput>
     </Content>
+    <Content Include="Scripts\BaiViet.js" />
     <Content Include="Scripts\bootstrap.bundle.js" />
     <Content Include="Scripts\bootstrap.bundle.min.js" />
     <Content Include="Scripts\bootstrap.esm.js" />
@@ -1269,13 +1286,6 @@
     <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\CollectionModelDescription.cshtml" />
     <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\ApiGroup.cshtml" />
     <Content Include="Areas\HelpPage\Views\Help\Api.cshtml" />
-    <EntityDeploy Include="Models\dbTinTucKhaoThiModel.edmx">
-      <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>dbTinTucKhaoThiModel.Designer.cs</LastGenOutput>
-    </EntityDeploy>
-    <Content Include="Models\dbTinTucKhaoThiModel.edmx.diagram">
-      <DependentUpon>dbTinTucKhaoThiModel.edmx</DependentUpon>
-    </Content>
     <Content Include="Areas\Admin\Views\web.config" />
     <Content Include="Areas\Admin\Views\Shared\_AdminLayout.cshtml" />
     <Content Include="Areas\Admin\Views\Shared\Error.cshtml" />
@@ -1516,12 +1526,27 @@
     <Content Include="Areas\Admin\Views\Shared\_AdminNavPartial.cshtml" />
     <Content Include="Areas\Admin\Views\Shared\_AdminHeaderPartial.cshtml" />
     <Content Include="Areas\Admin\Views\Shared\_AdminFooterPartial.cshtml" />
-    <Content Include="Areas\Admin\Views\InterfaceAdmin\BaiViet.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Index.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Function_Admin.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Khoi.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_MucLuc_Admin.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Roles_Admin.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\Menu.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\TopNavTestPartial.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\Slider.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\BaiViet.cshtml" />
+    <Content Include="assets\fonts\fontawesome-webfont.eot" />
+    <Content Include="assets\fonts\fontawesome-webfont.ttf" />
+    <Content Include="assets\fonts\fontawesome-webfont.woff" />
+    <Content Include="assets\fonts\fontawesome-webfont.woff2" />
+    <Content Include="assets\fonts\FontAwesome.otf" />
+    <Content Include="assets\fonts\line-awesome.eot" />
+    <Content Include="assets\fonts\line-awesome.ttf" />
+    <Content Include="assets\fonts\line-awesome.woff" />
+    <Content Include="assets\fonts\line-awesome.woff2" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Function_Admin.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Users_Admin.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\SliderTestShowPartial.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Users_Admin.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Menu.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Slider.cshtml" />
@@ -1533,6 +1558,7 @@
     <Content Include="Scripts\jquery-3.7.0.slim.js" />
     <Content Include="Scripts\jquery-3.7.0.slim.min.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
+    <Content Include="Uploads\Thumbnails\28363-nem-lai-vung_20250702110115.jpeg" />
     <Content Include="Uploads\Thumbnails\b0889e80c49d8aaa34420069b227c298_20250619105646.jpg" />
     <Content Include="Uploads\Thumbnails\b0889e80c49d8aaa34420069b227c298_20250619110010.jpg" />
     <Content Include="Uploads\Thumbnails\b0889e80c49d8aaa34420069b227c298_20250619110112.jpg" />
@@ -1542,6 +1568,8 @@
     <Content Include="Uploads\Thumbnails\BrainDmgPika_20250620090413.jpg" />
     <Content Include="Uploads\Thumbnails\BrainDmgPika_20250620090419.jpg" />
     <Content Include="Uploads\Thumbnails\museum_meme_20250619151223.jpg" />
+    <Content Include="Uploads\Thumbnails\Screenshot 2025-05-18 144017_20250702115238.png" />
+    <Content Include="Uploads\Thumbnails\Screenshot 2025-05-28 130510_20250625161915.png" />
     <Content Include="Uploads\Thumbnails\z5904852926621_ea1a20e2a957ca24f66c1f2150af9c8e_20250619110751.jpg" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
@@ -1561,11 +1589,18 @@
     <Content Include="Uploads\PDFs\Bai thuc hanh 1_BT3,4 %28NHOM%29_20250619152631.pdf" />
     <Content Include="Uploads\PDFs\test_20250619152104.pdf" />
     <Content Include="Uploads\PDFs\test_20250619152157.pdf" />
+    <Content Include="Views\Home\Introduction.cshtml" />
+    <Content Include="Views\Home\Contact.cshtml" />
+    <Content Include="Views\Home\XemNoiDung.cshtml" />
+    <Content Include="Views\BaiViet\XemNoiDung.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Areas\Admin\Data\" />
+    <Folder Include="Areas\Admin\Views\TinTuc\" />
     <Folder Include="Uploads\Slider\" />
+    <Folder Include="Views\MuclucAPI\" />
+    <Folder Include="Views\TinTuc\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Scripts\bootstrap.min.js.map" />
@@ -1644,6 +1679,12 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="Areas\assets\vendors\popper.js\index.d.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <EntityDeploy Include="Models\dbTinTucKhaoThiModel.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>dbTinTucKhaoThiModel.Designer.cs</LastGenOutput>
+    </EntityDeploy>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

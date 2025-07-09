@@ -203,6 +203,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 existingUser.SDT = Item.SDT;
                 existingUser.ID_role = Item.ID_role;
                 existingUser.IsBanned = Item.IsBanned;
+                existingUser.CountPasswordFail = 0;
                 unixTimestamp = (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
                 existingUser.NgayCapNhat = unixTimestamp;
 

@@ -247,7 +247,7 @@ async function update_muc_luc_in_modal() {
         }
     }
 }
-
+defaultContent = "Không có dữ liệu";
 // Load data table
 async function load_data() {
     try {
@@ -311,11 +311,11 @@ async function load_data() {
                                 return meta.row + 1;
                             }
                         },
-                        { data: 'TenMucLuc' },
-                        { data: 'Link' },
-                        { data: 'ThuTuShow' },
+                        { data: 'TenMucLuc', defaultContent },
+                        { data: 'Link', defaultContent },
+                        { data: 'ThuTuShow', defaultContent },
                         {
-                            data: 'IsActive',
+                            data: 'IsActive', defaultContent,
                             render: function (data, type, row) {
                                 const isChecked = (data === 1 || data === true) ? 'checked' : '';
                                 return `
@@ -326,8 +326,8 @@ async function load_data() {
                                 `;
                             }
                         },
-                        { data: 'NgayDang' },
-                        { data: 'NgayCapNhat' },
+                        { data: 'NgayDang', defaultContent },
+                        { data: 'NgayCapNhat', defaultContent },
                         {
                             data: null,
                             orderable: false,
