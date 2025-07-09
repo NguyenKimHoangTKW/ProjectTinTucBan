@@ -38,6 +38,7 @@ function loadDanhSachKhoi() {
         url: '/api/Khoi',
         type: 'GET',
         success: function (data) {
+            console.log('Loaded khoi for filter:', data); // Debug log
             danhSachKhoi = data;
             var options = '<option value="">-- Tất cả Khối --</option>';
             var formOptions = '<option value="">-- Chọn Khối --</option>';
@@ -47,13 +48,16 @@ function loadDanhSachKhoi() {
             });
             $('#filterKhoi').html(options);
             $('#ID_Khoi').html(formOptions);
+        },
+        error: function (xhr) {
+            console.error('Error loading khoi for filter:', xhr); // Debug log
         }
     });
 }
 
 // Khởi tạo DataTable
 function initDataTable() {
-    dataTable = $('#data-table').DataTable({
+    dataTable = $('#table_load_donvi').DataTable({
         "processing": true,
         "serverSide": false,
         "searching": true,
@@ -62,6 +66,7 @@ function initDataTable() {
         "lengthMenu": [10, 25, 50, 100],
         "data": [],
         "columns": [
+            { "data": "id", "visible": false },
             {
                 "data": null,
                 "orderable": false,
@@ -79,6 +84,19 @@ function initDataTable() {
                 }
             },
             { "data": "thuTuShow" },
+            {
+                "data": "trangThai",
+                "orderable": false,
+                "className": "text-center",
+                "render": function (data, type, row) {
+                    return `
+                        <label class="switch">
+                            <input type="checkbox" class="toggle-trangthai-donvi" data-id="${row.id}" data-thutu="${row.thuTuShow}" ${data ? 'checked' : ''}>
+                            <span class="slider"></span>
+                        </label>
+                    `;
+                }
+            },
             { "data": "link" },
             {
                 "data": "ngayDang",
@@ -111,25 +129,27 @@ function initDataTable() {
         ],
         "columnDefs": [
             {
-                "targets": [0], // Cột STT
+                "targets": [1], // Cột STT
                 "width": "50px",
+                "className": "text-center"
+            },
+            {
+                "targets": [4], // Cột Thứ tự
+                "className": "text-center"
+            },
+            {
+                "targets": [5], // Cột Trạng thái
+                "width": "100px",
+                "className": "text-center"
+            },
+            {
+                "targets": [9], // Cột Hành động
+                "width": "120px",
                 "className": "text-center"
             }
         ],
-        "language": {
-            "lengthMenu": "Hiển thị _MENU_ dòng",
-            "zeroRecords": "Không tìm thấy dữ liệu",
-            "info": "Trang _PAGE_ / _PAGES_",
-            "infoEmpty": "Không có dữ liệu",
-            "infoFiltered": "(lọc từ _MAX_ dòng)",
-            "search": "Tìm kiếm:",
-            "paginate": {
-                "first": "Đầu",
-                "last": "Cuối",
-                "next": "Sau",
-                "previous": "Trước"
-            }
-        }
+        "order": [] // No default ordering, giống như BaiViet
+        // Bỏ cấu hình "language" để sử dụng tiếng Anh mặc định
     });
 }
 
@@ -142,11 +162,12 @@ function loadDonViTrucThuoc(idKhoi) {
         url: url,
         type: 'GET',
         success: function (data) {
+            console.log('Loaded donvi data:', data); // Debug log
             dataTable.clear().rows.add(data).draw();
         },
         error: function (xhr) {
+            console.error('Error loading donvi:', xhr); // Debug log
             Swal.fire('Lỗi!', getErrorMessage(xhr), 'error');
-            console.error(xhr);
         }
     });
 }
@@ -212,10 +233,6 @@ $(document).ready(function () {
 
     $('#filterKhoi').change(function () {
         loadDonViTrucThuoc($(this).val());
-    });
-
-    $('#btnLoadDonVi').click(function () {
-        loadDonViTrucThuoc($('#filterKhoi').val());
     });
 
     $('#btnShowDonViModal').click(function () {
@@ -288,5 +305,44 @@ $(document).ready(function () {
     $(document).on('click', '.btn-xoa-donvi', function () {
         var id = $(this).data('id');
         deleteDonVi(id);
+    });
+
+    // Sửa đoạn này để cập nhật trạng thái vào DB khi bật/tắt switch
+    $(document).on('change', '.toggle-trangthai-donvi', function () {
+        var id = $(this).data('id');
+        var isActive = $(this).is(':checked');
+        var thuTu = $(this).data('thutu');
+
+        // Nếu bật 1 checkbox, tắt các checkbox khác cùng thứ tự
+        if (isActive) {
+            $('.toggle-trangthai-donvi[data-thutu="' + thuTu + '"]').not(this).each(function () {
+                if ($(this).is(':checked')) {
+                    $(this).prop('checked', false);
+                    // Gửi API cập nhật trạng thái về false cho các đơn vị khác cùng thứ tự
+                    var otherId = $(this).data('id');
+                    $.ajax({
+                        url: '/api/Admin/DonViTrucThuoc/ToggleTrangThai/' + otherId,
+                        type: 'PUT',
+                        data: JSON.stringify({ IsActive: false }),
+                        contentType: 'application/json'
+                    });
+                }
+            });
+        }
+
+        // Gửi API cập nhật trạng thái cho đơn vị này
+        $.ajax({
+            url: '/api/Admin/DonViTrucThuoc/ToggleTrangThai/' + id,
+            type: 'PUT',
+            data: JSON.stringify({ IsActive: isActive }),
+            contentType: 'application/json',
+            success: function () {
+                // Có thể reload lại bảng nếu muốn đồng bộ trạng thái
+                // loadDonViTrucThuoc($('#filterKhoi').val());
+            },
+            error: function (xhr) {
+                Swal.fire('Lỗi!', getErrorMessage(xhr), 'error');
+            }
+        });
     });
 });

@@ -13,6 +13,15 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
             return View();
         }
+        public ActionResult EditTaiKhoan()
+        {
+            return RedirectToAction("EditTaiKhoan", "EditTaiKhoan");
+        }
+        public ActionResult EditFooter()
+        {
+
+            return View();
+        }
 
         // Gọi hàm thiết kế giao diện Quản lý mục lục
         [UserAuthorizeAttribute(1, 4)]
