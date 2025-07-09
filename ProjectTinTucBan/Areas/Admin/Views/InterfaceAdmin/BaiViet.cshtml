@@ -4,155 +4,159 @@
 }
 
 <style>
+    body {
+        background-color: white !important;
+    }
     .main-content {
-        padding-left: 20px !important;
-        padding-right: 20px !important;
+        padding: 20px;
         margin-top: 70px;
     }
-
-        .main-content .table-responsive {
-            padding-left: 15px !important;
-            padding-right: 15px !important;
-        }
-
-    .ckeditor-content img {
-        display: block;
-        margin-top: 12px;
-        margin-bottom: 12px;
-        max-width: 100%;
-        height: auto;
+    .main-content,
+    .page-container {
+        background-color: white !important;
     }
-
-    .ckeditor-content p {
-        margin-top: 6px;
-        margin-bottom: 6px;
-    }
-
-    #NoiDung,
-    .cke_contents {
-        min-height: 300px !important;
+    .table-responsive {
+        padding: 10px;
+        background-color: #fff;
     }
 
     #table_load_baiviet {
         width: 100%;
-        border: 2px solid #5a8dee !important;
-        border-radius: 6px;
-        border-collapse: collapse !important;
-        border-spacing: 0 !important;
         background-color: #fff;
+        table-layout: fixed;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        overflow: hidden;
     }
-
         #table_load_baiviet th,
         #table_load_baiviet td {
-            padding: 10px !important;
-            border: 1px solid #5a8dee !important;
+            padding: 10px 8px;
+            font-size: 14px;
+            vertical-align: middle;
+            white-space: normal;
+            word-break: break-word;
+        }
+        #table_load_baiviet,
+        #table_load_baiviet th,
+        #table_load_baiviet td {
+            border: 1px solid #dee2e6 !important;
+            border-collapse: collapse !important;
+            background-color: #fff;
         }
 
         #table_load_baiviet thead th {
             background-color: #5a8dee;
             color: white;
             text-align: center;
-            padding: 15px 10px;
-            border: 1px solid #5a8dee !important;
+            font-weight: 600;
         }
 
-    .table-responsive {
-        padding: 10px;
-        background-color: #fff;
+        #table_load_baiviet td {
+            text-align: center;
+        }
+
+            /* Cột STT */
+            #table_load_baiviet th:nth-child(2),
+            #table_load_baiviet td:nth-child(2) {
+                max-width: 30px;
+            }
+
+            /* Cột Nội dung */
+            #table_load_baiviet th:nth-child(4),
+            #table_load_baiviet td:nth-child(4) {
+                max-width: 40px;
+                min-width: 20px;
+            }
+
+            /* Cột Mục lục */
+            #table_load_baiviet th:nth-child(5),
+            #table_load_baiviet td:nth-child(5) {
+                text-align: left;
+            }
+
+        /* Cột Ngày đăng & Ngày cập nhật */
+        #table_load_baiviet th:nth-child(6),
+        #table_load_baiviet th:nth-child(7) {
+            text-align: center;
+            width: 160px;
+        }
+
+        #table_load_baiviet td:nth-child(6),
+        #table_load_baiviet td:nth-child(7) {
+            text-align: left;
+            width: 160px;
+        }
+
+        /* Thumbnail */
+        #table_load_baiviet td:nth-child(8) img {
+            max-width: 80px;
+            height: auto;
+            border-radius: 4px;
+        }
+
+        /* Cột PDF */
+        #table_load_baiviet th:nth-child(9),
+        #table_load_baiviet td:nth-child(9) {
+            width: 70px;
+            padding: 5px;
+        }
+
+            #table_load_baiviet td:nth-child(9) button {
+                margin: 2px 0;
+                padding: 4px 8px;
+                font-size: 13px;
+            }
+
+        /* Cột hành động */
+        #table_load_baiviet th:nth-child(10),
+        #table_load_baiviet td:nth-child(10) {
+            width: 100px;
+        }
+
+    .cke_contents {
+        min-height: 400px !important;
     }
 
-    /* Căn giữa và border trái cho cột STT */
-    #table_load_baiviet th:nth-child(2),
-    #table_load_baiviet td:nth-child(2) {
-        text-align: center !important;
-        border-left: 1px solid #5a8dee !important;
+    #previewPDF {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
     }
 
-    /* Căn giữa thumbnail (cột 7) */
-    #table_load_baiviet th:nth-child(7),
-    #table_load_baiviet td:nth-child(7) {
-        text-align: center !important;
-        vertical-align: middle !important;
+    .pdf-preview-item {
+        position: relative;
+        background-color: #f5f5f5;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 8px 12px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        max-width: 300px;
+        overflow: hidden;
+        word-break: break-word;
     }
 
-    /* Căn giữa nút Sửa/Xóa (cột 10) */
-    #table_load_baiviet th:nth-child(10),
-    #table_load_baiviet td:nth-child(10) {
-        text-align: center !important;
-        vertical-align: middle !important;
-    }
+        .pdf-preview-item .pdf-name {
+            flex-grow: 1;
+            font-size: 14px;
+            margin-right: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
-    /* ✅ Mở rộng cột Mục lục (cột 5) */
-    #table_load_baiviet th:nth-child(5),
-    #table_load_baiviet td:nth-child(5) {
-        width: 180px !important;
-        max-width: 200px;
-        white-space: normal !important;
-    }
-
-    /* ✅ Thu nhỏ cột PDF (cột 9) */
-    #table_load_baiviet th:nth-child(9),
-    #table_load_baiviet td:nth-child(9) {
-        width: 60px !important;
-        max-width: 70px;
-        text-align: center;
-    }
-
-    /* Bổ sung viền trái/phải cho dòng đầu & cuối (đảm bảo hiển thị rõ ràng) */
-    #table_load_baiviet td:first-child,
-    #table_load_baiviet td:last-child,
-    #table_load_baiviet th:first-child,
-    #table_load_baiviet th:last-child {
-        border-left: 1px solid #5a8dee !important;
-        border-right: 1px solid #5a8dee !important;
-    }
-    /* Thu hẹp cột Ngày đăng (cột 6) */
-    #table_load_baiviet th:nth-child(6),
-    #table_load_baiviet td:nth-child(6) {
-        width: 100px !important;
-        max-width: 110px;
-        text-align: center;
-        white-space: nowrap;
-    }
-
-    /* Mở rộng cột Ngày cập nhật (cột 7) */
-    #table_load_baiviet th:nth-child(7),
-    #table_load_baiviet td:nth-child(7) {
-        width: 150px !important;
-        max-width: 160px;
-        text-align: center;
-        white-space: nowrap;
-    }
-
-    /* Nếu bạn đang dùng bảng khác */
-    #data-table tbody td {
-        padding: 15px 10px;
-        border-bottom: 1px solid #e8e8e8;
-        color: #333;
-        text-align: left;
-        vertical-align: middle;
-    }
-
-    #data-table tbody tr:hover {
-        background-color: #f8f8f8;
-    }
-
-    table.dataTable thead .sorting:after,
-    table.dataTable thead .sorting_asc:after,
-    table.dataTable thead .sorting_desc:after {
-        opacity: 0.4;
-        font-size: 0.8em;
-    }
-
-    .dataTables_wrapper .dataTables_length,
-    .dataTables_wrapper .dataTables_filter {
-        margin-bottom: 1rem;
-    }
-
-    .dataTables_wrapper .dataTables_paginate {
-        margin-top: 1rem;
-    }
-
+        .pdf-preview-item .remove-pdf {
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            line-height: 18px;
+            text-align: center;
+            cursor: pointer;
+        }
     .modal-footer {
         display: flex;
         flex-wrap: wrap;
@@ -176,6 +180,7 @@
     <!-- ========== Danh sách Bài Viết ========== -->
     <!-- Header và breadcrumb -->
     <h2 class="header-title">BÀI VIẾT</h2>
+    <hr/>
     <div class="page-header">
         <h2 class="header-title">Quản lý bài viết</h2>
         <div class="header-sub-title">
@@ -185,19 +190,20 @@
             </nav>
         </div>
     </div>
+    <hr/>
     <button id="btnThemBaiViet" class="btn btn-success mb-3">Thêm bài viết</button>
 
     <div class="table-responsive p-3">
-        <table id="table_load_baiviet" class="table table-bordered table-striped">
+        <table id="table_load_baiviet" class="table table-striped">
             <thead>
                 <tr>
                     <th class="d-none">ID</th>
                     <th class="text-center">STT</th>
                     <th class="text-center">Tiêu đề</th>
                     <th class="text-center">Nội dung</th>
-                    <th class="text-center">Mục lục</th>
-                    <th class="text-center">Ngày đăng</th>
-                    <th class="text-center">Ngày cập nhật</th>
+                    <th>Mục lục</th>
+                    <th>Ngày đăng</th>
+                    <th>Ngày cập nhật</th>
                     <th class="text-center">Thumbnail</th>
                     <th class="text-center" style="width: 120px;">PDF</th>
                     <th class="text-center">Lượt xem</th>
@@ -261,9 +267,8 @@
                 <!-- PDF -->
                 <div class="form-group">
                     <label for="PdfFile">Upload PDF</label>
-                    <input type="file" id="PdfFile" class="form-control-file" accept="application/pdf" />
-                    <input type="hidden" id="LinkPDF" />
-                    <div id="previewPDF" class="mt-2"></div>
+                    <input type="file" id="PdfFile" class="form-control-file" accept="application/pdf" multiple />
+                    <div id="previewPDF" class="mt-2 d-flex flex-wrap gap-2"></div>
                 </div>
             </div>
 
@@ -272,12 +277,6 @@
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
             </div>
         </form>
-    </div>
-    <div id="savingSpinner" class="text-center my-2 d-none">
-        <div class="spinner-border text-primary" role="status">
-            <span class="sr-only">Đang lưu...</span>
-        </div>
-        <p class="mt-2 font-italic text-muted">Đang lưu bài viết...</p>
     </div>
 </div>
 
@@ -342,6 +341,29 @@
         </div>
     </div>
 </div>
+<!-- Modal Danh sách PDF -->
+<div class="modal fade" id="modalDanhSachPDF" tabindex="-1" aria-labelledby="modalDanhSachPDFLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalDanhSachPDFLabel">Danh sách file PDF</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                <div id="danhSachPDFContainer" class="row gy-2">
+                    <!-- Danh sách PDF sẽ render ở đây -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btnTaiTatCaPDF" class="btn btn-success">
+                    <i class="anticon anticon-download"></i> Tải tất cả
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 @section scriptsAdmin {
     <!-- Bootstrap & DataTables -->

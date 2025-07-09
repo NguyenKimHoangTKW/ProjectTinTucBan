@@ -450,6 +450,7 @@
     <Content Include="Areas\Admin\Scripts\DonViTrucThuoc.js" />
     <Content Include="Areas\Admin\Scripts\GroupMenuAdminScript.js" />
     <Content Include="Areas\Admin\Scripts\Khoi.js" />
+    <Content Include="Areas\Admin\Scripts\MaHoaKTDB.js" />
     <Content Include="Areas\Admin\Scripts\MenuScript.js" />
     <Content Include="Areas\Admin\Scripts\SliderAdminScript.js" />
     <Content Include="Areas\Admin\Scripts\SliderShowScript.js" />

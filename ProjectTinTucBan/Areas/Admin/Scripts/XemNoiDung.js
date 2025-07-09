@@ -93,6 +93,30 @@ function insertImage(editor, src, width, height, showToast) {
     }
 }
 
+function restoreSessionStorageFromServer() {
+    return new Promise((resolve) => {
+        $.ajax({
+            url: '/api/v1/admin/current-user',
+            type: 'GET',
+            dataType: 'json',
+            success: function (res) {
+                if (res.success && res.isLoggedIn && res.user) {
+                    sessionStorage.setItem('loginInfo', JSON.stringify({
+                        userId: res.user.id,
+                        name: res.user.name,
+                        email: res.user.email,
+                        role: res.user.role
+                    }));
+                } else {
+                }
+                resolve(); // luôn resolve để tiếp tục
+            },
+            error: function () {
+                resolve(); // vẫn resolve để không làm treo flow
+            }
+        });
+    });
+}
 // ✅ Định nghĩa hàm khởi tạo CKEditor
 function initCKEditor(elementId) {
     if (CKEDITOR.instances[elementId]) {
@@ -149,7 +173,9 @@ function initCKEditor(elementId) {
     });
 }
 
-$(document).ready(function () {
+$(document).ready(async function () {
+    await restoreSessionStorageFromServer();
+
     initCKEditor('NoiDung');
 
     // ---------- Lưu nội dung ----------
@@ -392,4 +418,59 @@ $(document).ready(function () {
         await Promise.all(promises);
         await new Promise(resolve => setTimeout(resolve, 200)); // Thêm delay nhỏ để đảm bảo
     }
+    const baiVietId = $('#BaiVietID').val();
+    if (!baiVietId) return;
+
+    $.get(`${BASE_URL}/get-baiviet-by-id/${baiVietId}`, function (res) {
+        if (!res.success || !res.data) {
+            Swal.fire('Lỗi', 'Không thể tải bài viết.', 'error');
+            return;
+        }
+
+        const data = res.data;
+
+        // Gán dữ liệu vào giao diện
+        $('#TieuDeBaiViet').val(data.TieuDe || '');
+        $('.nguoi-dang').text(data.NguoiDang?.TenTaiKhoan || 'Không xác định');
+        $('.id-nguoi-dang').text(data.NguoiDang?.ID || 'Không rõ');
+        $('.ngay-dang').text(formatUnixDate(data.NgayDang));
+        $('.ngay-capnhat').text(formatUnixDate(data.NgayCapNhat));
+
+        // Nội dung CKEditor
+        if (CKEDITOR.instances.NoiDung) {
+            CKEDITOR.instances.NoiDung.setData(data.NoiDung || '');
+        } else {
+            initCKEditor('NoiDung');
+            CKEDITOR.instances.NoiDung.setData(data.NoiDung || '');
+        }
+
+        // 👇 XỬ LÝ QUYỀN: nếu không phải admin và không phải người đăng thì ẩn nút Lưu
+        const currentUser = JSON.parse(sessionStorage.getItem('loginInfo') || '{}');
+        const isAdmin = currentUser.role === 1;
+        const isOwner = currentUser.userId === data.NguoiDang?.ID;
+
+        if (!isAdmin && !isOwner) {
+            $('#btnLuuNoiDung').hide(); // Ẩn nút
+        } else {
+            $('#btnLuuNoiDung').show(); // Hiện lại nếu có quyền
+        }
+    });
+
+    // Hàm chuyển timestamp về dạng dd/MM/yyyy
+    function formatUnixDate(unixSeconds) {
+        if (!unixSeconds) return "N/A";
+
+        const date = new Date(unixSeconds * 1000);
+        const weekdays = ['Chủ Nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+        const dayOfWeek = weekdays[date.getDay()];
+        const day = ("0" + date.getDate()).slice(-2);
+        const month = ("0" + (date.getMonth() + 1)).slice(-2);
+        const year = date.getFullYear();
+        const hours = ("0" + date.getHours()).slice(-2);
+        const minutes = ("0" + date.getMinutes()).slice(-2);
+        const seconds = ("0" + date.getSeconds()).slice(-2);
+
+        return `${dayOfWeek}, ${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+    }
+
 });

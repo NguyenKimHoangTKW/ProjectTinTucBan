@@ -1,5 +1,6 @@
 ﻿const BASE_URL = `/api/v1/admin`;
 
+let uploadedPDFs = [];
 $(document).ready(async function () {
     let loginStatus = false;
     try {
@@ -20,6 +21,7 @@ $(document).ready(async function () {
     }
 
     loadMucLucOptions();
+    await restoreSessionStorageFromServer(); // đợi session đồng bộ xong
     await GetAllBaiViet();
     setupBaiVietTableEvents();
     setupModalFormEvents();
@@ -65,6 +67,30 @@ $(document).on('click', '#btnCopyTieuDe', function () {
         });
     });
 });
+function restoreSessionStorageFromServer() {
+    return new Promise((resolve) => {
+        $.ajax({
+            url: '/api/v1/admin/current-user',
+            type: 'GET',
+            dataType: 'json',
+            success: function (res) {
+                if (res.success && res.isLoggedIn && res.user) {
+                    sessionStorage.setItem('loginInfo', JSON.stringify({
+                        userId: res.user.id,
+                        name: res.user.name,
+                        email: res.user.email,
+                        role: res.user.role
+                    }));
+                } else {
+                }
+                resolve(); // luôn resolve để tiếp tục
+            },
+            error: function () {
+                resolve(); // vẫn resolve để không làm treo flow
+            }
+        });
+    });
+}
 
 // Load all mục lục for dropdown selection
 function loadMucLucOptions() {
@@ -93,89 +119,56 @@ function loadMucLucOptions() {
 function setupBaiVietTableEvents() {
     $('#btnThemBaiViet').on('click', function () {
         resetModalForm();
+        const linkPDFString = uploadedPDFs
+            .map(pdf => `${pdf.url}|${pdf.originalName}`)
+            .join(';');
+        $('#LinkPDF').val(linkPDFString);
+        uploadedPDFs = [];
+        $('#previewPDF').empty();
+        $('#PdfFile').val('');
+        
         $('#modalBaiVietLabel').text('Thêm Bài Viết');
 
         // Sau khi modal mở, khởi tạo lại CKEditor với nội dung trống
         $('#modalBaiViet').off('shown.bs.modal').on('shown.bs.modal', function () {
-            $(this).attr('aria-hidden', 'false');
+            setTimeout(() => {
+                if (CKEDITOR.instances.NoiDung) {
+                    CKEDITOR.instances.NoiDung.destroy(true);
+                }
 
-            if (CKEDITOR.instances.NoiDung) {
-                CKEDITOR.instances.NoiDung.destroy(true);
-            }
-            // Hủy CKEditor cũ nếu tồn tại
-            CKEDITOR.replace('NoiDung', {
-                extraPlugins: 'justify',
-                allowedContent: true,
-                height: '500px',
-                resize_enabled: false,
-                toolbar: [
-                    { name: 'clipboard', items: ['Cut', 'Copy', 'Paste', 'Undo', 'Redo'] },
-                    { name: 'styles', items: ['Format', 'Font', 'FontSize'] },
-                    { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', '-', 'RemoveFormat'] },
-                    { name: 'paragraph', items: ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'NumberedList', 'BulletedList'] },
-                    { name: 'links', items: ['Link', 'Unlink'] },
-                    { name: 'insert', items: ['Image', 'Table', 'HorizontalRule'] },
-                    { name: 'tools', items: ['Maximize'] }
-                ]
-            });
-            // Khi CKEditor sẵn sàng
-            CKEDITOR.instances.NoiDung.on('instanceReady', function () {
-                const editor = CKEDITOR.instances.NoiDung;
-                editor.setData('', function () {
-                    // Sau khi set xong, resize ngay
-                    setTimeout(() => {
-                        const body = editor.document?.$?.body;
-                        if (body) {
-                            const scrollHeight = body.scrollHeight;
-                            const newHeight = Math.min(scrollHeight + 100, 1000);
-                            editor.resize('100%', newHeight);
-                        }
-                    }, 100);
+                CKEDITOR.replace('NoiDung', {
+                    extraPlugins: 'justify',
+                    allowedContent: true,
+                    resize_enabled: false,
+                    height: 400, // hoặc bỏ đi để resize động bên dưới
+                    toolbar: [
+                        { name: 'clipboard', items: ['Cut', 'Copy', 'Paste', 'Undo', 'Redo'] },
+                        { name: 'styles', items: ['Format', 'Font', 'FontSize'] },
+                        { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', '-', 'RemoveFormat'] },
+                        { name: 'paragraph', items: ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'NumberedList', 'BulletedList'] },
+                        { name: 'links', items: ['Link', 'Unlink'] },
+                        { name: 'insert', items: ['Image', 'Table', 'HorizontalRule'] },
+                        { name: 'tools', items: ['Maximize'] }
+                    ]
                 });
 
-                // Gắn auto resize khi người dùng nhập thêm nội dung
-                autoResizeCKEditor(editor);
-
-                // Gắn sự kiện xử lý ảnh paste/drag-drop
-                editor.on('paste', function (evt) {
-                    const data = evt.data;
-                    const transfer = data?.dataTransfer?._ || data?.dataTransfer?.$;
-                    if (transfer?.files?.length > 0) {
-                        let hasImage = false;
-                        for (const f of transfer.files) {
-                            if (f.type.startsWith('image/')) {
-                                hasImage = true;
+                CKEDITOR.instances.NoiDung.on('instanceReady', function () {
+                    const editor = CKEDITOR.instances.NoiDung;
+                    editor.setData('', function () {
+                        setTimeout(() => {
+                            const body = editor.document?.$?.body;
+                            if (body) {
+                                const scrollHeight = body.scrollHeight;
+                                const newHeight = Math.min(scrollHeight + 100, 1000);
+                                editor.resize('100%', newHeight);
                             }
-                        }
-                        if (hasImage && transfer.files.length === 1) {
-                            evt.cancel(); // Chỉ cancel nếu là ảnh duy nhất
-                        }
-                    }
+                        }, 100);
+                    });
+
+                    autoResizeCKEditor(editor); // nếu có hàm auto resize riêng
                 });
 
-                // Gắn sự kiện xử lý ảnh paste/drag-drop
-                editor.on('paste', function (evt) {
-                    const data = evt.data;
-                    const transfer = data?.dataTransfer?._ || data?.dataTransfer?.$;
-                    if (transfer?.files?.length > 0) {
-                        let hasImage = false;
-                        for (const f of transfer.files) {
-                            if (f.type.startsWith('image/')) {
-                                hasImage = true;
-                            }
-                        }
-                        if (hasImage && transfer.files.length === 1) {
-                            evt.cancel(); // Chỉ cancel nếu là ảnh duy nhất
-                        }
-                    }
-                });
-                editor.document.on('paste', function (e) {
-                    handlePasteOrDrop(e.data.$, editor);
-                });
-                editor.document.on('drop', function (e) {
-                    handlePasteOrDrop(e.data.$, editor);
-                });
-            });
+            }, 200); // 👉 delay nhỏ để modal hiển thị xong
         });
         $('#modalBaiViet').modal('show');
     });
@@ -185,6 +178,156 @@ function setupBaiVietTableEvents() {
         $('#tieuDeDayDuContent').text(tieuDe);
         $('#modalTieuDeDayDu').modal('show');
     });
+
+    $(document).on('click', '.btn-sua', async function () {
+        uploadedPDFs = [];                  // ✅ reset mảng
+        $('#previewPDF').empty();          // ✅ reset giao diện preview
+        $('#PdfFile').val('');             // ✅ reset input file
+        const id = $(this).data('id');
+        try {
+            const res = await $.ajax({
+                url: `${BASE_URL}/get-baiviet-by-id/${id}`,
+                type: 'GET'
+            });
+
+            if (res.success) {
+                const b = res.data;
+                const noiDung = b.NoiDung || '';
+                $('#modalBaiVietLabel').text('Sửa Bài Viết');
+                $('#BaiVietID').val(b.ID);
+                $('#TieuDe').val(b.TieuDe);
+                $('#LinkThumbnail').val(b.LinkThumbnail);
+                $('#LinkPDF').val(b.LinkPDF);
+                if (b.ID_MucLuc) {
+                    $('#ID_MucLuc').val(b.ID_MucLuc);
+                } else {
+                    $('#ID_MucLuc').val('');
+                }
+
+                // Khởi tạo lại CKEditor sau khi modal show
+                $('#modalBaiViet').off('shown.bs.modal').on('shown.bs.modal', function () {
+                    setTimeout(() => {
+                        if (CKEDITOR.instances.NoiDung) {
+                            CKEDITOR.instances.NoiDung.destroy(true);
+                        }
+
+                        CKEDITOR.replace('NoiDung', {
+                            extraPlugins: 'justify',
+                            allowedContent: true,
+                            height: '500px',
+                            resize_enabled: false,
+                            toolbar: [
+                                { name: 'clipboard', items: ['Cut', 'Copy', 'Paste', 'Undo', 'Redo'] },
+                                { name: 'styles', items: ['Format', 'Font', 'FontSize'] },
+                                { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', '-', 'RemoveFormat'] },
+                                { name: 'paragraph', items: ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'NumberedList', 'BulletedList'] },
+                                { name: 'links', items: ['Link', 'Unlink'] },
+                                { name: 'insert', items: ['Image', 'Table', 'HorizontalRule'] },
+                                { name: 'tools', items: ['Maximize'] }
+                            ]
+                        });
+
+                        CKEDITOR.instances.NoiDung.on('instanceReady', function () {
+                            const editor = CKEDITOR.instances.NoiDung;
+                            editor.setData(noiDung, function () {
+                                // Resize ban đầu
+                                setTimeout(() => {
+                                    const body = editor.document?.$?.body;
+                                    if (body) {
+                                        const scrollHeight = body.scrollHeight;
+                                        const newHeight = Math.min(scrollHeight + 100, 1000);
+                                        editor.resize('100%', newHeight);
+                                    }
+                                }, 100);
+                            });
+
+                            autoResizeCKEditor(editor);
+
+                            // Chặn ảnh gốc nếu dán ảnh duy nhất
+                            editor.on('paste', function (evt) {
+                                const data = evt.data;
+                                const transfer = data?.dataTransfer?._ || data?.dataTransfer?.$;
+                                if (transfer?.files?.length > 0) {
+                                    let hasImage = false;
+                                    for (const f of transfer.files) {
+                                        if (f.type.startsWith('image/')) {
+                                            hasImage = true;
+                                        }
+                                    }
+                                    if (hasImage && transfer.files.length === 1) {
+                                        evt.cancel(); // Chỉ cancel nếu là ảnh duy nhất
+                                    }
+                                }
+                            });
+
+                            // Xử lý ảnh paste hoặc drag-drop (resize)
+                            editor.document.on('paste', function (e) {
+                                handlePasteOrDrop(e.data.$, editor);
+                            });
+                            editor.document.on('drop', function (e) {
+                                handlePasteOrDrop(e.data.$, editor);
+                            });
+                        });
+
+                    }, 200); // Chờ modal render xong
+                });
+
+
+                // Ảnh & PDF
+                if (b.LinkThumbnail) {
+                    $('#previewThumbnail').html(`<img src="${b.LinkThumbnail}" style="max-width: 200px;" />`);
+                    $('#btnXoaThumbnail').removeClass('d-none');
+                } else {
+                    $('#previewThumbnail').html('');
+                    $('#btnXoaThumbnail').addClass('d-none');
+                }
+
+                uploadedPDFs = [];
+                $('#previewPDF').empty();
+
+                if (b.LinkPDF) {
+                    const links = b.LinkPDF.includes(';') ? b.LinkPDF.split(';') : [b.LinkPDF];
+
+                    links.forEach(linkStr => {
+                        const [url, originalName] = linkStr.split('|');
+                        const id = crypto.randomUUID(); /* đảm bảo không trùng lặp bằng một biến tăng dần */
+
+                        uploadedPDFs.push({
+                            id,
+                            file: null,
+                            url,
+                            originalName: originalName || decodeURIComponent(url.split('/').pop()) // fallback nếu thiếu
+                        });
+
+                        const pdfHTML = `
+                            <div class="pdf-preview-box" data-id="${id}">
+                                <a href="${url}" target="_blank">${originalName || 'Xem PDF'}</a>
+                                <button type="button" class="btn-xoa-pdf" title="Xóa">&times;</button>
+                            </div>`;
+                        $('#previewPDF').append(pdfHTML);
+                    });
+                }
+
+
+
+                $('#modalBaiViet').modal('show');
+            } else {
+                Swal.fire({ icon: 'error', title: 'Lỗi', text: res.message || 'Không tải được dữ liệu.' });
+            }
+        } catch {
+            Swal.fire({ icon: 'error', title: 'Lỗi', text: 'Không thể kết nối đến server.' });
+        }
+    });
+
+    $(document).on('click', '.btn-xoa-pdf', function () {
+        const box = $(this).closest('.pdf-preview-box');
+        const id = box.data('id');
+        // Xóa khỏi mảng
+        uploadedPDFs = uploadedPDFs.filter(f => f.id !== id);
+        // Xóa khỏi giao diện
+        box.remove();
+    });
+
     $(document).on('click', '.btn-xoa', async function () {
         const baiVietID = $(this).data('id');
         const result = await Swal.fire({
@@ -220,6 +363,7 @@ function setupBaiVietTableEvents() {
 
         }
     });
+
     $(document).on('click', '.btn-xem', function () {
         const id = $(this).data('id');
         const url = `/admin/xem-noi-dung?id=${id}`; // Đúng tên Controller + Action
@@ -237,6 +381,11 @@ function setupBaiVietTableEvents() {
             Swal.fire('Thiếu thông tin', 'Vui lòng nhập đầy đủ tiêu đề và nội dung.', 'warning');
             return;
         }
+        // ✅ Gán chuỗi LinkPDF từ uploadedPDFs
+        const linkPDFString = uploadedPDFs
+            .map(pdf => `${pdf.url}|${pdf.originalName}`)
+            .join(';');
+        $('#LinkPDF').val(linkPDFString);
 
         try {
             const res = await $.ajax({
@@ -283,21 +432,38 @@ async function GetAllBaiViet() {
 
     if (res.success) {
         let html = '';
+        const currentUser = JSON.parse(sessionStorage.getItem('loginInfo') || '{}');
+        const isAdmin = currentUser.role === 1;
         res.data.forEach((item, index) => {
             const isTitleLong = item.TieuDe.length > 10;
+            //const encodedTitle = encodeURIComponent(item.TieuDe);       // dùng cho data-tieude
+            const safeFullTitle = escapeHtml(item.TieuDe);              // dùng để hiển thị an toàn
+            const shortened = shortenTitle(item.TieuDe);                // rút gọn hiển thị
+
             const displayTitle = isTitleLong
                 ? `<span class="btn-xem-tieude"
-                          title="${item.TieuDe}"
-                          data-tieude="${encodeURIComponent(item.TieuDe)}"
+                          title="${safeFullTitle}"
+                          data-tieude="${safeFullTitle}"
                           style="cursor: pointer; color: black; text-decoration: none;">
-                          ${shortenTitle(item.TieuDe)}
+                          ${escapeHtml(shortened)}
                    </span>`
-                : item.TieuDe;
+                : escapeHtml(item.TieuDe); // nếu ngắn thì escape luôn
 
-            // Improved MucLuc handling
+            // Mục lục
             let mucLucInfo = 'Khác';
-            if (item.MucLuc && item.MucLuc.TenMucLuc) {
-                mucLucInfo = item.MucLuc.TenMucLuc;
+            if (item.MucLuc?.TenMucLuc) {
+                mucLucInfo = escapeHtml(item.MucLuc.TenMucLuc);
+            }
+
+            let actionButtons = '';
+            const isOwner = currentUser.userId === item.NguoiDang?.ID;
+            if (isAdmin || isOwner) {
+                actionButtons = `
+                    <button class="btn btn-warning btn-sm py-1 px-2 w-100 mt-1 btn-sua"
+                            data-id="${item.ID}" style="max-width: 80px;">Sửa</button>
+                    <button class="btn btn-danger btn-sm py-1 px-2 w-100 mt-1 btn-xoa"
+                            data-id="${item.ID}" style="max-width: 80px;">Xóa</button>
+                `;
             }
 
             const linkThumb = item.LinkThumbnail
@@ -311,11 +477,9 @@ async function GetAllBaiViet() {
 
             const linkPDF = item.LinkPDF
                 ? `<div class="text-center d-flex flex-column align-items-center">
-                     <a href="${item.LinkPDF}" target="_blank" class="btn btn-sm btn-primary py-1 px-2 w-100 mt-1" style="max-width: 80px;">
+                     <button type="button" class="btn btn-sm btn-info py-1 px-2 w-100 mt-1 btn-xem-danh-sach-pdf" 
+                             data-links="${item.LinkPDF}" style="max-width: 80px;">
                         <i class="anticon anticon-eye"></i>
-                     </a>
-                     <button type="button" class="btn btn-sm btn-primary py-1 px-2 w-100 mt-1 btn-tai-pdf" data-link="${item.LinkPDF}" style="max-width: 80px;">
-                        <i class="anticon anticon-download"></i>
                      </button>
                    </div>`
                 : `<div class="text-danger text-center"></div>`;
@@ -324,9 +488,7 @@ async function GetAllBaiViet() {
                 <tr>
                     <td class="d-none">${item.ID}</td>
                     <td>${index + 1}</td>
-                    <td>
-                        ${displayTitle}
-                    </td>
+                    <td>${displayTitle}</td>
                     <td class="text-center">
                         <button class="btn btn-sm btn-outline-info btn-xem" data-id="${item.ID}">
                             Xem
@@ -340,7 +502,7 @@ async function GetAllBaiViet() {
                     <td>${item.ViewCount ?? 0}</td>
                     <td>
                         <div class="text-center d-flex flex-column align-items-center">
-                            <button class="btn btn-danger btn-sm py-1 px-2 w-100 mt-1 btn-xoa" data-id="${item.ID}" style="max-width: 80px;">Xóa</button>
+                            ${actionButtons}
                         </div>
                     </td>
                 </tr>`;
@@ -348,13 +510,98 @@ async function GetAllBaiViet() {
 
         table.find('tbody').html(html);
         table.DataTable({
-            order: [], // No default ordering
-            columnDefs: [{ targets: 0, visible: false }] // Hide ID column
+            order: [],
+            columnDefs: [{ targets: 0, visible: false }]
         });
     } else {
         table.find('tbody').html(`<tr><td colspan="11">${res.message}</td></tr>`);
     }
 }
+
+$(document).on('click', '.btn-xem-danh-sach-pdf', function () {
+    const rawLinks = $(this).data('links');
+    if (!rawLinks) return;
+
+    const links = rawLinks.split(';').filter(link => link.trim() !== '');
+    if (links.length === 0) return;
+    // Lưu trữ để tải sau này
+    let html = links.map((link, index) => {
+        const parts = link.split('|');
+        const fileUrl = parts[0].trim(); // đường dẫn file lưu trữ
+        const serverFileName = decodeURIComponent(fileUrl.split('/').pop()); // upload_abc.pdf
+        let originalName = decodeURIComponent(parts[1] || serverFileName);  // fallback nếu thiếu
+        originalName = originalName.replace(/\.pdf$/i, '');
+
+        // Tạo URL download qua API, truyền đúng 2 tham số
+        const downloadUrl = `${BASE_URL}/download-pdf?fileName=${encodeURIComponent(serverFileName)}&originalName=${encodeURIComponent(originalName)}`;
+
+        return `
+        <div class="d-flex justify-content-between align-items-center border p-2 mb-1">
+            <a href="${fileUrl}" target="_blank" class="text-primary" style="flex-grow:1; text-decoration:underline;">
+                ${originalName}
+            </a>
+            <a class="btn btn-sm btn-outline-success" href="${downloadUrl}">
+                <i class="anticon anticon-download"></i>
+            </a>
+        </div>
+    `;
+    }).join('');
+
+    html += `
+        <div class="text-center mt-3">
+            <button class="btn btn-success btn-tai-tat-ca-pdf" data-links="${rawLinks}">
+                <i class="anticon anticon-download"></i> Tải tất cả
+            </button>
+        </div>
+    `;
+
+    Swal.fire({
+        title: 'Danh sách PDF',
+        html,
+        width: '600px',
+        showCloseButton: true,
+        showConfirmButton: false
+    });
+});
+// Tải từng file từ danh sách PDF
+$(document).on('click', '.btn-tai-pdf-tu-list', function (e) {
+    e.preventDefault();
+    const fileName = $(this).data('server');
+    const originalName = $(this).data('original');
+
+    const downloadUrl = `/api/v1/admin/download-pdf?fileName=${fileName}&originalName=${originalName}`;
+    const a = document.createElement('a');
+    a.href = downloadUrl;
+    a.download = '';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+});
+
+
+// Tải tất cả file PDF
+$(document).on('click', '.btn-tai-tat-ca-pdf', function () {
+    const links = $(this).data('links')?.split(';') || [];
+
+    links.forEach(linkEntry => {
+        const parts = linkEntry.split('|');
+        const serverFile = parts[0].split('/').pop();
+        const originalName = parts[1] || serverFile;
+
+        const encodedServerFile = encodeURIComponent(serverFile);
+        const encodedOriginalName = encodeURIComponent(originalName);
+
+        const downloadUrl = `/api/v1/admin/download-pdf?fileName=${encodedServerFile}&originalName=${encodedOriginalName}`;
+
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = '';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    });
+});
+
 
 function shortenTitle(title, maxLength = 10) {
     if (!title) return '';
@@ -362,13 +609,21 @@ function shortenTitle(title, maxLength = 10) {
 }
 
 function formatDateFromInt(unixTimestamp) {
-    if (!unixTimestamp) return '';
-    const date = new Date(unixTimestamp * 1000); // chuyển từ giây sang mili giây
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // tháng bắt đầu từ 0
+    if (!unixTimestamp) return "N/A";
+
+    const date = new Date(unixTimestamp * 1000);
+    const weekdays = ['Chủ Nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+    const dayOfWeek = weekdays[date.getDay()];
+    const day = ("0" + date.getDate()).slice(-2);
+    const month = ("0" + (date.getMonth() + 1)).slice(-2);
     const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
+    const hours = ("0" + date.getHours()).slice(-2);
+    const minutes = ("0" + date.getMinutes()).slice(-2);
+    const seconds = ("0" + date.getSeconds()).slice(-2);
+
+    return `${dayOfWeek}, ${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
 }
+
 
 function autoResizeCKEditor(editorInstance) {
     if (!editorInstance) return;
@@ -518,8 +773,21 @@ function setupModalFormEvents() {
         });
         CKEDITOR.instances.NoiDung.on('instanceReady', function () {
             const editor = CKEDITOR.instances.NoiDung;
-            // Tự động resize
-            autoResizeCKEditor(editor);
+
+            editor.setData('', function () {
+                // Đảm bảo resize ngay sau khi setData xong
+                setTimeout(() => {
+                    const body = editor.document?.$?.body;
+                    if (body) {
+                        const scrollHeight = body.scrollHeight || 400; // nếu chưa có nội dung
+                        const newHeight = Math.min(scrollHeight + 100, 600); // giới hạn tối đa
+                        editor.resize('100%', newHeight);
+                    }
+                }, 100);
+            });
+
+            // Auto resize khi gõ thêm nội dung
+            autoResizeCKEditor(editor); // bạn đã có hàm này rồi
 
             //Gói ảnh vào <p style="text-align:center"> + thêm dòng trống sau ảnh
             editor.on('paste', function (evt) {
@@ -551,7 +819,7 @@ function setupModalFormEvents() {
             TieuDe: $('#TieuDe').val().trim(),
             NoiDung: CKEDITOR.instances.NoiDung?.getData()?.trim() || '',
             LinkThumbnail: $('#LinkThumbnail').val().trim(),
-            LinkPDF: $('#LinkPDF').val().trim(),
+            LinkPDF: uploadedPDFs.map(p => p.url).join(';'), // hoặc JSON.stringify nếu cần gửi mảng
             ID_MucLuc: selectedMucLuc,
         };
 
@@ -616,6 +884,75 @@ function setupModalFormEvents() {
         reader.readAsDataURL(file);
     });
 
+    $('#PdfFile').off('change').on('change', async function () {
+        const input = this;
+        const files = Array.from(input.files);
+
+        if (!files.length) return;
+
+        for (const file of files) {
+            if (file.type !== 'application/pdf') {
+                Swal.fire('Cảnh báo', `${file.name} không phải file PDF.`, 'warning');
+                continue;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const res = await $.ajax({
+                    url: `${BASE_URL}/upload-pdf`,
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false
+                });
+
+                if (res.success && res.link) {
+                    const id = Date.now() + Math.floor(Math.random() * 1000);
+
+                    // Tránh trùng link (do upload lại trùng tên)
+                    const isDuplicate = uploadedPDFs.some(x => x.url === res.link);
+                    if (isDuplicate) continue;
+
+                    uploadedPDFs.push({
+                        id,
+                        file,
+                        url: res.link,
+                        originalName: file.name
+                    });
+
+                    const html = `
+                    <div class="pdf-preview-box border rounded px-2 py-1 d-flex justify-content-between align-items-center" data-id="${id}" style="gap: 10px">
+                        <a href="${res.link}" target="_blank" title="${file.name}">${file.name}</a>
+                        <button type="button" class="btn btn-sm btn-danger btn-xoa-pdf" title="Xóa">&times;</button>
+                    </div>`;
+                    $('#previewPDF').append(html);
+                } else {
+                    Swal.fire('Lỗi', `Upload ${file.name} thất bại.`, 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                Swal.fire('Lỗi', `Lỗi khi upload ${file.name}.`, 'error');
+            }
+        }
+
+        // Reset sau khi xử lý toàn bộ file
+        setTimeout(() => {
+            $(input).val('');
+        }, 100);
+    });
+
+    uploadedPDFs = baiViet.LinkPDF?.split(';').map(pdfStr => {
+        const [url, name] = pdfStr.split('|');
+        return {
+            id: crypto.randomUUID(),      //mỗi file phải có id duy nhất
+            url,
+            originalName: name || 'File.pdf',
+            file: null                    // file gốc không cần khi sửa
+        };
+    }) || [];
+
 
     $(document).on('click', '.img-select', function () {
         const link = $(this).data('link');
@@ -677,6 +1014,7 @@ function setupModalFormEvents() {
 }
 
 function resetModalForm() {
+    uploadedPDFs = [];
     const form = $('#form_baiviet')[0];
     if (form) form.reset();
     $('#BaiVietID').val('');

@@ -1,14 +1,16 @@
-﻿using ProjectTinTucBan.Models;
+﻿using ProjectTinTucBan.Helper;
+using ProjectTinTucBan.Models;
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
-using ProjectTinTucBan.Helper;
 
 namespace ProjectTinTucBan.Areas.Admin.Controllers
 {
@@ -21,6 +23,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         {
             return (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
         }
+
         // GET: Lấy tất cả bài viết
         [HttpGet]
         [Route("get-all-baiviet")]
@@ -43,7 +46,12 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                         x.MucLuc.ID,
                         x.MucLuc.TenMucLuc
                     } : null,
-                    ID_MucLuc = x.ID_MucLuc
+                    ID_MucLuc = x.ID_MucLuc,
+                    NguoiDang = x.TaiKhoan != null ? new
+                    {
+                        x.TaiKhoan.ID,
+                        x.TaiKhoan.TenTaiKhoan
+                    } : null
                 })
                 .ToListAsync();
 
@@ -93,7 +101,6 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 success = true
             });
         }
-
 
         // POST: Thêm bài viết
         [HttpPost]
@@ -344,7 +351,6 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
             return Ok(new { data, success = true });
         }
-
         // GET: Lấy bài viết theo mục lục
         [HttpGet]
         [Route("get-baiviet-by-mucluc/{mucLucId}")]
@@ -369,5 +375,35 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
             return Ok(new { data, success = true });
         }
+        [HttpGet]
+        [Route("download-pdf")]
+        public HttpResponseMessage DownloadPdf(string fileName, string originalName)
+        {
+            if (string.IsNullOrWhiteSpace(fileName))
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+
+            var path = HttpContext.Current.Server.MapPath($"~/Uploads/PDFs/{fileName}");
+            if (!File.Exists(path))
+                return new HttpResponseMessage(HttpStatusCode.NotFound);
+
+            var bytes = File.ReadAllBytes(path);
+            var stream = new MemoryStream(bytes);
+
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StreamContent(stream)
+            };
+            response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
+
+            // ✅ Xử lý tên file Unicode an toàn
+            string displayName = originalName ?? fileName;
+            string headerValue = $"attachment; filename*=UTF-8''{Uri.EscapeDataString(displayName)}";
+
+            response.Content.Headers.ContentDisposition = ContentDispositionHeaderValue.Parse(headerValue);
+
+            return response;
+        }
+
+
     }
 }
