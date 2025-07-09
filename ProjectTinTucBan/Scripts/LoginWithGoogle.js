@@ -4,11 +4,12 @@
         scope: "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
         callback: (response) => {
             if (response.access_token) {
-                fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-                    headers: { "Authorization": `Bearer ${response.access_token}` }
-                })
-                    .then(res => res.json())
-                    .then(userInfo => {
+                $.ajax({
+                    url: "https://www.googleapis.com/oauth2/v3/userinfo",
+                    type: "GET",
+                    headers: { "Authorization": `Bearer ${response.access_token}` },
+                    dataType: "json",
+                    success: function (userInfo) {
                         // Log all name-related fields for debugging
                         console.log("Full Google response:", userInfo);
 
@@ -19,10 +20,11 @@
                             userInfo.given_name || "",     // First name
                             userInfo.family_name || ""     // Last name
                         );
-                    })
-                    .catch(error => {
+                    },
+                    error: function (error) {
                         Sweet_Alert("error", "Lỗi khi lấy thông tin từ Google");
-                    });
+                    }
+                });
             }
         },
         redirect_uri: "https://localhost:44305/signin-google"
@@ -30,21 +32,17 @@
 }
 
 function togglePassword(inputId) {
-    var input = document.getElementById(inputId);
-    var icon = event.currentTarget.querySelector('i');
+    var input = $("#" + inputId);
+    var icon = $(event.currentTarget).find("i");
 
-    if (input.type === "password") {
-        input.type = "text";
-        icon.classList.remove("fa-eye");
-        icon.classList.add("fa-eye-slash");
+    if (input.attr("type") === "password") {
+        input.attr("type", "text");
+        icon.removeClass("fa-eye").addClass("fa-eye-slash");
     } else {
-        input.type = "password";
-        icon.classList.remove("fa-eye-slash");
-        icon.classList.add("fa-eye");
+        input.attr("type", "password");
+        icon.removeClass("fa-eye-slash").addClass("fa-eye");
     }
 }
-
-
 
 async function Session_Login(email, fullname, given_name, family_name) {
     try {
@@ -90,7 +88,8 @@ async function Session_Login(email, fullname, given_name, family_name) {
                     showConfirmButton: false,
                     timer: 2000
                 }).then(() => {
-                    window.location.href = `/Admin/InterfaceAdmin/Index`;
+                    // Sử dụng jQuery thay vì JS thuần
+                    $(location).attr('href', "/Admin/InterfaceAdmin/Index");
                 });
             } else {
                 Sweet_Alert("error", "Tài khoản bạn không thuộc phân quyền Admin...");
@@ -116,7 +115,8 @@ function Logout_Session() {
         success: function (res) {
             if (res.success) {
                 localStorage.removeItem('authInfo');
-                location.replace("/Admin/InterfaceAdmin/Login");
+                // Sử dụng jQuery thay vì JS thuần
+                $(location).attr('href', "/Admin/InterfaceAdmin/Login");
             }
         },
         error: function (error) {
@@ -177,7 +177,6 @@ function checkAccountLockStatus() {
 // Improved showLockCountdown function
 let currentCountdownInterval = null;
 function showLockCountdown(unlockTimeValue, failedAttempts) {
-
     $("#btnLogin").prop("disabled", true).addClass("disabled");
     // xoá bộ đếm hiện có
     if (currentCountdownInterval) {
@@ -215,23 +214,25 @@ function showLockCountdown(unlockTimeValue, failedAttempts) {
         }
     } catch (e) {
         // Default to 15 minutes from now as fallback
-        unlockTime = Date.now() + (15 * 60 * 1000);
+        unlockTime = $.now() + (15 * 60 * 1000);
     }
 
-    // Set up the countdown timer
-    const updateCountdown = setInterval(function () {
-        const now = Date.now();
+    // Set up the countdown timer - sử dụng setInterval của jQuery
+    currentCountdownInterval = setInterval(function () {
+        const now = $.now();
         const timeLeft = unlockTime - now;
 
         if (timeLeft <= 0) {
-            clearInterval(updateCountdown);
+            clearInterval(currentCountdownInterval);
             $("#lockCountdownContainer").html(`
                 <div class="alert alert-success">
                     <i class="fas fa-unlock mr-2"></i>
                     <span>Tài khoản đã được mở khóa. Bạn có thể đăng nhập lại.</span>
                 </div>
             `);
-            setTimeout(() => $("#lockCountdownContainer").fadeOut('slow'), 5000);
+            setTimeout(function () {
+                $("#lockCountdownContainer").fadeOut('slow');
+            }, 5000);
 
             // Kích hoạt lại nút đăng nhập
             $("#btnLogin").prop("disabled", false).removeClass("disabled");
@@ -264,7 +265,6 @@ $(document).ready(function () {
     });
 
     checkAccountLockStatus();
-    
 
     // Modify the btnLogin click handler to save the username
     $("#btnLogin").click(function (e) {
@@ -290,6 +290,17 @@ $(document).ready(function () {
             }
         }
 
+        // Hiển thị thông báo đang xử lý
+        const loadingAlert = Swal.fire({
+            title: 'Đang xử lý',
+            text: 'Vui lòng đợi...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        // Thêm timeout cho request
         $.ajax({
             url: `/api/v1/admin/login`,
             type: "POST",
@@ -298,7 +309,10 @@ $(document).ready(function () {
                 Username: username,
                 Password: password
             }),
+            timeout: 10000, // Timeout sau 10 giây
             success: function (response) {
+                loadingAlert.close(); // Đóng thông báo đang xử lý
+
                 if (response.success) {
                     // Hiển thị thông báo đăng nhập thành công trước khi chuyển hướng
                     Swal.fire({
@@ -309,14 +323,32 @@ $(document).ready(function () {
                         showConfirmButton: false,
                         timer: 2000
                     }).then(() => {
-                        window.location.href = "/Admin/InterfaceAdmin/Index";
+                        $(location).attr('href', "/Admin/InterfaceAdmin/Index");
                     });
                 } else {
-                    // Xử lý các trường hợp đăng nhập thất bại giữ nguyên...
+                    // Xử lý thông báo đăng nhập thất bại
+                    if (response.isLocked) {
+                        if (response.isPermanent) {
+                            Sweet_Alert("error", "Tài khoản của bạn đã bị khóa vĩnh viễn");
+                        } else if (response.remainingSeconds) {
+                            // Hiển thị thời gian còn lại
+                            showLockCountdown(response.unlockTime || (Math.floor(Date.now() / 1000) + response.remainingSeconds),
+                                response.countPasswordFail || 0);
+                        }
+                    } else {
+                        // Các thông báo lỗi khác
+                        Sweet_Alert("error", response.message || "Đăng nhập thất bại");
+                    }
                 }
             },
-            error: function (error) {
-                Sweet_Alert("error", "Đã xảy ra lỗi khi đăng nhập");
+            error: function (xhr, status, error) {
+                loadingAlert.close(); // Đóng thông báo đang xử lý
+
+                if (status === "timeout") {
+                    Sweet_Alert("error", "Kết nối đến máy chủ bị quá thời gian vui lòng thử lại sau.");
+                } else {
+                    Sweet_Alert("error", "Đã xảy ra lỗi khi đăng nhập: " + (xhr.statusText || "Không thể kết nối đến máy chủ"));
+                }
             }
         });
     });
@@ -329,7 +361,11 @@ $(document).ready(function () {
     // Xử lý click nút quên mật khẩu
     $("#btnResetPassword").click(function (e) {
         e.preventDefault();
-        $("#resetPasswordModal").modal('show');
+        try {
+            $("#resetPasswordModal").modal('show');
+        } catch (error) {
+            alert("Có lỗi khi hiển thị form đặt lại mật khẩu");
+        }
     });
 
     //Xử lý gửi mã xác thực
@@ -415,7 +451,7 @@ $(document).ready(function () {
 
     // Chỉ cho phép nhập số vào ô xác thực
     $(".verification-code").on("input", function () {
-        this.value = this.value.replace(/[^0-9]/g, '');
+        $(this).val($(this).val().replace(/[^0-9]/g, ''));
     });
 
     // Xử lý xác thực mã
@@ -483,7 +519,7 @@ $(document).ready(function () {
                     $("#newPasswordModal").modal('hide');
                     Swal.fire('Thành công', 'Mật khẩu đã được đặt lại thành công', 'success').then(() => {
                         // Làm mới trang đăng nhập
-                        window.location.reload();
+                        location.reload();
                     });
                 } else {
                     Swal.fire('Lỗi', response.message || 'Không thể đặt lại mật khẩu', 'error');

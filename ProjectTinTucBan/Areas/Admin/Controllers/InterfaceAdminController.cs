@@ -82,11 +82,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             return View();
         }
 
-        // Gọi hàm thiết kế giao diện đăng nhập
-        public ActionResult Login()
-        {
-            return View();
-        }
+        
         [UserAuthorizeAttribute(1, 4)]
         public ActionResult XemNoiDung(int id)
         {

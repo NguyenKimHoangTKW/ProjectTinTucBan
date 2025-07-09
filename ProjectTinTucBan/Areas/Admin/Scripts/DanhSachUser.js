@@ -125,7 +125,7 @@
         }
 
         if (!userId || userId === "") {
-            AdminShared.Sweet_Alert("error", "Không tìm thấy ID tài khoản để chỉnh sửa");
+            Sweet_Alert("error", "Không tìm thấy ID tài khoản để chỉnh sửa");
             return;
         }
 
@@ -208,7 +208,7 @@ function applyAdvancedSearch() {
         // Thông báo kết quả tìm kiếm
         const visibleRows = dataTableInstance.rows({ search: 'applied' }).count();
         if (visibleRows === 0) {
-            AdminShared.Sweet_Alert("info", "Không tìm thấy kết quả phù hợp");
+            Sweet_Alert("info", "Không tìm thấy kết quả phù hợp");
         }
     }
 }
@@ -237,7 +237,7 @@ defaultContent = "Không có dữ liệu";
 async function load_data() {
     try {
         // Hiển thị loading
-        AdminShared.showLoading('#data-table', 'Đang tải dữ liệu...');
+        showLoading('#data-table', 'Đang tải dữ liệu...');
 
         // Tải dữ liệu vai trò
         let rolesData = [];
@@ -252,7 +252,7 @@ async function load_data() {
                 rolesData = rolesResponse.data;
             }
         } catch (error) {
-            AdminShared.Sweet_Alert("error", "Không thể tải danh sách vai trò");
+            Sweet_Alert("error", "Không thể tải danh sách vai trò");
         }
 
         // Gọi API tải danh sách người dùng
@@ -293,15 +293,15 @@ async function load_data() {
 
                         // Xử lý cả hai trường hợp viết hoa và viết thường
                         if (item.NgayTao && !isNaN(parseInt(item.NgayTao))) {
-                            newItem.NgayTao = AdminShared.formatTimestamp(parseInt(item.NgayTao));
+                            newItem.NgayTao = formatTimestamp(parseInt(item.NgayTao));
                         } else if (item.ngayTao && !isNaN(parseInt(item.ngayTao))) {
-                            newItem.NgayTao = AdminShared.formatTimestamp(parseInt(item.ngayTao));
+                            newItem.NgayTao = formatTimestamp(parseInt(item.ngayTao));
                         }
 
                         if (item.NgayCapNhat && !isNaN(parseInt(item.NgayCapNhat))) {
-                            newItem.NgayCapNhat = AdminShared.formatTimestamp(parseInt(item.NgayCapNhat));
+                            newItem.NgayCapNhat = formatTimestamp(parseInt(item.NgayCapNhat));
                         } else if (item.ngayCapNhat && !isNaN(parseInt(item.ngayCapNhat))) {
-                            newItem.NgayCapNhat = AdminShared.formatTimestamp(parseInt(item.ngayCapNhat));
+                            newItem.NgayCapNhat = formatTimestamp(parseInt(item.ngayCapNhat));
                         }
 
                         return newItem;
@@ -310,7 +310,7 @@ async function load_data() {
 
                 // Khởi tạo DataTable với dữ liệu
                 dataTableInstance = $('#data-table').DataTable({
-                    ...AdminShared.dataTableDefaults,
+                    ...dataTableDefaults,
                     data: processedData || [],
                     columns: [
                         {
@@ -379,7 +379,7 @@ async function load_data() {
 
                 // Hiển thị thông báo nếu không có dữ liệu
                 if (!response.success) {
-                    AdminShared.Sweet_Alert("info", response.message || "Không có dữ liệu");
+                    Sweet_Alert("info", response.message || "Không có dữ liệu");
                 }
             },
             error: function (xhr, status, error) {
@@ -404,11 +404,12 @@ async function load_data() {
                     </tbody>
                 `);
 
-                AdminShared.Sweet_Alert("error", "Không thể tải danh sách: " + xhr.statusText);
+                Sweet_Alert("error", "Không thể tải danh sách: " + xhr.statusText);
             }
         });
     } catch (error) {
-        AdminShared.Sweet_Alert("error", "Lỗi JavaScript: " + error.message);
+        
+        Sweet_Alert("error", "Lỗi JavaScript: " + error.message);
     }
 }
 
@@ -432,7 +433,7 @@ async function openViewUserModal(userId) {
 
     try {
         // Hiển thị lớp phủ loading
-        AdminShared.showLoading("#info-content");
+        showLoading("#info-content");
 
         // Tải dữ liệu người dùng, quyền hạn và tất cả chức năng song song
         const [userResponse, permissionsResponse, functionsResponse] = await Promise.all([
@@ -474,17 +475,17 @@ async function openViewUserModal(userId) {
                     roleName = role ? role.TenRole : "Không xác định";
                 }
             } catch (error) {
-                AdminShared.Sweet_Alert("error", "Lỗi khi tải vai trò: " + error.message);
+                Sweet_Alert("error", "Lỗi khi tải vai trò: " + error.message);
             }
 
             // Ẩn lớp phủ loading
-            AdminShared.hideLoading("#info-content");
+            hideLoading("#info-content");
 
             // Định dạng thời gian
             let ngayTao = user.NgayTao || user.ngayTao;
             let ngayCapNhat = user.NgayCapNhat || user.ngayCapNhat;
-            const formattedNgayTao = ngayTao ? AdminShared.formatTimestamp(parseInt(ngayTao)) : "N/A";
-            const formattedNgayCapNhat = ngayCapNhat ? AdminShared.formatTimestamp(parseInt(ngayCapNhat)) : "N/A";
+            const formattedNgayTao = ngayTao ? formatTimestamp(parseInt(ngayTao)) : "N/A";
+            const formattedNgayCapNhat = ngayCapNhat ? formatTimestamp(parseInt(ngayCapNhat)) : "N/A";
 
             // Replace the user details HTML in openViewUserModal with this improved design:
             // In the openViewUserModal function, update the user details HTML with improved table styling:
@@ -737,12 +738,12 @@ async function openViewUserModal(userId) {
                 $("#noPermissionsMessage").show();
             }
         } else {
-            AdminShared.Sweet_Alert("error", "Không tìm thấy thông tin tài khoản");
-            AdminShared.hideLoading("#info-content");
+            Sweet_Alert("error", "Không tìm thấy thông tin tài khoản");
+            hideLoading("#info-content");
         }
     } catch (error) {
-        AdminShared.hideLoading("#info-content");
-        AdminShared.Sweet_Alert("error", "Không thể tải thông tin tài khoản");
+        hideLoading("#info-content");
+        Sweet_Alert("error", "Không thể tải thông tin tài khoản");
     }
 }
 
@@ -753,7 +754,7 @@ function switchToEditMode(userId) {
 
     try {
         // Hiển thị loading trong khi thay đổi
-        AdminShared.showLoading("#info-content");
+        showLoading("#info-content");
 
         // QUAN TRỌNG: Đặt một timeout ngắn để đảm bảo DOM được cập nhật
         setTimeout(function () {
@@ -779,7 +780,7 @@ function switchToEditMode(userId) {
             type: 'GET',
             success: function (response) {
                 // Ẩn loading
-                AdminShared.hideLoading("#info-content");
+                hideLoading("#info-content");
 
                 if (response.success && response.data) {
                     const user = response.data;
@@ -807,8 +808,8 @@ function switchToEditMode(userId) {
                     // Định dạng và hiển thị thời gian
                     let ngayTao = user.NgayTao || user.ngayTao;
                     let ngayCapNhat = user.NgayCapNhat || user.ngayCapNhat;
-                    $("#NgayTao").val(ngayTao ? AdminShared.formatTimestamp(parseInt(ngayTao)) : "N/A");
-                    $("#NgayCapNhat").val(ngayCapNhat ? AdminShared.formatTimestamp(parseInt(ngayCapNhat)) : "N/A");
+                    $("#NgayTao").val(ngayTao ? formatTimestamp(parseInt(ngayTao)) : "N/A");
+                    $("#NgayCapNhat").val(ngayCapNhat ? formatTimestamp(parseInt(ngayCapNhat)) : "N/A");
 
                     // Hiển thị các phần chỉ dành cho chỉnh sửa
                     if ($("#editOnlyFields").length) $("#editOnlyFields").show();
@@ -819,17 +820,17 @@ function switchToEditMode(userId) {
                     // Tải dữ liệu phân quyền trong tab phân quyền
                     loadUserPermissionsData(userId);
                 } else {
-                    AdminShared.Sweet_Alert("error", "Không tìm thấy thông tin tài khoản");
+                    Sweet_Alert("error", "Không tìm thấy thông tin tài khoản");
                 }
             },
             error: function (xhr, status, error) {
-                AdminShared.hideLoading("#info-content");
-                AdminShared.Sweet_Alert("error", "Không thể tải thông tin tài khoản: " + (xhr.responseText || "Lỗi không xác định"));
+                hideLoading("#info-content");
+                Sweet_Alert("error", "Không thể tải thông tin tài khoản: " + (xhr.responseText || "Lỗi không xác định"));
             }
         });
     } catch (error) {
-        AdminShared.hideLoading("#info-content");
-        AdminShared.Sweet_Alert("error", "Lỗi khi chuyển chế độ chỉnh sửa: " + error.message);
+        hideLoading("#info-content");
+        Sweet_Alert("error", "Lỗi khi chuyển chế độ chỉnh sửa: " + error.message);
     }
 }
 
@@ -855,7 +856,7 @@ async function openEditUserModal(userId) {
 
     try {
         // Hiển thị lớp phủ loading
-        AdminShared.showLoading("#info-content");
+        showLoading("#info-content");
 
         // Lấy dữ liệu người dùng
         const response = await $.ajax({
@@ -864,14 +865,14 @@ async function openEditUserModal(userId) {
         });
 
         // Ẩn loading
-        AdminShared.hideLoading("#info-content");
+        hideLoading("#info-content");
 
         if (response.success && response.data) {
             const user = response.data;
 
             // Xử lý ID một cách nhất quán 
             if (!user.ID && !user.Id && !user.id) {
-                AdminShared.Sweet_Alert("error", "Không tìm thấy ID người dùng");
+                Sweet_Alert("error", "Không tìm thấy ID người dùng");
                 return;
             }
 
@@ -892,8 +893,8 @@ async function openEditUserModal(userId) {
             // Định dạng và hiển thị thời gian
             let ngayTao = user.NgayTao || user.ngayTao;
             let ngayCapNhat = user.NgayCapNhat || user.ngayCapNhat;
-            $("#NgayTao").val(ngayTao ? AdminShared.formatTimestamp(parseInt(ngayTao)) : "N/A");
-            $("#NgayCapNhat").val(ngayCapNhat ? AdminShared.formatTimestamp(parseInt(ngayCapNhat)) : "N/A");
+            $("#NgayTao").val(ngayTao ? formatTimestamp(parseInt(ngayTao)) : "N/A");
+            $("#NgayCapNhat").val(ngayCapNhat ? formatTimestamp(parseInt(ngayCapNhat)) : "N/A");
 
             // Cập nhật tiêu đề modal và nội dung nút
             $("#UserModalLabel").text("Cập nhật tài khoản");
@@ -908,12 +909,12 @@ async function openEditUserModal(userId) {
             // Tải dữ liệu phân quyền trong tab phân quyền (nếu người dùng chuyển sang)
             loadUserPermissionsData(userId);
         } else {
-            AdminShared.Sweet_Alert("error", "Không tìm thấy thông tin tài khoản");
+            Sweet_Alert("error", "Không tìm thấy thông tin tài khoản");
             $("#UserModal").modal("hide");
         }
     } catch (error) {
-        AdminShared.hideLoading("#info-content");
-        AdminShared.Sweet_Alert("error", "Không thể tải thông tin tài khoản: " + (error.message || "Lỗi không xác định"));
+        hideLoading("#info-content");
+        Sweet_Alert("error", "Không thể tải thông tin tài khoản: " + (error.message || "Lỗi không xác định"));
         $("#UserModal").modal("hide");
     }
 }
@@ -922,7 +923,7 @@ async function openEditUserModal(userId) {
 async function loadUserPermissionsData(userId) {
     try {
         // Hiển thị loading
-        AdminShared.showLoading("#permissions-content");
+        showLoading("#permissions-content");
 
         // Tải dữ liệu chức năng và quyền của người dùng
         const [functionsResponse, userPermissionsResponse] = await Promise.all([
@@ -939,7 +940,7 @@ async function loadUserPermissionsData(userId) {
         ]);
 
         // Ẩn loading
-        AdminShared.hideLoading("#permissions-content");
+        hideLoading("#permissions-content");
 
         // Xử lý dữ liệu
         if (!functionsResponse.success || !functionsResponse.data || functionsResponse.data.length === 0) {
@@ -989,7 +990,7 @@ async function loadUserPermissionsData(userId) {
         // Cập nhật trạng thái của checkbox "chọn tất cả"
         updateCheckAllState();
     } catch (error) {
-        AdminShared.hideLoading("#permissions-content");
+        hideLoading("#permissions-content");
         $("#functionsTableBody").html(`
             <tr>
                 <td colspan="4" class="text-center">
@@ -1018,29 +1019,29 @@ async function update_User_in_modal() {
 
         // Xác thực cơ bản
         if (!tenTaiKhoan) {
-            AdminShared.Sweet_Alert("error", "Vui lòng nhập tên tài khoản");
+            Sweet_Alert("error", "Vui lòng nhập tên tài khoản");
             return;
         }
 
         if (!tenNguoiDung) {
-            AdminShared.Sweet_Alert("error", "Vui lòng nhập tên người dùng");
+            Sweet_Alert("error", "Vui lòng nhập tên người dùng");
             return;
         }
 
         if (!email) {
-            AdminShared.Sweet_Alert("error", "Vui lòng nhập địa chỉ Gmail");
+            Sweet_Alert("error", "Vui lòng nhập địa chỉ Gmail");
             return;
         }
 
         if (!roleId) {
-            AdminShared.Sweet_Alert("error", "Vui lòng chọn vai trò");
+            Sweet_Alert("error", "Vui lòng chọn vai trò");
             return;
         }
 
         // Xác thực email bằng regex
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-            AdminShared.Sweet_Alert("error", "Định dạng Gmail không hợp lệ");
+            Sweet_Alert("error", "Định dạng Gmail không hợp lệ");
             return;
         }
 
@@ -1066,14 +1067,14 @@ async function update_User_in_modal() {
             const confirmPassword = $("#xacNhanMatKhauMoi").val();
 
             if (!password) {
-                AdminShared.Sweet_Alert("error", "Vui lòng nhập mật khẩu mới");
+                Sweet_Alert("error", "Vui lòng nhập mật khẩu mới");
                 $("#btnSaveUser").prop('disabled', false);
                 $("#btnSaveText").html('Cập nhật');
                 return;
             }
 
             if (password !== confirmPassword) {
-                AdminShared.Sweet_Alert("error", "Mật khẩu không khớp");
+                Sweet_Alert("error", "Mật khẩu không khớp");
                 $("#btnSaveUser").prop('disabled', false);
                 $("#btnSaveText").html('Cập nhật');
                 return;
@@ -1103,19 +1104,19 @@ async function update_User_in_modal() {
         if (response.success) {
             // Đóng modal và làm mới dữ liệu
             $("#UserModal").modal("hide");
-            AdminShared.Sweet_Alert("success", response.message || "Cập nhật tài khoản thành công");
+            Sweet_Alert("success", response.message || "Cập nhật tài khoản thành công");
             load_data();
         } else {
-            AdminShared.Sweet_Alert("error", response.message || "Có lỗi xảy ra khi cập nhật tài khoản");
+            Sweet_Alert("error", response.message || "Có lỗi xảy ra khi cập nhật tài khoản");
         }
     } catch (error) {
         $("#btnSaveUser").prop('disabled', false);
         $("#btnSaveText").html('Cập nhật');
 
         if (error.responseJSON && error.responseJSON.message) {
-            AdminShared.Sweet_Alert("error", error.responseJSON.message);
+            Sweet_Alert("error", error.responseJSON.message);
         } else {
-            AdminShared.Sweet_Alert("error", "Có lỗi xảy ra khi cập nhật tài khoản: " +
+            Sweet_Alert("error", "Có lỗi xảy ra khi cập nhật tài khoản: " +
                 (error.statusText || error.message || "Lỗi không xác định"));
         }
     }
@@ -1145,16 +1146,16 @@ function deleteUser(userId) {
                 });
 
                 if (res.success) {
-                    AdminShared.Sweet_Alert("success", res.message || "Xóa tài khoản thành công");
+                    Sweet_Alert("success", res.message || "Xóa tài khoản thành công");
                     load_data();
                 } else {
-                    AdminShared.Sweet_Alert("error", res.message || "Không thể xóa tài khoản");
+                    Sweet_Alert("error", res.message || "Không thể xóa tài khoản");
                 }
             } catch (error) {
                 if (error.responseJSON && error.responseJSON.message) {
-                    AdminShared.Sweet_Alert("error", error.responseJSON.message);
+                    Sweet_Alert("error", error.responseJSON.message);
                 } else {
-                    AdminShared.Sweet_Alert("error", "Đã xảy ra lỗi khi xóa tài khoản");
+                    Sweet_Alert("error", "Đã xảy ra lỗi khi xóa tài khoản");
                 }
             }
         }
@@ -1218,7 +1219,7 @@ async function saveUserPermissions() {
         const userId = $("#permissionUserId").val();
 
         if (!userId) {
-            AdminShared.Sweet_Alert("error", "Không tìm thấy thông tin người dùng");
+            Sweet_Alert("error", "Không tìm thấy thông tin người dùng");
             return;
         }
 
@@ -1248,16 +1249,16 @@ async function saveUserPermissions() {
 
         if (response.success) {
             $("#UserModal").modal("hide");
-            AdminShared.Sweet_Alert("success", response.message || "Phân quyền đã được cập nhật thành công");
+            Sweet_Alert("success", response.message || "Phân quyền đã được cập nhật thành công");
         } else {
-            AdminShared.Sweet_Alert("error", response.message || "Có lỗi xảy ra khi cập nhật phân quyền");
+            Sweet_Alert("error", response.message || "Có lỗi xảy ra khi cập nhật phân quyền");
         }
     } catch (error) {
         // Kích hoạt lại nút
         $("#btnSavePermissions").prop('disabled', false);
         $("#btnSavePermissions").html('<i class="anticon anticon-save m-r-5"></i><span>Lưu phân quyền</span>');
 
-        AdminShared.Sweet_Alert("error", "Có lỗi xảy ra khi cập nhật phân quyền");
+        Sweet_Alert("error", "Có lỗi xảy ra khi cập nhật phân quyền");
     }
 }
 

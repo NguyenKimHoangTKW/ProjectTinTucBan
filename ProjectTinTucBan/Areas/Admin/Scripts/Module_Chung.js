@@ -1,12 +1,4 @@
-﻿/**
- * Shared Admin Module - Common functionality for admin pages
- */
-const AdminShared = (function () {
-    /**
-     * Display SweetAlert notifications
-     * @param {string} icon - success, error, warning, info
-     * @param {string} title - Message to display
-     */
+﻿
     function Sweet_Alert(icon, title) {
         Swal.fire({
             position: "center",
@@ -17,11 +9,7 @@ const AdminShared = (function () {
         });
     }
 
-    /**
-     * Format Unix timestamp to readable Vietnamese date
-     * @param {number} unixTimestamp - Unix timestamp to format
-     * @returns {string} Formatted date string
-     */
+    
     function formatTimestamp(unixTimestamp) {
         if (!unixTimestamp) return "N/A";
 
@@ -38,11 +26,6 @@ const AdminShared = (function () {
         return formattedDate;
     }
 
-    /**
-     * Show loading in a container
-     * @param {string} selector - Container selector
-     * @param {string} message - Loading message
-     */
     function showLoading(selector, message = "Đang tải dữ liệu...") {
         const container = $(selector);
         if (!container.length) return;
@@ -61,11 +44,7 @@ const AdminShared = (function () {
         `);
     }
 
-    /**
-     * Hide loading and restore or set new content
-     * @param {string} selector - Container selector
-     * @param {string} newContent - New content to display (optional)
-     */
+    
     function hideLoading(selector, newContent = null) {
         const container = $(selector);
         if (!container.length) return;
@@ -86,9 +65,6 @@ const AdminShared = (function () {
     }
 
 
-    /**
-     * Common DataTable settings for admin tables
-     */
     const dataTableDefaults = {
         pageLength: 5,
         lengthMenu: [5, 10, 15, 25, 50],
@@ -107,13 +83,6 @@ const AdminShared = (function () {
         }
     };
 
-    // Return public API
-    return {
-        Sweet_Alert,
-        formatTimestamp,
-        showLoading,
-        hideLoading,
-        dataTableDefaults
-    };
-})();
+    
+
 

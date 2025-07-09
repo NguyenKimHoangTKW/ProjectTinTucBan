@@ -162,8 +162,8 @@
     defaultContent = "Không có dữ liệu";
 
     function loadFunctionList() {
-        // Hiển thị loading - Sử dụng AdminShared.showLoading
-        AdminShared.showLoading(null, 'Đang tải dữ liệu chức năng...');
+        // Hiển thị loading - Sử dụng showLoading
+        showLoading(null, 'Đang tải dữ liệu chức năng...');
 
         $.ajax({
             url: '/api/v1/admin/Get-All-Functions',
@@ -171,8 +171,8 @@
             dataType: 'json',
             cache: false,
             success: function (response) {
-                // Ẩn loading - Sử dụng AdminShared.hideLoading
-                AdminShared.hideLoading();
+                // Ẩn loading - Sử dụng hideLoading
+                hideLoading();
 
                 // Xóa DataTable cũ nếu đã tồn tại
                 if ($.fn.DataTable.isDataTable('#data-table')) {
@@ -185,26 +185,26 @@
                     processedData = response.data.map(item => {
                         const newItem = { ...item };
 
-                        // Xử lý timestamp, sử dụng AdminShared.formatTimestamp
+                        // Xử lý timestamp, sử dụng formatTimestamp
                         if (item.NgayTao !== undefined && !isNaN(parseInt(item.NgayTao))) {
-                            newItem.NgayTao = AdminShared.formatTimestamp(parseInt(item.NgayTao));
+                            newItem.NgayTao = formatTimestamp(parseInt(item.NgayTao));
                         } else if (item.ngayTao !== undefined && !isNaN(parseInt(item.ngayTao))) {
-                            newItem.NgayTao = AdminShared.formatTimestamp(parseInt(item.ngayTao));
+                            newItem.NgayTao = formatTimestamp(parseInt(item.ngayTao));
                         }
 
                         if (item.NgayCapNhat !== undefined && !isNaN(parseInt(item.NgayCapNhat))) {
-                            newItem.NgayCapNhat = AdminShared.formatTimestamp(parseInt(item.NgayCapNhat));
+                            newItem.NgayCapNhat = formatTimestamp(parseInt(item.NgayCapNhat));
                         } else if (item.ngayCapNhat !== undefined && !isNaN(parseInt(item.ngayCapNhat))) {
-                            newItem.NgayCapNhat = AdminShared.formatTimestamp(parseInt(item.ngayCapNhat));
+                            newItem.NgayCapNhat = formatTimestamp(parseInt(item.ngayCapNhat));
                         }
 
                         return newItem;
                     });
                 }
 
-                // Khởi tạo DataTable với dữ liệu, sử dụng AdminShared.dataTableDefaults
+                // Khởi tạo DataTable với dữ liệu, sử dụng dataTableDefaults
                 dataTableInstance = $('#data-table').DataTable({
-                    ...AdminShared.dataTableDefaults,
+                    ...dataTableDefaults,
                     data: processedData || [],
                     columns: [
                         {
@@ -266,22 +266,22 @@
                     }
                 });
 
-                // Hiển thị thông báo nếu không có dữ liệu, sử dụng AdminShared.Sweet_Alert
+                // Hiển thị thông báo nếu không có dữ liệu, sử dụng Sweet_Alert
                 if (processedData.length === 0) {
-                    AdminShared.Sweet_Alert("info", "Không có dữ liệu chức năng admin");
+                    Sweet_Alert("info", "Không có dữ liệu chức năng admin");
                 }
             },
             error: function (xhr, status, error) {
-                // Ẩn loading - Sử dụng AdminShared.hideLoading
-                AdminShared.hideLoading();
+                // Ẩn loading - Sử dụng hideLoading
+                hideLoading();
 
-                // Hiển thị thông báo lỗi - Sử dụng AdminShared.Sweet_Alert
-                AdminShared.Sweet_Alert("error", "Không thể tải danh sách: " + xhr.statusText);
+                // Hiển thị thông báo lỗi - Sử dụng Sweet_Alert
+                Sweet_Alert("error", "Không thể tải danh sách: " + xhr.statusText);
             }
         });
     }
 
-    /**
+    /**     
      * Mở modal thêm mới chức năng
      */
     function openAddFunctionModal() {
@@ -311,7 +311,7 @@
     async function openEditFunctionModal(functionId) {
         try {
             // Hiển thị loading toàn màn hình
-            AdminShared.showLoading(null, "Đang tải thông tin...");
+            showLoading(null, "Đang tải thông tin...");
 
             // Tải dữ liệu menu
             const menuPromise = loadMenuTable();
@@ -326,7 +326,7 @@
             await menuPromise;
 
             // Ẩn loading
-            AdminShared.hideLoading();
+            hideLoading();
 
             if (response.success && response.data) {
                 // Tìm chức năng theo ID
@@ -334,7 +334,7 @@
 
                 if (!functionData) {
                     // Hiển thị thông báo lỗi
-                    AdminShared.Sweet_Alert("error", "Không tìm thấy thông tin chức năng admin");
+                    Sweet_Alert("error", "Không tìm thấy thông tin chức năng admin");
                     return;
                 }
 
@@ -352,8 +352,8 @@
                 let ngayCapNhat = functionData.NgayCapNhat || functionData.ngayCapNhat;
 
                 // Format và hiển thị timestamp
-                $("#ngayTao").val(ngayTao ? AdminShared.formatTimestamp(parseInt(ngayTao)) : "N/A");
-                $("#ngayCapNhat").val(ngayCapNhat ? AdminShared.formatTimestamp(parseInt(ngayCapNhat)) : "N/A");
+                $("#ngayTao").val(ngayTao ? formatTimestamp(parseInt(ngayTao)) : "N/A");
+                $("#ngayCapNhat").val(ngayCapNhat ? formatTimestamp(parseInt(ngayCapNhat)) : "N/A");
 
                 // Cập nhật tiêu đề
                 $("#FunctionModalLabel").text("Cập nhật chức năng admin");
@@ -374,14 +374,14 @@
 
             } else {
                 // Hiển thị thông báo lỗi
-                AdminShared.Sweet_Alert("error", "Không thể tải thông tin chức năng admin");
+                Sweet_Alert("error", "Không thể tải thông tin chức năng admin");
             }
         } catch (error) {
             // Ẩn loading
-            AdminShared.hideLoading();
+            hideLoading();
 
             // Hiển thị thông báo lỗi
-            AdminShared.Sweet_Alert("error", "Không thể tải thông tin chức năng admin");
+            Sweet_Alert("error", "Không thể tải thông tin chức năng admin");
         }
     }
 
@@ -391,7 +391,7 @@
     async function openDetailFunctionModal(functionId) {
         try {
             // Hiển thị loading toàn màn hình
-            AdminShared.showLoading(null, "Đang tải thông tin...");
+            showLoading(null, "Đang tải thông tin...");
 
             const response = await $.ajax({
                 url: `/api/v1/admin/Get-All-Functions`,
@@ -399,7 +399,7 @@
             });
 
             // Ẩn loading
-            AdminShared.hideLoading();
+            hideLoading();
 
             if (response.success && response.data) {
                 // Tìm chức năng theo ID
@@ -407,7 +407,7 @@
 
                 if (!functionData) {
                     // Hiển thị thông báo lỗi
-                    AdminShared.Sweet_Alert("error", "Không tìm thấy thông tin chức năng admin");
+                    Sweet_Alert("error", "Không tìm thấy thông tin chức năng admin");
                     return;
                 }
 
@@ -424,21 +424,21 @@
                 let ngayCapNhat = functionData.NgayCapNhat || functionData.ngayCapNhat;
 
                 // Format và hiển thị timestamp
-                $("#detailNgayTao").text(ngayTao ? AdminShared.formatTimestamp(parseInt(ngayTao)) : "N/A");
-                $("#detailNgayCapNhat").text(ngayCapNhat ? AdminShared.formatTimestamp(parseInt(ngayCapNhat)) : "N/A");
+                $("#detailNgayTao").text(ngayTao ? formatTimestamp(parseInt(ngayTao)) : "N/A");
+                $("#detailNgayCapNhat").text(ngayCapNhat ? formatTimestamp(parseInt(ngayCapNhat)) : "N/A");
 
                 // Hiển thị modal
                 $("#detailFunctionModal").modal("show");
             } else {
                 // Hiển thị thông báo lỗi
-                AdminShared.Sweet_Alert("error", "Không thể tải thông tin chức năng admin");
+                Sweet_Alert("error", "Không thể tải thông tin chức năng admin");
             }
         } catch (error) {
             // Ẩn loading
-            AdminShared.hideLoading();
+            hideLoading();
 
             // Hiển thị thông báo lỗi
-            AdminShared.Sweet_Alert("error", "Không thể tải thông tin chức năng admin");
+            Sweet_Alert("error", "Không thể tải thông tin chức năng admin");
         }
     }
 
@@ -461,7 +461,7 @@
             $("#btnSaveText").html('<i class="anticon anticon-loading"></i> Đang xử lý...');
 
             // Hiển thị loading overlay toàn màn hình 
-            AdminShared.showLoading(null, "Đang thêm chức năng...");
+            showLoading(null, "Đang thêm chức năng...");
 
             const res = await $.ajax({
                 url: '/api/v1/admin/Create-Function',
@@ -475,7 +475,7 @@
             });
 
             // Ẩn loading
-            AdminShared.hideLoading();
+            hideLoading();
 
             // Kích hoạt lại nút
             $("#btnSaveFunction").prop("disabled", false);
@@ -487,17 +487,17 @@
                 $("#FunctionModal").modal("hide");
 
                 // Hiển thị thông báo thành công
-                AdminShared.Sweet_Alert("success", res.message || "Thêm chức năng thành công");
+                Sweet_Alert("success", res.message || "Thêm chức năng thành công");
 
                 // Tải lại danh sách để cập nhật dữ liệu mới
                 loadFunctionList();
             } else {
                 // Hiển thị thông báo lỗi
-                AdminShared.Sweet_Alert("error", res.message || "Không thể thêm chức năng");
+                Sweet_Alert("error", res.message || "Không thể thêm chức năng");
             }
         } catch (error) {
             // Ẩn loading
-            AdminShared.hideLoading();
+            hideLoading();
 
             // Kích hoạt lại nút
             $("#btnSaveFunction").prop("disabled", false);
@@ -516,7 +516,7 @@
             }
 
             // Hiển thị thông báo lỗi
-            AdminShared.Sweet_Alert("error", errorMessage);
+            Sweet_Alert("error", errorMessage);
         }
     }
 
@@ -542,7 +542,7 @@
             $("#btnSaveText").html('<i class="anticon anticon-loading"></i> Đang xử lý...');
 
             // Hiển thị loading overlay toàn màn hình
-            AdminShared.showLoading(null, "Đang cập nhật...");
+            showLoading(null, "Đang cập nhật...");
 
             const res = await $.ajax({
                 url: `/api/v1/admin/Update-Function/${functionId}`,
@@ -560,7 +560,7 @@
             });
 
             // Ẩn loading
-            AdminShared.hideLoading();
+            hideLoading();
 
             // Kích hoạt lại nút
             $("#btnSaveFunction").prop("disabled", false);
@@ -570,16 +570,16 @@
                 $("#FunctionModal").modal("hide");
 
                 // Hiển thị thông báo thành công
-                AdminShared.Sweet_Alert("success", res.message || "Cập nhật chức năng admin thành công");
+                Sweet_Alert("success", res.message || "Cập nhật chức năng admin thành công");
 
                 loadFunctionList();
             } else {
                 // Hiển thị thông báo lỗi
-                AdminShared.Sweet_Alert("error", res.message || "Không thể cập nhật chức năng admin");
+                Sweet_Alert("error", res.message || "Không thể cập nhật chức năng admin");
             }
         } catch (error) {
             // Ẩn loading
-            AdminShared.hideLoading();
+            hideLoading();
 
             // Kích hoạt lại nút
             $("#btnSaveFunction").prop("disabled", false);
@@ -591,7 +591,7 @@
             }
 
             // Hiển thị thông báo lỗi
-            AdminShared.Sweet_Alert("error", errorMessage);
+            Sweet_Alert("error", errorMessage);
         }
     }
 
@@ -620,7 +620,7 @@
             if (result.isConfirmed) {
                 try {
                     // Hiển thị loading
-                    AdminShared.showLoading(null, "Đang xóa...");
+                    showLoading(null, "Đang xóa...");
 
                     const res = await $.ajax({
                         url: `/api/v1/admin/Delete-Function/${functionId}`,
@@ -628,19 +628,19 @@
                     });
 
                     // Ẩn loading
-                    AdminShared.hideLoading();
+                    hideLoading();
 
                     if (res.success) {
                         // Hiển thị thông báo thành công
-                        AdminShared.Sweet_Alert("success", res.message || "Xóa chức năng admin thành công");
+                        Sweet_Alert("success", res.message || "Xóa chức năng admin thành công");
                         loadFunctionList();
                     } else {
                         // Hiển thị thông báo lỗi
-                        AdminShared.Sweet_Alert("error", res.message || "Không thể xóa chức năng admin");
+                        Sweet_Alert("error", res.message || "Không thể xóa chức năng admin");
                     }
                 } catch (error) {
                     // Ẩn loading
-                    AdminShared.hideLoading();
+                    hideLoading();
 
                     let errorMessage = "Đã xảy ra lỗi khi xóa chức năng admin";
                     if (error.responseJSON && error.responseJSON.message) {
@@ -648,7 +648,7 @@
                     }
 
                     // Hiển thị thông báo lỗi
-                    AdminShared.Sweet_Alert("error", errorMessage);
+                    Sweet_Alert("error", errorMessage);
                 }
             }
         });
@@ -812,7 +812,7 @@ async function loadFunctionMenus(functionId) {
             }, 300); // Small delay to ensure menu table is fully loaded
         }
     } catch (error) {
-        AdminShared.Sweet_Alert("error", "Không thể tải menu cho chức năng này");
+        Sweet_Alert("error", "Không thể tải menu cho chức năng này");
     }
 }
 

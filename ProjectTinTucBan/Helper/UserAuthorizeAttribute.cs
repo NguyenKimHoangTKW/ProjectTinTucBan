@@ -49,7 +49,7 @@ namespace ProjectTinTucBan.Helper
             else
             {
                 // User is not logged in, redirect to login page
-                filterContext.Result = new RedirectResult("~/Admin/InterfaceAdmin/Login");
+                filterContext.Result = new RedirectResult("~/Home/Login");
             }
         }
     }

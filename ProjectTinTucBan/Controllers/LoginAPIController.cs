@@ -119,7 +119,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     {
                         return Ok(new
                         {
-                            message = "Tài khoản của bạn đã bị khóa vĩnh viễn",
+                            message = "Tài khoản của bạn đã bị khóa vui lòng liên hệ quản trị viên",
                             success = false,
                             isLocked = true,
                             isPermanent = true
@@ -227,7 +227,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 {
                     return Ok(new
                     {
-                        message = "Tài khoản của bạn đã bị khóa vĩnh viễn",
+                        message = "Tài khoản của bạn đã bị khóa vui lòng liên hệ quản trị viên",
                         success = false
                     });
                 }
