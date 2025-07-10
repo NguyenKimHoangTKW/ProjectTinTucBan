@@ -254,7 +254,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     .ToListAsync();
                 foreach (var post in user_baiviet)
                 {
-                    post.ID_NguoiDang = null; 
+                    post.ID_NguoiDang = null;
                 }
                 // Get PhanQuyenUsers for the taikhoan
                 var userPermissions = await db.PhanQuyenUsers

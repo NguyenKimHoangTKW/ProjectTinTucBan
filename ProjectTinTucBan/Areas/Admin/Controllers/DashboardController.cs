@@ -1,6 +1,7 @@
 ﻿using ProjectTinTucBan.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -58,7 +59,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     .Where(bv => bv.NgayDang >= unixStartOfYear && bv.NgayDang <= unixTimestamp)
                     .Sum(bv => (int?)bv.ViewCount) ?? 0;
 
-                var totalArticles = db.BaiViets.Count();
+                var totalArticles = await db.BaiViets.CountAsync();
 
                 var dashboardData = new
                 {

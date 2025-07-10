@@ -645,10 +645,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     // Sử dụng EmailService để gửi email
                     await _emailService.SendVerificationEmailAsync(model.email, verificationCode);
 
-
-                    #if DEBUG
-
-
+#if DEBUG
                     return Ok(new
                     {
                         message = "Mã xác thực mới đã được gửi đến email của bạn",
@@ -666,7 +663,6 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 catch (Exception emailEx)
                 {
                     System.Diagnostics.Debug.WriteLine($"Email resending error: {emailEx.Message}");
-
 
 #if DEBUG
                     return Ok(new
