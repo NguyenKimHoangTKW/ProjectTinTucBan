@@ -1,6 +1,6 @@
+const BASE_URL = '/api/v1/admin/';
 $(document).ready(function () {
-    // Khởi tạo thành phần Select2 nếu có sẵn
-
+    // Initialize Select2 components if available
     if ($.fn.select2) {
         $(".select2").select2();
     }
@@ -355,7 +355,6 @@ async function load_data() {
             }
         });
     } catch (error) {
-
         Sweet_Alert("error", "Lỗi JavaScript: " + error.message);
     }
 }
@@ -487,6 +486,7 @@ async function update_User_in_modal() {
             data: JSON.stringify(updateData)
         });
 
+        // Re-enable button
         $("#btnSaveUser").prop('disabled', false);
         $("#btnSaveText").html('Cập nhật');
 

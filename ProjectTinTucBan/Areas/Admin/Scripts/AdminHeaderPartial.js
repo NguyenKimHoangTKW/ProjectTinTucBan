@@ -1,5 +1,6 @@
 $(document).ready(function () {
-    $('#logoutButton, #logoutButtons').on('click', function () {
+    // Bắt sự kiện click vào nút đăng xuất
+    $('#logoutButtons').on('click', function () {
         // Gọi API để xóa session
         $.ajax({
             url: '/api/v1/admin/clear_session',
@@ -11,14 +12,14 @@ $(document).ready(function () {
             },
             success: function (data) {
                 if (data.success) {
-                    // Sử dụng jQuery thay vì JS thuần để chuyển hướng
-                    $(location).attr('href', '/Home/Login');
+                    // Chuyển hướng đến trang đăng nhập khi thành công
+                    window.location.href = '/Admin/InterfaceAdmin/Index';
                 } else {
-                    Sweet_Alert('error', 'Đăng xuất không thành công, vui lòng thử lại.');
+                    Sweet_Alert('Đăng xuất không thành công, vui lòng thử lại.');
                 }
             },
             error: function (xhr, status, error) {
-                Sweet_Alert('error', 'Có lỗi xảy ra khi đăng xuất, vui lòng thử lại.');
+                Sweet_Alert('Có lỗi xảy ra khi đăng xuất, vui lòng thử lại.');
             }
         });
     });

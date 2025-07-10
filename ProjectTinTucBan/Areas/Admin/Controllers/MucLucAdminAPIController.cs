@@ -7,7 +7,6 @@ using System.Net.Http;
 using System.Web.Http;
 using ProjectTinTucBan.Models;
 using System.Threading.Tasks;
-using ProjectTinTucBan.Helper;
 namespace ProjectTinTucBan.Areas.Admin.Controllers
 {
     [RoutePrefix("api/v1/admin")]
@@ -26,7 +25,6 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("Get-All-Muc-Luc")]
         public async Task<IHttpActionResult> GetAllMucLuc()
         {
-            var user = SessionHelper.GetUser();
             var GetALLMucLuc = await db.MucLucs
                    .OrderBy(x => x.ThuTuShow)
                    .Select(x => new

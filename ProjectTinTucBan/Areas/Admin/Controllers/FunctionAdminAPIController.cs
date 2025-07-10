@@ -68,7 +68,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
                 // Kiểm tra xem mã chức năng đã tồn tại chưa
                 var existingIdFunction = await db.ChucNangQuyenUsers.FirstOrDefaultAsync(x => x.MaChucNang == Item.MaChucNang);
-                if (existingIdFunction != null)
+                if (existingIdFunction != null) 
                 {
                     return Ok(new { message = "Mã chức năng đã tồn tại", success = false });
                 }
@@ -80,8 +80,8 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     MaChucNang = Item.MaChucNang,
                     TenChucNang = Item.TenChucNang,
                     MoTa = Item.MoTa,
-                    NgayTao = unixTimestamp,
-                    NgayCapNhat = unixTimestamp
+                    NgayTao = unixTimestamp,     
+                    NgayCapNhat = unixTimestamp  
                 };
 
                 db.ChucNangQuyenUsers.Add(newFunction);
