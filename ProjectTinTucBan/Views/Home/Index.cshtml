@@ -1,26 +1,339 @@
-﻿<main>
-    <section class="row" aria-labelledby="aspnetTitle">
-        <h1 id="aspnetTitle">ASP.NET</h1>
-        <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS, and JavaScript.</p>
-        <p><a href="https://asp.net" class="btn btn-primary btn-md">Learn more &raquo;</a></p>
+﻿@model ProjectTinTucBan.Models.BaiViet
+@{
+    ViewBag.Title = "Trang chủ";
+    var imageList = new[] {
+        "29fcbd0c-9d4b-4b47-9ae2-121f14eb4cf9.png",
+        "b58bda5e-a637-4d82-8c11-4ddd3b6e9bc9.png",
+        "25e7413b-3051-42a4-9d8e-11407261a294.png"
+    };
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewBag.Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        img, iframe {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <!-- Banner -->
+    <section class="w-full">
+        <div class="swiper mySwiper w-full overflow-hidden">
+            <div class="swiper-wrapper">
+                @foreach (var img in imageList)
+                {
+                    <div class="swiper-slide">
+                        <img src="https://bdbcl.tdmu.edu.vn/img/ckeditor/Images/@img"
+                             alt="Banner"
+                             class="w-full h-[550px] object-cover" />
+                    </div>
+                }
+            </div>
+
+            <!-- Nút điều hướng Swiper -->
+            <div class="swiper-button-next text-white"></div>
+            <div class="swiper-button-prev text-white"></div>
+            <div class="swiper-pagination"></div>
+        </div>
     </section>
-    <div class="row">
-        <section class="col-md-4" aria-labelledby="gettingStartedTitle">
-            <h2 id="gettingStartedTitle">Getting started</h2>
-            <p>ASP.NET Web API is a framework that makes it easy to build HTTP services that reach
-            a broad range of clients, including browsers and mobile devices. ASP.NET Web API
-            is an ideal platform for building RESTful applications on the .NET Framework.</p>
-            <p><a class="btn btn-outline-dark" href="https://go.microsoft.com/fwlink/?LinkId=301870">Learn more &raquo;</a></p>
-        </section>
-        <section class="col-md-4" aria-labelledby="librariesTitle">
-            <h2 id="librariesTitle">Get more libraries</h2>
-            <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-            <p><a class="btn btn-outline-dark" href="https://go.microsoft.com/fwlink/?LinkId=301871">Learn more &raquo;</a></p>
-        </section>
-        <section class="col-md-4" aria-labelledby="hostingTitle">
-            <h2 id="hostingTitle">Web Hosting</h2>
-            <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-            <p><a class="btn btn-outline-dark" href="https://go.microsoft.com/fwlink/?LinkId=301872">Learn more &raquo;</a></p>
-        </section>
-    </div>
-</main>
+
+    <!-- Tin tức -->
+    <section class="py-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+            <div id="mucLucContainer" class="space-y-12"></div>
+        </div>
+    </section>
+
+    <!-- Giới thiệu + Video -->
+    <section class="w-full bg-white px-4 py-8">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
+            <!-- VIDEO -->
+            <div class="w-full aspect-video">
+                <iframe id="video"
+                        class="w-full h-full rounded shadow-lg"
+                        src="https://www.youtube.com/embed/oFdIkvZf6Wg?enablejsapi=1"
+                        title="YouTube video player"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowfullscreen>
+                </iframe>
+            </div>
+
+            <!-- PHẦN GIỚI THIỆU -->
+            <div>
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-6">
+                    Giới thiệu về Trung tâm
+                </h2>
+
+                <div class="space-y-5 mb-8">
+                    <div class="flex items-start gap-4">
+                        <div class="bg-blue-100 text-blue-600 rounded-full p-3 shadow-sm">
+                            <i class="fas fa-check text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-gray-700">Tên đầy đủ</p>
+                            <p class="text-red-600 font-bold">
+                                BAN KHẢO THÍ, KIỂM ĐỊNH VÀ ĐẢM BẢO CHẤT LƯỢNG
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4">
+                        <div class="bg-blue-100 text-blue-600 rounded-full p-3 shadow-sm">
+                            <i class="fas fa-check text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-gray-700">Tên tiếng Anh</p>
+                            <p class="text-red-600 font-bold leading-snug">
+                                DEPARTMENT OF EDUCATIONAL TESTING,<br />
+                                ACCREDITATION AND QUALITY ASSURANCE
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4">
+                        <div class="bg-blue-100 text-blue-600 rounded-full p-3 shadow-sm">
+                            <i class="fas fa-calendar-alt text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-gray-700">Ngày thành lập</p>
+                            <p class="text-blue-700 font-bold">17/7/2024</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-4 mb-8">
+                    <button class="bg-blue-600 text-white px-6 py-2 rounded shadow hover:bg-blue-700 transition">
+                        CHI TIẾT
+                    </button>
+                    <a href="#video" class="flex items-center gap-2 text-black hover:text-blue-700">
+                        <div class="border border-blue-600 rounded-full p-2 text-blue-600">
+                            <i class="fas fa-play"></i>
+                        </div>
+                        <span class="font-medium">Watch Video</span>
+                    </a>
+                </div>
+
+                <div class="border-t pt-4 text-sm space-y-2 text-gray-800">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-map-marker-alt text-blue-600"></i>
+                        <span>Đây G, Số 06, đường Trần Văn Ơn, phường Phú Hòa, Tp. Thủ Dầu Một, Bình Dương</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-phone text-blue-600"></i>
+                        <span>(0274) 3822518-3-114</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-envelope text-blue-600"></i>
+                        <a href="mailto:bdbcl@tdmu.edu.vn" class="text-blue-600 hover:underline">
+                            Bdbcl@tdmu.edu.vn
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+    <script>
+        function toSlug(str) {
+            return str.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+        }
+
+        function formatDate(yyyymmdd) {
+            if (!yyyymmdd || yyyymmdd.toString().length !== 8) return '';
+            const str = yyyymmdd.toString();
+            return `${str.substring(6, 8)}/${str.substring(4, 6)}/${str.substring(0, 4)}`;
+        }
+
+        new Swiper(".mySwiper", {
+            loop: true,
+            autoplay: { delay: 3000, disableOnInteraction: false },
+            pagination: { el: ".swiper-pagination", clickable: true },
+            navigation: { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" }
+        });
+
+        // Lưu trữ dữ liệu mục lục bài viết
+        window.mucLucData = {};
+
+        $(document).ready(function () {
+            $.get("/api/v1/home/get-mucluc-with-baiviet", function (res) {
+                if (!res.success || !res.data) {
+                    $("#mucLucContainer").html("<p class='text-center text-gray-500'>Không có dữ liệu mục lục.</p>");
+                    return;
+                }
+
+                let html = `<div class="space-y-10">`;
+
+                res.data.forEach(muc => {
+                    const isThongBao = muc.TenMucLuc?.toLowerCase().includes("thông báo");
+                    const mucId = toSlug(muc.TenMucLuc);
+                    const allBaiViets = muc.BaiViets || [];
+
+                    html += `<div id="${mucId}">
+                                <div class="text-center">
+                        <h3 class="inline-block bg-red-600 text-white text-sm sm:text-base md:text-lg font-semibold rounded-full px-6 py-2 mb-6 uppercase shadow">
+                            ${muc.TenMucLuc}
+                        </h3>
+                    </div>`;
+
+                    if (!allBaiViets.length) {
+                        html += `<p class="text-gray-500 italic mb-4">Hiện tại chưa cập nhật bài viết nào.</p>`;
+                    } else if (isThongBao) {
+                        const moiNhat = [...allBaiViets].sort((a, b) => b.NgayDang - a.NgayDang).slice(0, 5);
+                        const xemNhieu = [...allBaiViets].sort((a, b) => (b.LuotXem ?? 0) - (a.LuotXem ?? 0)).slice(0, 5);
+
+                        html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <h4 class="text-xl font-bold text-orange-600 mb-4 border-b border-orange-400 pb-2 uppercase">Thông báo mới</h4>
+                                        <ul class="space-y-4">`;
+
+                        moiNhat.forEach(bv => {
+                            const date = formatDate(bv.NgayDang);
+                            html += `<li class="flex gap-4 items-start">
+                            <div class="w-24 h-16 overflow-hidden rounded border flex-shrink-0">
+                                <img src="${bv.LinkThumbnail?.trim() || '/images/thong-bao-icon.png'}" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <a href="/noi-dung/${bv.ID}" class="font-semibold text-lg text-blue-800 hover:underline block break-words">${bv.TieuDe}</a>
+                                <div class="text-sm text-gray-600 mt-1"><i class="far fa-clock mr-1"></i>${date}</div>
+                            </div>
+                        </li>`;
+                        });
+
+                        html += `</ul>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-xl font-bold text-orange-600 mb-4 border-b border-orange-400 pb-2 uppercase">Thông báo được xem nhiều</h4>
+                                        <ul class="space-y-4">`;
+
+                        xemNhieu.forEach(bv => {
+                            const date = formatDate(bv.NgayDang);
+                            html += `<li class="flex gap-4 items-start">
+                            <div class="w-24 h-16 overflow-hidden rounded border flex-shrink-0 shadow-sm">
+                                <img src="${bv.LinkThumbnail?.trim() || '/images/thong-bao-icon.png'}" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <a href="/noi-dung/${bv.ID}" class="font-semibold text-lg text-blue-800 hover:underline block break-words leading-snug">${bv.TieuDe}</a>
+                                <div class="text-sm text-gray-600 mt-1"><i class="far fa-eye mr-1"></i>${bv.LuotXem ?? 0} lượt xem</div>
+                            </div>
+                        </li>`;
+                        });
+                        html += `</ul>
+                                    </div>
+                                </div>`;
+                    } else {
+                        // Lưu dữ liệu để phân trang
+                        window.mucLucData[mucId] = {
+                            data: allBaiViets,
+                            page: 1,
+                            perPage: 6
+                        };
+                        html += `
+                        <div id="muc-${mucId}">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="list-${mucId}">
+                            </div>
+                            ${allBaiViets.length > 6
+                                ? `<div class="text-center mt-6">
+                                        <button data-id="${mucId}" class="btn-xem-them bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Xem thêm</button>
+                                   </div>`
+                                : ''
+                            }
+                        </div>`;
+                    }
+
+                    html += `</div>`;
+                });
+
+                html += `</div>`;
+                $("#mucLucContainer").html(html);
+
+                // Gọi render lần đầu
+                Object.keys(window.mucLucData).forEach(mucId => {
+                    renderBaiVietForMucLuc(mucId);
+                });
+            });
+
+            // Cuộn mượt
+            $(document).on("click", ".scroll-to", function (e) {
+                e.preventDefault();
+                const target = $(this).attr("href");
+                $('html, body').animate({ scrollTop: $(target).offset().top - 100 }, 500);
+            });
+
+            // Xem thêm
+            $(document).on("click", ".btn-xem-them", function () {
+                const mucId = $(this).data("id");
+                if (window.mucLucData[mucId]) {
+                    window.mucLucData[mucId].page += 1;
+                    renderBaiVietForMucLuc(mucId);
+                }
+            });
+
+            // Hàm hiển thị bài viết phân trang
+            function renderBaiVietForMucLuc(mucId) {
+                const container = $(`#list-${mucId}`);
+                const muc = window.mucLucData[mucId];
+                if (!muc) return;
+
+                const start = 0;
+                const end = muc.page * muc.perPage;
+                const currentList = muc.data.slice(0, end);
+
+                let html = "";
+                currentList.forEach(bv => {
+                    const thumb = bv.LinkThumbnail?.trim() || "https://th.bing.com/th/id/OIP.FkEdh0U5AttOx7kx74Y6sQAAAA?w=460";
+                    const date = formatDate(bv.NgayDang);
+                    const views = bv.LuotXem ?? 0;
+                    const moTa = bv.MoTa ?? '';
+                    const tieuDe = bv.TieuDe?.toUpperCase() ?? 'KHÔNG CÓ TIÊU ĐỀ';
+
+                    html += `
+                    <div class="bg-white rounded shadow hover:shadow-md transition overflow-hidden flex flex-col h-full">
+                      <img src="${thumb}" class="w-full h-auto" alt="Thumbnail" />
+                        <div class="p-4 flex-1 flex flex-col">
+                            <a href="/noi-dung/${bv.ID}" class="font-bold text-blue-800 text-base sm:text-lg mb-2 hover:underline break-words whitespace-normal">${tieuDe}</a>
+                            <div class="text-sm text-gray-500 mb-2 flex items-center gap-3">
+                                <span><i class="far fa-clock mr-1"></i>${date}</span>
+                                <span><i class="far fa-eye mr-1"></i>${views}</span>
+                            </div>
+                            <p class="text-sm text-gray-700 line-clamp-2 break-words whitespace-normal">${moTa}</p>
+                        </div>
+                    </div>`;
+                });
+
+                container.html(html);
+
+                // Ẩn nút nếu hiển thị hết
+                const total = muc.data.length;
+                if (end >= total) {
+                    $(`button[data-id="${mucId}"]`).hide();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

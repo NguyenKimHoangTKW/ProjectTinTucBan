@@ -83,13 +83,16 @@
     // Thêm slide (upload file trước, lấy link rồi mới gọi API thêm slide)
     $('#add-slide-form').submit(function (e) {
         e.preventDefault();
+
         const fileInput = $('#addLinkHinh')[0];
         if (fileInput.files.length === 0) {
             showSwal('Vui lòng chọn hình ảnh!', 'warning');
             return;
         }
+
         const formData = new FormData();
         formData.append('file', fileInput.files[0]);
+
         $.ajax({
             url: `${BASE_URL}/upload-slide-image`,
             type: 'POST',
@@ -98,8 +101,8 @@
             contentType: false,
             success: function (res) {
                 if (res.success && res.link) {
-                    // Sau khi upload thành công, gọi API thêm slide
                     const isActive = $('#addIsActive').is(':checked');
+
                     $.ajax({
                         url: `${BASE_URL}/add-slide`,
                         method: 'POST',
@@ -110,9 +113,21 @@
                         }),
                         success: function (res2) {
                             if (res2.success) {
+                                // Reset form
                                 $('#add-slide-form')[0].reset();
-                                $('#addSlideModal').modal('hide');
                                 $('#addPreviewImg').hide();
+
+                                // Ẩn modal đúng cách
+                                $('#addSlideModal').modal('hide');
+
+                                // Dọn backdrop thủ công (phòng lỗi Bootstrap không xoá)
+                                setTimeout(() => {
+                                    $('.modal-backdrop').remove();
+                                    $('body').removeClass('modal-open');
+                                    $('body').css('padding-right', '');
+                                }, 500); // đợi một chút để modal ẩn xong
+
+                                // Hiển thị thông báo và reload
                                 showSwal(res2.message, 'success');
                                 loadSlides();
                             } else {
@@ -132,6 +147,7 @@
             }
         });
     });
+
 
     // Hiển thị modal sửa
     $('#slider-list').on('click', '.edit-slide-btn', function () {

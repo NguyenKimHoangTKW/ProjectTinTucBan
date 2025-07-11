@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace ProjectTinTucBan
 {
@@ -11,7 +13,7 @@ namespace ProjectTinTucBan
         {
             // Web API configuration and services
             config.MessageHandlers.Add(new SessionEnabledDelegatingHandler());
-            // Web API routes
+
             config.MapHttpAttributeRoutes();
 
             config.Routes.MapHttpRoute(
@@ -19,8 +21,12 @@ namespace ProjectTinTucBan
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );
-            
 
+            config.Routes.MapHttpRoute(
+                name: "AdminApi",
+                routeTemplate: "api/Admin/{controller}/{id}",
+                defaults: new { id = RouteParameter.Optional }
+            );
         }
     }
 }
