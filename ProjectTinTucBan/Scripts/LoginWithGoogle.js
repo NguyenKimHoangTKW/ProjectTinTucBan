@@ -10,9 +10,6 @@
                     headers: { "Authorization": `Bearer ${response.access_token}` },
                     dataType: "json",
                     success: function (userInfo) {
-                        // Log all name-related fields for debugging
-                        console.log("Full Google response:", userInfo);
-
                         // Call Session_Login with all name fields
                         Session_Login(
                             userInfo.email,
@@ -51,6 +48,8 @@ async function Session_Login(email, fullname, given_name, family_name) {
             Sweet_Alert("error", "Đang đăng nhập bằng mail cá nhân, vui lòng đăng nhập bằng mail trường");
             return;
         }
+
+        checkAccountLockStatus();
 
         // Gọi API đăng nhập Google
         const res = await $.ajax({
@@ -103,10 +102,31 @@ async function Session_Login(email, fullname, given_name, family_name) {
             }
         }
     } catch (error) {
-        console.error("Google login error:", error);
         Sweet_Alert("error", "Đã xảy ra lỗi khi đăng nhập");
     }
 }
+
+function Logout_Session() {
+    $.ajax({
+        url: "/api/v1/admin/clear_session", // Fixed URL
+        type: 'POST',
+        success: function (res) {
+            if (res.success) {
+                localStorage.removeItem('authInfo');
+                // Sử dụng jQuery thay vì JS thuần
+                $(location).attr('href', '/Home/Login');
+            }
+        },
+        error: function (error) {
+            Sweet_Alert("error", "Đã xảy ra lỗi khi đăng xuất");
+        }
+    });
+}
+
+function logout() {
+    Logout_Session();
+}
+
 // Add the SweetAlert function
 function Sweet_Alert(icon, title) {
     Swal.fire({
@@ -120,6 +140,9 @@ function Sweet_Alert(icon, title) {
 
 // Function to check account lock status on page load
 function checkAccountLockStatus() {
+    // Xóa bỏ thông báo khóa cũ nếu có
+    $("#lockCountdownContainer").remove();
+
     // Get stored username if available (from a previous login attempt)
     const storedUsername = localStorage.getItem('lastLoginUsername');
 
@@ -132,6 +155,9 @@ function checkAccountLockStatus() {
             success: function (response) {
                 if (response.success && response.isLocked) {
                     if (response.isPermanent) {
+                        // Xóa thông báo khóa cũ nếu có
+                        $("#lockCountdownContainer").remove();
+
                         // Show permanent lock message
                         $(".password-container").after(`
                             <div id="lockCountdownContainer" class="alert alert-danger mt-2">
@@ -151,6 +177,7 @@ function checkAccountLockStatus() {
         });
     }
 }
+
 
 // Improved showLockCountdown function
 let currentCountdownInterval = null;
@@ -200,23 +227,26 @@ function showLockCountdown(unlockTimeValue, failedAttempts) {
         const now = $.now();
         const timeLeft = unlockTime - now;
 
+        // Thay thế đoạn code hiện tại
         if (timeLeft <= 0) {
             clearInterval(currentCountdownInterval);
-            $("#lockCountdownContainer").html(`
-                <div class="alert alert-success">
-                    <i class="fas fa-unlock mr-2"></i>
-                    <span>Tài khoản đã được mở khóa. Bạn có thể đăng nhập lại.</span>
-                </div>
+            // Thay đổi toàn bộ #lockCountdownContainer thành alert-success thay vì chỉ thay đổi nội dung bên trong
+            $("#lockCountdownContainer").removeClass("alert-danger").addClass("alert-success").html(`
+                <i class="fas fa-unlock mr-2"></i>
+                <span>Tài khoản đã được mở khóa. Bạn có thể đăng nhập lại.</span>
             `);
+
             setTimeout(function () {
-                $("#lockCountdownContainer").fadeOut('slow');
-            }, 5000);
+                $("#lockCountdownContainer").fadeOut('slow', function () {
+                    $(this).remove();
+                });
+            }, 3000);
 
             // Kích hoạt lại nút đăng nhập
             $("#btnLogin").prop("disabled", false).removeClass("disabled");
-
             return;
         }
+        
 
         // Time calculations - ensure all positive numbers
         const hours = Math.max(0, Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)));
@@ -234,6 +264,40 @@ function showLockCountdown(unlockTimeValue, failedAttempts) {
 }
 
 $(document).ready(function () {
+
+    // Xử lý sự kiện paste vào các ô xác thực
+    $(".verification-code").on('paste', function (e) {
+        // Ngăn hành vi paste mặc định
+        e.preventDefault();
+
+        // Lấy nội dung được paste
+        let pastedData = (e.originalEvent.clipboardData || window.clipboardData).getData('text');
+
+        // Chỉ lấy các kí tự số
+        pastedData = pastedData.replace(/[^0-9]/g, '');
+
+        // Lấy vị trí ô hiện tại
+        const $inputs = $('.verification-code');
+        const currentIndex = $inputs.index($(this));
+
+        // Phân phối các chữ số vào các ô
+        for (let i = 0; i < Math.min(pastedData.length, 6 - currentIndex); i++) {
+            $inputs.eq(currentIndex + i).val(pastedData[i]);
+        }
+
+        // Focus vào ô tiếp theo sau khi paste hoặc ô cuối cùng
+        const nextIndex = Math.min(currentIndex + pastedData.length, 5);
+        $inputs.eq(nextIndex).focus();
+
+        // Nếu đủ 6 số, có thể tự động kích hoạt xác thực
+        if (pastedData.length >= 6) {
+            setTimeout(function () {
+                // Hoặc bỏ comment dòng dưới nếu muốn tự động xác thực sau khi paste
+                // $("#btnVerifyCode").click();
+            }, 500);
+        }
+    });
+
     // Thêm enter key event cho username và password
     $("#username, #password").keypress(function (e) {
         if (e.which === 13) {  // 13 is the Enter key code
@@ -242,10 +306,11 @@ $(document).ready(function () {
         }
     });
 
-    checkAccountLockStatus();
+    
 
     // Modify the btnLogin click handler to save the username
     $("#btnLogin").click(function (e) {
+        checkAccountLockStatus();
         e.preventDefault();
 
         const username = $("#username").val();
