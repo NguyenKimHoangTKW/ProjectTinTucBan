@@ -73,7 +73,6 @@
         <AssociationConnector Association="WebTinTucTDMUModel.FK_Menu_by_sub_Sub_Menu" />
         <AssociationConnector Association="WebTinTucTDMUModel.FK_PhanQuyenUser_TaiKhoan" />
         <AssociationConnector Association="WebTinTucTDMUModel.FK_TaiKhoan_Roles" />
-
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

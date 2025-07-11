@@ -16,7 +16,7 @@ var dataTable;
 
 // Khởi tạo DataTable
 function initDataTable() {
-    dataTable = $('#data-table').DataTable({
+    dataTable = $('#table_load_khoi').DataTable({
         "processing": true,
         "serverSide": false,
         "searching": true,
@@ -25,6 +25,7 @@ function initDataTable() {
         "lengthMenu": [10, 25, 50, 100],
         "data": [],
         "columns": [
+            { "data": "id", "visible": false }, // Cột ID ẩn
             {
                 "data": null,
                 "orderable": false,
@@ -35,6 +36,19 @@ function initDataTable() {
             },
             { "data": "tenKhoi" },
             { "data": "thuTuShow" },
+            {
+                "data": null, // Không phụ thuộc dữ liệu từ server
+                "orderable": false,
+                "className": "text-center",
+                "render": function (data, type, row) {
+                    return `
+                        <label class="switch">
+                            <input type="checkbox" class="toggle-trangthai-khoi" data-id="${row.id}" data-thutu="${row.thuTuShow}" ${row.isActive ? 'checked' : ''}>
+                            <span class="slider"></span>
+                        </label>
+                    `;
+                }
+            },
             {
                 "data": "ngayDang",
                 "render": function (data) {
@@ -66,25 +80,26 @@ function initDataTable() {
         ],
         "columnDefs": [
             {
-                "targets": [0], // Cột STT
+                "targets": [1], // Cột STT
                 "width": "50px",
+                "className": "text-center"
+            },
+            {
+                "targets": [3], // Cột Thứ tự
+                "className": "text-center"
+            },
+            {
+                "targets": [4], // Cột Trạng thái
+                "width": "100px",
+                "className": "text-center"
+            },
+            {
+                "targets": [7], // Cột Hành động
+                "width": "120px",
                 "className": "text-center"
             }
         ],
-        "language": {
-            "lengthMenu": "Hiển thị _MENU_ dòng",
-            "zeroRecords": "Không tìm thấy dữ liệu",
-            "info": "Trang _PAGE_ / _PAGES_",
-            "infoEmpty": "Không có dữ liệu",
-            "infoFiltered": "(lọc từ _MAX_ dòng)",
-            "search": "Tìm kiếm:",
-            "paginate": {
-                "first": "Đầu",
-                "last": "Cuối",
-                "next": "Sau",
-                "previous": "Trước"
-            }
-        }
+        "order": []
     });
 }
 
@@ -94,11 +109,12 @@ function loadKhoi() {
         url: '/api/Khoi',
         type: 'GET',
         success: function (data) {
+            console.log('Loaded khoi data:', data); // Debug log
             dataTable.clear().rows.add(data).draw();
         },
         error: function (xhr) {
-            Swal.fire('Lỗi!', 'Không thể tải dữ liệu.', 'error');
-            console.error(xhr);
+            console.error('Error loading khoi:', xhr); // Debug log
+            Swal.fire('Lỗi!', 'Không thể tải dữ liệu khối.', 'error');
         }
     });
 }
@@ -160,11 +176,6 @@ $(document).ready(function () {
     // Load dữ liệu ban đầu
     loadKhoi();
 
-    // Nút tải lại danh sách
-    $('#btnLoad').click(function () {
-        loadKhoi();
-    });
-
     // Mở modal thêm mới
     $('#btnShowKhoiModal').click(function () {
         $('#ID').val('');
@@ -217,7 +228,7 @@ $(document).ready(function () {
                 error: function (xhr) {
                     Swal.fire('Lỗi!', 'Không thể thêm khối mới.', 'error');
                     console.error(xhr);
-                }
+                } 
             });
         }
     });
@@ -237,5 +248,43 @@ $(document).ready(function () {
     $(document).on('click', '.btn-xoa', function () {
         var id = $(this).data('id');
         deleteKhoi(id);
+    });
+
+    // Gán sự kiện cho toggle trạng thái
+    $(document).on('change', '.toggle-trangthai-khoi', function () {
+        var id = $(this).data('id');
+        var isActive = $(this).is(':checked');
+        var thuTu = $(this).data('thutu');
+
+        // Nếu bật 1 checkbox, tắt các checkbox khác cùng thứ tự và cập nhật trạng thái về false trên server
+        if (isActive) {
+            $('.toggle-trangthai-khoi[data-thutu="' + thuTu + '"]').not(this).each(function () {
+                if ($(this).is(':checked')) {
+                    $(this).prop('checked', false);
+                    var otherId = $(this).data('id');
+                    $.ajax({
+                        url: '/api/Khoi/ToggleTrangThai/' + otherId,
+                        type: 'PUT',
+                        data: JSON.stringify({ IsActive: false }),
+                        contentType: 'application/json'
+                    });
+                }
+            });
+        }
+
+        // Gửi trạng thái mới lên server
+        $.ajax({
+            url: '/api/Khoi/ToggleTrangThai/' + id,
+            type: 'PUT',
+            data: JSON.stringify({ IsActive: isActive }),
+            contentType: 'application/json',
+            success: function () {
+                // Có thể reload lại bảng nếu muốn đồng bộ trạng thái
+                // loadKhoi();
+            },
+            error: function () {
+                Swal.fire('Lỗi!', 'Không thể cập nhật trạng thái khối.', 'error');
+            }
+        });
     });
 });

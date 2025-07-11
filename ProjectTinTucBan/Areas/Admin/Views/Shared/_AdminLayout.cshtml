@@ -1,4 +1,4 @@
-﻿﻿
+﻿﻿﻿
 <!DOCTYPE html>
 <html lang="en">
 
@@ -46,6 +46,7 @@
                 <!-- Footer START -->
                 <!-- Footer END -->
                 @Html.Partial("_AdminFooterPartial")
+     
             </div>
             <!-- Page Container END -->
             <!-- Search Start-->
@@ -221,6 +222,7 @@
     @Scripts.Render("~/bundles/CTDT/js")
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.0.0/css/buttons.dataTables.min.css">
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
     <script>
         function goBack() {
             window.history.back();
@@ -268,6 +270,7 @@
         }
     </script>
     <script src="~/Areas/Admin/Scripts/AdminSideNavScript.js"></script>
+    <script src="~/Areas/Admin/Scripts/AdminHeaderPartial.js"></script>
     <script src="~/Areas/Admin/Scripts/MaHoaKTDB.js"></script>
     @RenderSection("scriptsAdmin", required: false)
 </body>

@@ -19,6 +19,7 @@ $(document).ready(async function () {
         window.location.href = 'https://localhost:44305/Admin/InterfaceAdmin/Login';
         return;
     }
+
     loadMucLucOptions();
     await restoreSessionStorageFromServer(); // đợi session đồng bộ xong
     await GetAllBaiViet();
@@ -1104,7 +1105,7 @@ function resetModalForm() {
     $('#BaiVietID').val('');
     $('#LinkThumbnail').val('');
     $('#LinkPDF').val('');
-    $('#ID_MucLuc').val(''); 
+    $('#ID_MucLuc').val('');
     $('#previewThumbnail').html('');
     $('#previewPDF').html('');
     $('#btnXoaThumbnail').addClass('d-none');

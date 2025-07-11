@@ -22,7 +22,8 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     thuTuShow = d.ThuTuShow,
                     link = d.Link,
                     ngayDang = d.NgayDang,
-                    ngayCapNhat = d.NgayCapNhat
+                    ngayCapNhat = d.NgayCapNhat,
+                    trangThai = d.IsActive == 1
                 }).ToList();
             return Ok(list);
         }
@@ -41,7 +42,8 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     thuTuShow = d.ThuTuShow,
                     link = d.Link,
                     ngayDang = d.NgayDang,
-                    ngayCapNhat = d.NgayCapNhat
+                    ngayCapNhat = d.NgayCapNhat,
+                    trangThai = d.IsActive == 1
                 }).ToList();
             return Ok(list);
         }
@@ -60,7 +62,8 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 thuTuShow = d.ThuTuShow,
                 link = d.Link,
                 ngayDang = d.NgayDang,
-                ngayCapNhat = d.NgayCapNhat
+                ngayCapNhat = d.NgayCapNhat,
+                trangThai = d.IsActive == 1
             });
         }
 
@@ -70,11 +73,6 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-
-            // Kiểm tra trùng thứ tự
-            bool isDuplicate = db.DonViTrucThuocs.Any(x => x.ThuTuShow == donvi.ThuTuShow);
-            if (isDuplicate)
-                return BadRequest("Thứ tự đã tồn tại, vui lòng chọn giá trị khác.");
 
             donvi.NgayDang = donvi.NgayCapNhat = (int)(System.DateTime.UtcNow - new System.DateTime(1970, 1, 1)).TotalSeconds;
             db.DonViTrucThuocs.Add(donvi);
@@ -87,7 +85,8 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 thuTuShow = donvi.ThuTuShow,
                 link = donvi.Link,
                 ngayDang = donvi.NgayDang,
-                ngayCapNhat = donvi.NgayCapNhat
+                ngayCapNhat = donvi.NgayCapNhat,
+                trangThai = donvi.IsActive == 1
             });
         }
 
@@ -101,11 +100,6 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             var existing = db.DonViTrucThuocs.Find(id);
             if (existing == null)
                 return NotFound();
-
-            // Kiểm tra trùng thứ tự (loại trừ chính bản ghi đang sửa)
-            bool isDuplicate = db.DonViTrucThuocs.Any(x => x.ThuTuShow == donvi.ThuTuShow && x.ID != id);
-            if (isDuplicate)
-                return BadRequest("Thứ tự đã tồn tại, vui lòng chọn giá trị khác.");
 
             existing.TenDonVi = donvi.TenDonVi;
             existing.ThuTuShow = donvi.ThuTuShow;
@@ -122,7 +116,8 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 thuTuShow = existing.ThuTuShow,
                 link = existing.Link,
                 ngayDang = existing.NgayDang,
-                ngayCapNhat = existing.NgayCapNhat
+                ngayCapNhat = existing.NgayCapNhat,
+                trangThai = existing.IsActive == 1
             });
         }
 
@@ -139,5 +134,23 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             return Ok();
         }
 
+        [HttpPut]
+        [Route("ToggleTrangThai/{id:int}")]
+        public IHttpActionResult ToggleTrangThai(int id, [FromBody] ToggleTrangThaiModel model)
+        {
+            var donvi = db.DonViTrucThuocs.Find(id);
+            if (donvi == null)
+                return NotFound();
+
+            donvi.IsActive = model.IsActive ? 1 : 0;
+            donvi.NgayCapNhat = (int)(System.DateTime.UtcNow - new System.DateTime(1970, 1, 1)).TotalSeconds;
+            db.SaveChanges();
+            return Ok();
+        }
+    }
+
+    public class ToggleTrangThaiModel
+    {
+        public bool IsActive { get; set; }
     }
 }

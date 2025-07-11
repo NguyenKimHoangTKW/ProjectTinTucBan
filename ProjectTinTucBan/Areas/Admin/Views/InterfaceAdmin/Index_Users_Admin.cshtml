@@ -1,8 +1,7 @@
-﻿@{
+﻿﻿﻿@{
     ViewBag.Title = "Quản lý tài khoản";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
-
 <div class="main-content">
     <div class="container-fluid">
         <!-- Header và breadcrumb -->
@@ -23,7 +22,7 @@
                     <div class="col-lg-8">
                         <h4>Danh sách tài khoản</h4>
                     </div>
-                    
+
                 </div>
 
                 <!-- Bảng dữ liệu -->
@@ -102,25 +101,6 @@
                         </div>
                     </div>
 
-                    <!-- Password fields - show only in add mode -->
-                    <div id="passwordFields">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="MatKhau">Mật khẩu <span class="text-danger">*</span></label>
-                                    <input type="password" class="form-control" id="MatKhau" name="MatKhau" placeholder="Nhập mật khẩu">
-                                    <small class="form-text text-muted">Mật khẩu đăng nhập</small>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="xacNhanMatKhau">Xác nhận mật khẩu <span class="text-danger">*</span></label>
-                                    <input type="password" class="form-control" id="xacNhanMatKhau" name="xacNhanMatKhau" placeholder="Nhập lại mật khẩu">
-                                    <small class="form-text text-muted">Nhập lại mật khẩu để xác nhận</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
                     <!-- Chỉ hiển thị khi ở chế độ sửa -->
                     <div id="editOnlyFields" class="row" style="display:none">
@@ -177,11 +157,12 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Hủy</button>
                 <button type="button" class="btn btn-primary" id="btnSaveUser">
                     <i class="anticon anticon-save m-r-5"></i>
                     <span id="btnSaveText">Lưu</span>
                 </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Hủy</button>
+
             </div>
         </div>
     </div>
@@ -213,22 +194,7 @@
 
                 <div class="row">
                     <div class="col-md-12">
-                        <div class="form-group">
-                            <div class="input-group mb-3">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text">
-                                        <i class="anticon anticon-search"></i>
-                                    </span>
-                                </div>
-                                <input type="text" class="form-control" id="searchFunctions" placeholder="Tìm kiếm chức năng...">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="table-responsive">
+                        <div class="table-responsive functions-table-container">
                             <table class="table table-hover" id="functionsTable">
                                 <thead>
                                     <tr>
@@ -263,11 +229,12 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
                 <button type="button" class="btn btn-primary" id="btnSavePermissions">
                     <i class="anticon anticon-save m-r-5"></i>
                     <span>Lưu phân quyền</span>
                 </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
+
             </div>
         </div>
     </div>
@@ -405,7 +372,6 @@
         .header-title {
             font-size: 1.3rem;
         }
-
         /* DataTables mobile improvements */
         .dataTables_wrapper .dataTables_filter input {
             min-width: 150px;
@@ -418,7 +384,6 @@
             width: 100%;
             margin-bottom: 10px;
         }
-
         /* Improved modal display on mobile */
         .modal-dialog {
             margin: 0.5rem;
@@ -448,7 +413,6 @@
                 align-items: center;
                 justify-content: center;
             }
-
         /* Form fields improvements */
         .form-group {
             margin-bottom: 0.8rem;
@@ -466,7 +430,6 @@
             font-size: 0.9rem;
             padding: 8px 12px;
         }
-
         /* Improve row spacing */
         .row {
             margin-right: -7px;
@@ -477,7 +440,6 @@
             padding-right: 7px;
             padding-left: 7px;
         }
-
         /* Fix nested rows in edit mode */
         #editOnlyFields .row {
             margin-right: -5px;
@@ -488,14 +450,12 @@
             padding-right: 5px;
             padding-left: 5px;
         }
-
         /* User permission modal improvements */
         #functionsTable th,
         #functionsTable td {
             padding: 8px 5px;
             font-size: 0.9rem;
         }
-
             /* Table header adjustments */
             #functionsTable th:nth-child(1) {
                 width: 15%;
@@ -508,7 +468,6 @@
             #functionsTable th:nth-child(3) {
                 width: 45%;
             }
-
         /* Hide description column on very small devices */
         @@media screen and (max-width: 400px) {
             #functionsTable th:nth-child(4),
@@ -529,7 +488,6 @@
             padding: 10px;
             font-size: 0.85rem;
         }
-
         /* Improve password change section */
         #changePasswordSection .custom-control-label {
             font-size: 0.9rem;
@@ -538,20 +496,17 @@
         #newPasswordFields .form-group {
             margin-bottom: 10px;
         }
-
         /* Badge improvements for mobile */
         .badge {
             padding: 4px 6px;
             font-size: 0.75rem;
         }
-
         /* Action buttons in data table */
         .btn-action {
             width: 36px;
             height: 36px;
             margin-bottom: 5px;
         }
-
         /* More efficient use of space for datatable action column */
         #data-table th:nth-child(9),
         #data-table td:nth-child(9) {
@@ -569,7 +524,6 @@
         .form-group label {
             font-size: 0.85rem;
         }
-
         /* Adjust form layout on very small screens */
         .row .col-md-6 {
             flex: 0 0 100%;
@@ -773,9 +727,59 @@
         #data-table td.text-truncated:hover::after {
             display: block;
         }
+
+    /* Fixed height scrollable functions table */
+    .functions-table-container {
+        max-height: 300px;
+        overflow-y: auto;
+        border: 1px solid #e8e8e8;
+        border-radius: 4px;
+    }
+
+    #functionsTable {
+        margin-bottom: 0;
+    }
+
+        #functionsTable thead {
+            position: sticky;
+            top: 0;
+            background-color: #5a8dee;
+            z-index: 1;
+        }
+
+            #functionsTable thead th {
+                border-top: none;
+            }
+
+    /* Custom scrollbar for better appearance */
+    .functions-table-container::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .functions-table-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+    }
+
+    .functions-table-container::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 3px;
+    }
+
+        .functions-table-container::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+    /* Responsive adjustments for mobile */
+    @@media screen and (max-width: 576px) {
+        .functions-table-container {
+            max-height: 250px;
+        }
+    }
 </style>
 
 @section scriptsAdmin {
+
     <script src="~/Scripts/sweetalert2.all.min.js"></script>
     <script src="~/Areas/Admin/Scripts/DanhSachUser.js"></script>
 }

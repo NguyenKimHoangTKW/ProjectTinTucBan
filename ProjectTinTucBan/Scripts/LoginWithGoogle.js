@@ -1,52 +1,58 @@
 ﻿function signIn() {
     google.accounts.oauth2.initTokenClient({
-        client_id: "678573924749-o17gesu5kjqachg7q87emoklr9ke020s.apps.googleusercontent.com", // New client ID
+        client_id: "678573924749-o17gesu5kjqachg7q87emoklr9ke020s.apps.googleusercontent.com",
         scope: "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
         callback: (response) => {
             if (response.access_token) {
-                fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-                    headers: { "Authorization": `Bearer ${response.access_token}` }
-                })
-                    .then(res => res.json())
-                    .then(userInfo => {
-                        Session_Login(userInfo.email, userInfo.name);
-                    })
-                    .catch(error => {
+                $.ajax({
+                    url: "https://www.googleapis.com/oauth2/v3/userinfo",
+                    type: "GET",
+                    headers: { "Authorization": `Bearer ${response.access_token}` },
+                    dataType: "json",
+                    success: function (userInfo) {
+                        // Log all name-related fields for debugging
+                        console.log("Full Google response:", userInfo);
+
+                        // Call Session_Login with all name fields
+                        Session_Login(
+                            userInfo.email,
+                            userInfo.name || "",           // Full name as fallback
+                            userInfo.given_name || "",     // First name
+                            userInfo.family_name || ""     // Last name
+                        );
+                    },
+                    error: function (error) {
                         Sweet_Alert("error", "Lỗi khi lấy thông tin từ Google");
-                    });
+                    }
+                });
             }
         },
-        // Update redirect URI to match what's in Google Console
-        redirect_uri: "https://localhost:44305/signin-google" // Updated redirect URI
+        redirect_uri: "https://localhost:44305/signin-google"
     }).requestAccessToken();
 }
 
 function togglePassword(inputId) {
-    var input = document.getElementById(inputId);
-    var icon = event.currentTarget.querySelector('i');
+    var input = $("#" + inputId);
+    var icon = $(event.currentTarget).find("i");
 
-    if (input.type === "password") {
-        input.type = "text";
-        icon.classList.remove("fa-eye");
-        icon.classList.add("fa-eye-slash");
+    if (input.attr("type") === "password") {
+        input.attr("type", "text");
+        icon.removeClass("fa-eye").addClass("fa-eye-slash");
     } else {
-        input.type = "password";
-        icon.classList.remove("fa-eye-slash");
-        icon.classList.add("fa-eye");
+        input.attr("type", "password");
+        icon.removeClass("fa-eye-slash").addClass("fa-eye");
     }
 }
 
-
-
-async function Session_Login(email, fullname) {
+async function Session_Login(email, fullname, given_name, family_name) {
     try {
         // Validate email domain
         if (!email.endsWith('@student.tdmu.edu.vn') && !email.endsWith('@tdmu.edu.vn')) {
-            Sweet_Alert("error", "Gmail không hợp lệ."); 
+            Sweet_Alert("error", "Đang đăng nhập bằng mail cá nhân, vui lòng đăng nhập bằng mail trường");
             return;
         }
 
-        // Phần còn lại không đổi
+        // Gọi API đăng nhập Google
         const res = await $.ajax({
             url: "/api/v1/admin/login-with-google",
             type: 'POST',
@@ -55,62 +61,52 @@ async function Session_Login(email, fullname) {
             data: JSON.stringify({
                 email: email,
                 name: fullname,
+                given_name: given_name,
+                family_name: family_name
             }),
         });
 
-
         if (res.success) {
-            // Save to sessionStorage to verify on Index page
+            // Đăng nhập thành công
             sessionStorage.setItem('loginInfo', JSON.stringify({
                 email: email,
                 name: fullname,
                 role: res.idRole,
-                userId: res.idUser,
+                userId: res.userId,
                 time: new Date().toISOString()
             }));
 
-            if (res.isBanner == 0) {
-                if (res.idRole == 4)  
-                    window.location.href = `/Admin/InterfaceAdmin/Index`;
-                else if (res.idRole == 1)
-                    window.location.href = `/Admin/InterfaceAdmin/Index`;
-                else
-                    Sweet_Alert("error", "Tài khoản bạn không thuộc phân quyền Admin...");
-            }
-            else
-            {
-
-                SweetSweet_Alert("error", "Tài khoản bạn bị khoá");
-            }
-
+            // Hiển thị thông báo đăng nhập thành công và chuyển hướng
+            Swal.fire({
+                position: "center",
+                icon: "success",
+                title: "Đăng nhập thành công!",
+                text: "Hệ thống sẽ chuyển hướng sau vài giây...",
+                showConfirmButton: false,
+                timer: 2000
+            }).then(() => {
+                $(location).attr('href', "/Admin/InterfaceAdmin/Index");
+            });
         } else {
-            Sweet_Alert("error", res.message || "Đăng nhập thất bại");
+            // Xử lý các trường hợp đăng nhập thất bại
+            if (res.isLocked) {
+                if (res.isPermanent) {
+                    Sweet_Alert("error", "Tài khoản của bạn đã bị khóa vĩnh viễn");
+                } else if (res.remainingSeconds) {
+                    // Hiển thị thời gian còn lại
+                    showLockCountdown(res.unlockTime || (Math.floor(Date.now() / 1000) + res.remainingSeconds),
+                        res.countPasswordFail || 0);
+                }
+            } else {
+                // Các lỗi khác
+                Sweet_Alert("error", res.message || "Đăng nhập thất bại");
+            }
         }
     } catch (error) {
+        console.error("Google login error:", error);
         Sweet_Alert("error", "Đã xảy ra lỗi khi đăng nhập");
     }
 }
-
-function Logout_Session() {
-    $.ajax({
-        url: "/api/v1/admin/clear_session", // Fixed URL
-        type: 'POST',
-        success: function (res) {
-            if (res.success) {
-                localStorage.removeItem('authInfo');
-                location.replace("/Admin/InterfaceAdmin/Login");
-            }
-        },
-        error: function (error) {
-            Sweet_Alert("error", "Đã xảy ra lỗi khi đăng xuất");
-        }
-    });
-}
-
-function logout() {
-    Logout_Session();
-}
-
 // Add the SweetAlert function
 function Sweet_Alert(icon, title) {
     Swal.fire({
@@ -122,8 +118,133 @@ function Sweet_Alert(icon, title) {
     });
 }
 
+// Function to check account lock status on page load
+function checkAccountLockStatus() {
+    // Get stored username if available (from a previous login attempt)
+    const storedUsername = localStorage.getItem('lastLoginUsername');
+
+    if (storedUsername) {
+        $.ajax({
+            url: `/api/v1/admin/check-account-lock`,
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({ username: storedUsername }),
+            success: function (response) {
+                if (response.success && response.isLocked) {
+                    if (response.isPermanent) {
+                        // Show permanent lock message
+                        $(".password-container").after(`
+                            <div id="lockCountdownContainer" class="alert alert-danger mt-2">
+                                <i class="fas fa-lock mr-2"></i>
+                                <span>Tài khoản bị khóa vĩnh viễn. Vui lòng liên hệ quản trị viên.</span>
+                            </div>
+                        `);
+                    } else if (response.unlockTime) {
+                        // Show temporary lock with countdown
+                        showLockCountdown(response.unlockTime, response.countPasswordFail || 0);
+                    }
+
+                    // Pre-fill the username field
+                    $("#username").val(storedUsername);
+                }
+            }
+        });
+    }
+}
+
+// Improved showLockCountdown function
+let currentCountdownInterval = null;
+function showLockCountdown(unlockTimeValue, failedAttempts) {
+    $("#btnLogin").prop("disabled", true).addClass("disabled");
+    // xoá bộ đếm hiện có
+    if (currentCountdownInterval) {
+        clearInterval(currentCountdownInterval);
+        currentCountdownInterval = null;
+    }
+
+    // Remove any existing lock container
+    $("#lockCountdownContainer").remove();
+
+    // Create new countdown container
+    $(".password-container").after(`
+        <div id="lockCountdownContainer" class="alert alert-danger mt-2">
+            <i class="fas fa-lock mr-2"></i>
+            <span>Tài khoản bị khóa tạm thời. Sẽ mở khóa sau: </span>
+            <div id="lockCountdown" class="font-weight-bold">Đang tính toán...</div>
+            ${failedAttempts > 0 ? `<div class="mt-1">Số lần đăng nhập thất bại: ${failedAttempts}</div>` : ''}
+        </div>
+    `);
+
+    // Parse the unlock time correctly - ensure it's a number
+    let unlockTime;
+
+    try {
+        // Convert to number if it's a string
+        if (typeof unlockTimeValue === 'string') {
+            unlockTimeValue = parseInt(unlockTimeValue, 10);
+        }
+
+        // Check if it's a Unix timestamp (seconds since epoch)
+        if (unlockTimeValue && unlockTimeValue.toString().length === 10) {
+            unlockTime = unlockTimeValue * 1000; // Convert to milliseconds
+        } else {
+            unlockTime = unlockTimeValue;
+        }
+    } catch (e) {
+        // Default to 15 minutes from now as fallback
+        unlockTime = $.now() + (15 * 60 * 1000);
+    }
+
+    // Set up the countdown timer - sử dụng setInterval của jQuery
+    currentCountdownInterval = setInterval(function () {
+        const now = $.now();
+        const timeLeft = unlockTime - now;
+
+        if (timeLeft <= 0) {
+            clearInterval(currentCountdownInterval);
+            $("#lockCountdownContainer").html(`
+                <div class="alert alert-success">
+                    <i class="fas fa-unlock mr-2"></i>
+                    <span>Tài khoản đã được mở khóa. Bạn có thể đăng nhập lại.</span>
+                </div>
+            `);
+            setTimeout(function () {
+                $("#lockCountdownContainer").fadeOut('slow');
+            }, 5000);
+
+            // Kích hoạt lại nút đăng nhập
+            $("#btnLogin").prop("disabled", false).removeClass("disabled");
+
+            return;
+        }
+
+        // Time calculations - ensure all positive numbers
+        const hours = Math.max(0, Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)));
+        const minutes = Math.max(0, Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60)));
+        const seconds = Math.max(0, Math.floor((timeLeft % (1000 * 60)) / 1000));
+
+        // Display countdown with zero-padding
+        $("#lockCountdown").text(
+            `${hours}h ${minutes}m ${seconds}s`
+        );
+    }, 1000);
+
+    // Show initial alert
+    Sweet_Alert("error", "Tài khoản bạn bị khoá tạm thời");
+}
+
 $(document).ready(function () {
-    // Xử lý đăng nhập bằng form
+    // Thêm enter key event cho username và password
+    $("#username, #password").keypress(function (e) {
+        if (e.which === 13) {  // 13 is the Enter key code
+            e.preventDefault();
+            $("#btnLogin").click();
+        }
+    });
+
+    checkAccountLockStatus();
+
+    // Modify the btnLogin click handler to save the username
     $("#btnLogin").click(function (e) {
         e.preventDefault();
 
@@ -135,15 +256,29 @@ $(document).ready(function () {
             return;
         }
 
+        // Save username for lock checking on future page loads
+        localStorage.setItem('lastLoginUsername', username);
+
         // Validate email domain if it's an email
         if (username.includes('@')) {
             const domain = username.split('@')[1]; // Get the domain part
             if (domain !== "student.tdmu.edu.vn" && domain !== "tdmu.edu.vn") {
-                Sweet_Alert("error", "Gmail không hợp lệ.");
+                Sweet_Alert("error", "Đang đăng nhập bằng mail cá nhân, vui lòng đăng nhập bằng mail trường");
                 return;
             }
         }
 
+        // Hiển thị thông báo đang xử lý
+        const loadingAlert = Swal.fire({
+            title: 'Đang xử lý',
+            text: 'Vui lòng đợi...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        // Thêm timeout cho request
         $.ajax({
             url: `/api/v1/admin/login`,
             type: "POST",
@@ -152,15 +287,46 @@ $(document).ready(function () {
                 Username: username,
                 Password: password
             }),
+            timeout: 10000, // Timeout sau 10 giây
             success: function (response) {
+                loadingAlert.close(); // Đóng thông báo đang xử lý
+
                 if (response.success) {
-                    window.location.href = "/Admin/InterfaceAdmin/Index";
+                    // Hiển thị thông báo đăng nhập thành công trước khi chuyển hướng
+                    Swal.fire({
+                        position: "center",
+                        icon: "success",
+                        title: "Đăng nhập thành công!",
+                        text: "Hệ thống sẽ chuyển hướng sau vài giây...",
+                        showConfirmButton: false,
+                        timer: 2000
+                    }).then(() => {
+                        $(location).attr('href', "/Admin/InterfaceAdmin/Index");
+                    });
                 } else {
-                    Sweet_Alert("error", response.message || "Đăng nhập không thành công");
+                    // Xử lý thông báo đăng nhập thất bại
+                    if (response.isLocked) {
+                        if (response.isPermanent) {
+                            Sweet_Alert("error", "Tài khoản của bạn đã bị khóa vĩnh viễn");
+                        } else if (response.remainingSeconds) {
+                            // Hiển thị thời gian còn lại
+                            showLockCountdown(response.unlockTime || (Math.floor(Date.now() / 1000) + response.remainingSeconds),
+                                response.countPasswordFail || 0);
+                        }
+                    } else {
+                        // Các thông báo lỗi khác
+                        Sweet_Alert("error", response.message || "Đăng nhập thất bại");
+                    }
                 }
             },
-            error: function (error) {
-                Sweet_Alert("error", "Đã xảy ra lỗi khi đăng nhập");
+            error: function (xhr, status, error) {
+                loadingAlert.close(); // Đóng thông báo đang xử lý
+
+                if (status === "timeout") {
+                    Sweet_Alert("error", "Kết nối đến máy chủ bị quá thời gian vui lòng thử lại sau.");
+                } else {
+                    Sweet_Alert("error", "Đã xảy ra lỗi khi đăng nhập: " + (xhr.statusText || "Không thể kết nối đến máy chủ"));
+                }
             }
         });
     });
@@ -173,7 +339,11 @@ $(document).ready(function () {
     // Xử lý click nút quên mật khẩu
     $("#btnResetPassword").click(function (e) {
         e.preventDefault();
-        $("#resetPasswordModal").modal('show');
+        try {
+            $("#resetPasswordModal").modal('show');
+        } catch (error) {
+            alert("Có lỗi khi hiển thị form đặt lại mật khẩu");
+        }
     });
 
     //Xử lý gửi mã xác thực
@@ -259,7 +429,7 @@ $(document).ready(function () {
 
     // Chỉ cho phép nhập số vào ô xác thực
     $(".verification-code").on("input", function () {
-        this.value = this.value.replace(/[^0-9]/g, '');
+        $(this).val($(this).val().replace(/[^0-9]/g, ''));
     });
 
     // Xử lý xác thực mã
@@ -327,7 +497,7 @@ $(document).ready(function () {
                     $("#newPasswordModal").modal('hide');
                     Swal.fire('Thành công', 'Mật khẩu đã được đặt lại thành công', 'success').then(() => {
                         // Làm mới trang đăng nhập
-                        window.location.reload();
+                        location.reload();
                     });
                 } else {
                     Swal.fire('Lỗi', response.message || 'Không thể đặt lại mật khẩu', 'error');

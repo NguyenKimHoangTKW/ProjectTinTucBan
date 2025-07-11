@@ -1,4 +1,4 @@
-﻿@{
+﻿﻿﻿@{
     ViewBag.Title = "Quản lý quyền Admin";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
@@ -100,11 +100,12 @@
                 </form>
             </div>
             <div class="modal-footer flex-wrap justify-content-center">
-                <button type="button" class="btn btn-default m-1" data-dismiss="modal">Hủy</button>
                 <button type="button" class="btn btn-primary m-1" id="btnSaveRole">
                     <i class="anticon anticon-save m-r-5"></i>
                     <span id="btnSaveText">Lưu</span>
                 </button>
+                <button type="button" class="btn btn-default m-1" data-dismiss="modal">Hủy</button>
+
             </div>
         </div>
     </div>
@@ -257,12 +258,10 @@
             display: block;
             overflow-x: auto;
         }
-
         /* Bổ sung các style cho mobile */
         .main-content {
             padding: calc(70px + -25px) 15px 15px;
         }
-
         /* Nút thêm quyền admin */
         .col-lg-4.text-right {
             text-align: center !important;
@@ -272,7 +271,6 @@
         #btnAddRoles {
             width: 100%;
         }
-
         /* Modal styling cho mobile */
         .modal-dialog {
             margin: 10px auto;
@@ -292,13 +290,12 @@
             flex-direction: row;
         }
 
-        .modal-footer .btn {
-            flex: 1;
-            margin: 5px;
-            white-space: nowrap;
-            min-width: unset;
-        }
-
+            .modal-footer .btn {
+                flex: 1;
+                margin: 5px;
+                white-space: nowrap;
+                min-width: unset;
+            }
         /* Tối ưu form trên điện thoại */
         .form-control {
             font-size: 14px;
@@ -308,39 +305,26 @@
         .form-group {
             margin-bottom: 12px;
         }
-
         /* Nút thao tác trong bảng */
         .btn-action {
             width: 36px;
             height: 36px;
             margin: 2px;
         }
-
         /* Table styling */
         #data-table th,
         #data-table td {
             max-width: 150px;
         }
-
-        /* Các cột thời gian */
-        #data-table th:nth-child(4),
-        #data-table td:nth-child(4),
-        #data-table th:nth-child(5),
-        #data-table td:nth-child(5) {
-            display: none;
-        }
-
         /* Styling cho các nút trong modal */
         .modal-dialog .btn {
             font-size: 14px;
             padding: 8px 12px;
         }
-
         /* Tối ưu cho việc nhấn vào input/textarea */
         input, textarea, select, button {
             font-size: 16px !important; /* Ngăn iOS zoom khi focus */
         }
-
         /* Fix cho modal tràn khỏi màn hình */
         .modal-open {
             overflow: hidden;
@@ -348,7 +332,6 @@
             width: 100%;
             height: 100%;
         }
-
         /* Căn giữa modal */
         .modal-dialog-centered {
             display: flex;
@@ -358,11 +341,11 @@
     }
 
     /* Style chung cho modal */
-.modal-content {
-    border-radius: 8px;
-    border: none;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
+    .modal-content {
+        border-radius: 8px;
+        border: none;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
 
     /* Tối ưu cho các màn hình nhỏ hơn */
     @@media screen and (max-width: 480px) {
@@ -374,10 +357,10 @@
             flex-direction: column;
         }
 
-        .modal-footer .btn {
-            width: 100%;
-            margin: 5px 0;
-        }
+            .modal-footer .btn {
+                width: 100%;
+                margin: 5px 0;
+            }
     }
 
     /* Tùy chỉnh các điều khiển DataTable */
@@ -426,7 +409,7 @@
     }
 
     .main-content {
-        padding: calc(70px + -25px) 25px 25px;
+        padding: calc(70px + -25px) 25px 25px !important;
     }
 
     /* Modal styling */
@@ -488,6 +471,5 @@
 </style>
 
 @section scriptsAdmin {
-    <script src="~/Scripts/sweetalert2.all.min.js"></script>
     <script src="~/Areas/Admin/Scripts/DanhSachRoles.js"></script>
 }

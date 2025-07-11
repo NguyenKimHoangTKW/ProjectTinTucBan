@@ -1,78 +1,80 @@
-﻿using System;
-using ProjectTinTucBan.Models;
-using System.Collections.Generic;
-using System.Linq;
+﻿using ProjectTinTucBan.Models;
 using System.Web.Mvc;
-using System.Data.Entity;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using System.Web;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.Owin;
-using Microsoft.Owin.Security;
-using ProjectTinTucBan.Models;
-using Microsoft.Owin.Security.Cookies;
-// Quan trọng: Using models
-using System.Data.Entity; // Thêm using này cho Include
-using System.Collections.Generic; // << --- THÊM DÒNG NÀY ---
-
-
+using ProjectTinTucBan.Helper;
 namespace ProjectTinTucBan.Areas.Admin.Controllers
 {
-
     public class InterfaceAdminController : Controller
     {
         WebTinTucTDMUEntities db = new WebTinTucTDMUEntities();
-
         // Gọi hàm thiết kế giao diện tại đây
+        [UserAuthorizeAttribute()]
         public ActionResult Index()
+        {
+
+            return View();
+        }
+        public ActionResult EditTaiKhoan()
+        {
+            return RedirectToAction("EditTaiKhoan", "EditTaiKhoan");
+        }
+        public ActionResult EditFooter()
         {
 
             return View();
         }
 
         // Gọi hàm thiết kế giao diện Quản lý mục lục
+        [UserAuthorizeAttribute(1, 4)]
         public ActionResult Index_MucLuc_Admin()
         {
             return View();
         }
+
         // Gọi hàm thiết kế giao diện quản lý quyền Admin
+        [UserAuthorizeAttribute(1, 4)]
         public ActionResult Index_Roles_Admin()
         {
             return View();
         }
 
+        [UserAuthorizeAttribute(1, 4)]
         public ActionResult Menu()
         {
             return View();
         }
+
+        [UserAuthorizeAttribute(1, 4)]
         public ActionResult Slider()
         {
             return View();
         }
+
+        [UserAuthorizeAttribute(1, 4)]
         public ActionResult BaiViet()
         {
             return View();
-        }        
+        }
+
+        [UserAuthorizeAttribute(1, 4)]
         // Gọi hàm thiết kế giao diện quản lý người dùng Admin
         public ActionResult Index_Users_Admin()
         {
             return View();
         }
-        
+
         // Gọi hàm thiết kế giao diện quản lý chức năng admin
+        [UserAuthorizeAttribute(1, 4)]
         public ActionResult Index_Function_Admin()
         {
             return View();
         }
+
         // Gọi hàm thiết kế giao diện đăng nhập
         public ActionResult Login()
         {
             return View();
         }
+        [UserAuthorizeAttribute(1, 4)]
         public ActionResult XemNoiDung(int id)
         {
             using (var db = new WebTinTucTDMUEntities())

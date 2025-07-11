@@ -1,7 +1,7 @@
 ﻿$(document).ready(function () {
     // Gọi API để lấy danh sách slide
     $.ajax({
-        url: `${BASE_URL}/get-slides-show`,
+        url: `/api/v1/admin/get-slides-show`,
         method: 'GET',
         success: function (slides) {
             if (!slides || slides.length === 0) return;

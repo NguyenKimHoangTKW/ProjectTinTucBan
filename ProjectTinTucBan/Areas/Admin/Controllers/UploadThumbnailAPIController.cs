@@ -50,4 +50,3 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
     }
 }
-

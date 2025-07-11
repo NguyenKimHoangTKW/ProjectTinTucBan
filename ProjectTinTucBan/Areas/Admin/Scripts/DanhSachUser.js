@@ -1,4 +1,5 @@
-﻿$(document).ready(function () {
+const BASE_URL = '/api/v1/admin/';
+$(document).ready(function () {
     // Initialize Select2 components if available
     if ($.fn.select2) {
         $(".select2").select2();
@@ -63,7 +64,7 @@ let dataTableInstance = null;
 // Load roles for dropdown
 function loadRoles() {
     $.ajax({
-        url: '/api/v1/admin/Get-All-Roles',
+        url: `${BASE_URL}/Get-All-Roles`,
         type: 'GET',
         dataType: 'json',
         success: function (response) {
@@ -168,7 +169,7 @@ async function load_data() {
         let rolesData = [];
         try {
             const rolesResponse = await $.ajax({
-                url: '/api/v1/admin/Get-All-Roles',
+                url: `${BASE_URL}/Get-All-Roles`,
                 type: 'GET',
                 dataType: 'json'
             });
@@ -182,7 +183,7 @@ async function load_data() {
 
         // Gọi API tải danh sách người dùng
         $.ajax({
-            url: '/api/v1/admin/Get-All-Users',
+            url: `${BASE_URL}/Get-All-Users`,
             type: 'GET',
             dataType: 'json',
             cache: false,
@@ -233,7 +234,7 @@ async function load_data() {
                         return newItem;
                     });
                 }
-                
+
                 // Khởi tạo DataTable với dữ liệu
                 dataTableInstance = $('#data-table').DataTable({
                     data: processedData || [],
@@ -349,7 +350,7 @@ async function load_data() {
                     </tbody>
                 `);
 
-     
+
                 Sweet_Alert("error", "Không thể tải danh sách: " + xhr.statusText);
             }
         });
@@ -381,7 +382,7 @@ async function openEditUserModal(userId) {
     try {
         // Chỉ sử dụng API Get-All-Users và tìm người dùng cụ thể
         const allUsersResponse = await $.ajax({
-            url: '/api/v1/admin/Get-All-Users',
+            url: `${BASE_URL}/Get-All-Users`,
             type: 'GET',
             dataType: 'json'
         });
@@ -412,12 +413,9 @@ async function openEditUserModal(userId) {
                 $("#UserModalLabel").text("Cập nhật tài khoản");
                 $("#btnSaveText").text("Cập nhật");
 
-                // Hide password fields, show edit-only fields and password change option
-                $("#passwordFields").hide();
+
                 $("#editOnlyFields").show();
-                $("#changePasswordSection").show();
-                $("#newPasswordFields").hide();
-                $("#changePasswordCheck").prop('checked', false);
+
 
                 // Show the modal
                 $("#UserModal").modal("show");
@@ -482,7 +480,7 @@ async function update_User_in_modal() {
 
         // Call API to update user
         const response = await $.ajax({
-            url: '/api/v1/admin/Update-User',
+            url: `${BASE_URL}/Update-User`,
             type: 'PUT',
             contentType: 'application/json',
             data: JSON.stringify(updateData)
@@ -509,7 +507,7 @@ async function update_User_in_modal() {
         } else {
             Sweet_Alert("error", "Có lỗi xảy ra khi cập nhật tài khoản");
         }
-     
+
     }
 }
 
@@ -528,7 +526,7 @@ function deleteUser(userId) {
         if (result.isConfirmed) {
             try {
                 const res = await $.ajax({
-                    url: '/api/v1/admin/Delete-User',
+                    url: `${BASE_URL}/Delete-User`,
                     type: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify({
@@ -588,7 +586,7 @@ async function openPermissionsModal(userId, username) {
         // Get all functions and user permissions
         const [functionsResponse, userPermissionsResponse] = await Promise.all([
             $.ajax({
-                url: '/api/v1/admin/Get-All-Functions',
+                url: `${BASE_URL}/Get-All-Functions`,
                 type: 'GET',
                 dataType: 'json'
             }),
@@ -652,12 +650,12 @@ async function openPermissionsModal(userId, username) {
 function updateCheckAllState() {
     const totalCheckboxes = $("#functionsTableBody .function-checkbox").length;
     const checkedCheckboxes = $("#functionsTableBody .function-checkbox:checked").length;
-    
+
     if (totalCheckboxes === 0) {
         $("#checkAllFunctions").prop("checked", false);
         return;
     }
-    
+
     $("#checkAllFunctions").prop({
         "checked": totalCheckboxes === checkedCheckboxes,
         "indeterminate": checkedCheckboxes > 0 && checkedCheckboxes < totalCheckboxes
@@ -665,7 +663,7 @@ function updateCheckAllState() {
 }
 
 // Handle individual checkbox changes
-$(document).on("change", ".function-checkbox", function() {
+$(document).on("change", ".function-checkbox", function () {
     updateCheckAllState();
 });
 
@@ -673,15 +671,15 @@ $(document).on("change", ".function-checkbox", function() {
 async function saveUserPermissions() {
     try {
         const userId = $("#permissionUserId").val();
-        
+
         // Get all checked function IDs
         const selectedFunctionIds = [];
-        $("#functionsTableBody .function-checkbox:checked").each(function() {
+        $("#functionsTableBody .function-checkbox:checked").each(function () {
             selectedFunctionIds.push($(this).data("function-id"));
         });
-        
+
         const response = await $.ajax({
-            url: '/api/v1/admin/Update-User-Permissions',
+            url: `${BASE_URL}/Update-User-Permissions`,
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({
@@ -689,7 +687,7 @@ async function saveUserPermissions() {
                 functionIds: selectedFunctionIds
             })
         });
-        
+
         if (response.success) {
             $("#UserPermissionModal").modal("hide");
             Sweet_Alert("success", response.message || "Phân quyền đã được cập nhật thành công");

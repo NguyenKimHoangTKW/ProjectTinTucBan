@@ -1,0 +1,134 @@
+﻿<div class="bg-[#29A3E0] text-white text-sm">
+    <div class="flex flex-wrap justify-between items-center px-4 sm:px-8 lg:px-12 py-2 gap-2 w-full">
+        <!-- Thông tin liên hệ -->
+        <div class="flex flex-wrap items-center gap-3 text-xs sm:text-sm">
+            <span>📧 Bdbcl@tdmu.edu.vn</span>
+            <span>📞 (0274) 3822518-3-114</span>
+        </div>
+
+        <!-- Menu -->
+        <div>
+            <ul class="admin-topmenu-nav"></ul>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="~/Scripts/jquery-3.7.0.js"></script>
+    <script src="~/Scripts/Scripts/TopMenuShowScript.js"></script>
+
+
+    <style>
+        .admin-topmenu-nav {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            font-family: "Segoe UI", sans-serif;
+        }
+
+        .admin-topmenu-link {
+            display: inline-block;
+            padding: 10px 0;
+            font-weight: 500;
+            font-size: 16px;
+            color: #ffffff;
+            text-decoration: none;
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+            .admin-topmenu-link:hover {
+                color: #f97316;
+            }
+
+        .has-dropdown:hover .admin-topmenu-link::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -4px;
+            width: 100%;
+            height: 3px;
+            background-color: #f97316;
+            border-radius: 2px;
+        }
+
+        .has-dropdown {
+            position: relative;
+        }
+
+        .admin-topmenu-dropdown {
+            list-style: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 14px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.1);
+            min-width: 220px;
+            max-width: 300px; /* ✅ Giới hạn chiều rộng menu */
+            z-index: 999;
+            display: none;
+            padding: 12px 0;
+            animation: fadeIn 0.2s ease-in-out;
+        }
+
+        .has-dropdown:hover .admin-topmenu-dropdown {
+            display: block;
+        }
+
+        .admin-topmenu-dropdown li {
+            padding: 0;
+        }
+
+        .admin-topmenu-dropdown a {
+            display: block;
+            padding: 12px 20px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #1f2937;
+            text-decoration: none;
+            transition: background 0.2s, color 0.2s;
+            white-space: normal; /* ✅ Cho phép xuống dòng */
+            word-wrap: break-word; /* ✅ Ngắt từ dài */
+            word-break: break-word;
+            overflow-wrap: break-word;
+            max-width: 260px; /* ✅ Chiều rộng tối đa cho mỗi item */
+            line-height: 1.4;
+            border-left: 3px solid transparent;
+        }
+
+            .admin-topmenu-dropdown a:hover {
+                background-color: #f3f4f6;
+                color: #f97316;
+                border-left: 3px solid #f97316;
+            }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</div>
+
+<!-- Header -->
+<header class="bg-white shadow">
+    <div class="w-full px-4 sm:px-8 lg:px-12 py-3 flex flex-col md:flex-row justify-between items-center gap-4 border-b">
+        <!-- Logo -->
+        <div class="flex items-center gap-4">
+            <img src="https://bdbcl.tdmu.edu.vn/img/Logo-BKTKD-BCL.jpg" alt="Logo ĐBCL TDMU" class="max-h-16 w-auto" />
+        </div>
+
+        <!-- Navbar Partial -->
+        @Html.Partial("TrangChuNavPartial")
+    </div>
+</header>

@@ -1,4 +1,4 @@
-﻿@model ProjectTinTucBan.Models.Menu_by_sub
+﻿﻿@model ProjectTinTucBan.Models.Menu_by_sub
 
 @{
     ViewBag.Title = "Quản lý Menu";
@@ -35,17 +35,18 @@
             padding-right: 8px;
             margin-bottom: 4px;
         }
+
     .toggle-submenu-btn {
         font-size: 0.8rem;
         height: 30px;
         line-height: 1;
     }
+
     .btn-xs-custom {
         padding: 2px 6px;
         font-size: 0.75rem;
         line-height: 1;
     }
-
 </style>
 
 
@@ -253,7 +254,10 @@
 
 
 <!-- Main content -->
+
 <div class="main-content">
+    <h2>Quản lý Menu</h2>
+    <hr />
     <!-- Header và breadcrumb -->
     <div class="page-header">
         <h2 class="header-title">Quản lý Menu</h2>
@@ -264,6 +268,7 @@
             </nav>
         </div>
     </div>
+
     <!-- Content  -->
     <ul class="nav nav-tabs nav-justified" id="myTabJustified" role="tablist">
         <li class="nav-item">
@@ -290,8 +295,8 @@
                 <div id="groupMenuTabsContainer"></div>
             </div>
         </div>
-
     </div>
+
 </div>
 
 
@@ -304,4 +309,5 @@
     <script src="~/Areas/assets/js/OptionPhanQuyen.js"></script>
     <script src="~/Areas/Admin/Scripts/MenuScript.js"></script>
     <script src="~/Areas/Admin/Scripts/GroupMenuAdminScript.js"></script>
+    <script src="~/Areas/Admin/Scripts/MaHoaKTDB.js"></script>
 }

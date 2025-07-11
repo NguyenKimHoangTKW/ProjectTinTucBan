@@ -1,11 +1,5 @@
 ﻿@model ProjectTinTucBan.Models.BaiViet
 @{
-    ViewBag.Title = "Trang chủ";
-    var imageList = new[] {
-        "29fcbd0c-9d4b-4b47-9ae2-121f14eb4cf9.png",
-        "b58bda5e-a637-4d82-8c11-4ddd3b6e9bc9.png",
-        "25e7413b-3051-42a4-9d8e-11407261a294.png"
-    };
 }
 <!DOCTYPE html>
 <html lang="vi">
@@ -13,8 +7,11 @@
     <meta charset="utf-8" />
     <title>@ViewBag.Title</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Tailwind CSS -->
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <!-- Swiper CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+    <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
     <style>
         html, body {
@@ -22,6 +19,85 @@
             padding: 0;
             overflow-x: hidden;
             scroll-behavior: smooth;
+        }
+        .animate-pulse {
+    animation: pulse 2s infinite;
+}
+.animate-bounce {
+    animation: bounce 1s infinite;
+}
+
+@@keyframes pulse {
+    0%, 100% { opacity: 1 }
+    50% { opacity: 0.5 }
+}
+
+@@keyframes bounce {
+    0%, 100% { transform: translateY(0) }
+    50% { transform: translateY(-5px) }
+}
+
+            /* Thu nhỏ scrollbar */
+            body::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            body::-webkit-scrollbar-thumb {
+                background-color: rgba(0, 0, 0, 0.2);
+                border-radius: 4px;
+            }
+
+        body {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+        }
+
+        /* Swiper điều hướng */
+        .swiper-button-prev,
+        .swiper-button-next {
+            color: white;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(0, 0, 0, 0.4);
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: background-color 0.3s;
+        }
+
+            .swiper-button-prev:hover,
+            .swiper-button-next:hover {
+                background-color: rgba(0, 0, 0, 0.6);
+            }
+
+            .swiper-button-prev::after,
+            .swiper-button-next::after {
+                font-size: 20px;
+                font-weight: bold;
+            }
+
+        .swiper-button-prev {
+            left: 16px;
+        }
+
+        .swiper-button-next {
+            right: 16px;
+        }
+
+        .swiper {
+            width: 100vw;
+            height: 600px;
+        }
+
+        .swiper-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 0;
         }
 
         .line-clamp-2 {
@@ -35,41 +111,51 @@
             max-width: 100%;
             height: auto;
         }
+
+        .swiper-pagination-bullet {
+            width: 30px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 1;
+            margin: 0 4px !important;
+            border-radius: 0;
+            transition: background 0.3s;
+        }
+
+        .swiper-pagination-bullet-active {
+            background: white;
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
     <!-- Banner -->
-    <section class="w-full">
-        <div class="swiper mySwiper w-full overflow-hidden">
-            <div class="swiper-wrapper">
-                @foreach (var img in imageList)
-                {
-                    <div class="swiper-slide">
-                        <img src="https://bdbcl.tdmu.edu.vn/img/ckeditor/Images/@img"
-                             alt="Banner"
-                             class="w-full h-[550px] object-cover" />
-                    </div>
-                }
+    <section class="w-full relative">
+        <div class="swiper mySwiper w-full h-[400px] overflow-hidden relative">
+            <div class="swiper-wrapper" id="slider-container">
+                <!-- Dữ liệu ảnh sẽ được load từ API -->
             </div>
-
-            <!-- Nút điều hướng Swiper -->
-            <div class="swiper-button-next text-white"></div>
-            <div class="swiper-button-prev text-white"></div>
+            <div class="swiper-button-prev"></div>
+            <div class="swiper-button-next"></div>
             <div class="swiper-pagination"></div>
         </div>
     </section>
 
     <!-- Tin tức -->
     <section class="py-10">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-            <div id="mucLucContainer" class="space-y-12"></div>
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
+            <!-- Cột nội dung chính -->
+            <div class="md:col-span-3 space-y-12" id="mucLucContainer"></div>
+
+            <!-- Cột sidebar bên phải -->
+            <aside class="space-y-6" id="sidebar-khoi-donvi">
+                <!-- Nội dung Khối và Đơn vị sẽ được load bằng JavaScript -->
+            </aside>
         </div>
     </section>
 
     <!-- Giới thiệu + Video -->
     <section class="w-full bg-white px-4 py-8">
         <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
-            <!-- VIDEO -->
             <div class="w-full aspect-video">
                 <iframe id="video"
                         class="w-full h-full rounded shadow-lg"
@@ -81,7 +167,6 @@
                 </iframe>
             </div>
 
-            <!-- PHẦN GIỚI THIỆU -->
             <div>
                 <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-6">
                     Giới thiệu về Trung tâm
@@ -156,184 +241,11 @@
         </div>
     </section>
 
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
-    <script>
-        function toSlug(str) {
-            return str.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-        }
 
-        function formatDate(yyyymmdd) {
-            if (!yyyymmdd || yyyymmdd.toString().length !== 8) return '';
-            const str = yyyymmdd.toString();
-            return `${str.substring(6, 8)}/${str.substring(4, 6)}/${str.substring(0, 4)}`;
-        }
+    <script src="~/Scripts/Scripts/BaiVietTrangChu.js"></script>
 
-        new Swiper(".mySwiper", {
-            loop: true,
-            autoplay: { delay: 3000, disableOnInteraction: false },
-            pagination: { el: ".swiper-pagination", clickable: true },
-            navigation: { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" }
-        });
-
-        // Lưu trữ dữ liệu mục lục bài viết
-        window.mucLucData = {};
-
-        $(document).ready(function () {
-            $.get("/api/v1/home/get-mucluc-with-baiviet", function (res) {
-                if (!res.success || !res.data) {
-                    $("#mucLucContainer").html("<p class='text-center text-gray-500'>Không có dữ liệu mục lục.</p>");
-                    return;
-                }
-
-                let html = `<div class="space-y-10">`;
-
-                res.data.forEach(muc => {
-                    const isThongBao = muc.TenMucLuc?.toLowerCase().includes("thông báo");
-                    const mucId = toSlug(muc.TenMucLuc);
-                    const allBaiViets = muc.BaiViets || [];
-
-                    html += `<div id="${mucId}">
-                                <div class="text-center">
-                        <h3 class="inline-block bg-red-600 text-white text-sm sm:text-base md:text-lg font-semibold rounded-full px-6 py-2 mb-6 uppercase shadow">
-                            ${muc.TenMucLuc}
-                        </h3>
-                    </div>`;
-
-                    if (!allBaiViets.length) {
-                        html += `<p class="text-gray-500 italic mb-4">Hiện tại chưa cập nhật bài viết nào.</p>`;
-                    } else if (isThongBao) {
-                        const moiNhat = [...allBaiViets].sort((a, b) => b.NgayDang - a.NgayDang).slice(0, 5);
-                        const xemNhieu = [...allBaiViets].sort((a, b) => (b.LuotXem ?? 0) - (a.LuotXem ?? 0)).slice(0, 5);
-
-                        html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <h4 class="text-xl font-bold text-orange-600 mb-4 border-b border-orange-400 pb-2 uppercase">Thông báo mới</h4>
-                                        <ul class="space-y-4">`;
-
-                        moiNhat.forEach(bv => {
-                            const date = formatDate(bv.NgayDang);
-                            html += `<li class="flex gap-4 items-start">
-                            <div class="w-24 h-16 overflow-hidden rounded border flex-shrink-0">
-                                <img src="${bv.LinkThumbnail?.trim() || '/images/thong-bao-icon.png'}" class="w-full h-full object-cover" />
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <a href="/noi-dung/${bv.ID}" class="font-semibold text-lg text-blue-800 hover:underline block break-words">${bv.TieuDe}</a>
-                                <div class="text-sm text-gray-600 mt-1"><i class="far fa-clock mr-1"></i>${date}</div>
-                            </div>
-                        </li>`;
-                        });
-
-                        html += `</ul>
-                                    </div>
-                                    <div>
-                                        <h4 class="text-xl font-bold text-orange-600 mb-4 border-b border-orange-400 pb-2 uppercase">Thông báo được xem nhiều</h4>
-                                        <ul class="space-y-4">`;
-
-                        xemNhieu.forEach(bv => {
-                            const date = formatDate(bv.NgayDang);
-                            html += `<li class="flex gap-4 items-start">
-                            <div class="w-24 h-16 overflow-hidden rounded border flex-shrink-0 shadow-sm">
-                                <img src="${bv.LinkThumbnail?.trim() || '/images/thong-bao-icon.png'}" class="w-full h-full object-cover" />
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <a href="/noi-dung/${bv.ID}" class="font-semibold text-lg text-blue-800 hover:underline block break-words leading-snug">${bv.TieuDe}</a>
-                                <div class="text-sm text-gray-600 mt-1"><i class="far fa-eye mr-1"></i>${bv.LuotXem ?? 0} lượt xem</div>
-                            </div>
-                        </li>`;
-                        });
-                        html += `</ul>
-                                    </div>
-                                </div>`;
-                    } else {
-                        // Lưu dữ liệu để phân trang
-                        window.mucLucData[mucId] = {
-                            data: allBaiViets,
-                            page: 1,
-                            perPage: 6
-                        };
-                        html += `
-                        <div id="muc-${mucId}">
-                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="list-${mucId}">
-                            </div>
-                            ${allBaiViets.length > 6
-                                ? `<div class="text-center mt-6">
-                                        <button data-id="${mucId}" class="btn-xem-them bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Xem thêm</button>
-                                   </div>`
-                                : ''
-                            }
-                        </div>`;
-                    }
-
-                    html += `</div>`;
-                });
-
-                html += `</div>`;
-                $("#mucLucContainer").html(html);
-
-                // Gọi render lần đầu
-                Object.keys(window.mucLucData).forEach(mucId => {
-                    renderBaiVietForMucLuc(mucId);
-                });
-            });
-
-            // Cuộn mượt
-            $(document).on("click", ".scroll-to", function (e) {
-                e.preventDefault();
-                const target = $(this).attr("href");
-                $('html, body').animate({ scrollTop: $(target).offset().top - 100 }, 500);
-            });
-
-            // Xem thêm
-            $(document).on("click", ".btn-xem-them", function () {
-                const mucId = $(this).data("id");
-                if (window.mucLucData[mucId]) {
-                    window.mucLucData[mucId].page += 1;
-                    renderBaiVietForMucLuc(mucId);
-                }
-            });
-
-            // Hàm hiển thị bài viết phân trang
-            function renderBaiVietForMucLuc(mucId) {
-                const container = $(`#list-${mucId}`);
-                const muc = window.mucLucData[mucId];
-                if (!muc) return;
-
-                const start = 0;
-                const end = muc.page * muc.perPage;
-                const currentList = muc.data.slice(0, end);
-
-                let html = "";
-                currentList.forEach(bv => {
-                    const thumb = bv.LinkThumbnail?.trim() || "https://th.bing.com/th/id/OIP.FkEdh0U5AttOx7kx74Y6sQAAAA?w=460";
-                    const date = formatDate(bv.NgayDang);
-                    const views = bv.LuotXem ?? 0;
-                    const moTa = bv.MoTa ?? '';
-                    const tieuDe = bv.TieuDe?.toUpperCase() ?? 'KHÔNG CÓ TIÊU ĐỀ';
-
-                    html += `
-                    <div class="bg-white rounded shadow hover:shadow-md transition overflow-hidden flex flex-col h-full">
-                      <img src="${thumb}" class="w-full h-auto" alt="Thumbnail" />
-                        <div class="p-4 flex-1 flex flex-col">
-                            <a href="/noi-dung/${bv.ID}" class="font-bold text-blue-800 text-base sm:text-lg mb-2 hover:underline break-words whitespace-normal">${tieuDe}</a>
-                            <div class="text-sm text-gray-500 mb-2 flex items-center gap-3">
-                                <span><i class="far fa-clock mr-1"></i>${date}</span>
-                                <span><i class="far fa-eye mr-1"></i>${views}</span>
-                            </div>
-                            <p class="text-sm text-gray-700 line-clamp-2 break-words whitespace-normal">${moTa}</p>
-                        </div>
-                    </div>`;
-                });
-
-                container.html(html);
-
-                // Ẩn nút nếu hiển thị hết
-                const total = muc.data.length;
-                if (end >= total) {
-                    $(`button[data-id="${mucId}"]`).hide();
-                }
-            }
-        });
-    </script>
 </body>
 </html>
