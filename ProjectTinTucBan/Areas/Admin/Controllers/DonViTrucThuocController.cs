@@ -14,6 +14,8 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         public IHttpActionResult Get()
         {
             var list = db.DonViTrucThuocs
+                .OrderBy(d => d.ThuTuShow) // Sắp xếp theo thứ tự hiển thị
+                .ThenBy(d => d.ID)         // Sắp xếp phụ theo ID để tránh trùng thứ tự
                 .Select(d => new
                 {
                     id = d.ID,
@@ -34,6 +36,8 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         {
             var list = db.DonViTrucThuocs
                 .Where(d => d.ID_Khoi == idKhoi)
+                .OrderBy(d => d.ThuTuShow) // Sắp xếp theo thứ tự hiển thị
+                .ThenBy(d => d.ID)
                 .Select(d => new
                 {
                     id = d.ID,

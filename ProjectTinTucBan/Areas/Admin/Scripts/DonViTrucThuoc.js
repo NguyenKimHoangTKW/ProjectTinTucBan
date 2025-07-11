@@ -71,9 +71,7 @@ function initDataTable() {
                 "data": null,
                 "orderable": false,
                 "searchable": false,
-                "render": function (data, type, row, meta) {
-                    return meta.row + meta.settings._iDisplayStart + 1;
-                }
+                "defaultContent": ""
             },
             { "data": "tenDonVi" },
             {
@@ -148,8 +146,7 @@ function initDataTable() {
                 "className": "text-center"
             }
         ],
-        "order": [] // No default ordering, giống như BaiViet
-        // Bỏ cấu hình "language" để sử dụng tiếng Anh mặc định
+        "order": []
     });
 }
 
@@ -162,11 +159,11 @@ function loadDonViTrucThuoc(idKhoi) {
         url: url,
         type: 'GET',
         success: function (data) {
-           
             dataTable.clear().rows.add(data).draw();
+            dataTable.order([]).draw(); // Reset sorting
+            dataTable.page('first').draw('page'); // Reset về trang đầu
         },
         error: function (xhr) {
-         
             Swal.fire('Lỗi!', getErrorMessage(xhr), 'error');
         }
     });
@@ -343,6 +340,13 @@ $(document).ready(function () {
             error: function (xhr) {
                 Swal.fire('Lỗi!', getErrorMessage(xhr), 'error');
             }
+        });
+    });
+
+    $('#table_load_donvi').on('draw.dt', function () {
+        var PageInfo = $('#table_load_donvi').DataTable().page.info();
+        $('#table_load_donvi').DataTable().column(1, { page: 'current' }).nodes().each(function (cell, i) {
+            cell.innerHTML = i + 1 + PageInfo.start;
         });
     });
 });
