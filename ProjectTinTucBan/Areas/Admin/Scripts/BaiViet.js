@@ -19,7 +19,6 @@ $(document).ready(async function () {
         window.location.href = 'https://localhost:44305/Admin/InterfaceAdmin/Login';
         return;
     }
-
     loadMucLucOptions();
     await restoreSessionStorageFromServer(); // đợi session đồng bộ xong
     await GetAllBaiViet();
@@ -138,9 +137,10 @@ function setupBaiVietTableEvents() {
 
                 CKEDITOR.replace('NoiDung', {
                     extraPlugins: 'justify',
+                    removePlugins: 'exportpdf',
                     allowedContent: true,
                     resize_enabled: false,
-                    height: 400, // hoặc bỏ đi để resize động bên dưới
+                    height: '400px', // hoặc bỏ đi để resize động bên dưới
                     toolbar: [
                         { name: 'clipboard', items: ['Cut', 'Copy', 'Paste', 'Undo', 'Redo'] },
                         { name: 'styles', items: ['Format', 'Font', 'FontSize'] },
@@ -213,8 +213,9 @@ function setupBaiVietTableEvents() {
 
                         CKEDITOR.replace('NoiDung', {
                             extraPlugins: 'justify',
+                            removePlugins: 'exportpdf',
                             allowedContent: true,
-                            height: '500px',
+                            height: '400px',
                             resize_enabled: false,
                             toolbar: [
                                 { name: 'clipboard', items: ['Cut', 'Copy', 'Paste', 'Undo', 'Redo'] },
@@ -421,102 +422,194 @@ function setupBaiVietTableEvents() {
 
 }
 
-// Update GetAllBaiViet to properly display MucLuc
+let allBaiViet = [];        // Toàn bộ bài viết
+let filteredBaiViet = [];
+let pageSize = 6;          // Bao nhiêu bài mỗi trang
+let currentPage = 1;        // Trang hiện tại
+
 async function GetAllBaiViet() {
     const res = await $.ajax({ url: `${BASE_URL}/get-all-baiviet`, type: 'GET' });
-    const table = $('#table_load_baiviet');
-
-    if ($.fn.DataTable.isDataTable(table)) {
-        table.DataTable().clear().destroy();
-    }
-
     if (res.success) {
-        let html = '';
-        const currentUser = JSON.parse(sessionStorage.getItem('loginInfo') || '{}');
-        const isAdmin = currentUser.role === 1;
-        res.data.forEach((item, index) => {
-            const isTitleLong = item.TieuDe.length > 10;
-            //const encodedTitle = encodeURIComponent(item.TieuDe);       // dùng cho data-tieude
-            const safeFullTitle = escapeHtml(item.TieuDe);              // dùng để hiển thị an toàn
-            const shortened = shortenTitle(item.TieuDe);                // rút gọn hiển thị
-
-            const displayTitle = isTitleLong
-                ? `<span class="btn-xem-tieude"
-                          title="${safeFullTitle}"
-                          data-tieude="${safeFullTitle}"
-                          style="cursor: pointer; color: black; text-decoration: none;">
-                          ${escapeHtml(shortened)}
-                   </span>`
-                : escapeHtml(item.TieuDe); // nếu ngắn thì escape luôn
-
-            // Mục lục
-            let mucLucInfo = 'Khác';
-            if (item.MucLuc?.TenMucLuc) {
-                mucLucInfo = escapeHtml(item.MucLuc.TenMucLuc);
-            }
-
-            let actionButtons = '';
-            const isOwner = currentUser.userId === item.NguoiDang?.ID;
-            if (isAdmin || isOwner) {
-                actionButtons = `
-                    <button class="btn btn-warning btn-sm py-1 px-2 w-100 mt-1 btn-sua"
-                            data-id="${item.ID}" style="max-width: 80px;">Sửa</button>
-                    <button class="btn btn-danger btn-sm py-1 px-2 w-100 mt-1 btn-xoa"
-                            data-id="${item.ID}" style="max-width: 80px;">Xóa</button>
-                `;
-            }
-
-            const linkThumb = item.LinkThumbnail
-                ? `<div class="text-center">
-                     <img src="${item.LinkThumbnail}" alt="Thumbnail" 
-                          class="img-thumbnail thumbnail-click" 
-                          data-img="${item.LinkThumbnail}" 
-                          style="max-width: 100px; max-height: 70px; cursor: pointer;" />
-                   </div>`
-                : `<div class="text-danger text-center"></div>`;
-
-            const linkPDF = item.LinkPDF
-                ? `<div class="text-center d-flex flex-column align-items-center">
-                     <button type="button" class="btn btn-sm btn-info py-1 px-2 w-100 mt-1 btn-xem-danh-sach-pdf" 
-                             data-links="${item.LinkPDF}" style="max-width: 80px;">
-                        <i class="anticon anticon-eye"></i>
-                     </button>
-                   </div>`
-                : `<div class="text-danger text-center"></div>`;
-
-            html += `
-                <tr>
-                    <td class="d-none">${item.ID}</td>
-                    <td>${index + 1}</td>
-                    <td>${displayTitle}</td>
-                    <td class="text-center">
-                        <button class="btn btn-sm btn-outline-info btn-xem" data-id="${item.ID}">
-                            Xem
-                        </button>
-                    </td>
-                    <td class="text-center">${mucLucInfo}</td>
-                    <td>${formatDateFromInt(item.NgayDang)}</td>
-                    <td>${formatDateFromInt(item.NgayCapNhat)}</td>
-                    <td>${linkThumb}</td>
-                    <td>${linkPDF}</td>
-                    <td>${item.ViewCount ?? 0}</td>
-                    <td>
-                        <div class="text-center d-flex flex-column align-items-center">
-                            ${actionButtons}
-                        </div>
-                    </td>
-                </tr>`;
-        });
-
-        table.find('tbody').html(html);
-        table.DataTable({
-            order: [],
-            columnDefs: [{ targets: 0, visible: false }]
-        });
+        allBaiViet = res.data;
+        filteredBaiViet = allBaiViet; // mặc định là tất cả
+        renderPage(1);
+        setupPagination();
     } else {
-        table.find('tbody').html(`<tr><td colspan="11">${res.message}</td></tr>`);
+        $('#table_load_baiviet tbody').html(`<tr><td colspan="11">${res.message}</td></tr>`);
     }
 }
+function renderPage(page) {
+    const tableBody = $('#table_load_baiviet tbody');
+    let html = '';
+    const currentUser = JSON.parse(sessionStorage.getItem('loginInfo') || '{}');
+    const isAdmin = currentUser.role === 1;
+
+    const start = (page - 1) * pageSize;
+    const end = start + pageSize;
+    const pageItems = filteredBaiViet.slice(start, end);
+
+    pageItems.forEach((item, index) => {
+        const isTitleLong = item.TieuDe.length > 10;
+        const safeFullTitle = escapeHtml(item.TieuDe);
+        const shortened = shortenTitle(item.TieuDe);
+        const displayTitle = isTitleLong
+            ? `<span class="btn-xem-tieude" title="${safeFullTitle}" data-tieude="${safeFullTitle}" style="cursor: pointer; color: black;">
+                   ${escapeHtml(shortened)}
+               </span>`
+            : escapeHtml(item.TieuDe);
+
+        let mucLucInfo = item.MucLuc?.TenMucLuc ? escapeHtml(item.MucLuc.TenMucLuc) : 'Khác';
+
+        let actionButtons = '';
+        const isOwner = currentUser.userId === item.NguoiDang?.ID;
+        if (isAdmin || isOwner) {
+            actionButtons = `
+                <button class="btn btn-warning btn-sm py-1 px-2 w-100 mt-1 btn-sua"
+                        data-id="${item.ID}" style="max-width: 80px;">Sửa</button>
+                <button class="btn btn-danger btn-sm py-1 px-2 w-100 mt-1 btn-xoa"
+                        data-id="${item.ID}" style="max-width: 80px;">Xóa</button>
+            `;
+        }
+
+        const linkThumb = item.LinkThumbnail
+            ? `<div class="text-center">
+                 <img src="${item.LinkThumbnail}" alt="Thumbnail"
+                      class="img-thumbnail thumbnail-click"
+                      data-img="${item.LinkThumbnail}"
+                      style="max-width: 100px; max-height: 70px; cursor: pointer;" />
+               </div>`
+            : `<div class="text-danger text-center"></div>`;
+
+        const linkPDF = item.LinkPDF
+            ? `<div class="text-center d-flex flex-column align-items-center">
+                 <button type="button" class="btn btn-sm btn-info py-1 px-2 w-100 mt-1 btn-xem-danh-sach-pdf"
+                         data-links="${item.LinkPDF}" style="max-width: 80px;">
+                    <i class="anticon anticon-eye"></i>
+                 </button>
+               </div>`
+            : `<div class="text-danger text-center"></div>`;
+
+        html += `
+            <tr>
+                <td class="d-none">${item.ID}</td>
+                <td>${start + index + 1}</td>
+                <td>${displayTitle}</td>
+                <td class="text-center">
+                    <button class="btn btn-sm btn-outline-info btn-xem" data-id="${item.ID}">Xem</button>
+                </td>
+                <td class="text-center">${mucLucInfo}</td>
+                <td>${formatDateFromInt(item.NgayDang)}</td>
+                <td>${formatDateFromInt(item.NgayCapNhat)}</td>
+                <td>${linkThumb}</td>
+                <td>${linkPDF}</td>
+                <td>${item.ViewCount ?? 0}</td>
+                <td>
+                    <div class="text-center d-flex flex-column align-items-center">
+                        ${actionButtons}
+                    </div>
+                </td>
+            </tr>`;
+    });
+
+    tableBody.html(html);
+}
+function setupPagination() {
+    const totalPages = Math.ceil(allBaiViet.length / pageSize);
+    let paginationHtml = '';
+
+    if (totalPages <= 1) {
+        $('#pagination').html('');
+        return;
+    }
+
+    function addPage(i) {
+        paginationHtml += `<li class="page-item ${i === currentPage ? 'active' : ''}">
+            <a class="page-link" href="#" data-page="${i}">${i}</a>
+        </li>`;
+    }
+
+    // Nút trang trước
+    paginationHtml += `
+        <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+            <a class="page-link" href="#" data-page="${currentPage - 1}">
+                Previous
+            </a>
+        </li>`;
+
+    // Trang đầu luôn hiển thị
+    addPage(1);
+
+    if (currentPage <= 2) {
+        for (let i = 2; i <= Math.min(3, totalPages - 1); i++) {
+            addPage(i);
+        }
+        if (totalPages > 4) {
+            paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+        }
+    } else if (currentPage === 3) {
+        addPage(2);
+        addPage(3);
+        if (totalPages > 4) {
+            addPage(4);
+            paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+        }
+    } else if (currentPage > 3 && currentPage < totalPages - 2) {
+        paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+        addPage(currentPage - 1);
+        addPage(currentPage);
+        addPage(currentPage + 1);
+        paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+    } else if (currentPage >= totalPages - 2) {
+        paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+        for (let i = totalPages - 2; i < totalPages; i++) {
+            if (i > 1) addPage(i);
+        }
+    }
+
+    // Trang cuối luôn hiển thị nếu > 1
+    if (totalPages > 1) {
+        addPage(totalPages);
+    }
+
+    // Nút trang sau
+    paginationHtml += `
+        <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+            <a class="page-link" href="#" data-page="${currentPage + 1}">
+                Next
+            </a>
+        </li>`;
+
+    $('#pagination').html(paginationHtml);
+}
+
+/* Tìm kiếm bài viết theo từ khóa */
+$('#searchKeyword').on('keyup', function () {
+    const keyword = $(this).val().toLowerCase().trim();
+
+    if (keyword === '') {
+        filteredBaiViet = allBaiViet;
+    } else {
+        filteredBaiViet = allBaiViet.filter(item =>
+            item.TieuDe?.toLowerCase().includes(keyword) ||
+            item.NoiDung?.toLowerCase().includes(keyword) ||
+            item.MucLuc?.TenMucLuc?.toLowerCase().includes(keyword)
+        );
+    }
+
+    currentPage = 1;
+    renderPage(currentPage);
+    setupPagination();
+});
+
+
+$(document).on('click', '#pagination .page-link', function (e) {
+    e.preventDefault();
+    const page = parseInt($(this).data('page'));
+    currentPage = page;
+    renderPage(page);
+    setupPagination(); // để cập nhật class active
+});
+
 
 $(document).on('click', '.btn-xem-danh-sach-pdf', function () {
     const rawLinks = $(this).data('links');
@@ -621,7 +714,7 @@ function formatDateFromInt(unixTimestamp) {
     const minutes = ("0" + date.getMinutes()).slice(-2);
     const seconds = ("0" + date.getSeconds()).slice(-2);
 
-    return `${dayOfWeek}, ${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+    return `${dayOfWeek}, ${day}-${month}-${year}, ${hours}:${minutes}:${seconds}`;
 }
 
 
@@ -760,7 +853,7 @@ function setupModalFormEvents() {
             allowedContent: true,
             removePlugins: 'exportpdf',
             resize_enabled: false,
-            height: '500px',
+            height: '400px',
             toolbar: [
                 { name: 'clipboard', items: ['Cut', 'Copy', 'Paste', 'Undo', 'Redo'] },
                 { name: 'styles', items: ['Format', 'Font', 'FontSize'] },
@@ -940,10 +1033,10 @@ function setupModalFormEvents() {
         // Reset sau khi xử lý toàn bộ file
         setTimeout(() => {
             $(input).val('');
-        }, 100);
+        }, 500);
     });
 
-    uploadedPDFs = baiViet.LinkPDF?.split(';').map(pdfStr => {
+    uploadedPDFs = uploadedPDFs.LinkPDF?.split(';').map(pdfStr => {
         const [url, name] = pdfStr.split('|');
         return {
             id: crypto.randomUUID(),      //mỗi file phải có id duy nhất
@@ -952,15 +1045,6 @@ function setupModalFormEvents() {
             file: null                    // file gốc không cần khi sửa
         };
     }) || [];
-
-
-    $(document).on('click', '.img-select', function () {
-        const link = $(this).data('link');
-        $('#LinkThumbnail').val(link);
-        $('#previewThumbnail').html(`<img src="${link}" style="max-width: 200px;" />`);
-        $('#btnXoaThumbnail').removeClass('d-none');
-        $('#modalThuVienAnh').modal('hide');
-    });
 
     $(document).on('click', '.thumbnail-click', function () {
         const imageUrl = $(this).data('img');
@@ -973,6 +1057,15 @@ function setupModalFormEvents() {
             background: '#fff'
         });
     });
+    $(document).on('click', '.img-select', function () {
+        const link = $(this).data('link');
+        $('#LinkThumbnail').val(link);
+        $('#previewThumbnail').html(`<img src="${link}" style="max-width: 200px;" />`);
+        $('#btnXoaThumbnail').removeClass('d-none');
+        $('#modalThuVienAnh').modal('hide');
+    });
+
+
 
     $(document).on('click', '.btn-tai-pdf', function () {
         const pdfLink = $(this).data('link');
