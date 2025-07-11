@@ -748,7 +748,6 @@ function loadMenuTable() {
 
         // Check if the table exists
         if (tableBody.length === 0) {
-            console.error('Menu table not found in the DOM');
             resolve();
             return;
         }
@@ -762,8 +761,6 @@ function loadMenuTable() {
             type: 'GET',
             dataType: 'json',
             success: function (data) {
-                console.log('Menu API response:', data); // Debug the API response
-
                 // Handle different response formats
                 let menuData = data;
                 if (data && data.data) {
@@ -789,16 +786,13 @@ function loadMenuTable() {
                     });
 
                     tableBody.html(tableContent);
-                    console.log('Menu table populated with', menuData.length, 'items');
                     resolve();
                 } else {
                     tableBody.html('<tr><td colspan="3" class="text-center">Không có menu nào</td></tr>');
-                    console.warn('No menu items returned from API');
                     resolve();
                 }
             },
             error: function (xhr, status, error) {
-                console.error('Menu API error:', error, xhr.responseText);
                 tableBody.html(`<tr><td colspan="3" class="text-center text-danger">Lỗi: ${error}</td></tr>`);
                 reject(error);
             }

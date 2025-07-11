@@ -11,7 +11,7 @@ function Sweet_Alert(icon, title) {
 
 
 function formatTimestamp(unixTimestamp) {
-    if (!unixTimestamp) return "N/A";
+    if (!unixTimestamp) return "Chưa có dữ liệu";
 
     var date = new Date(unixTimestamp * 1000);
     var weekdays = ['Chủ Nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];

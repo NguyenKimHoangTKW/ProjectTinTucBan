@@ -17,7 +17,7 @@ namespace ProjectTinTucBan.Helper
             // Lấy giá trị từ cấu hình SMTP
             var mailSettings = ConfigurationManager.GetSection("system.net/mailSettings/smtp") as SmtpSection;
             _senderEmail = mailSettings?.From ?? "Dumplinreplucat0003@gmail.com";
-            _displayName = "Website Tin Tức TDMU";
+            _displayName = "Ban Khảo thí, kiểm định và Đảm bảo chất lượng";
         }
 
         public async Task SendVerificationEmailAsync(string email, string code)
@@ -44,7 +44,7 @@ namespace ProjectTinTucBan.Helper
                     <body>
                         <div class='container'>
                             <div class='header'>
-                                <h2>Website Tin Tức TDMU</h2>
+                                <h2>Ban Khảo thí, kiểm định và Đảm bảo chất lượng</h2>
                             </div>
                             <div class='content'>
                                 <p>Xin chào,</p>

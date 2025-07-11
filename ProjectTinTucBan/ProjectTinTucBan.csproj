@@ -406,6 +406,9 @@
     <Compile Include="Models\DonViTrucThuoc.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\Footer.cs">
+      <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\Function_By_Menu.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
@@ -466,6 +469,8 @@
     <Content Include="Areas\Admin\Scripts\DanhSachUser.js" />
     <Content Include="Areas\Admin\Uploads\Slider\6ed8e7cc-bb74-4005-92e6-282072ad1acf.jpg" />
     <Content Include="Areas\Admin\Uploads\Slider\fd280219-2c9f-4fce-ac27-b525dd2c145f.png" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\XemNoiDung.cshtml" />
+    <Content Include="favicon.ico" />
     <Content Include="Scripts\LoginWithGoogle.js" />
     <Content Include="Areas\Admin\Scripts\XemNoiDung.js" />
     <Content Include="Areas\Admin\Uploads\Slider\0b5f243b-7900-434f-a448-782df0e12e5d.png" />
@@ -1254,7 +1259,6 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\bootstrap.rtl.css" />
     <Content Include="Content\bootstrap.rtl.min.css" />
-    <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Models\dbTinTucKhaoThiModel.Context.tt">
       <DependentUpon>dbTinTucKhaoThiModel.edmx</DependentUpon>
@@ -1552,15 +1556,11 @@
     <Content Include="assets\fonts\line-awesome.woff2" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Users_Admin.cshtml" />
     <Content Include="Areas\Admin\Views\Shared\SliderTestShowPartial.cshtml" />
-    <Content Include="Areas\Admin\Views\InterfaceAdmin\XemNoiDung.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_DonViTrucThuoc.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Function_Admin.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Menu.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\Slider.cshtml" />
     <Content Include="Areas\Admin\Views\Shared\SliderTestShowPartial.cshtml" />
-    <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Users_Admin.cshtml" />
-    <Content Include="Areas\Admin\Views\InterfaceAdmin\XemNoiDung.cshtml" />
-    <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_DonViTrucThuoc.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\EditTaiKhoan.cshtml" />
     <Content Include="Content\data.json" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\EditFooter.cshtml" />
