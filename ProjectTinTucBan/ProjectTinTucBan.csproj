@@ -403,6 +403,9 @@
     <Compile Include="Models\DonViTrucThuoc.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\Footer.cs">
+      <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\Function_By_Menu.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
@@ -450,6 +453,7 @@
     <Content Include="Areas\Admin\Scripts\DanhSachMucluc.js" />
     <Content Include="Areas\Admin\Scripts\DanhSachRoles.js" />
     <Content Include="Areas\Admin\Scripts\DonViTrucThuoc.js" />
+    <Content Include="Areas\Admin\Scripts\EditFooter.js" />
     <Content Include="Areas\Admin\Scripts\GroupMenuAdminScript.js" />
     <Content Include="Areas\Admin\Scripts\Khoi.js" />
     <Content Include="Areas\Admin\Scripts\MenuScript.js" />
@@ -1553,6 +1557,7 @@
     <Content Include="Areas\Admin\Views\InterfaceAdmin\EditTaiKhoan.cshtml" />
     <Content Include="Content\data.json" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\EditFooter.cshtml" />
+    <Content Include="Areas\Admin\Scripts\data.json" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />

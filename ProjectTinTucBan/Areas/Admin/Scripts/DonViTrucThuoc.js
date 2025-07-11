@@ -38,7 +38,7 @@ function loadDanhSachKhoi() {
         url: '/api/Khoi',
         type: 'GET',
         success: function (data) {
-            console.log('Loaded khoi for filter:', data); // Debug log
+        
             danhSachKhoi = data;
             var options = '<option value="">-- Tất cả Khối --</option>';
             var formOptions = '<option value="">-- Chọn Khối --</option>';
@@ -50,7 +50,7 @@ function loadDanhSachKhoi() {
             $('#ID_Khoi').html(formOptions);
         },
         error: function (xhr) {
-            console.error('Error loading khoi for filter:', xhr); // Debug log
+           
         }
     });
 }
@@ -162,11 +162,11 @@ function loadDonViTrucThuoc(idKhoi) {
         url: url,
         type: 'GET',
         success: function (data) {
-            console.log('Loaded donvi data:', data); // Debug log
+           
             dataTable.clear().rows.add(data).draw();
         },
         error: function (xhr) {
-            console.error('Error loading donvi:', xhr); // Debug log
+         
             Swal.fire('Lỗi!', getErrorMessage(xhr), 'error');
         }
     });
@@ -187,7 +187,7 @@ function editDonVi(id) {
         },
         error: function (xhr) {
             Swal.fire('Lỗi!', getErrorMessage(xhr), 'error');
-            console.error(xhr);
+          
         }
     });
 }
@@ -218,7 +218,7 @@ function deleteDonVi(id) {
                 },
                 error: function (xhr) {
                     Swal.fire('Lỗi!', getErrorMessage(xhr), 'error');
-                    console.error(xhr);
+                   
                 }
             });
         }
@@ -268,7 +268,7 @@ $(document).ready(function () {
                 },
                 error: function (xhr) {
                     Swal.fire('Lỗi!', getErrorMessage(xhr), 'error');
-                    console.error(xhr);
+                    
                 }
             });
         } else {
@@ -286,7 +286,7 @@ $(document).ready(function () {
                 },
                 error: function (xhr) {
                     Swal.fire('Lỗi!', getErrorMessage(xhr), 'error');
-                    console.error(xhr);
+                   
                 }
             });
         }

@@ -44,6 +44,23 @@
           <Property Name="NgayCapNhat" Type="int" />
           <Property Name="IsActive" Type="int" />
         </EntityType>
+        <EntityType Name="Footer">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="FullName" Type="nvarchar(max)" />
+          <Property Name="EnglishName" Type="nvarchar(max)" />
+          <Property Name="NgayThanhLap" Type="int" />
+          <Property Name="DiaChi" Type="nvarchar(max)" />
+          <Property Name="DienThoai" Type="nvarchar" MaxLength="20" />
+          <Property Name="Email" Type="nvarchar(max)" />
+          <Property Name="VideoUrl" Type="nvarchar(max)" />
+          <Property Name="FooterCopyright" Type="nvarchar(max)" />
+          <Property Name="FooterNote" Type="nvarchar(max)" />
+          <Property Name="NgayCapNhat" Type="int" />
+          <Property Name="NgayDang" Type="int" />
+        </EntityType>
         <EntityType Name="Function_By_Menu">
           <Key>
             <PropertyRef Name="ID" />
@@ -345,6 +362,7 @@
           <EntitySet Name="BaiViet" EntityType="Self.BaiViet" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ChucNangQuyenUser" EntityType="Self.ChucNangQuyenUser" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DonViTrucThuoc" EntityType="Self.DonViTrucThuoc" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Footer" EntityType="Self.Footer" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Function_By_Menu" EntityType="Self.Function_By_Menu" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Group_By_Menu_And_Sub" EntityType="Self.Group_By_Menu_And_Sub" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Khoi" EntityType="Self.Khoi" Schema="dbo" store:Type="Tables" />
@@ -419,6 +437,7 @@
           <EntitySet Name="BaiViets" EntityType="WebTinTucTDMUModel.BaiViet" />
           <EntitySet Name="ChucNangQuyenUsers" EntityType="WebTinTucTDMUModel.ChucNangQuyenUser" />
           <EntitySet Name="DonViTrucThuocs" EntityType="WebTinTucTDMUModel.DonViTrucThuoc" />
+          <EntitySet Name="Footers" EntityType="WebTinTucTDMUModel.Footer" />
           <EntitySet Name="Function_By_Menu" EntityType="WebTinTucTDMUModel.Function_By_Menu" />
           <EntitySet Name="Group_By_Menu_And_Sub" EntityType="WebTinTucTDMUModel.Group_By_Menu_And_Sub" />
           <EntitySet Name="Khois" EntityType="WebTinTucTDMUModel.Khoi" />
@@ -528,6 +547,23 @@
           <Property Name="NgayCapNhat" Type="Int32" />
           <Property Name="IsActive" Type="Int32" />
           <NavigationProperty Name="Khoi" Relationship="WebTinTucTDMUModel.FK__DonViTruc__ID_Kh__4E88ABD4" FromRole="DonViTrucThuoc" ToRole="Khoi" />
+        </EntityType>
+        <EntityType Name="Footer">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="FullName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="EnglishName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="NgayThanhLap" Type="Int32" />
+          <Property Name="DiaChi" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="DienThoai" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="Email" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="VideoUrl" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="FooterCopyright" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="FooterNote" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="NgayCapNhat" Type="Int32" />
+          <Property Name="NgayDang" Type="Int32" />
         </EntityType>
         <EntityType Name="Function_By_Menu">
           <Key>
@@ -891,6 +927,24 @@
                 <ScalarProperty Name="ThuTuShow" ColumnName="ThuTuShow" />
                 <ScalarProperty Name="TenDonVi" ColumnName="TenDonVi" />
                 <ScalarProperty Name="ID_Khoi" ColumnName="ID_Khoi" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Footers">
+            <EntityTypeMapping TypeName="WebTinTucTDMUModel.Footer">
+              <MappingFragment StoreEntitySet="Footer">
+                <ScalarProperty Name="NgayDang" ColumnName="NgayDang" />
+                <ScalarProperty Name="NgayCapNhat" ColumnName="NgayCapNhat" />
+                <ScalarProperty Name="FooterNote" ColumnName="FooterNote" />
+                <ScalarProperty Name="FooterCopyright" ColumnName="FooterCopyright" />
+                <ScalarProperty Name="VideoUrl" ColumnName="VideoUrl" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="DienThoai" ColumnName="DienThoai" />
+                <ScalarProperty Name="DiaChi" ColumnName="DiaChi" />
+                <ScalarProperty Name="NgayThanhLap" ColumnName="NgayThanhLap" />
+                <ScalarProperty Name="EnglishName" ColumnName="EnglishName" />
+                <ScalarProperty Name="FullName" ColumnName="FullName" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>
