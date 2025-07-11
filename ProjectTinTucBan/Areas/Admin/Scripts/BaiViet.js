@@ -146,7 +146,6 @@ function setupBaiVietTableEvents() {
                         { name: 'styles', items: ['Format', 'Font', 'FontSize'] },
                         { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', '-', 'RemoveFormat'] },
                         { name: 'paragraph', items: ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'NumberedList', 'BulletedList'] },
-                        { name: 'links', items: ['Link', 'Unlink'] },
                         { name: 'insert', items: ['Image', 'Table', 'HorizontalRule'] },
                         { name: 'tools', items: ['Maximize'] }
                     ]
@@ -222,7 +221,6 @@ function setupBaiVietTableEvents() {
                                 { name: 'styles', items: ['Format', 'Font', 'FontSize'] },
                                 { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', '-', 'RemoveFormat'] },
                                 { name: 'paragraph', items: ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'NumberedList', 'BulletedList'] },
-                                { name: 'links', items: ['Link', 'Unlink'] },
                                 { name: 'insert', items: ['Image', 'Table', 'HorizontalRule'] },
                                 { name: 'tools', items: ['Maximize'] }
                             ]
@@ -514,7 +512,7 @@ function renderPage(page) {
     tableBody.html(html);
 }
 function setupPagination() {
-    const totalPages = Math.ceil(allBaiViet.length / pageSize);
+    const totalPages = Math.ceil(filteredBaiViet.length / pageSize);
     let paginationHtml = '';
 
     if (totalPages <= 1) {
@@ -528,55 +526,59 @@ function setupPagination() {
         </li>`;
     }
 
-    // Nút trang trước
+    // Nút Previous
     paginationHtml += `
         <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-            <a class="page-link" href="#" data-page="${currentPage - 1}">
-                Previous
-            </a>
+            <a class="page-link" href="#" data-page="${currentPage - 1}">«</a>
         </li>`;
 
-    // Trang đầu luôn hiển thị
+    // Trang 1
     addPage(1);
 
-    if (currentPage <= 2) {
-        for (let i = 2; i <= Math.min(3, totalPages - 1); i++) {
-            addPage(i);
-        }
-        if (totalPages > 4) {
-            paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
-        }
+    // Logic giữa
+    if (currentPage === 1) {
+        if (totalPages >= 3) addPage(2);
+        if (totalPages > 3) paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+    } else if (currentPage === 2) {
+        addPage(2);
+        addPage(3);
+        if (totalPages > 4) paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
     } else if (currentPage === 3) {
         addPage(2);
         addPage(3);
-        if (totalPages > 4) {
-            addPage(4);
-            paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
-        }
+        addPage(4);
+        if (totalPages > 5) paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
     } else if (currentPage > 3 && currentPage < totalPages - 2) {
         paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
         addPage(currentPage - 1);
         addPage(currentPage);
         addPage(currentPage + 1);
         paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
-    } else if (currentPage >= totalPages - 2) {
+    } else if (currentPage === totalPages - 2) {
         paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
-        for (let i = totalPages - 2; i < totalPages; i++) {
-            if (i > 1) addPage(i);
-        }
+        addPage(totalPages - 3);
+        addPage(totalPages - 2);
+        addPage(totalPages - 1);
+    } else if (currentPage === totalPages - 1) {
+        paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+        addPage(totalPages - 2);
+        addPage(totalPages - 1);
+    } else if (currentPage === totalPages) {
+        paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+        addPage(totalPages - 1);
     }
 
-    // Trang cuối luôn hiển thị nếu > 1
-    if (totalPages > 1) {
+    // Trang cuối (luôn hiển thị nếu > 1 và chưa được thêm)
+    if (totalPages > 1 && currentPage !== totalPages) {
         addPage(totalPages);
+    } else if (currentPage === totalPages && totalPages > 1) {
+        if (currentPage !== totalPages - 1) addPage(totalPages);
     }
 
-    // Nút trang sau
+    // Nút Next
     paginationHtml += `
         <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
-            <a class="page-link" href="#" data-page="${currentPage + 1}">
-                Next
-            </a>
+            <a class="page-link" href="#" data-page="${currentPage + 1}">»</a>
         </li>`;
 
     $('#pagination').html(paginationHtml);
@@ -859,7 +861,6 @@ function setupModalFormEvents() {
                 { name: 'styles', items: ['Format', 'Font', 'FontSize'] },
                 { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', '-', 'RemoveFormat'] },
                 { name: 'paragraph', items: ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'NumberedList', 'BulletedList'] },
-                { name: 'links', items: ['Link', 'Unlink'] },
                 { name: 'insert', items: ['Image', 'Table', 'HorizontalRule'] },
                 { name: 'tools', items: ['Maximize'] }
             ]
