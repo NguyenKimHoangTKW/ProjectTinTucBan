@@ -115,7 +115,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 model["footerNote"] = footer.FooterNote;
             }
             // Nếu không có dữ liệu, vẫn phải trả về model rỗng để tránh null
-            return View(model);
+            return View("~/Areas/Admin/Views/InterfaceAdmin/EditFooter.cshtml", model);
         }
     }
 }
