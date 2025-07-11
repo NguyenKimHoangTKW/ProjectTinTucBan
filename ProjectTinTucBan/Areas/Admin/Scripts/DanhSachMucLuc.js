@@ -1,4 +1,6 @@
-const BASE_URL = '/api/v1/admin';
+
+﻿const BASE_URL ='/api/v1/admin/';
+// Initialize Select2 components if available
 $(document).ready(function () {
     if ($.fn.select2) {
         $(".select2").select2();

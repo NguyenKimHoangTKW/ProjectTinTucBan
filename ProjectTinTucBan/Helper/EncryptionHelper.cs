@@ -85,7 +85,6 @@ namespace ProjectTinTucBan.Helper
             catch (Exception ex)
             {
                 // Xử lý lỗi khi giải mã thất bại
-                Console.WriteLine($"Lỗi giải mã: {ex.Message}");
                 return string.Empty;
             }
         }

@@ -1,6 +1,60 @@
 ﻿using ProjectTinTucBan.Models;
+
+using System.Linq;
 using System.Web.Mvc;
+
+using Newtonsoft.Json.Linq;
+
+
 using ProjectTinTucBan.Helper;
+using System.Security.Claims;
+using System.Web;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
+using Microsoft.Owin.Security;
+using ProjectTinTucBan.Models;
+using Microsoft.Owin.Security.Cookies;
+using ProjectTinTucBan.Helper;
+using System.Data.Entity; 
+using System.Collections.Generic; 
+
+
+using System.Security.Claims;
+using System.Web;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
+using Microsoft.Owin.Security;
+using ProjectTinTucBan.Models;
+using Microsoft.Owin.Security.Cookies;
+using ProjectTinTucBan.Helper;
+using System.Data.Entity; 
+using System.Collections.Generic; 
+
+
+using System.Security.Claims;
+using System.Web;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
+using Microsoft.Owin.Security;
+using ProjectTinTucBan.Models;
+using Microsoft.Owin.Security.Cookies;
+using ProjectTinTucBan.Helper;
+using System.Data.Entity; 
+using System.Collections.Generic; 
+
+
+using System.Security.Claims;
+using System.Web;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
+using Microsoft.Owin.Security;
+using ProjectTinTucBan.Models;
+using Microsoft.Owin.Security.Cookies;
+using ProjectTinTucBan.Helper;
+using System.Data.Entity; 
+using System.Collections.Generic; 
+
+
 namespace ProjectTinTucBan.Areas.Admin.Controllers
 {
     public class InterfaceAdminController : Controller
@@ -21,8 +75,24 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [UserAuthorizeAttribute()]
         public ActionResult EditFooter()
         {
-
-            return View();
+            // Lấy dữ liệu Footer từ DB
+            var footer = db.Footers.FirstOrDefault();
+            JObject model = new JObject();
+            if (footer != null)
+            {
+                model["id"] = footer.ID;
+                model["fullName"] = footer.FullName;
+                model["englishName"] = footer.EnglishName;
+                model["established"] = footer.NgayThanhLap;
+                model["address"] = footer.DiaChi;
+                model["phone"] = footer.DienThoai;
+                model["email"] = footer.Email;
+                model["videoUrl"] = footer.VideoUrl;
+                model["footerCopyright"] = footer.FooterCopyright;
+                model["footerNote"] = footer.FooterNote;
+            }
+            // Nếu không có dữ liệu, vẫn phải trả về model rỗng để tránh null
+            return View(model);
         }
 
         // Gọi hàm thiết kế giao diện Quản lý mục lục

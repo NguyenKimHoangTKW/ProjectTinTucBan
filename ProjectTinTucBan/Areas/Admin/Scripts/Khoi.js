@@ -109,11 +109,10 @@ function loadKhoi() {
         url: '/api/Khoi',
         type: 'GET',
         success: function (data) {
-            console.log('Loaded khoi data:', data); // Debug log
+          
             dataTable.clear().rows.add(data).draw();
         },
         error: function (xhr) {
-            console.error('Error loading khoi:', xhr); // Debug log
             Swal.fire('Lỗi!', 'Không thể tải dữ liệu khối.', 'error');
         }
     });
@@ -132,7 +131,7 @@ function editKhoi(id) {
         },
         error: function (xhr) {
             Swal.fire('Lỗi!', 'Không thể tải thông tin khối.', 'error');
-            console.error(xhr);
+           
         }
     });
 }
@@ -163,7 +162,7 @@ function deleteKhoi(id) {
                 },
                 error: function (xhr) {
                     Swal.fire('Lỗi!', 'Không thể xóa khối.', 'error');
-                    console.error(xhr);
+                    
                 }
             });
         }
@@ -209,7 +208,7 @@ $(document).ready(function () {
                 },
                 error: function (xhr) {
                     Swal.fire('Lỗi!', 'Không thể cập nhật khối.', 'error');
-                    console.error(xhr);
+          
                 }
             });
         } else {
@@ -227,7 +226,7 @@ $(document).ready(function () {
                 },
                 error: function (xhr) {
                     Swal.fire('Lỗi!', 'Không thể thêm khối mới.', 'error');
-                    console.error(xhr);
+           
                 } 
             });
         }

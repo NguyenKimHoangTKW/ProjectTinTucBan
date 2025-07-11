@@ -23,6 +23,20 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         {
             return (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
         }
+
+        [HttpPost]
+        [Route("increase-views/{id:int}")]
+
+        public IHttpActionResult IncreaseViews(int id)
+        {
+            var bv = db.BaiViets.Find(id);
+            if (bv == null) return NotFound();
+
+            bv.ViewCount = (bv.ViewCount ?? 0) + 1;
+            db.SaveChanges();
+
+            return Ok(new { success = true, viewCount = bv.ViewCount });
+        }
         // GET: Lấy tất cả bài viết
         [HttpGet]
         [Route("get-all-baiviet")]
@@ -73,8 +87,23 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             if (baiViet.ID_NguoiDang.HasValue)
                 await db.Entry(baiViet).Reference(x => x.TaiKhoan).LoadAsync();
 
+            // ✅ Lấy danh sách bài viết cùng mục lục (khác bài hiện tại)
+            var baiVietsCungMuc = await db.BaiViets
+                .Where(b => b.ID_MucLuc == baiViet.ID_MucLuc && b.ID != baiViet.ID)
+                .OrderByDescending(b => b.NgayDang)
+                .Take(10)
+                .Select(b => new
+                {
+                    b.ID,
+                    b.TieuDe,
+                    b.LinkThumbnail,
+                    b.NgayDang
+                })
+                .ToListAsync();
+
             return Ok(new
             {
+                success = true,
                 data = new
                 {
                     baiViet.ID,
@@ -85,21 +114,22 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     baiViet.NgayDang,
                     baiViet.NgayCapNhat,
                     baiViet.ViewCount,
+                    baiViet.ID_MucLuc,
                     MucLuc = baiViet.MucLuc != null ? new
                     {
                         baiViet.MucLuc.ID,
                         baiViet.MucLuc.TenMucLuc
                     } : null,
-                    NguoiDang = baiViet.TaiKhoan != null ? new //
+                    NguoiDang = baiViet.TaiKhoan != null ? new
                     {
                         baiViet.TaiKhoan.ID,
                         baiViet.TaiKhoan.TenTaiKhoan
                     } : null,
-                    baiViet.ID_MucLuc
-                },
-                success = true
+                    BaiVietsCungMuc = baiVietsCungMuc
+                }
             });
         }
+
 
         // POST: Thêm bài viết
         [HttpPost]

@@ -33,6 +33,55 @@ namespace ProjectTinTucBan.Controllers
             return View();
         }
 
+        [HttpGet]
+        [Route("api/v1/home/get-khoi-va-donvi")]
+        public JsonResult GetKhoiVaDonVi()
+        {
+            var result = db.Khois
+                .Where(k => k.IsActive == 1)
+                .Select(k => new
+                {
+                    k.ID,
+                    k.TenKhoi,
+                    DonVis = db.DonViTrucThuocs
+                        .Where(d => d.ID_Khoi == k.ID && d.IsActive == 1)
+                        .OrderBy(d => d.ThuTuShow)
+                        .Select(d => new
+                        {
+                            d.ID,
+                            d.TenDonVi,
+                            d.Link
+                        }).ToList()
+                })
+                .OrderBy(k => k.TenKhoi)
+                .ToList();
+
+            return Json(new
+            {
+                success = true,
+                data = result
+            }, JsonRequestBehavior.AllowGet);
+        }
+
+        // Chi tiết bài viết
+        [Route("noi-dung/{id:int}")]
+        public ActionResult XemNoiDung(int id)
+        {
+            var baiViet = db.BaiViets
+                            .Include(b => b.MucLuc)
+                            .FirstOrDefault(b => b.ID == id);
+
+            if (baiViet == null)
+            {
+                return HttpNotFound("Không tìm thấy bài viết.");
+            }
+
+            // ❌ Bỏ tăng view tại đây để JavaScript sau 30s mới tăng
+            // baiViet.ViewCount = (baiViet.ViewCount ?? 0) + 1;
+            // db.SaveChanges();
+
+            return View("XemNoiDung", baiViet);
+        }
 
         // Gọi hàm thiết kế giao diện đăng nhập
         public ActionResult Login()
@@ -44,6 +93,5 @@ namespace ProjectTinTucBan.Controllers
 
             return View();
         }
-
     }
 }

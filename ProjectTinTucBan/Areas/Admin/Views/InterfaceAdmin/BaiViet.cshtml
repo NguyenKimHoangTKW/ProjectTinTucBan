@@ -23,7 +23,7 @@
     #table_load_baiviet {
         width: 100%;
         background-color: #fff;
-        table-layout: fixed;
+/*        table-layout: fixed;*/
         box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         overflow: hidden;
     }
@@ -53,38 +53,46 @@
         #table_load_baiviet td {
             text-align: center;
         }
-
-            /* Cột STT */
+            /* Cột STT (cột số 2) */
             #table_load_baiviet th:nth-child(2),
             #table_load_baiviet td:nth-child(2) {
-                max-width: 30px;
+                width: 50px;
+            }
+            /* Cột Tiêu đề (cột số 3) */
+            #table_load_baiviet td:nth-child(3) {
+                text-align:left;
+            }
+            /* Cột Mục lục (cột số 5) */
+            #table_load_baiviet td:nth-child(5) {
+                text-align:left !important;
             }
 
-            /* Cột Nội dung */
+            /* Cột nội dung (cột số 4) */
             #table_load_baiviet th:nth-child(4),
             #table_load_baiviet td:nth-child(4) {
-                max-width: 40px;
-                min-width: 20px;
+                width: 80px; /* Hoặc giá trị phù hợp hơn tùy nhu cầu */
+                padding: 4px !important;
             }
 
-            /* Cột Mục lục */
-            #table_load_baiviet th:nth-child(5),
-            #table_load_baiviet td:nth-child(5) {
+                /* Button "Xem" bên trong cột nội dung */
+                #table_load_baiviet td:nth-child(4) .btn-xem {
+                    width: 100%;
+                    display: block
+                }
+
+            /* Cột Ngày đăng & Ngày cập nhật */
+            #table_load_baiviet th:nth-child(6),
+            #table_load_baiviet th:nth-child(7) {
+                text-align: center;
+                width: 10px;
+            }
+
+            #table_load_baiviet td:nth-child(6),
+            #table_load_baiviet td:nth-child(7) {
                 text-align: left;
+                width: 120px;
             }
 
-        /* Cột Ngày đăng & Ngày cập nhật */
-        #table_load_baiviet th:nth-child(6),
-        #table_load_baiviet th:nth-child(7) {
-            text-align: center;
-            width: 160px;
-        }
-
-        #table_load_baiviet td:nth-child(6),
-        #table_load_baiviet td:nth-child(7) {
-            text-align: left;
-            width: 160px;
-        }
 
         /* Thumbnail */
         #table_load_baiviet td:nth-child(8) img {
@@ -115,7 +123,9 @@
     .cke_contents {
         min-height: 400px !important;
     }
-
+    .cke_notifications_area {
+        display: none;
+    }
     #previewPDF {
         display: flex;
         flex-wrap: wrap;
@@ -180,7 +190,7 @@
     <!-- ========== Danh sách Bài Viết ========== -->
     <!-- Header và breadcrumb -->
     <h2 class="header-title">BÀI VIẾT</h2>
-    <hr/>
+    <hr />
     <div class="page-header">
         <h2 class="header-title">Quản lý bài viết</h2>
         <div class="header-sub-title">
@@ -190,9 +200,15 @@
             </nav>
         </div>
     </div>
-    <hr/>
-    <button id="btnThemBaiViet" class="btn btn-success mb-3">Thêm bài viết</button>
-
+    <hr />
+    <div class="row mb-3 align-items-center">
+        <div class="col-md-4">
+            <button id="btnThemBaiViet" class="btn btn-success">Thêm bài viết</button>
+        </div>
+        <div class="col-md-4 offset-md-4">
+            <input type="text" id="searchKeyword" class="form-control" placeholder="Nhập từ khóa tìm kiếm...">
+        </div>
+    </div>
     <div class="table-responsive p-3">
         <table id="table_load_baiviet" class="table table-striped">
             <thead>
@@ -201,9 +217,9 @@
                     <th class="text-center">STT</th>
                     <th class="text-center">Tiêu đề</th>
                     <th class="text-center">Nội dung</th>
-                    <th>Mục lục</th>
-                    <th>Ngày đăng</th>
-                    <th>Ngày cập nhật</th>
+                    <th class="text-center">Mục lục</th>
+                    <th class="text-center">Ngày đăng</th>
+                    <th class="text-center">Ngày cập nhật</th>
                     <th class="text-center">Thumbnail</th>
                     <th class="text-center" style="width: 120px;">PDF</th>
                     <th class="text-center">Lượt xem</th>
@@ -212,6 +228,10 @@
             </thead>
             <tbody></tbody>
         </table>
+    </div>
+    <!-- Khu vực phân trang tự tạo -->
+    <div class="pagination-container d-flex justify-content-end">
+        <ul id="pagination" class="pagination"></ul>
     </div>
 </div>
 
@@ -279,7 +299,7 @@
         </form>
     </div>
 </div>
-
+<!--Modal Chọn Ảnh Được Lưu Từ CSDL-->
 <div class="modal fade" id="modalThuVienAnh" tabindex="-1" role="dialog" aria-labelledby="modalThuVienAnhLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
         <div class="modal-content">
@@ -367,14 +387,11 @@
 
 @section scriptsAdmin {
     <!-- Bootstrap & DataTables -->
-
     <!-- SweetAlert2 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
     <!-- jQuery, Bootstrap JS, SweetAlert2, DataTables -->
-
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 
     <!-- CKEditor -->
     <script src="https://cdn.ckeditor.com/4.21.0/full/ckeditor.js"></script>

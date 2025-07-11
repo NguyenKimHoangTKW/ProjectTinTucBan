@@ -10,6 +10,26 @@ const mucId = window.mucIdFromView || 0;
 let allPosts = [];
 let currentPage = 1;
 const perPage = 6;
+function renderBreadcrumb(mucTen) {
+    const html = `
+        <nav class="text-right text-lg text-gray-700 font-medium" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1">
+                <li>
+                    <a href="/" class="text-blue-600 hover:underline">Trang chủ</a>
+                </li>
+                <li>
+                    <span class="mx-2">/</span>
+                </li>
+                <li class="text-gray-900 font-semibold">
+                    ${escapeHtml(mucTen)}
+                </li>
+            </ol>
+        </nav>
+    `;
+    $("#breadcrumbContainer").html(html);
+}
+
+
 
 function escapeHtml(text) {
     return text
@@ -29,57 +49,30 @@ function formatDate(unixTimestamp) {
     return `${day}/${month}/${year}`;
 }
 
-function renderThongBao() {
+// ✅ Thêm hàm renderAllPosts mới
+function renderAllPosts() {
     const list = $("#tinTucList");
-    const sortedByDate = [...allPosts].sort((a, b) => (b.NgayDang ?? 0) - (a.NgayDang ?? 0)).slice(0, 5);
-    const sortedByViews = [...allPosts].sort((a, b) => (b.LuotXem ?? 0) - (a.LuotXem ?? 0)).slice(0, 5);
+    list.empty();
+    let html = "";
 
-    let html = `<div class="grid grid-cols-1 md:grid-cols-3 md:gap-10 gap-6">
-        <div class="md:col-span-2">
-            <h2 class="text-xl font-bold text-gray-800 mb-4">Bài viết mới</h2>
-            <div class="space-y-4">`;
-
-    sortedByDate.forEach(post => {
+    allPosts.forEach(post => {
         const date = formatDate(post.NgayDang);
-        const thumb = post.LinkThumbnail || "/images/thong-bao-icon.png";
+        const thumb = post.LinkThumbnail || "/images/default.jpg";
         const tieuDe = escapeHtml(post.TieuDe || "Không có tiêu đề").toUpperCase();
-        const views = post.LuotXem ?? 0;
 
         html += `
-            <div class="bg-white rounded shadow hover:shadow-md overflow-hidden flex flex-col sm:flex-row gap-4 my-4">
-                <img src="${thumb}" class="w-full sm:w-40 h-32 object-cover flex-shrink-0" alt="Thumb">
-                <div class="p-3 flex flex-col">
-                    <a href="/noi-dung/${post.ID}" class="font-semibold text-base text-blue-800 hover:underline leading-snug line-clamp-2">${tieuDe}</a>
-                    <div class="text-sm text-gray-500 mt-2 flex items-center gap-3">
-                        <span><i class="far fa-calendar-alt mr-1"></i>${date}</span>
-                        <span><i class="far fa-eye mr-1"></i>${views} lượt xem</span>
-                    </div>
+            <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition overflow-hidden flex flex-col h-full">
+                <img src="${thumb}" class="w-full h-[200px] object-cover" alt="Ảnh">
+                <div class="p-4 flex flex-col flex-1">
+                    <a href="/noi-dung/${post.ID}" class="text-base font-semibold text-gray-800 hover:text-blue-600 leading-snug line-clamp-2 mb-2">${tieuDe}</a>
+                    <p class="text-sm text-gray-500 mt-auto"><i class="fa-regular fa-calendar-days mr-1"></i>${date}</p>
                 </div>
             </div>`;
     });
 
-    html += `</div></div>
-        <div class="bg-white rounded shadow p-4">
-            <h2 class="text-xl font-bold text-red-600 border-b pb-2 mb-4">Bài được xem nhiều</h2>`;
-
-    sortedByViews.forEach(post => {
-        const date = formatDate(post.NgayDang);
-        const views = post.LuotXem ?? 0;
-        const tieuDe = escapeHtml(post.TieuDe || "Không có tiêu đề").toUpperCase();
-
-        html += `
-            <div class="pb-2 mb-2 border-b border-gray-200">
-                <a href="/noi-dung/${post.ID}" class="text-sm font-medium text-gray-800 hover:text-blue-600 block leading-snug line-clamp-2">${tieuDe}</a>
-                <div class="text-xs text-gray-500 mt-1 flex gap-3">
-                    <span><i class="far fa-calendar-alt mr-1"></i>${date}</span>
-                    <span><i class="far fa-eye mr-1"></i>${views} lượt xem</span>
-                </div>
-            </div>`;
-    });
-
-    html += `</div></div>`;
-    list.append(html);
-    $("#btnXemThemWrapper").addClass("hidden");
+    list.html(html);
+    $("#btnXemThem").hide();
+    $("#btnAnBot").removeClass("hidden");
 }
 
 function renderPosts() {
@@ -105,10 +98,15 @@ function renderPosts() {
     });
 
     list.append(html);
+
     if (end >= allPosts.length) {
-        $("#btnXemThemWrapper").addClass("hidden");
+        $("#btnXemThem").hide();
     } else {
-        $("#btnXemThemWrapper").removeClass("hidden");
+        $("#btnXemThem").show();
+    }
+
+    if (currentPage > 1) {
+        $("#btnAnBot").removeClass("hidden");
     }
 }
 
@@ -150,14 +148,32 @@ $(document).ready(function () {
 
         window.mucTen = muc.Ten;
         $("#tenMucLuc").text((muc.TenMucLuc || "Không rõ").toUpperCase());
+        renderBreadcrumb(muc.TenMucLuc);
+
         allPosts = muc.BaiViets;
         const isThongBao = (window.mucTen || "").toLowerCase().includes("thông báo");
         if (isThongBao) renderThongBao();
         else renderPosts();
     });
 
+    // Nút XEM THÊM
     $("#btnXemThem").on("click", function () {
         currentPage++;
         renderPosts();
+    });
+
+    // ✅ Nút XEM TẤT CẢ
+    $("#btnXemTatCa").on("click", function (e) {
+        e.preventDefault();
+        renderAllPosts();
+    });
+
+    // ✅ Nút ẨN BỚT
+    $("#btnAnBot").on("click", function () {
+        currentPage = 1;
+        $("#tinTucList").html("");
+        renderPosts();
+        $(this).addClass("hidden");
+        $("#btnXemThem").show();
     });
 });

@@ -14,7 +14,8 @@
 
     <!-- Scripts -->
     <script src="~/Scripts/jquery-3.7.0.js"></script>
-    <script src="~/Scripts/TopMenuShowScript.js"></script>
+    <script src="~/Scripts/Scripts/TopMenuShowScript.js"></script>
+
 
     <style>
         .admin-topmenu-nav {
@@ -38,9 +39,9 @@
             transition: color 0.3s ease;
         }
 
-        .admin-topmenu-link:hover {
-            color: #f97316;
-        }
+            .admin-topmenu-link:hover {
+                color: #f97316;
+            }
 
         .has-dropdown:hover .admin-topmenu-link::after {
             content: '';
@@ -90,26 +91,27 @@
             color: #1f2937;
             text-decoration: none;
             transition: background 0.2s, color 0.2s;
-            white-space: normal;             /* ✅ Cho phép xuống dòng */
-            word-wrap: break-word;           /* ✅ Ngắt từ dài */
+            white-space: normal; /* ✅ Cho phép xuống dòng */
+            word-wrap: break-word; /* ✅ Ngắt từ dài */
             word-break: break-word;
             overflow-wrap: break-word;
-            max-width: 260px;                /* ✅ Chiều rộng tối đa cho mỗi item */
+            max-width: 260px; /* ✅ Chiều rộng tối đa cho mỗi item */
             line-height: 1.4;
             border-left: 3px solid transparent;
         }
 
-        .admin-topmenu-dropdown a:hover {
-            background-color: #f3f4f6;
-            color: #f97316;
-            border-left: 3px solid #f97316;
-        }
+            .admin-topmenu-dropdown a:hover {
+                background-color: #f3f4f6;
+                color: #f97316;
+                border-left: 3px solid #f97316;
+            }
 
-       @@keyframes fadeIn {
+        @@keyframes fadeIn {
             from {
                 opacity: 0;
                 transform: translateY(-8px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);

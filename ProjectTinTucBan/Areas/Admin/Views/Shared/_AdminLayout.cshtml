@@ -28,6 +28,7 @@
     </style>
 
 </head>
+
 <body>
     <div class="app">
 
@@ -46,7 +47,7 @@
                 <!-- Footer START -->
                 <!-- Footer END -->
                 @Html.Partial("_AdminFooterPartial")
-     
+
             </div>
             <!-- Page Container END -->
             <!-- Search Start-->
@@ -272,7 +273,7 @@
     <script src="~/Areas/Admin/Scripts/AdminSideNavScript.js"></script>
     <script src="~/Areas/Admin/Scripts/AdminHeaderPartial.js"></script>
     <script src="~/Areas/Admin/Scripts/MaHoaKTDB.js"></script>
-    <script src="~/Areas/Admin/Scripts/Module_Chung.js"></script>
     @RenderSection("scriptsAdmin", required: false)
+    @RenderSection("scripts", required: false)
 </body>
 </html>

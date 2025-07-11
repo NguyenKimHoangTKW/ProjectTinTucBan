@@ -1,4 +1,5 @@
 $(document).ready(function () {
+    // Bắt sự kiện click vào nút đăng xuất
     $('#logoutButton, #logoutButtons').on('click', function () {
         // Gọi API để xóa session
         $.ajax({
