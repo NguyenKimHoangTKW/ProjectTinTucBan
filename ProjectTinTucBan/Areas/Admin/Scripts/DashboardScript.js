@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 $(document).ready(function () {
-    // Update statistics
+    // Cập nhật thống kê tổng quan
     $.ajax({
         url: `${BASE_URL}/dashboard`,
         method: 'GET',
@@ -37,26 +37,125 @@ $(document).ready(function () {
         }
     });
 
-    // Click handlers for showing chart
-    $('#day').parent().click(function () {
-        showChart('day');
-    });
-    $('#month').parent().click(function () {
-        showChart('month');
-    });
-    $('#year').parent().click(function () {
-        showChart('year');
+    // ===== Kích hoạt biểu đồ =====
+    function handleShowChart(type) {
+        $('#showtarget').empty();         
+        $('#chartContainer').show();      
+        showChart(type);                  
+    }
+
+    // Gán sự kiện click cho từng loại biểu đồ
+    $('#day').on('click', function () {
+        handleShowChart('day');
     });
 
-    // Hide chart when clicking outside
+    $('#month').on('click', function () {
+        handleShowChart('month');
+    });
+
+    $('#year').on('click', function () {
+        handleShowChart('year');
+    });
+
+    // Ẩn biểu đồ khi click ra ngoài vùng liên quan
     $(document).on('click', function (e) {
-        if ($(e.target).closest('#chartContainer, #stat-day-views, #stat-month-views, #stat-year-views').length === 0) {
+        if ($(e.target).closest('#chartContainer, #day, #month, #year').length === 0) {
             $('#chartContainer').hide();
         }
     });
 
-    // Show daily chart by default
-    
+    let mucLucMap = new Map();
+
+    // Gọi API lấy danh sách mục lục
+    function loadMucLucs(callback) {
+        $.ajax({
+            url: `${BASE_URL}/Get-All-Muc-Luc`,
+            method: 'GET',
+            success: function (res) {
+                if (res.success && res.data && Array.isArray(res.data)) {
+                    res.data.forEach(ml => {
+                        mucLucMap.set(ml.ID, ml.TenMucLuc);
+                    });
+                }
+                if (typeof callback === 'function') callback();
+            },
+            error: function () {
+                console.error("Không thể tải danh sách mục lục");
+                if (typeof callback === 'function') callback(); // vẫn tiếp tục hiển thị bảng
+            }
+        });
+    }
+
+    // ===== Hiển thị bảng bài viết =====
+    $('#baiviet').on('click', function () {
+        $('#chartContainer').hide();
+        $('#showtarget').empty();
+
+        loadMucLucs(() => {
+            $('#showtarget').html(`
+            <div class="table-responsive p-3">
+            <div class="card-body" id="baiviet" style="cursor: pointer; text-align: center;">
+                <h5>Top 10 bài viết nhiều lượt xem trong tháng</h5>
+            </div>
+                <table id="table_load_baiviet" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th class="d-none">ID</th>
+                            <th class="text-center">STT</th>
+                            <th class="text-center">Tiêu đề</th>
+                            <th class="text-center">Mục lục</th>
+                            <th class="text-center">Ngày đăng</th>
+                            <th class="text-center">Ngày cập nhật</th>
+                            <th class="text-center">Thumbnail</th>
+                            <th class="text-center">Lượt xem</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        `);
+
+            // Gọi API lấy dữ liệu bài viết
+            $.ajax({
+                url: `${BASE_URL}/top10-baiviet-thang`,
+                method: 'GET',
+                success: function (data) {
+                    if (!data || data.length === 0) {
+                        $('#table_load_baiviet tbody').html('<tr><td colspan="11" class="text-center text-muted">Không có bài viết nào.</td></tr>');
+                        return;
+                    }
+
+                    let html = '';
+                    data.forEach((item, index) => {
+                        const ngayDang = new Date(item.NgayDang * 1000).toLocaleDateString("vi-VN");
+                        const ngayCapNhat = item.NgayCapNhat ? new Date(item.NgayCapNhat * 1000).toLocaleDateString("vi-VN") : '';
+                        const tenMucLuc = mucLucMap.get(item.ID_MucLuc) || 'Không rõ';
+
+                        html += `
+                        <tr>
+                            <td class="d-none">${item.ID}</td>
+                            <td>${index + 1}</td>
+                            <td>${item.TieuDe || ''}</td>
+                            <td>${tenMucLuc}</td>
+                            <td>${ngayDang}</td>
+                            <td>${ngayCapNhat}</td>
+                            <td>
+                                ${item.LinkThumbnail ? `<img src="${item.LinkThumbnail}" />` : ''}
+                            </td>
+                            <td>${item.ViewCount || 0}</td>
+                        </tr>
+                    `;
+                    });
+
+                    $('#table_load_baiviet tbody').html(html);
+                },
+                error: function () {
+                    $('#table_load_baiviet tbody').html('<tr><td colspan="11" class="text-center text-danger">Lỗi khi tải dữ liệu</td></tr>');
+                }
+            });
+        });
+    });
+
 });
 
 
@@ -133,3 +232,19 @@ function renderChartist(labels, data, type) {
 
     $('#viewsChart').prepend('<div style="text-align:center;font-weight:bold;margin-bottom:10px;">' + title + '</div>');
 }
+/* Test xuất dữ liệu api
+$(document).ready(function () {
+    $.ajax({
+        url: `${BASE_URL}/top10-baiviet-thang`,
+        method: 'GET',
+        success: function (data) {
+            $('#output').text(JSON.stringify(data, null, 4));
+        },
+        error: function (xhr, status, error) {
+            $('#output').text('Lỗi khi tải dữ liệu: ' + error);
+        }
+    });
+});
+//Bỏ phần này vô view để test xuất dữ liệu api
+<pre id="output" style="background: #f4f4f4; padding: 10px; border: 1px solid #ccc;"></pre>
+*/

@@ -4,11 +4,6 @@
 }
 
 <style>
-    .avatar-lg {
-        width: 50px;
-        height: 50px;
-    }
-
     /* Style cho phần hiển thị thông tin session */
     .session-info, .session-warning, .session-error {
         margin-bottom: 20px;
@@ -23,9 +18,103 @@
         .session-info li {
             margin-bottom: 5px;
         }
-</style>
 
+    .avatar-lg {
+        width: 50px;
+        height: 50px;
+    }
+
+    #chartContainer {
+        width: 100%;
+        max-width: 1000px;
+        height: 500px;
+        margin: 40px auto;
+    }
+
+    #viewsChart {
+        height: 100%;
+    }
+
+    body {
+        background-color: white !important;
+    }
+
+    .main-content {
+        padding: 20px;
+        margin-top: 70px;
+    }
+
+    .main-content, .page-container {
+        background-color: white !important;
+    }
+
+    .table-responsive {
+        padding: 10px;
+        background-color: #fff;
+    }
+
+    #table_load_baiviet {
+        width: 100%;
+        background-color: #fff;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+
+        #table_load_baiviet th,
+        #table_load_baiviet td {
+            padding: 10px 8px;
+            font-size: 14px;
+            vertical-align: middle;
+            white-space: normal;
+            word-break: break-word;
+        }
+
+        #table_load_baiviet,
+        #table_load_baiviet th,
+        #table_load_baiviet td {
+            border: 1px solid #dee2e6 !important;
+            border-collapse: collapse !important;
+            background-color: #fff;
+        }
+
+            #table_load_baiviet thead th {
+                background-color: #5a8dee;
+                color: white;
+                text-align: center;
+                font-weight: 600;
+            }
+
+            #table_load_baiviet td {
+                text-align: center;
+            }
+
+                /* STT */
+                #table_load_baiviet th:nth-child(2),
+                #table_load_baiviet td:nth-child(2) {
+                    width: 50px;
+                }
+            /* Ngày đăng & cập nhật */
+            #table_load_baiviet th:nth-child(5),
+            #table_load_baiviet th:nth-child(6) {
+                text-align: center;
+                width: 10px;
+            }
+
+            #table_load_baiviet td:nth-child(5),
+            #table_load_baiviet td:nth-child(6) {
+                text-align: left;
+                width: 120px;
+            }
+            /* Thumbnail */
+            #table_load_baiviet td:nth-child(7) img {
+                max-width: 80px;
+                height: auto;
+                border-radius: 4px;
+            }
+</style>
 <div class="main-content">
+
+
     <div class="container-fluid">
         <!-- Session info will be displayed here by JavaScript -->
         <!-- Thống kê -->
@@ -73,12 +162,12 @@
                                 <p class="m-b-0 text-muted">Lượt xem theo năm</p>
                             </div>
                         </div>
-                    </div>  
+                    </div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="card">
-                    <div class="card-body">
+                    <div class="card-body" id="baiviet">
                         <div class="media align-items-center">
                             <div class="avatar avatar-icon avatar-lg avatar-purple">
                                 <i class="anticon anticon-file-text"></i>
@@ -94,33 +183,16 @@
         </div>
 
         <div class="row">
-            <div id="chartContainer" style="width:100%; max-width:1000px; height:500px; margin:40px auto; display:none; ">
-                <div id="viewsChart" style="height:100%; "></div>
+            <!-- Biểu đồ -->
+            <div id="chartContainer" style="width:100%; max-width:1000px; height:500px; margin:40px auto; display:none;">
+                <div id="viewsChart" style="height:100%;"></div>
             </div>
+            <!-- Bảng bài viết -->
+            <div id="showtarget" class="col-12"></div>
         </div>
+
     </div>
 </div>
-
-
-<style>
-    .avatar-lg {
-        width: 50px;
-        height: 50px;
-    }
-    #chartContainer {
-        width: 100%;
-        max-width: 1000px;
-        height: 500px;
-        margin: 40px auto;
-    }
-
-    #viewsChart {
-        height: 100%;
-    }
-
-
-</style>
-
 
 @section scriptsAdmin {
     <script src="~/Areas/Admin/Scripts/CheckSession.js"></script>

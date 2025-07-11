@@ -1,12 +1,23 @@
 ﻿$(function () {
-    function showSwal(message, type) {
-        Swal.fire({
-            icon: type,
-            title: message,
-            timer: 3000,
-            showConfirmButton: true
+
+    $(document).ready(function () {
+        // Toggle dropdown on click
+        $('[data-toggle="dropdown"]').on('click', function (e) {
+            e.preventDefault();
+            var $parent = $(this).closest('.dropdown');
+            // Đóng các dropdown khác
+            $('.dropdown').not($parent).removeClass('open');
+            // Toggle dropdown hiện tại
+            $parent.toggleClass('open');
         });
-    }
+
+        // Đóng dropdown khi click ra ngoài
+        $(document).on('click', function (e) {
+            if (!$(e.target).closest('.dropdown').length) {
+                $('.dropdown').removeClass('open');
+            }
+        });
+    });
 
     function updateButtonStates() {
         // Update menu buttons based on permissions or conditions
@@ -194,24 +205,7 @@
         updateButtonStates();
     });
 
-    $(document).ready(function () {
-        // Toggle dropdown on click
-        $('[data-toggle="dropdown"]').on('click', function (e) {
-            e.preventDefault();
-            var $parent = $(this).closest('.dropdown');
-            // Đóng các dropdown khác
-            $('.dropdown').not($parent).removeClass('open');
-            // Toggle dropdown hiện tại
-            $parent.toggleClass('open');
-        });
-
-        // Đóng dropdown khi click ra ngoài
-        $(document).on('click', function (e) {
-            if (!$(e.target).closest('.dropdown').length) {
-                $('.dropdown').removeClass('open');
-            }
-        });
-    });
+    
 
     loadMenus();
 
@@ -238,9 +232,9 @@
                 $('#addMenuModal').modal('hide');
                 $('#add-menu-form')[0].reset();
                 loadMenus();
-                showSwal("Thêm menu thành công", 'success');
+                Sweet_Alert('success',"Thêm menu thành công");
             },
-            error: () => showSwal('Thêm menu thất bại!', 'error')
+            error: () => Sweet_Alert('error','Thêm menu thất bại!')
         });
     });
 
@@ -262,13 +256,13 @@
                     success: (res) => {
                         if (res.success) {
                             loadMenus();
-                            showSwal('Xóa menu thành công!', 'success');
+                            Sweet_Alert('success','Xóa menu thành công!');
 
                         } else {
-                            showSwal('Xóa thất bại: ' + (res.message || ''), 'error');
+                            Sweet_Alert('error','Xóa thất bại: ' + (res.message || ''));
                         }
                     },
-                    error: () => showSwal('Có lỗi xảy ra khi xóa menu!', 'error')
+                    error: () => Sweet_Alert('error','Có lỗi xảy ra khi xóa menu!')
                 });
             }
         });
@@ -334,14 +328,14 @@
                     success: function (res) {
                         if (res.success) {
                             loadMenus();
-                            showSwal('Cập nhật menu thành công!', 'success');
+                            Sweet_Alert('success','Cập nhật menu thành công!');
 
                         } else {
-                            showSwal('Cập nhật thất bại: ' + (res.message || ''), 'error');
+                            Sweet_Alert('error','Cập nhật thất bại: ' + (res.message || ''));
                         }
                     },
                     error: function (xhr) {
-                        showSwal('Lỗi: ' + xhr.responseText, 'error');
+                        Sweet_Alert('error','Lỗi: ' + xhr.responseText);
                     }
                 });
             }
@@ -364,7 +358,7 @@
         const subIcon = $('#subIconName').val();
 
         if (!subMenuName) {
-            showSwal('Tên menu con không được để trống!', 'warning');
+            Sweet_Alert('warning','Tên menu con không được để trống!');
             return;
         }
 
@@ -381,10 +375,10 @@
             success: () => {
                 $('#addSubMenuModal').modal('hide');
                 loadMenus();
-                showSwal('Thêm menu con thành công!', 'success');
+                Sweet_Alert('success','Thêm menu con thành công!');
             },
             error: (xhr) => {
-                showSwal('Lỗi: ' + xhr.responseText, 'error');
+                Sweet_Alert('error','Lỗi: ' + xhr.responseText);
             }
         });
     });
@@ -447,14 +441,14 @@
                     success: function (res) {
                         if (res.success) {
                             loadMenus();
-                            showSwal('Cập nhật menu con thành công!', 'success');
+                            Sweet_Alert('success','Cập nhật menu con thành công!');
 
                         } else {
-                            showSwal('Cập nhật thất bại: ' + (res.message || ''), 'error');
+                            Sweet_Alert('error','Cập nhật thất bại: ' + (res.message || ''));
                         }
                     },
                     error: function (xhr) {
-                        showSwal('Lỗi: ' + xhr.responseText, 'error');
+                        Sweet_Alert('error','Lỗi: ' + xhr.responseText);
                     }
                 });
             }
@@ -479,13 +473,13 @@
                     success: (res) => {
                         if (res.success) {
                             loadMenus();
-                            showSwal('Xóa menu con thành công!', 'success');
+                            Sweet_Alert('success','Xóa menu con thành công!');
 
                         } else {
-                            showSwal('Xóa thất bại: ' + (res.message || ''), 'error');
+                            Sweet_Alert('error','Xóa thất bại: ' + (res.message || ''));
                         }
                     },
-                    error: () => showSwal('Có lỗi xảy ra khi xóa menu con!', 'error')
+                    error: () => Sweet_Alert('error','Có lỗi xảy ra khi xóa menu con!')
                 });
             }
         });
