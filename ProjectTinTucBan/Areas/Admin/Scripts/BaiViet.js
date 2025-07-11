@@ -532,47 +532,35 @@ function setupPagination() {
             <a class="page-link" href="#" data-page="${currentPage - 1}">«</a>
         </li>`;
 
-    // Trang 1
+    // Trang đầu
     addPage(1);
 
-    // Logic giữa
-    if (currentPage === 1) {
-        if (totalPages >= 3) addPage(2);
-        if (totalPages > 3) paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
-    } else if (currentPage === 2) {
-        addPage(2);
-        addPage(3);
-        if (totalPages > 4) paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
-    } else if (currentPage === 3) {
-        addPage(2);
-        addPage(3);
-        addPage(4);
-        if (totalPages > 5) paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
-    } else if (currentPage > 3 && currentPage < totalPages - 2) {
-        paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
-        addPage(currentPage - 1);
-        addPage(currentPage);
-        addPage(currentPage + 1);
-        paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
-    } else if (currentPage === totalPages - 2) {
-        paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
-        addPage(totalPages - 3);
-        addPage(totalPages - 2);
-        addPage(totalPages - 1);
-    } else if (currentPage === totalPages - 1) {
-        paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
-        addPage(totalPages - 2);
-        addPage(totalPages - 1);
-    } else if (currentPage === totalPages) {
-        paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
-        addPage(totalPages - 1);
-    }
+    if (totalPages <= 5) {
+        // Nếu ít trang, hiển thị hết
+        for (let i = 2; i <= totalPages; i++) {
+            addPage(i);
+        }
+    } else {
+        // Hiển thị thông minh theo vị trí trang hiện tại
+        if (currentPage <= 3) {
+            addPage(2);
+            addPage(3);
+            paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+        } else if (currentPage >= totalPages - 2) {
+            paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+            for (let i = totalPages - 2; i < totalPages; i++) {
+                addPage(i);
+            }
+        } else {
+            paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+            addPage(currentPage - 1);
+            addPage(currentPage);
+            addPage(currentPage + 1);
+            paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+        }
 
-    // Trang cuối (luôn hiển thị nếu > 1 và chưa được thêm)
-    if (totalPages > 1 && currentPage !== totalPages) {
+        // Trang cuối
         addPage(totalPages);
-    } else if (currentPage === totalPages && totalPages > 1) {
-        if (currentPage !== totalPages - 1) addPage(totalPages);
     }
 
     // Nút Next
@@ -603,15 +591,17 @@ $('#searchKeyword').on('keyup', function () {
     setupPagination();
 });
 
-
 $(document).on('click', '#pagination .page-link', function (e) {
     e.preventDefault();
     const page = parseInt($(this).data('page'));
-    currentPage = page;
-    renderPage(page);
-    setupPagination(); // để cập nhật class active
-});
+    const totalPages = Math.ceil(filteredBaiViet.length / pageSize);
 
+    if (isNaN(page) || page < 1 || page > totalPages) return;
+
+    currentPage = page;
+    renderPage(currentPage);
+    setupPagination();
+});
 
 $(document).on('click', '.btn-xem-danh-sach-pdf', function () {
     const rawLinks = $(this).data('links');
