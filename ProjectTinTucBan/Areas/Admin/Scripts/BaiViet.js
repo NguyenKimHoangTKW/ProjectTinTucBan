@@ -2,24 +2,6 @@
 
 let uploadedPDFs = [];
 $(document).ready(async function () {
-    let loginStatus = false;
-    try {
-        const res = await $.ajax({
-            url: '/api/v1/admin/check-login',
-            type: 'GET',
-            dataType: 'json'
-        });
-        loginStatus = res && res.success;
-    } catch {
-        loginStatus = false;
-    }
-
-    if (!loginStatus) {
-        // Chuyển hướng ngay nếu chưa đăng nhập
-        window.location.href = 'https://localhost:44305/Admin/InterfaceAdmin/Login';
-        return;
-    }
-
     loadMucLucOptions();
     await restoreSessionStorageFromServer(); // đợi session đồng bộ xong
     await GetAllBaiViet();

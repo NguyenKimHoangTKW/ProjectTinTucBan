@@ -246,7 +246,7 @@ function showLockCountdown(unlockTimeValue, failedAttempts) {
             $("#btnLogin").prop("disabled", false).removeClass("disabled");
             return;
         }
-        
+
 
         // Time calculations - ensure all positive numbers
         const hours = Math.max(0, Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)));
@@ -306,7 +306,7 @@ $(document).ready(function () {
         }
     });
 
-    
+
 
     // Modify the btnLogin click handler to save the username
     $("#btnLogin").click(function (e) {

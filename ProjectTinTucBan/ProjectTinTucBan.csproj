@@ -1564,7 +1564,6 @@
     <Content Include="Areas\Admin\Views\InterfaceAdmin\EditTaiKhoan.cshtml" />
     <Content Include="Content\data.json" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\EditFooter.cshtml" />
-    <Content Include="Areas\Admin\Views\InterfaceAdmin\XemNoiDung.cshtml" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\Scripts\DanhSachBaiViet.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
