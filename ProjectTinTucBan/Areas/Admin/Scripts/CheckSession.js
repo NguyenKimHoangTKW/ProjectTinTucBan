@@ -18,7 +18,6 @@
                 }
             },
             error: function (xhr, status, error) {
-                console.error("Lỗi khi kiểm tra session:", error);
                 handleSessionError();
             }
         });
@@ -27,7 +26,6 @@
     // Hiển thị thông tin người dùng
     function displayUserInfo(user) {
         // Hiển thị thông tin người dùng trên trang
-        console.log("Thông tin session:", user);
 
         // Hiển thị một thông báo hoặc cập nhật UI với thông tin người dùng
         var userInfoHtml = `
@@ -47,7 +45,6 @@
 
     // Xử lý khi không có session
     function handleNotLoggedIn() {
-        console.warn("Người dùng chưa đăng nhập");
 
         // Hiển thị cảnh báo
         var warningHtml = `

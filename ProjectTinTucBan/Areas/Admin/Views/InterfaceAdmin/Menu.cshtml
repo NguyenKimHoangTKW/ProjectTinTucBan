@@ -7,6 +7,7 @@
 
 
 <style>
+
     .menu-row-responsive {
         display: flex;
         justify-content: space-between;
@@ -34,45 +35,66 @@
             padding-right: 8px;
             margin-bottom: 4px;
         }
+    .toggle-submenu-btn {
+        font-size: 0.8rem;
+        height: 30px;
+        line-height: 1;
+    }
+    .btn-xs-custom {
+        padding: 2px 6px;
+        font-size: 0.75rem;
+        line-height: 1;
+    }
+
 </style>
 
 
 
 
 <!-- Add Menu Modal -->
-<div class="modal fade" id="addMenuModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
+<div class="modal fade" id="addMenuModal" tabindex="-1" aria-labelledby="addMenuModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Thêm Menu mới</h5>
-                <button type="button" class="close" aria-label="Close" id="closeAddMenuModal">
+                <h5 class="modal-title" id="addMenuModalLabel">Thêm Menu mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeAddMenuModal">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <form id="add-menu-form">
                 <div class="modal-body">
-                    <div class="form-group">
-                        <label for="menuName">Tên menu <span style="color:red">*</span>:</label>
+                    <div class="form-group mb-3">
+                        <label for="menuName">Tên menu <span class="text-danger">*</span>:</label>
                         <input type="text" class="form-control" id="menuName" name="menuName" required maxlength="100" />
                     </div>
-                    <div class="form-group">
+
+                    <div class="form-group mb-3">
                         <label for="menuLink">Link:</label>
                         <input type="text" class="form-control" id="menuLink" name="menuLink" maxlength="255" />
                     </div>
-                    <div class="form-group">
-                        <label for="thuTuShow">Thứ tự hiển thị:</label>
-                        <input type="number" class="form-control" id="thuTuShow" name="thuTuShow" min="0" max="1000" />
+
+                    <div class="form-group mb-3">
+                        <label for="iconName">Menu Icon (FontAwesome):</label>
+                        <input type="text" class="form-control" id="iconName" name="iconName" placeholder="vd: fa fa-home" maxlength="100" />
+                        <small class="form-text text-muted">
+                            Xem <a href="https://fontawesome.com/icons" target="_blank">FontAwesome Icons</a>
+                        </small>
+                        <div id="iconPreview" class="mt-2" style="display:none;">
+                            <span>Xem trước:</span> <i class="" id="iconPreviewElement"></i>
+                        </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" id="closeAddMenuModalFooter">Hủy</button>
-                    <button type="submit" class="btn btn-primary">Thêm</button>
 
+                <div class="modal-footer d-flex flex-wrap justify-content-between gap-2">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="closeAddMenuModalFooter">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Thêm</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+
 
 <!-- Add SubMenu Modal -->
 <div class="modal fade" id="addSubMenuModal" tabindex="-1" role="dialog">
@@ -87,19 +109,32 @@
             <form id="add-submenu-form">
                 <div class="modal-body">
                     <input type="hidden" id="parentMenuId" name="parentMenuId" />
+
                     <div class="form-group">
                         <label for="subMenuName">Tên menu con <span style="color:red">*</span>:</label>
                         <input type="text" class="form-control" id="subMenuName" name="subMenuName" required maxlength="100" />
                     </div>
+
                     <div class="form-group">
                         <label for="subLink">Link:</label>
                         <input type="text" class="form-control" id="subLink" name="subLink" required maxlength="120" />
                     </div>
+
+                    <div class="form-group">
+                        <label for="subIconName">Menu icon (FontAwesome):</label>
+                        <input type="text" class="form-control" id="subIconName" name="subIconName" placeholder="vd: fa fa-cog" maxlength="100" />
+                        <small class="form-text text-muted">
+                            Tham khảo <a href="https://fontawesome.com/icons" target="_blank">FontAwesome Icons</a>
+                        </small>
+                        <div id="subIconPreview" class="mt-2" style="display:none;">
+                            <strong>Xem trước:</strong> <i id="subIconPreviewElement"></i>
+                        </div>
+                    </div>
                 </div>
-                <div class="modal-footer">
+
+                <div class="modal-footer d-flex flex-wrap justify-content-between gap-2">
                     <button type="button" class="btn btn-secondary" id="closeAddSubMenuModalFooter">Hủy</button>
                     <button type="submit" class="btn btn-primary">Thêm</button>
-
                 </div>
             </form>
         </div>
@@ -129,7 +164,7 @@
                         <label class="form-check-label" for="groupImportant">Quan trọng</label>
                     </div>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer d-flex flex-wrap justify-content-between gap-2">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
                     <button type="submit" class="btn btn-primary">Thêm</button>
                 </div>
@@ -163,7 +198,7 @@
                         <label class="form-check-label" for="editGroupImportant">Quan trọng</label>
                     </div>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer d-flex flex-wrap justify-content-between gap-2">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
                     <button type="submit" class="btn btn-primary">Lưu</button>
                 </div>
@@ -192,17 +227,20 @@
                         <input type="text" id="newMenuLink" class="form-control" placeholder="Link menu">
                         <button type="submit" class="btn btn-primary mt-2" form="add-new-menu-to-group-form">Thêm mới và gán vào group</button>
                     </div>
-                </div>
-                <div class="form-group mt-3">
                     <div>
                         <label>Chọn menu mục tiêu để gán các submenu:</label>
                         <select id="selectTargetMenuInGroup" class="form-control"></select>
                     </div>
+                    <!--
                     <label>Gán sub menu:</label>
                     <select id="selectSubMenu" class="form-control" multiple></select>
                     <small class="form-text text-muted">Giữ Ctrl (hoặc Cmd) để chọn nhiều submenu</small>
+                    <button type="button" class="btn btn-info" id="btnAssignSubmenuToMenu">
+                        Gán submenu vào menu
+                    </button>
+                    -->
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer d-flex flex-wrap justify-content-between gap-2">
                     <button type="submit" class="btn btn-success">Thêm menu đã có vào group</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
                 </div>
@@ -237,7 +275,7 @@
     </ul>
     <div class="tab-content m-t-15" id="myTabContentJustified">
         <div class="tab-pane fade show active" id="menu-justified" role="tabpanel" aria-labelledby="menu-tab-justified">
-            <button id="openAddMenuModal" class="btn btn-success mb-3">
+            <button id="openAddMenuModal" class="btn btn-primary mb-3">
                 <i class="fas fa-plus"></i> Thêm Menu
             </button>
             <div class="card">
@@ -246,7 +284,7 @@
         </div>
         <div class="tab-pane fade" id="group-justified" role="tabpanel" aria-labelledby="group-tab-justified">
             <div class="card">
-                <button id="openAddGroupMenuModal" class="btn btn-success mb-3">
+                <button id="openAddGroupMenuModal" class="btn btn-primary mb-3">
                     <i class="fas fa-plus"></i> Thêm Group
                 </button>
                 <div id="groupMenuTabsContainer"></div>
@@ -259,10 +297,10 @@
 
 @section scriptsAdmin{
     <script src="~/Scripts/jquery-3.7.0.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="~/Areas/assets/css/app.min.css" rel="stylesheet" />
+    <script src="~/Areas/assets/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+    <link href="~/Areas/assets/css/sweetalert2.min.css" rel="stylesheet" />
+    <script src="~/Areas/assets/js/sweetalert2@11.js"></script>
     <script src="~/Areas/assets/js/OptionPhanQuyen.js"></script>
     <script src="~/Areas/Admin/Scripts/MenuScript.js"></script>
     <script src="~/Areas/Admin/Scripts/GroupMenuAdminScript.js"></script>

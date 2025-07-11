@@ -7,6 +7,17 @@ using System.Data.Entity;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using System.Web;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
+using Microsoft.Owin.Security;
+using ProjectTinTucBan.Models;
+using Microsoft.Owin.Security.Cookies;
+// Quan trọng: Using models
+using System.Data.Entity; // Thêm using này cho Include
+using System.Collections.Generic; // << --- THÊM DÒNG NÀY ---
 
 
 namespace ProjectTinTucBan.Areas.Admin.Controllers
@@ -14,10 +25,12 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
     public class InterfaceAdminController : Controller
     {
-               
+        WebTinTucTDMUEntities db = new WebTinTucTDMUEntities();
+
         // Gọi hàm thiết kế giao diện tại đây
         public ActionResult Index()
         {
+
             return View();
         }
 
@@ -49,6 +62,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         {
             return View();
         }
+        
         // Gọi hàm thiết kế giao diện quản lý chức năng admin
         public ActionResult Index_Function_Admin()
         {
@@ -84,5 +98,13 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             }
         }
 
+        public ActionResult Index_DonViTrucThuoc()
+        {
+            return View();
+        }
+        public ActionResult Index_Khoi()
+        {
+            return View("Index_Khoi");
+        }
     }
-}  
+}

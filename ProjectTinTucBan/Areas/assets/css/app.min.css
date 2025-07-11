@@ -25768,7 +25768,7 @@ a.badge-purple:hover, a.badge-purple:focus {
     }
 
     .table > thead > tr > th {
-        color: #2a2a2a;
+        color: #fff;
         border-bottom: 1px solid #ededed;
         font-weight: 500
     }
@@ -27279,7 +27279,7 @@ body {
 
     .table > thead > tr > th {
         font-weight: bold;
-        background-color: #83B4FF;
+        background-color: #5a8dee;
         border: 1px solid black;
         text-align: center;
     }

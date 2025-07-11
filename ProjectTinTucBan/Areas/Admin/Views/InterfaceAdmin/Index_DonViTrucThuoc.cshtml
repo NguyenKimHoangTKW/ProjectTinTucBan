@@ -1,0 +1,202 @@
+﻿@{
+    ViewBag.Title = "Quản lý Đơn vị trực thuộc";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>Quản lý Đơn vị trực thuộc</h2>
+
+<div class="mb-3">
+    <button id="btnLoadDonVi" class="btn btn-info">Tải danh sách</button>
+    <button type="button" class="btn btn-primary ml-2" id="btnShowDonViModal">
+        Thêm Đơn vị trực thuộc
+    </button>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-4">
+        <label for="filterKhoi">Lọc theo Khối:</label>
+        <select id="filterKhoi" class="form-control">
+            <option value="">-- Tất cả Khối --</option>
+        </select>
+    </div>
+</div>
+
+<!-- DataTable cho Đơn vị trực thuộc -->
+<div class="table-responsive">
+    <table id="data-table" class="table">
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>Tên đơn vị</th>
+                <th>Khối trực thuộc</th>
+                <th>Thứ tự</th>
+                <th>Link</th>
+                <th>Ngày đăng</th>
+                <th>Ngày cập nhật</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal Thêm/Sửa Đơn vị trực thuộc -->
+<div class="modal fade" id="donViModal" tabindex="-1" role="dialog" aria-labelledby="donViModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="donViModalLabel">Thêm/Sửa Đơn vị trực thuộc</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Đóng">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="donViForm">
+                    <input type="hidden" id="ID" />
+                    <div class="form-group">
+                        <label for="ID_Khoi">Khối trực thuộc</label>
+                        <select class="form-control" id="ID_Khoi" required>
+                            <option value="">-- Chọn Khối --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="TenDonVi">Tên đơn vị</label>
+                        <input type="text" class="form-control" id="TenDonVi" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="ThuTuShow">Thứ tự</label>
+                        <input type="number" class="form-control" id="ThuTuShow" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Link">Link</label>
+                        <input type="text" class="form-control" id="Link" />
+                    </div>
+                    <div class="modal-footer d-flex flex-column flex-sm-row justify-content-center align-items-center w-100">
+                        <button type="submit" class="btn btn-success mb-2 mb-sm-0 mr-0 mr-sm-2 w-100 w-sm-auto">Lưu</button>
+                        <button type="button" class="btn btn-secondary mb-2 mb-sm-0 mr-0 mr-sm-2 w-100 w-sm-auto" id="btnClear">Xóa form</button>
+                        <button type="button" class="btn btn-danger w-100 w-sm-auto" data-dismiss="modal">Đóng</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scriptsAdmin {
+    <!-- CSS và Responsive styles -->
+    <style>
+        /* Fix modal không bị ảnh hưởng layout */
+        .modal {
+            padding-right: 0 !important;
+        }
+
+        .modal-backdrop {
+            z-index: 1040;
+        }
+
+        .modal {
+            z-index: 1050;
+        }
+
+        /* Responsive cho modal trên mobile - Đã sửa */
+        @@media (max-width: 575.98px) {
+            .modal-dialog {
+                max-width: calc(100vw - 20px) !important;
+                width: calc(100vw - 20px) !important;
+                margin: 10px auto !important;
+                min-height: calc(100vh - 20px);
+                display: flex;
+                align-items: center;
+            }
+
+            .modal-content {
+                border-radius: 0.5rem;
+                width: 100% !important;
+                max-height: calc(100vh - 20px);
+                overflow-y: auto;
+            }
+
+            .modal-body, .modal-header, .modal-footer {
+                width: 100% !important;
+                box-sizing: border-box;
+                padding-left: 15px !important;
+                padding-right: 15px !important;
+            }
+        }
+
+        /* Căn giữa modal trên màn hình lớn */
+        @@media (min-width: 576px) {
+            .modal-dialog {
+                margin: 1.75rem auto !important;
+                max-width: 500px;
+            }
+        }
+
+        /* Responsive cho bảng */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .table th, .table td {
+            vertical-align: middle !important;
+            white-space: nowrap;
+        }
+
+        /* CSS cho nút action giống roles admin */
+        .btn-action {
+            width: 40px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 5px;
+        }
+
+        .btn-edit {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+            .btn-edit:hover {
+                background-color: #e0a800;
+                color: #212529;
+            }
+
+        .btn-delete {
+            background-color: #dc3545;
+            color: white;
+        }
+
+            .btn-delete:hover {
+                background-color: #c82333;
+                color: white;
+            }
+
+        /* Đảm bảo body không bị dịch chuyển khi modal mở */
+        body.modal-open {
+            padding-right: 0 !important;
+            overflow: auto;
+        }
+    </style>
+
+    <!-- Nhúng file JavaScript riêng -->
+    <script src="~/Areas/Admin/Scripts/DonViTrucThuoc.js"></script>
+}
+
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap4.min.css">
+
+<!-- jQuery và Bootstrap JS (Sử dụng jQuery 3.5.1 cho tương thích với Bootstrap 4) -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"></script>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

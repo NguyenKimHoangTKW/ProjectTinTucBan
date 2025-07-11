@@ -40,6 +40,12 @@ namespace ProjectTinTucBan.Areas.Admin
             );
 
             context.MapRoute(
+                "Index_Function_Admin",
+                "Admin/quan-ly-chuc-nang",
+                new { controller = "InterfaceAdmin", action = "Index_Function_Admin" }
+            );
+
+            context.MapRoute(
                 "Admin_Slider",
                 "Admin/quan-ly-slide",
                 new { controller = "InterfaceAdmin", action = "Slider" }
@@ -49,6 +55,16 @@ namespace ProjectTinTucBan.Areas.Admin
                 "Admin/quan-ly-menu",
                 new { controller = "InterfaceAdmin", action = "Menu" }
             );
+            context.MapRoute(
+               "Admin_Khoi",
+               "Admin/Khoi",
+               new { controller = "InterfaceAdmin", action = "Index_Khoi" }
+           );
+            context.MapRoute(
+              "Admin_DonViTrucThuoc",
+              "Admin/DonViTrucThuoc",
+              new { controller = "InterfaceAdmin", action = "Index_DonViTrucThuoc" }
+          );
             context.MapRoute(
                 "bai-viet",
                 "Admin/bai-viet",
