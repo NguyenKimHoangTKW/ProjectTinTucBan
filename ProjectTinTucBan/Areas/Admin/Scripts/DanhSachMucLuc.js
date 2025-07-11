@@ -1,3 +1,4 @@
+const BASE_URL = '/api/v1/admin';
 $(document).ready(function () {
     if ($.fn.select2) {
         $(".select2").select2();

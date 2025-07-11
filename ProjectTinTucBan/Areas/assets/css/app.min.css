@@ -16201,7 +16201,7 @@ ul.icons-list li:hover {
 }
 
 .anticon {
-    line-height: 0;
+    /*line-height: 0;*/
     vertical-align: -.125em
 }
 

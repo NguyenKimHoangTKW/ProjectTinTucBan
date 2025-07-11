@@ -406,6 +406,9 @@
     <Compile Include="Models\DonViTrucThuoc.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\Footer.cs">
+      <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\Function_By_Menu.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>

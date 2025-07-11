@@ -158,5 +158,45 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 return InternalServerError(ex);
             }
         }
+
+        [Route("top10-baiviet-thang"), HttpGet]
+        public async Task<IHttpActionResult> GetTop10BaiVietTrongThang()
+        {
+            try
+            {
+                // Lấy thời điểm hiện tại (UTC)
+                DateTime now = DateTime.UtcNow;
+                int unixNow = (int)(now.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+
+                // Đầu tháng hiện tại (UTC)
+                DateTime startOfMonth = new DateTime(now.Year, now.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+                int unixStartOfMonth = (int)(startOfMonth.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+
+                // Truy vấn lấy 10 bài viết có lượt xem cao nhất trong tháng
+                var top10BaiViet = await db.BaiViets
+                    .Where(bv => bv.NgayDang >= unixStartOfMonth && bv.NgayDang <= unixNow)
+                    .OrderByDescending(bv => bv.ViewCount)
+                    .Take(10)
+                    .Select(bv => new
+                    {
+                        bv.ID,
+                        bv.TieuDe,
+                        
+                        bv.ID_MucLuc,
+                        bv.NgayDang,
+                        bv.NgayCapNhat,
+                        bv.LinkThumbnail,
+                        
+                        bv.ViewCount
+                    })
+                    .ToListAsync();
+
+                return Ok(top10BaiViet);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
     }
 }

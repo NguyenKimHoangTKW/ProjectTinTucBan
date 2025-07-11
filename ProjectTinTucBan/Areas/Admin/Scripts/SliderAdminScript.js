@@ -1,12 +1,5 @@
 ﻿$(function () {
-    function showSwal(message, type) {
-        Swal.fire({
-            icon: type,
-            title: message,
-            timer: 2000,
-            showConfirmButton: false
-        });
-    }
+    
 
     // Load danh sách slide
     function loadSlides() {
@@ -68,6 +61,29 @@
 
     // Xem trước ảnh khi chọn file (thêm)
     $('#addLinkHinh').on('change', function () {
+        const files = this.files;
+        const $previewContainer = $('#addPreviewContainer');
+        $previewContainer.empty(); // Xóa preview cũ
+
+        if (files.length === 0) return;
+
+        Array.from(files).forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const imgWrapper = $(`
+                <div class="position-relative" style="width: 120px; height: 80px;">
+                    <img src="${e.target.result}" alt="preview-${index}" class="img-thumbnail w-100 h-100 object-fit-cover">
+                </div>
+            `);
+                $previewContainer.append(imgWrapper);
+            };
+            reader.readAsDataURL(file);
+        });
+    });
+
+
+    // Xem trước ảnh khi chọn file (sửa)
+    $('#editLinkHinh').on('change', function () {
         const file = this.files[0];
         if (file) {
             const reader = new FileReader();
@@ -80,86 +96,80 @@
         }
     });
 
-    // Xem trước ảnh khi chọn file (sửa)
-    $('#editLinkHinh').on('change', function () {
-        const file = this.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                $('#editPreviewImg').attr('src', e.target.result).show();
-            };
-            reader.readAsDataURL(file);
-        } else {
-            $('#editPreviewImg').hide();
-        }
-    });
-
-    // Thêm slide (upload file trước, lấy link rồi mới gọi API thêm slide)
     $('#add-slide-form').submit(function (e) {
         e.preventDefault();
 
         const fileInput = $('#addLinkHinh')[0];
-        if (fileInput.files.length === 0) {
-            showSwal('Vui lòng chọn hình ảnh!', 'warning');
+        const files = fileInput.files;
+
+        if (files.length === 0) {
+            Sweet_Alert('warning', 'Vui lòng chọn ít nhất một hình ảnh!');
             return;
         }
 
-        const formData = new FormData();
-        formData.append('file', fileInput.files[0]);
+        const isActive = $('#addIsActive').is(':checked');
+        let successCount = 0;
+        let failCount = 0;
 
-        $.ajax({
-            url: `${BASE_URL}/upload-slide-image`,
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function (res) {
+        const promises = [];
+
+        for (let i = 0; i < files.length; i++) {
+            const formData = new FormData();
+            formData.append('file', files[i]);
+
+            const uploadAndAdd = $.ajax({
+                url: `${BASE_URL}/upload-slide-image`,
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+            }).then(function (res) {
                 if (res.success && res.link) {
-                    const isActive = $('#addIsActive').is(':checked');
-
-                    $.ajax({
+                    return $.ajax({
                         url: `${BASE_URL}/add-slide`,
                         method: 'POST',
                         contentType: 'application/json',
                         data: JSON.stringify({
                             LinkHinh: res.link,
                             isActive: isActive
-                        }),
-                        success: function (res2) {
-                            if (res2.success) {
-                                // Reset form
-                                $('#add-slide-form')[0].reset();
-                                $('#addPreviewImg').hide();
-
-                                // Ẩn modal
-                                $('#addSlideModal').modal('hide');
-
-                                // Xóa backdrop
-                                $('#addSlideModal').on('hidden.bs.modal', function () {
-                                    $('.modal-backdrop').remove();
-
-                                });
-
-                                // Hiển thị thông báo và reload
-                                showSwal(res2.message, 'success');
-                                loadSlides();
-                            } else {
-                                showSwal(res2.message || 'Thêm thất bại', 'error');
-                            }
-                        },
-                        error: function (xhr) {
-                            showSwal('Lỗi: ' + xhr.responseText, 'error');
+                        })
+                    }).then(function (res2) {
+                        if (res2.success) {
+                            successCount++;
+                        } else {
+                            failCount++;
+                            console.error('Thêm thất bại:', res2.message);
                         }
                     });
                 } else {
-                    showSwal('Upload ảnh thất bại!', 'error');
+                    failCount++;
+                    console.error('Upload ảnh thất bại');
                 }
-            },
-            error: function () {
-                showSwal('Upload ảnh thất bại!', 'error');
+            }).catch(function (err) {
+                failCount++;
+                console.error('Lỗi upload hoặc thêm:', err);
+            });
+
+            promises.push(uploadAndAdd);
+        }
+
+        Promise.all(promises).then(() => {
+            $('#add-slide-form')[0].reset();
+            $('#addPreviewImg').hide();
+            $('#addSlideModal').modal('hide');
+
+            if (successCount > 0) {
+                Sweet_Alert('success', `Đã thêm ${successCount} slide thành công`);
             }
+            if (failCount > 0) {
+                Sweet_Alert('error', `${failCount} slide thêm thất bại`);
+            }
+            $('#addPreviewContainer').empty();
+
+            loadSlides();
         });
     });
+
 
 
 
@@ -228,14 +238,14 @@
                         $('#edit-slide-form')[0].reset();
                         $('#editSlideModal').modal('hide');
                         $('#editPreviewImg').hide();
-                        showSwal(res2.message, 'success');
+                        Sweet_Alert('success',res2.message);
                         loadSlides();
                     } else {
-                        showSwal(res2.message || 'Cập nhật thất bại', 'error');
+                        Sweet_Alert('error',res2.message || 'Cập nhật thất bại');
                     }
                 },
                 error: function (xhr) {
-                    showSwal('Lỗi: ' + xhr.responseText, 'error');
+                    Sweet_Alert('error','Lỗi: ' + xhr.responseText);
                 }
             });
         }
@@ -253,11 +263,11 @@
                     if (res.success && res.link) {
                         callEdit(res.link);
                     } else {
-                        showSwal('Upload ảnh thất bại!', 'error');
+                        Sweet_Alert('error','Upload ảnh thất bại!');
                     }
                 },
                 error: function () {
-                    showSwal('Upload ảnh thất bại!', 'error');
+                    Sweet_Alert('error','Upload ảnh thất bại!');
                 }
             });
         } else {
@@ -284,14 +294,14 @@
                     data: JSON.stringify(id),
                     success: function (res) {
                         if (res.success) {
-                            showSwal(res.message, 'success');
+                            Sweet_Alert('success',res.message );
                             loadSlides();
                         } else {
-                            showSwal(res.message || 'Xóa thất bại', 'error');
+                            Sweet_Alert('error',res.message || 'Xóa thất bại');
                         }
                     },
                     error: function () {
-                        showSwal('Có lỗi xảy ra khi xóa!', 'error');
+                        Sweet_Alert('error','Có lỗi xảy ra khi xóa!');
                     }
                 });
             }
@@ -310,7 +320,7 @@
                 if (res.success) {
                     loadSlides();
                 } else {
-                    showSwal(res.message || 'Không thể tăng thứ tự', 'error');
+                    Sweet_Alert(res.message || 'Không thể tăng thứ tự', 'error');
                 }
             }
         });
@@ -328,7 +338,7 @@
                 if (res.success) {
                     loadSlides();
                 } else {
-                    showSwal(res.message || 'Không thể giảm thứ tự', 'error');
+                    Sweet_Alert('error',res.message || 'Không thể giảm thứ tự');
                 }
             }
         });
@@ -345,14 +355,14 @@
             data: JSON.stringify({ id: id, isActive: isActive }),
             success: function (res) {
                 if (res.success) {
-                    showSwal(res.message || 'Cập nhật trạng thái thành công', 'success');
+                    Sweet_Alert('success',res.message || 'Cập nhật trạng thái thành công');
                     loadSlides();
                 } else {
-                    showSwal(res.message || 'Cập nhật trạng thái thất bại', 'error');
+                    Sweet_Alert('error',res.message || 'Cập nhật trạng thái thất bại');
                 }
             },
             error: function () {
-                showSwal('Có lỗi khi cập nhật trạng thái!', 'error');
+                Sweet_Alert('error','Có lỗi khi cập nhật trạng thái!');
             }
         });
     });

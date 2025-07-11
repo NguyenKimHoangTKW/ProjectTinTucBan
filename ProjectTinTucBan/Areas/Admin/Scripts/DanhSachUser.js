@@ -1,3 +1,4 @@
+const BASE_URL = '/api/v1/admin';
 $(document).ready(function () {
     // Khởi tạo thành phần Select2 nếu có sẵn
 

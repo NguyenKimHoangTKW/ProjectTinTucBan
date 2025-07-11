@@ -925,7 +925,7 @@ function setupModalFormEvents() {
         }, 100);
     });
 
-    uploadedPDFs = baiViet.LinkPDF?.split(';').map(pdfStr => {
+    uploadedPDFs = uploadedPDFs.LinkPDF?.split(';').map(pdfStr => {
         const [url, name] = pdfStr.split('|');
         return {
             id: crypto.randomUUID(),      //mỗi file phải có id duy nhất
