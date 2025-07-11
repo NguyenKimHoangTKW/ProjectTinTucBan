@@ -1,5 +1,4 @@
-﻿using ProjectTinTucBan.Helper;
-using ProjectTinTucBan.Models;
+﻿using ProjectTinTucBan.Models;
 using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
@@ -33,17 +32,54 @@ namespace ProjectTinTucBan.Controllers
             return View();
         }
 
-
-        // Gọi hàm thiết kế giao diện đăng nhập
-        public ActionResult Login()
+        [HttpGet]
+        [Route("api/v1/home/get-khoi-va-donvi")]
+        public JsonResult GetKhoiVaDonVi()
         {
-            if (SessionHelper.IsUserLoggedIn())
-            {
-                return Redirect("~/Admin/InterfaceAdmin/Index");
-            }
+            var result = db.Khois
+                .Where(k => k.IsActive == 1)
+                .Select(k => new
+                {
+                    k.ID,
+                    k.TenKhoi,
+                    DonVis = db.DonViTrucThuocs
+                        .Where(d => d.ID_Khoi == k.ID && d.IsActive == 1)
+                        .OrderBy(d => d.ThuTuShow)
+                        .Select(d => new
+                        {
+                            d.ID,
+                            d.TenDonVi,
+                            d.Link
+                        }).ToList()
+                })
+                .OrderBy(k => k.TenKhoi)
+                .ToList();
 
-            return View();
+            return Json(new
+            {
+                success = true,
+                data = result
+            }, JsonRequestBehavior.AllowGet);
         }
 
+        // Chi tiết bài viết
+        [Route("noi-dung/{id:int}")]
+        public ActionResult XemNoiDung(int id)
+        {
+            var baiViet = db.BaiViets
+                            .Include(b => b.MucLuc)
+                            .FirstOrDefault(b => b.ID == id);
+
+            if (baiViet == null)
+            {
+                return HttpNotFound("Không tìm thấy bài viết.");
+            }
+
+            // ❌ Bỏ tăng view tại đây để JavaScript sau 30s mới tăng
+            // baiViet.ViewCount = (baiViet.ViewCount ?? 0) + 1;
+            // db.SaveChanges();
+
+            return View("XemNoiDung", baiViet);
+        }
     }
 }

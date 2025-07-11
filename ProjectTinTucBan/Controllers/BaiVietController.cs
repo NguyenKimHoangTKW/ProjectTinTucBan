@@ -41,7 +41,6 @@ namespace ProjectTinTucBan.Controllers
         // GET: Chi tiết bài viết
         public ActionResult XemNoiDung(int id)
         {
-            // ✅ Dùng Include để lấy thêm thông tin Mục Lục
             var baiViet = db.BaiViets
                 .Include(b => b.MucLuc)
                 .FirstOrDefault(b => b.ID == id);
@@ -53,10 +52,18 @@ namespace ProjectTinTucBan.Controllers
             baiViet.ViewCount = (baiViet.ViewCount ?? 0) + 1;
             db.SaveChanges();
 
-            // ✅ Đưa tên mục lục vào ViewBag (để hiển thị ở giao diện)
+            // ✅ Bài viết cùng chuyên mục
+            var baiVietsCungMuc = db.BaiViets
+                .Where(b => b.ID_MucLuc == baiViet.ID_MucLuc && b.ID != baiViet.ID)
+                .OrderByDescending(b => b.NgayDang)
+                .Take(10)
+                .ToList();
+
+            ViewBag.BaiVietsCungMuc = baiVietsCungMuc;
             ViewBag.TenMucLuc = baiViet.MucLuc?.TenMucLuc ?? "Không rõ";
 
             return View("XemNoiDung", baiViet);
         }
+
     }
 }

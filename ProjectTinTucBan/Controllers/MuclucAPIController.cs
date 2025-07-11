@@ -11,6 +11,8 @@ namespace ProjectTinTucBan.ApiControllers
     {
         private WebTinTucTDMUEntities db = new WebTinTucTDMUEntities();
 
+        
+
         [HttpGet]
         [Route("get-slider")]
         public IHttpActionResult GetSlider()
@@ -38,6 +40,20 @@ namespace ProjectTinTucBan.ApiControllers
             if (baiViet == null)
                 return NotFound();
 
+            // Lấy các bài viết cùng Mục Lục, khác bài viết hiện tại
+            var baiVietsCungMuc = db.BaiViets
+                .Where(b => b.ID_MucLuc == baiViet.ID_MucLuc && b.ID != baiViet.ID)
+                .OrderByDescending(b => b.NgayDang)
+                .Take(10)
+                .Select(b => new
+                {
+                    b.ID,
+                    b.TieuDe,
+                    b.NgayDang,
+                    b.LinkThumbnail
+                })
+                .ToList();
+
             return Ok(new
             {
                 success = true,
@@ -48,10 +64,15 @@ namespace ProjectTinTucBan.ApiControllers
                     baiViet.NoiDung,
                     baiViet.NgayDang,
                     baiViet.LinkThumbnail,
-                    TenMucLuc = baiViet.MucLuc?.TenMucLuc ?? "Không rõ"
+                    MucLuc = new
+                    {
+                        TenMucLuc = baiViet.MucLuc?.TenMucLuc ?? "Không rõ"
+                    },
+                    BaiVietsCungMuc = baiVietsCungMuc
                 }
             });
         }
+
 
         [HttpGet]
         [Route("get-mucluc-with-baiviet")]

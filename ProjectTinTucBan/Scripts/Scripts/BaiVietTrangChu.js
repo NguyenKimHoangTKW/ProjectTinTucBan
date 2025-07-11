@@ -28,7 +28,10 @@ function formatDate(unixTimestamp) {
     var formattedDate = dayOfWeek + ', ' + day + "-" + month + "-" + year + " " + hours + ":" + minutes + ":" + seconds;
     return formattedDate;
 }
-
+function toggleDonViList(index) {
+    const el = document.getElementById(`donvi-list-${index}`);
+    el.classList.toggle("hidden");
+}
 function escapeHtml(str) {
             return String(str)
                 .replace(/&/g, "&amp;")
@@ -122,6 +125,11 @@ $(document).ready(function () {
                     const date = formatDate(bv.NgayDang);
                     const thumb = bv.LinkThumbnail?.trim() || "/images/thong-bao-icon.png";
                     const views = bv.LuotXem ?? 0;
+                    const now = new Date();
+                    const postDate = new Date(bv.NgayDang * 1000);
+                    const diffTime = Math.abs(now - postDate);
+                    const diffDays = diffTime / (1000 * 60 * 60 * 24);
+                    const isMoi = diffDays <= 2;
 
                     html += `<li class="flex gap-4 items-start">
         <div class="w-24 h-16 overflow-hidden rounded border flex-shrink-0">
@@ -129,10 +137,9 @@ $(document).ready(function () {
         </div>
         <div class="flex-1 min-w-0">
             <a href="/noi-dung/${bv.ID}" class="font-semibold text-base text-blue-800 hover:underline block break-words leading-snug">
-                ${escapeHtml((bv.TieuDe ?? '').toUpperCase())}
-
-
-            </a>
+    ${escapeHtml((bv.TieuDe ?? '').toUpperCase())}
+    ${isMoi ? '<span class="bg-red-600 text-white text-xs px-2 py-0.5 rounded ml-2 animate-pulse">MỚI</span>' : ''}
+</a>
             <div class="text-sm text-gray-600 mt-1 flex items-center gap-3">
                 <span><i class="far fa-calendar-alt mr-1"></i>${date}</span>
                 <span><i class="far fa-eye mr-1"></i>${views} lượt xem</span>
@@ -153,6 +160,9 @@ $(document).ready(function () {
                     const date = formatDate(bv.NgayDang);
                     const thumb = bv.LinkThumbnail?.trim() || "/images/thong-bao-icon.png";
                     const views = bv.LuotXem ?? 0;
+                    const topHotIDs = xemNhieu.slice(0, 3).map(b => b.ID);
+                    const isHot = topHotIDs.includes(bv.ID);
+
 
                     html += `<li class="flex gap-4 items-start">
     <div class="w-24 h-16 overflow-hidden rounded border flex-shrink-0">
@@ -160,10 +170,10 @@ $(document).ready(function () {
     </div>
     <div class="flex-1 min-w-0">
         <a href="/noi-dung/${bv.ID}" class="font-semibold text-base text-blue-800 hover:underline block break-words leading-snug">
-           ${escapeHtml((bv.TieuDe ?? '').toUpperCase())}
+    ${escapeHtml((bv.TieuDe ?? '').toUpperCase())}
+    ${isHot ? '<span class="bg-yellow-500 text-white text-xs px-2 py-0.5 rounded ml-2 animate-bounce">HOT</span>' : ''}
+</a>
 
-
-        </a>
         <div class="text-sm text-gray-600 mt-1 flex items-center gap-3">
             <span><i class="far fa-calendar-alt mr-1"></i>${date}</span>
             <span><i class="far fa-eye mr-1"></i>${views} lượt xem</span>
@@ -291,43 +301,54 @@ $(document).ready(function () {
                 }
 
                 html += `<div id="${mucId}" class="${isSuKien
-                    ? 'mt-4 pb-10 bg-gradient-to-b from-blue-600 via-blue-300 to-blue-100 py-12 px-4 sm:px-6 lg:px-8'
-                    : ''}">
-                    <div class="text-center mb-8">
-                        <h3 class="${isSuKien ? 'text-white text-2xl sm:text-3xl font-bold uppercase' : 'inline-block bg-blue-600 text-white text-sm sm:text-base md:text-lg font-semibold rounded-full px-6 py-2 uppercase shadow'}">
-                           ${stripHtml(muc.TenMucLuc)}
+    ? 'mt-4 pb-10 bg-gradient-to-b from-blue-600 via-blue-300 to-blue-100 py-12 px-4 sm:px-6 lg:px-8'
+    : ''}">
+    <div class="text-center mb-8">
+        <h3 class="${isSuKien ? 'text-white text-2xl sm:text-3xl font-bold uppercase' : 'inline-block bg-blue-600 text-white text-sm sm:text-base md:text-lg font-semibold rounded-full px-6 py-2 uppercase shadow'}">
+            ${stripHtml(muc.TenMucLuc)}
+        </h3>
+    </div>`;
 
-                        </h3>
-                    </div>`;
+if (!allBaiViets.length) {
+    html += `<p class="text-center ${isSuKien ? 'text-white' : 'text-gray-500'} italic mb-4">Hiện tại chưa cập nhật bài viết nào.</p>`;
+} else {
+    window.mucLucData[mucId] = {
+        data: allBaiViets,
+        page: 1,
+        perPage: isSuKien ? 3 : 6
+    };
 
-                if (!allBaiViets.length) {
-                    html += `<p class="text-center ${isSuKien ? 'text-white' : 'text-gray-500'} italic mb-4">Hiện tại chưa cập nhật bài viết nào.</p>`;
-                } else {
-                    window.mucLucData[mucId] = {
-                        data: allBaiViets,
-                        page: 1,
-                        perPage: isSuKien ? 3 : 6
+    html += `
+    <div id="muc-${mucId}">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="list-${mucId}"></div>
+        ${allBaiViets.length > (isSuKien ? 3 : 6)
+            ? `<div class="text-center mt-8">
+                <button data-id="${mucId}"
+                    class="btn-xem-them inline-block border-2 border-red-600 text-red-600 hover:bg-blue-600 hover:text-white hover:border-blue-600 px-6 py-2 rounded transition">
+                    XEM THÊM ${muc.TenMucLuc.toUpperCase()}
+                </button>
+                <button data-id="${mucId}"
+                    class="btn-an-bot hidden ml-3 inline-block border-2 border-gray-600 text-gray-700 hover:bg-gray-300 px-6 py-2 rounded transition">
+                    ẨN BỚT
+                </button>
+            </div>`
+            : ''}
+    </div>`;
 
-                    };
-                    html += `
-                    <div id="muc-${mucId}">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="list-${mucId}"></div>
-                       ${allBaiViets.length > (isSuKien ? 3 : 6)
-                            ? `<div class="text-center mt-8">
-       <button data-id="${mucId}"
-        class="btn-xem-them inline-block border-2 border-red-600 text-red-600 hover:bg-blue-600 hover:text-white hover:border-blue-600 px-6 py-2 rounded transition">
-    XEM THÊM ${muc.TenMucLuc.toUpperCase()}
-</button>
-
-
-
-    </div>` : ''
+    // 👉 Thêm nút "XEM TẤT CẢ SỰ KIỆN" nếu là sự kiện
+    if (isSuKien) {
+        html += `
+        <div class="text-center mt-6">
+            <a href="/danh-sach-bai-viet?mucId=${muc.ID}&slug=${toSlug(stripHtml(muc.TenMucLuc))}" 
+               class="inline-block border-2 border-yellow-600 text-yellow-700 hover:bg-yellow-600 hover:text-white px-6 py-2 rounded transition">
+                XEM TẤT CẢ ${stripHtml(muc.TenMucLuc).toUpperCase()}
+            </a>
+        </div>`;
+    }
 }
 
-                    </div>`;
-                }
+html += `</div>`; // kết thúc khối từng mục
 
-                html += `</div>`;
             });
 
             html += `</div>`;
@@ -337,6 +358,41 @@ $(document).ready(function () {
                 renderBaiVietForMucLuc(mucId);
             });
         });
+        // Load danh sách Khối và Đơn vị trực thuộc
+        $.get("/api/v1/home/get-khoi-va-donvi", function (res) {
+            if (!res.success || !Array.isArray(res.data)) return;
+
+            let html = `
+<div class="pt-2"> <!-- ❌ Bỏ border, shadow -->
+    <h3 class="text-xl font-bold text-black px-4 pb-2 uppercase">ĐƠN VỊ TRỰC THUỘC</h3>
+    <div class="border rounded px-3 py-3 pl-4 pr-2 pb-4 space-y-5">`; // ✅ Tăng khoảng cách giữa các khối: space-y-5
+
+            res.data.forEach((khoi, index) => {
+                html += `
+        <div>
+            <button class="w-full text-left text-blue-700 font-semibold px-3 py-2 rounded bg-blue-50 hover:bg-blue-100 focus:outline-none"
+                onclick="toggleDonViList(${index})">
+                ${khoi.TenKhoi}
+            </button>
+            <ul id="donvi-list-${index}" class="hidden mt-3 text-sm text-gray-800 space-y-1 pl-4">`; // ❌ bỏ border, ✅ mt-3 lùi xuống
+
+                khoi.DonVis.forEach(dv => {
+                    html += `
+                <li class="py-1">
+                    <a href="${dv.Link}" target="_blank" class="hover:text-blue-600">${dv.TenDonVi}</a>
+                </li>`;
+                });
+
+                html += `
+            </ul>
+        </div>`;
+            });
+
+            html += `</div></div>`;
+
+            $("#sidebar-khoi-donvi").html(html);
+        });
+
 
     // Cuộn mượt
     $(document).on("click", ".scroll-to", function (e) {
@@ -346,14 +402,93 @@ $(document).ready(function () {
         });
 
     // Xem thêm
-    $(document).on("click", ".btn-xem-them", function () {
+        $(document).on("click", ".btn-xem-them", function () {
             const mucId = $(this).data("id");
-    if (window.mucLucData[mucId]) {
-        window.mucLucData[mucId].page += 1;
-    renderBaiVietForMucLuc(mucId);
+            if (window.mucLucData[mucId]) {
+                const muc = window.mucLucData[mucId];
+                const isSuKien = mucId.includes("su-kien");
+                const now = new Date();
+
+                // Nếu là sự kiện thì xác định top 3 bài có lượt xem cao
+                let topHotIDs = [];
+                if (isSuKien) {
+                    topHotIDs = muc.data
+                        .sort((a, b) => (b.LuotXem ?? 0) - (a.LuotXem ?? 0))
+                        .slice(0, 3)
+                        .map(b => b.ID);
+                }
+
+
+                muc.page += 1;
+                renderBaiVietForMucLuc(mucId);
+
+                // Nếu là sự kiện, hiện nút "ẨN BỚT"
+                if (isSuKien) {
+                    $(`.btn-an-bot[data-id="${mucId}"]`).removeClass("hidden");
+                }
             }
         });
 
+        $(document).on("click", ".btn-an-bot", function () {
+            const mucId = $(this).data("id");
+            const muc = window.mucLucData[mucId];
+            if (!muc) return;
+
+            muc.page = 1;
+            $(`#list-${mucId}`).html("");  // Xóa toàn bộ bài viết đã thêm
+            renderBaiVietForMucLuc(mucId); // Hiển thị lại bài viết ban đầu
+
+            $(this).addClass("hidden"); // Ẩn nút "ẨN BỚT"
+            $(`.btn-xem-them[data-id="${mucId}"]`).show(); // Hiện lại nút "XEM THÊM"
+        });
+        $(document).ready(function () {
+            $.get("/api/v1/home/get-slider", function (data) {
+                let html = "";
+
+                if (data.length === 0) {
+                    $("#slider-container").html(`
+                                        <div class="swiper-slide flex items-center justify-center text-center h-full">
+                                            <p class="text-gray-500 text-xl">Không có banner hiển thị</p>
+                                        </div>
+                                    `);
+                    return;
+                }
+
+                data.forEach(item => {
+                    html += `
+                                        <div class="swiper-slide relative w-full h-full">
+                                            <img loading="lazy"
+                                                 src="${item.LinkHinh}"
+                                                 onerror="this.src='/images/fallback.jpg'"
+                                                 alt="Banner ${item.ID}"
+                                                 class="w-full h-full object-cover" />
+                                            ${item.TieuDe ? `
+                                            <div class="absolute bottom-4 left-4 bg-black bg-opacity-50 text-white p-3 rounded text-lg">
+                                                ${item.TieuDe}
+                                            </div>` : ""}
+                                        </div>
+                                    `;
+                });
+
+                $("#slider-container").html(html);
+
+                new Swiper(".mySwiper", {
+                    loop: true,
+                    autoplay: {
+                        delay: 3000,
+                        disableOnInteraction: false
+                    },
+                    navigation: {
+                        nextEl: ".swiper-button-next",
+                        prevEl: ".swiper-button-prev"
+                    },
+                    pagination: {
+                        el: ".swiper-pagination",
+                        clickable: true
+                    }
+                });
+            });
+        });
     // Hàm phân trang bài viết
         function renderBaiVietForMucLuc(mucId) {
             const container = $(`#list-${mucId}`);
@@ -364,6 +499,16 @@ $(document).ready(function () {
             const end = muc.page * muc.perPage;
             const currentList = muc.data.slice(start, end);
             const isSuKien = mucId.includes("su-kien");
+            const now = new Date();
+
+            // Xác định top 3 bài viết sự kiện có lượt xem cao nhất
+            let topHotIDs = [];
+            if (isSuKien) {
+                topHotIDs = muc.data
+                    .sort((a, b) => (b.LuotXem ?? 0) - (a.LuotXem ?? 0))
+                    .slice(0, 3)
+                    .map(b => b.ID);
+            }
 
             let html = "";
             currentList.forEach(bv => {
@@ -373,12 +518,23 @@ $(document).ready(function () {
                 const moTa = bv.MoTa ?? '';
                 const tieuDe = escapeHtml(bv.TieuDe || "Không có tiêu đề").toUpperCase();
 
+                const postDate = new Date((bv.NgayDang ?? 0) * 1000);
+                const diffDays = Math.abs((now - postDate) / (1000 * 60 * 60 * 24));
+                const isMoi = diffDays <= 2;
+
+                const isHot = isSuKien && topHotIDs.includes(bv.ID);
+
                 if (isSuKien) {
                     html += `
 <div class="bg-white rounded-lg overflow-hidden shadow hover:shadow-lg transition flex flex-col">
     <img src="${thumb}" class="w-full h-[230px] object-cover" alt="Thumbnail" />
     <div class="p-4 flex flex-col justify-between flex-grow">
-        <a href="/noi-dung/${bv.ID}" class="font-bold text-base text-gray-900 hover:text-red-600 line-clamp-2 leading-snug mb-2">${tieuDe}</a>
+        <a href="/noi-dung/${bv.ID}" class="font-bold text-base text-gray-900 hover:text-red-600 line-clamp-2 leading-snug mb-2">
+    ${tieuDe}
+    ${isMoi ? '<span class="bg-red-600 text-white text-xs px-2 py-0.5 rounded ml-2 animate-pulse">HOT</span>' : ''}
+    ${isHot ? '<span class="bg-yellow-500 text-white text-xs px-2 py-0.5 rounded ml-2 animate-bounce">HOT</span>' : ''}
+</a>
+
         <div class="text-sm text-gray-600 flex items-center justify-between mt-auto">
             <span><i class="far fa-calendar-alt mr-1"></i>${date}</span>
             <span><i class="far fa-eye mr-1"></i>${views} lượt xem</span>
@@ -390,7 +546,12 @@ $(document).ready(function () {
 <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition overflow-hidden flex flex-col h-auto p-3 text-sm space-y-2">
     <img src="${thumb}" class="w-full h-auto" alt="Thumbnail" />
     <div class="p-2 flex-1 flex flex-col space-y-1">
-        <a href="/noi-dung/${bv.ID}" class="font-bold text-blue-800 text-base sm:text-lg hover:underline break-words whitespace-normal leading-snug">${tieuDe}</a>
+        <a href="/noi-dung/${bv.ID}" class="font-bold text-base text-gray-900 hover:text-red-600 line-clamp-2 leading-snug mb-2">
+    ${tieuDe}
+    ${isMoi ? '<span class="bg-red-600 text-white text-xs px-2 py-0.5 rounded ml-2 animate-pulse">MỚI</span>' : ''}
+    ${isHot ? '<span class="bg-yellow-500 text-white text-xs px-2 py-0.5 rounded ml-2 animate-bounce">HOT</span>' : ''}
+</a>
+
         <div class="text-sm text-gray-500 flex items-center gap-3">
             <span><i class="far fa-clock mr-1"></i>${date}</span>
             <span><i class="far fa-eye mr-1"></i>${views} lượt xem</span>
@@ -402,10 +563,8 @@ $(document).ready(function () {
             });
 
             container.append(html);
-
-            if (end >= muc.data.length) {
-                $(`button[data-id="${mucId}"]`).hide();
-            }
+            $(`.btn-xem-them[data-id="${mucId}"]`).show();
         }
+
 
     });

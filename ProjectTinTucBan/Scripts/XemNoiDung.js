@@ -82,108 +82,122 @@ $(document).ready(function () {
             }
 
             const bv = res.data;
+            console.log("🔍 Dữ liệu bài viết:", bv);
+            console.log("🧾 Danh sách bài viết cùng mục:", bv.BaiVietsCungMuc);
+
             const thumb = bv.LinkThumbnail?.trim()
                 ? bv.LinkThumbnail
                 : "https://th.bing.com/th/id/OIP.FkEdh0U5AttOx7kx74Y6sQAAAA?w=460";
+
             const ngayDang = formatDate(bv.NgayDang);
             const noiDungChuan = convertImagePaths(bv.NoiDung);
+            const tenMucLuc = bv.MucLuc?.TenMucLuc?.trim() || "Không rõ";
+            const tenMucLucSlug = bv.MucLuc?.TenMucLuc ? toSlug(bv.MucLuc.TenMucLuc) : "";
+
 
             const breadcrumb = `
-                <nav class="flex flex-wrap gap-x-1">
-                    <a href="/" class="text-blue-700 hover:underline">Trang chủ</a>
-                    <span>›</span>
-                    <a href="/" class="text-blue-700 hover:underline scroll-to" data-target="${toSlug(bv.TenMucLuc)}">
-                        ${bv.TenMucLuc}
-                    </a>
-                    <span>›</span>
-                    <span class="text-blue-700 font-medium break-words">${escapeHtml((bv.TieuDe ?? '').toUpperCase())}</span>
-                </nav>
-            `;
+        <nav class="flex flex-wrap gap-x-1">
+            <a href="/" class="text-blue-700 hover:underline">Trang chủ</a>
+            <span>›</span>
+            <a href="/" class="text-blue-700 hover:underline scroll-to" data-target="${tenMucLucSlug}">
+                ${tenMucLuc}
+            </a>
+            <span>›</span>
+            <span class="text-blue-700 font-medium break-words">${escapeHtml((bv.TieuDe ?? '').toUpperCase())}</span>
+        </nav>
+    `;
+            $("#breadcrumbContainer").html(breadcrumb);
 
             const pdfBlock = bv.LinkPDF?.trim()
                 ? `<div class="mt-6">
-                        <p class="text-base font-semibold text-gray-700 mb-2">📄 Tài liệu đính kèm:</p>
-                        <embed src="${bv.LinkPDF}" type="application/pdf" class="rounded border shadow w-full" />
-                        <div class="text-sm text-gray-500 mt-2">
-                            Nếu không hiển thị, <a href="${bv.LinkPDF}" class="text-blue-600 hover:underline" target="_blank">nhấn vào đây để tải về</a>.
-                        </div>
-                    </div>` : '';
-
-            $("#breadcrumbContainer").html(breadcrumb);
+                <p class="text-base font-semibold text-gray-700 mb-2">📄 Tài liệu đính kèm:</p>
+                <embed src="${bv.LinkPDF}" type="application/pdf" class="rounded border shadow w-full" />
+                <div class="text-sm text-gray-500 mt-2">
+                    Nếu không hiển thị, <a href="${bv.LinkPDF}" class="text-blue-600 hover:underline" target="_blank">nhấn vào đây để tải về</a>.
+                </div>
+           </div>` : '';
 
             const html = `
-                <h1 class="text-2xl md:text-3xl font-bold text-center text-blue-800 mb-6 uppercase">
-                    ${escapeHtml((bv.TieuDe ?? '').toUpperCase())}
-                </h1>
-                <p class="text-sm text-gray-500 mb-4">
-                    <i class="fa-regular fa-calendar-days mr-1"></i>Ngày đăng: ${ngayDang}
-                </p>
-                <div class="mb-4">
-                    <img src="${thumb}" alt="Thumbnail" class="w-full max-w-xl mx-auto h-auto rounded shadow mb-6" />
+        <h1 class="text-2xl md:text-3xl font-bold text-center text-blue-800 mb-6 uppercase">
+            ${escapeHtml((bv.TieuDe ?? '').toUpperCase())}
+        </h1>
+        <p class="text-sm text-gray-500 mb-4">
+            <i class="fa-regular fa-calendar-days mr-1"></i>Ngày đăng: ${ngayDang}
+        </p>
+        <div class="mb-4">
+            <img src="${thumb}" alt="Thumbnail" class="w-full max-w-xl mx-auto h-auto rounded shadow mb-6" />
+        </div>
+        <div class="noi-dung-bai-viet text-justify leading-relaxed max-w-none">
+            ${noiDungChuan}
+            ${pdfBlock}
+            <div class="mt-8 pt-4 border-t border-gray-200">
+                <p class="text-sm font-semibold text-gray-600 mb-2">🔗 Chia sẻ bài viết:</p>
+                <div class="flex flex-wrap gap-3 text-sm">
+                    <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}"
+                       target="_blank"
+                       class="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                        <i class="fab fa-facebook-f"></i> Facebook
+                    </a>
+                    <a href="https://www.instagram.com/"
+                       target="_blank"
+                       class="flex items-center gap-2 px-3 py-2 bg-pink-500 text-white rounded hover:bg-pink-600 transition">
+                        <i class="fab fa-instagram"></i> Instagram
+                    </a>
+                    <button onclick="navigator.clipboard.writeText(window.location.href)"
+                       class="flex items-center gap-2 px-3 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition">
+                        <i class="fas fa-copy"></i> Sao chép liên kết
+                    </button>
                 </div>
-                <div class="noi-dung-bai-viet text-justify leading-relaxed max-w-none">
-                    ${noiDungChuan}
-                    ${pdfBlock}
-                    <div class="mt-8 pt-4 border-t border-gray-200">
-                        <p class="text-sm font-semibold text-gray-600 mb-2">🔗 Chia sẻ bài viết:</p>
-                        <div class="flex flex-wrap gap-3 text-sm">
-                            <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}"
-                               target="_blank"
-                               class="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-                                <i class="fab fa-facebook-f"></i> Facebook
-                            </a>
-                            <a href="https://www.instagram.com/"
-                               target="_blank"
-                               class="flex items-center gap-2 px-3 py-2 bg-pink-500 text-white rounded hover:bg-pink-600 transition">
-                                <i class="fab fa-instagram"></i> Instagram
-                            </a>
-                            <button onclick="navigator.clipboard.writeText(window.location.href)"
-                               class="flex items-center gap-2 px-3 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition">
-                                <i class="fas fa-copy"></i> Sao chép liên kết
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-
+            </div>
+        </div>
+    `;
             $("#baivietContainer").html(html);
-            $("#tenMucLuc").replaceWith(`
-                <p id="tenMucLuc" class="text-red-700 font-bold text-xl uppercase mb-2">
-                    ${bv.TenMucLuc?.trim() || "Không rõ"}
-                </p>
-            `);
 
+            // ✅ Cập nhật tên mục lục đúng
+            $("#tenMucLuc").replaceWith(`
+        <p id="tenMucLuc" class="text-red-700 font-bold text-xl uppercase mb-2">
+            ${tenMucLuc}
+        </p>
+    `);
+
+            // ✅ Hiển thị danh sách bài viết cùng mục lục
+            // ✅ Hiển thị danh sách bài viết cùng mục lục
             if (Array.isArray(bv.BaiVietsCungMuc) && bv.BaiVietsCungMuc.length > 0) {
                 const baiVietKhac = bv.BaiVietsCungMuc
                     .filter(item => item.ID !== bv.ID)
                     .sort(() => Math.random() - 0.5)
                     .slice(0, 5);
 
-                let htmlList = `<div class="space-y-6">`;
+                let htmlList = `
+        <h2 class="text-xl font-bold text-gray-800 mb-4"></h2>
+        <div class="space-y-4">
+    `;
 
                 baiVietKhac.forEach(item => {
-                    const tieuDe = escapeHtml((item.TieuDe || "Không có tiêu đề").toUpperCase());
+                    const tieuDe = escapeHtml((item.TieuDe || "Không có tiêu đề"));
                     const thumb = item.LinkThumbnail?.trim() || "https://navigates.vn/wp-content/uploads/2023/06/logo-dai-hoc-thu-dau-mot.jpg";
-                    const ngayDang = formatDate(bv.NgayDang); // ✅ đúng đối tượng
+                    const ngayDang = formatDate(item.NgayDang);
 
                     htmlList += `
-        <div class="border border-gray-200 rounded-md p-3 my-4 hover:shadow-md transition">
-            <a href="/bai-viet/${item.ID}">
-                <img src="${thumb}" class="w-full h-auto rounded-md shadow-sm mb-4 object-contain" alt="Ảnh liên quan">
+            <a href="/bai-viet/${item.ID}" class="flex gap-4 hover:bg-gray-100 p-2 rounded transition">
+                <img src="${thumb}" class="w-28 h-20 object-cover rounded" alt="Ảnh liên quan">
+                <div class="flex-1">
+                    <p class="font-semibold text-gray-800 line-clamp-2">${tieuDe}</p>
+                    <p class="text-sm text-gray-500 mt-1">📅 ${ngayDang}</p>
+                </div>
             </a>
-            <a href="/bai-viet/${item.ID}" class="block font-semibold text-base text-gray-800 hover:text-red-600 leading-snug line-clamp-2 mb-1">
-                ${tieuDe}
-            </a>
-            <p class="text-sm text-gray-500 mb-4">
-                📅${ngayDang}
-            </p>
-        </div>`;
+        `;
                 });
 
                 htmlList += `</div>`;
                 $("#mucLucBaiViet").html(htmlList);
+            } else {
+                $("#mucLucBaiViet").html("<p class='text-gray-500 text-sm'>Không có bài viết liên quan.</p>");
             }
+
+
         },
+
         error: function () {
             $("#baivietContainer").html("<p class='text-center text-red-500'>Không thể tải bài viết.</p>");
             $("#tenMucLuc").text("Không rõ");
@@ -226,4 +240,4 @@ $(document).ready(function () {
             localStorage.removeItem("scrollToSlug");
         }, 400);
     }
-});
+}); 

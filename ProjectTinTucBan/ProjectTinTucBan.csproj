@@ -1269,7 +1269,7 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>dbTinTucKhaoThiModel.cs</LastGenOutput>
     </Content>
-    <Content Include="Scripts\BaiVietTrangChu.js" />
+    <Content Include="Scripts\Scripts\BaiVietTrangChu.js" />
     <Content Include="Scripts\bootstrap.bundle.js" />
     <Content Include="Scripts\bootstrap.bundle.min.js" />
     <Content Include="Scripts\bootstrap.esm.js" />
@@ -1564,15 +1564,15 @@
     <Content Include="Areas\Admin\Views\InterfaceAdmin\EditFooter.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\XemNoiDung.cshtml" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
-    <Content Include="Scripts\DanhSachBaiViet.js" />
+    <Content Include="Scripts\Scripts\DanhSachBaiViet.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />
     <Content Include="Scripts\jquery-3.7.0.slim.js" />
     <Content Include="Scripts\jquery-3.7.0.slim.min.js" />
-    <Content Include="Scripts\LayoutTrangChu.js" />
+    <Content Include="Scripts\Scripts\LayoutTrangChu.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
     <Content Include="Uploads\Thumbnails\28363-nem-lai-vung_20250702110115.jpeg" />
-    <Content Include="Scripts\TopMenuShowScript.js" />
+    <Content Include="Scripts\Scripts\TopMenuShowScript.js" />
     <Content Include="Scripts\XemNoiDung.js" />
     <Content Include="Uploads\Thumbnails\b0889e80c49d8aaa34420069b227c298_20250619105646.jpg" />
     <Content Include="Uploads\Thumbnails\b0889e80c49d8aaa34420069b227c298_20250619110010.jpg" />
@@ -1620,7 +1620,6 @@
     <Folder Include="Areas\Admin\Data\" />
     <Folder Include="Areas\Admin\Views\TinTuc\" />
     <Folder Include="Uploads\Slider\" />
-    <Folder Include="Views\MuclucAPI\" />
     <Folder Include="Views\TinTuc\" />
   </ItemGroup>
   <ItemGroup>
