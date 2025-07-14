@@ -1,4 +1,5 @@
-﻿using ProjectTinTucBan.Models;
+﻿using ProjectTinTucBan.Helper;
+using ProjectTinTucBan.Models;
 using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
@@ -80,6 +81,17 @@ namespace ProjectTinTucBan.Controllers
             // db.SaveChanges();
 
             return View("XemNoiDung", baiViet);
+        }
+
+        // Gọi hàm thiết kế giao diện đăng nhập
+        public ActionResult Login()
+        {
+            if (SessionHelper.IsUserLoggedIn())
+            {
+                return Redirect("~/Admin/InterfaceAdmin/Index");
+            }
+
+            return View();
         }
     }
 }

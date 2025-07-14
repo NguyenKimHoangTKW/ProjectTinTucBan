@@ -784,23 +784,29 @@ function loadMenuTable() {
     console.log("Loading menu table...");
     const tableBody = $('#menuSelectionTable tbody');
 
-    // Check if the table exists
-    if (tableBody.length === 0) {
-        console.error("Menu selection table not found in DOM");
-        return;
-    }
+        // Check if the table exists
+        if (tableBody.length === 0) {
+            console.error('Menu table not found in the DOM');
+            resolve();
+            return;
+        }
 
     tableBody.html('<tr><td colspan="3" class="text-center">Đang tải danh sách menu...</td></tr>');
 
-    // Use jQuery AJAX for consistency with your other code
-    $.ajax({
-        url: `${BASE_URL}/get-menus`,
-        type: 'GET',
-        dataType: 'json',
-        success: function (data) {
-            console.log("Menu data loaded:", data);
-            if (data && data.length > 0) {
-                let tableContent = '';
+        // Use jQuery AJAX for consistency with your other code
+        $.ajax({
+            url: '/api/v1/admin/get-menus-QL',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                // Handle different response formats
+                let menuData = data;
+                if (data && data.data) {
+                    menuData = data.data; // If API returns { data: [...] }
+                }
+
+                if (menuData && menuData.length > 0) {
+                    let tableContent = '';
 
                 data.forEach((menu, index) => {
                     tableContent += `
@@ -817,15 +823,18 @@ function loadMenuTable() {
                     </tr>`;
                 });
 
-                tableBody.html(tableContent);
-            } else {
-                tableBody.html('<tr><td colspan="3" class="text-center">Không có menu nào</td></tr>');
+                    tableBody.html(tableContent);
+                    resolve();
+                } else {
+                    tableBody.html('<tr><td colspan="3" class="text-center">Không có menu nào</td></tr>');
+                    resolve();
+                }
+            },
+            error: function (xhr, status, error) {
+                tableBody.html(`<tr><td colspan="3" class="text-center text-danger">Lỗi: ${error}</td></tr>`);
+                reject(error);
             }
-        },
-        error: function (xhr, status, error) {
-            console.error("Error loading menus:", error);
-            tableBody.html(`<tr><td colspan="3" class="text-center text-danger">Lỗi: ${error}</td></tr>`);
-        }
+        });
     });
 }
 

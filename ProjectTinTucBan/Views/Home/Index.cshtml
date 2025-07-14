@@ -154,8 +154,102 @@
     </section>    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+    <script>
+        function toSlug(str) {
+            return str.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+        }
+
+        function formatDate(yyyymmdd) {
+            if (!yyyymmdd || yyyymmdd.toString().length !== 8) return '';
+            const str = yyyymmdd.toString();
+            return `${str.substring(6, 8)}/${str.substring(4, 6)}/${str.substring(0, 4)}`;
+        }
+
+        // Hàm chuyển Unix timestamp sang "dd/MM/yyyy"
+        function unixToDateStr(unix) {
+            if (!unix || isNaN(unix)) return '';
+            var d = new Date(unix * 1000);
+            var day = ('0' + d.getDate()).slice(-2);
+            var month = ('0' + (d.getMonth() + 1)).slice(-2);
+            var year = d.getFullYear();
+            return day + '/' + month + '/' + year;
+        }
+
+        new Swiper(".mySwiper", {
+            loop: true,
+            autoplay: { delay: 3000, disableOnInteraction: false },
+            pagination: { el: ".swiper-pagination", clickable: true },
+            navigation: { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" }
+        });
+
+        // Lưu trữ dữ liệu mục lục bài viết
+        window.mucLucData = {};
+
+        $(document).ready(function () {
+            // Đọc dữ liệu footer từ API thay vì file JSON
+            fetch('/api/FooterApi/1')  // Giả sử ID của footer là 1
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('video').src = data.VideoUrl;
+                    document.getElementById('fullName').textContent = data.FullName;
+                    document.getElementById('englishName').innerHTML = data.EnglishName.replaceAll(',', '<br>');
+                    // Sửa tại đây: chuyển Unix timestamp sang ngày
+                    document.getElementById('established').textContent = unixToDateStr(data.NgayThanhLap);
+                    document.getElementById('address').textContent = data.DiaChi;
+                    document.getElementById('phone').textContent = data.DienThoai;
+                    document.getElementById('email').textContent = data.Email;
+                    document.getElementById('email').href = 'mailto:' + data.Email;
+                    document.getElementById('footerCopyright').textContent = data.FooterCopyright || "";
+                    document.getElementById('footerNote').textContent = data.FooterNote || "";
+
+                    // Lưu VideoUrl để sử dụng cho popupVideo
+                    let videoUrl = data.VideoUrl;
+
+                    // Xử lý play video khi nhấn "Watch Video" (hiện popup)
+                    document.getElementById('btnWatchVideo').addEventListener('click', function (e) {
+                        e.preventDefault();
+                        var modal = document.getElementById('videoModal');
+                        var popupVideo = document.getElementById('popupVideo');
+                        var url = videoUrl;
+                        if (!url.includes('autoplay=1')) {
+                            url += (url.includes('?') ? '&' : '?') + 'autoplay=1';
+                        }
+                        popupVideo.src = url;
+                        modal.classList.remove('hidden');
+                    });
+                });
+
+            // Đóng modal khi nhấn nút đóng
+            document.getElementById('closeVideoModal').addEventListener('click', function () {
+                var modal = document.getElementById('videoModal');
+                var popupVideo = document.getElementById('popupVideo');
+                modal.classList.add('hidden');
+                popupVideo.src = "";
+            });
+
+            // Đóng modal khi click ra ngoài nội dung
+            document.getElementById('videoModal').addEventListener('click', function (e) {
+                if (e.target === this) {
+                    this.classList.add('hidden');
+                    document.getElementById('popupVideo').src = "";
+                }
+            });
+
+            // Xử lý chuyển hướng khi nhấn "CHI TIẾT"
+            document.getElementById('btnChiTiet').addEventListener('click', function (e) {
+                e.preventDefault();
+                window.open('https://bdbcl.tdmu.edu.vn/danh-muc/Gioi-thieu/gioi-thieu-chung', '_blank');
+            });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
 
     <script src="~/Scripts/Scripts/BaiVietTrangChu.js"></script>
-
+    <footer class="bg-[#29A3E0] text-white text-sm py-6">
+        <div class="max-w-7xl mx-auto px-4 space-y-2 text-center sm:text-left">
+            <p id="footerCopyright"></p>
+            <p id="footerNote"></p>
+        </div>
+    </footer>
 </body>
 </html>

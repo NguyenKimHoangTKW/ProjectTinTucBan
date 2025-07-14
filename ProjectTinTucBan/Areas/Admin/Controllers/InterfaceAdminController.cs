@@ -1,6 +1,60 @@
 ﻿using ProjectTinTucBan.Models;
+
+using System.Linq;
 using System.Web.Mvc;
+
+using Newtonsoft.Json.Linq;
+
+
 using ProjectTinTucBan.Helper;
+using System.Security.Claims;
+using System.Web;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
+using Microsoft.Owin.Security;
+using ProjectTinTucBan.Models;
+using Microsoft.Owin.Security.Cookies;
+using ProjectTinTucBan.Helper;
+using System.Data.Entity; 
+using System.Collections.Generic; 
+
+
+using System.Security.Claims;
+using System.Web;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
+using Microsoft.Owin.Security;
+using ProjectTinTucBan.Models;
+using Microsoft.Owin.Security.Cookies;
+using ProjectTinTucBan.Helper;
+using System.Data.Entity; 
+using System.Collections.Generic; 
+
+
+using System.Security.Claims;
+using System.Web;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
+using Microsoft.Owin.Security;
+using ProjectTinTucBan.Models;
+using Microsoft.Owin.Security.Cookies;
+using ProjectTinTucBan.Helper;
+using System.Data.Entity; 
+using System.Collections.Generic; 
+
+
+using System.Security.Claims;
+using System.Web;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
+using Microsoft.Owin.Security;
+using ProjectTinTucBan.Models;
+using Microsoft.Owin.Security.Cookies;
+using ProjectTinTucBan.Helper;
+using System.Data.Entity; 
+using System.Collections.Generic; 
+
+
 namespace ProjectTinTucBan.Areas.Admin.Controllers
 {
     public class InterfaceAdminController : Controller
@@ -13,49 +67,67 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
             return View();
         }
+        [UserAuthorizeAttribute()]
         public ActionResult EditTaiKhoan()
         {
             return RedirectToAction("EditTaiKhoan", "EditTaiKhoan");
         }
+        [UserAuthorizeAttribute()]
         public ActionResult EditFooter()
         {
-
-            return View();
+            // Lấy dữ liệu Footer từ DB
+            var footer = db.Footers.FirstOrDefault();
+            JObject model = new JObject();
+            if (footer != null)
+            {
+                model["id"] = footer.ID;
+                model["fullName"] = footer.FullName;
+                model["englishName"] = footer.EnglishName;
+                model["established"] = footer.NgayThanhLap;
+                model["address"] = footer.DiaChi;
+                model["phone"] = footer.DienThoai;
+                model["email"] = footer.Email;
+                model["videoUrl"] = footer.VideoUrl;
+                model["footerCopyright"] = footer.FooterCopyright;
+                model["footerNote"] = footer.FooterNote;
+            }
+            // Nếu không có dữ liệu, vẫn phải trả về model rỗng để tránh null
+            return View(model);
         }
 
         // Gọi hàm thiết kế giao diện Quản lý mục lục
-        [UserAuthorizeAttribute(1, 4)]
+        [UserAuthorizeAttribute()]
         public ActionResult Index_MucLuc_Admin()
         {
             return View();
         }
 
         // Gọi hàm thiết kế giao diện quản lý quyền Admin
-        [UserAuthorizeAttribute(1, 4)]
+        [UserAuthorizeAttribute(1)]
         public ActionResult Index_Roles_Admin()
         {
             return View();
         }
 
-        [UserAuthorizeAttribute(1, 4)]
+        [UserAuthorizeAttribute()]
         public ActionResult Menu()
         {
             return View();
         }
 
-        [UserAuthorizeAttribute(1, 4)]
+        [UserAuthorizeAttribute()]
         public ActionResult Slider()
         {
             return View();
         }
 
-        [UserAuthorizeAttribute(1, 4)]
+        [UserAuthorizeAttribute()]
         public ActionResult BaiViet()
         {
             return View();
         }
 
-        [UserAuthorizeAttribute(1, 4)]
+        [UserAuthorizeAttribute(1)]
         // Gọi hàm thiết kế giao diện quản lý người dùng Admin
         public ActionResult Index_Users_Admin()
         {
@@ -63,18 +135,14 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         }
 
         // Gọi hàm thiết kế giao diện quản lý chức năng admin
-        [UserAuthorizeAttribute(1, 4)]
+        [UserAuthorizeAttribute(1)]
         public ActionResult Index_Function_Admin()
         {
             return View();
         }
 
-        // Gọi hàm thiết kế giao diện đăng nhập
-        public ActionResult Login()
-        {
-            return View();
-        }
-        [UserAuthorizeAttribute(1, 4)]
+
+        [UserAuthorizeAttribute()]
         public ActionResult XemNoiDung(int id)
         {
             using (var db = new WebTinTucTDMUEntities())
@@ -99,11 +167,12 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 return View("XemNoiDung", baiViet);
             }
         }
-
+        [UserAuthorizeAttribute()]
         public ActionResult Index_DonViTrucThuoc()
         {
             return View();
         }
+        [UserAuthorizeAttribute()]
         public ActionResult Index_Khoi()
         {
             return View("Index_Khoi");

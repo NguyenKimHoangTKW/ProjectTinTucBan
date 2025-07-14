@@ -18,61 +18,256 @@
     }
 }
 
-<h2>Chỉnh sửa Footer</h2>
+<div class="container-fluid py-4"style="margin-top:40px;">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fa fa-edit mr-2"></i>Chỉnh sửa Footer</h4>
+                </div>
+                <div class="card-body">
+                    @{
+                        object successMsg = null;
+                        try { successMsg = TempData != null ? TempData["Success"] : null; } catch { successMsg = null; }
+                    }
+                    @if (successMsg != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fa fa-check-circle mr-2"></i>@successMsg
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    }
 
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">@TempData["Success"]</div>
-}
+                    <div id="alert-success" class="alert alert-success alert-dismissible fade show" style="display:none" role="alert">
+                        <i class="fa fa-check-circle mr-2"></i><span class="alert-message"></span>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
 
-@using (Html.BeginForm("Edit", "Footer", FormMethod.Post, new { area = "Admin" }))
-{
-    @Html.AntiForgeryToken()
-    <div class="form-group">
-        <label>Tiêu đề (VN)</label>
-        <input type="text" name="fullName" class="form-control" value="@Model["fullName"]" required />
-    </div>
-    <div class="form-group">
-        <label>Tiêu đề (EN)</label>
-        <input type="text" name="englishName" class="form-control" value="@Model["englishName"]" required />
-    </div>
-    <div class="form-group">
-        <label>Ngày thành lập</label>
-        <input type="text" name="established" class="form-control" value="@Model["established"]" required />
-    </div>
-    <div class="form-group">
-        <label>Địa chỉ</label>
-        <input type="text" name="address" class="form-control" value="@Model["address"]" required />
-    </div>
-    <div class="form-group">
-        <label>Điện thoại</label>
-        <input type="text" name="phone" class="form-control" value="@Model["phone"]" required />
-    </div>
-    <div class="form-group">
-        <label>Email</label>
-        <input type="email" name="email" class="form-control" value="@Model["email"]" required />
-    </div>
-    <div class="form-group">
-        <label>Video URL (có thể dán link YouTube thường hoặc link nhúng)</label>
-        <input type="text" name="videoUrl" class="form-control" value="@Model["videoUrl"]" />
-    </div>
-    <div class="form-group">
-        <label>Bản quyền (footerCopyright)</label>
-        <input type="text" name="footerCopyright" class="form-control" value="@Model["footerCopyright"]" />
-    </div>
-    <div class="form-group">
-        <label>Ghi chú (footerNote)</label>
-        <input type="text" name="footerNote" class="form-control" value="@Model["footerNote"]" />
-    </div>
-    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
-}
+                    <div id="alert-error" class="alert alert-danger alert-dismissible fade show" style="display:none" role="alert">
+                        <i class="fa fa-exclamation-circle mr-2"></i><span class="alert-message"></span>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
 
-@if (!string.IsNullOrEmpty((string)Model["videoUrl"]))
-{
-    <div class="mt-3">
-        <label>Xem trước video:</label>
-        <div>
-            <iframe width="560" height="315" src="@GetEmbedUrl((string)Model["videoUrl"])" frameborder="0" allowfullscreen></iframe>
+                    <form id="editFooterForm" autocomplete="off">
+                        <input type="hidden" id="footerId" value="@(Model != null && Model["id"] != null ? Model["id"] : "")" />
+
+                        <div class="form-row mb-4">
+                            <div class="col-12">
+                                <h5 class="border-bottom pb-2 text-primary">Thông tin chung</h5>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="fullName">Tiêu đề (VN)</label>
+                                <input type="text" id="fullName" name="fullName" class="form-control" value="@(Model != null && Model["fullName"] != null ? Model["fullName"] : "")" required />
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="englishName">Tiêu đề (EN)</label>
+                                <input type="text" id="englishName" name="englishName" class="form-control" value="@(Model != null && Model["englishName"] != null ? Model["englishName"] : "")" required />
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="established">Ngày thành lập</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+                                    </div>
+                                    <input type="text" id="established" name="established" class="form-control" value="@(Model != null && Model["established"] != null ? Model["established"] : "")" required placeholder="dd/MM/yyyy" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row mb-4">
+                            <div class="col-12">
+                                <h5 class="border-bottom pb-2 text-primary">Thông tin liên hệ</h5>
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label for="address">Địa chỉ</label>
+                                <input type="text" id="address" name="address" class="form-control" value="@(Model != null && Model["address"] != null ? Model["address"] : "")" required />
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="phone">Điện thoại</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-phone"></i></span>
+                                    </div>
+                                    <input type="text" id="phone" name="phone" class="form-control" value="@(Model != null && Model["phone"] != null ? Model["phone"] : "")" required />
+                                </div>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="email">Email</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-envelope"></i></span>
+                                    </div>
+                                    <input type="email" id="email" name="email" class="form-control" value="@(Model != null && Model["email"] != null ? Model["email"] : "")" required />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row mb-4">
+                            <div class="col-12">
+                                <h5 class="border-bottom pb-2 text-primary">Nội dung bổ sung</h5>
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label for="videoUrl">Video URL (có thể dán link YouTube thường hoặc link nhúng)</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-video"></i></span>
+                                    </div>
+                                    <input type="text" id="videoUrl" name="videoUrl" class="form-control" value="@(Model != null && Model["videoUrl"] != null ? Model["videoUrl"] : "")" />
+                                </div>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="footerCopyright">Bản quyền</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-copyright"></i></span>
+                                    </div>
+                                    <input type="text" id="footerCopyright" name="footerCopyright" class="form-control" value="@(Model != null && Model["footerCopyright"] != null ? Model["footerCopyright"] : "")" />
+                                </div>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="footerNote">Ghi chú</label>
+                                <input type="text" id="footerNote" name="footerNote" class="form-control" value="@(Model != null && Model["footerNote"] != null ? Model["footerNote"] : "")" />
+                            </div>
+                        </div>
+
+                        @if (Model != null && Model["videoUrl"] != null && !string.IsNullOrEmpty((string)Model["videoUrl"]))
+                        {
+                            <div class="form-row mb-4">
+                                <div class="col-12">
+                                    <h5 class="border-bottom pb-2 text-primary">Xem trước video</h5>
+                                    <div class="embed-responsive embed-responsive-16by9 mt-2">
+                                        <iframe class="embed-responsive-item" src="@GetEmbedUrl((string)Model["videoUrl"])" frameborder="0" allowfullscreen></iframe>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <div class="form-row">
+                            <div class="col-12 text-right">
+                                <button type="button" id="btnDelete" class="btn btn-danger mr-2">
+                                    <i class="fa fa-trash mr-1"></i> Xóa Footer
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa fa-save mr-1"></i> Lưu thay đổi
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
+</div>
+
+@section scripts{
+    <script>
+        // Hàm chuyển "dd/MM/yyyy" sang Unix timestamp (giây)
+        function parseDateToUnix(dateStr) {
+            if (!dateStr) return null;
+            var parts = dateStr.split('/');
+            if (parts.length !== 3) return null;
+            var d = new Date(parts[2], parts[1] - 1, parts[0]);
+            if (isNaN(d.getTime())) return null;
+            return Math.floor(d.getTime() / 1000);
+        }
+
+        // Hàm chuyển Unix timestamp sang "dd/MM/yyyy"
+        function unixToDateStr(unix) {
+            if (!unix || isNaN(unix)) return '';
+            var d = new Date(unix * 1000);
+            var day = ('0' + d.getDate()).slice(-2);
+            var month = ('0' + (d.getMonth() + 1)).slice(-2);
+            var year = d.getFullYear();
+            return day + '/' + month + '/' + year;
+        }
+
+        $(document).ready(function () {
+            // Nếu giá trị ngày thành lập là số (unix timestamp), chuyển sang chuỗi ngày
+            var ngayValue = $("input[name='established']").val();
+            if (ngayValue && !ngayValue.includes('/')) {
+                var asInt = parseInt(ngayValue);
+                if (!isNaN(asInt) && asInt > 10000) {
+                    $("input[name='established']").val(unixToDateStr(asInt));
+                }
+            }
+
+            // Xử lý sự kiện submit form
+            $("#editFooterForm").off("submit").on("submit", function (e) {
+                e.preventDefault();
+
+                var footerId = $("#footerId").val();
+                var method = footerId ? "PUT" : "POST";
+                var url = footerId ? "/api/FooterApi/" + footerId : "/api/FooterApi";
+
+                // Lấy ngày thành lập dạng chuỗi và chuyển sang unix timestamp
+                var ngayThanhLapUnix = parseDateToUnix($("input[name='established']").val());
+
+                var formData = {
+                    ID: footerId ? parseInt(footerId) : 0,
+                    FullName: $("input[name='fullName']").val(),
+                    EnglishName: $("input[name='englishName']").val(),
+                    NgayThanhLap: ngayThanhLapUnix,
+                    DiaChi: $("input[name='address']").val(),
+                    DienThoai: $("input[name='phone']").val(),
+                    Email: $("input[name='email']").val(),
+                    VideoUrl: $("input[name='videoUrl']").val(),
+                    FooterCopyright: $("input[name='footerCopyright']").val(),
+                    FooterNote: $("input[name='footerNote']").val()
+                };
+
+                $.ajax({
+                    url: url,
+                    type: method,
+                    contentType: "application/json",
+                    data: JSON.stringify(formData),
+                    success: function (response) {
+                        $("#alert-success .alert-message").text("Lưu thành công!");
+                        $("#alert-success").show().delay(3000).fadeOut();
+                        if (!footerId) {
+                            $("#footerId").val(response.ID);
+                        }
+                    },
+                    error: function (xhr) {
+                        var errorMsg = "Lỗi: " + xhr.status + " - " + xhr.statusText;
+                        $("#alert-error .alert-message").html(errorMsg);
+                        $("#alert-error").show().delay(3000).fadeOut();
+                    }
+                });
+            });
+
+            // Xử lý sự kiện xóa
+            $("#btnDelete").off("click").on("click", function () {
+                var footerId = $("#footerId").val();
+                if (!footerId) {
+                    $("#alert-error .alert-message").text("Không có dữ liệu để xóa!");
+                    $("#alert-error").show().delay(3000).fadeOut();
+                    return;
+                }
+
+                if (confirm("Bạn có chắc chắn muốn xóa footer này?")) {
+                    $.ajax({
+                        url: "/api/FooterApi/" + footerId,
+                        type: "DELETE",
+                        success: function () {
+                            $("#alert-success .alert-message").text("Xóa thành công!");
+                            $("#alert-success").show();
+                            $("#editFooterForm")[0].reset();
+                            $("#footerId").val("");
+                        },
+                        error: function (xhr) {
+                            var errorMsg = "Lỗi: " + xhr.status + " - " + xhr.statusText;
+                            $("#alert-error .alert-message").html(errorMsg);
+                            $("#alert-error").show().delay(3000).fadeOut();
+                        }
+                    });
+                }
+            });
+        });
+    </script>
 }
