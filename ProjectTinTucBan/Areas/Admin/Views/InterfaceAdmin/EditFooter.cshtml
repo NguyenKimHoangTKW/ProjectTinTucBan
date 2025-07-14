@@ -18,7 +18,7 @@
     }
 }
 
-<div class="container-fluid py-4"style="margin-top:40px;">
+<div class="container-fluid py-4" style="margin-top:20px;">
     <div class="row justify-content-center">
         <div class="col-md-10">
             <div class="card shadow">
@@ -166,108 +166,6 @@
 </div>
 
 @section scripts{
-    <script>
-        // Hàm chuyển "dd/MM/yyyy" sang Unix timestamp (giây)
-        function parseDateToUnix(dateStr) {
-            if (!dateStr) return null;
-            var parts = dateStr.split('/');
-            if (parts.length !== 3) return null;
-            var d = new Date(parts[2], parts[1] - 1, parts[0]);
-            if (isNaN(d.getTime())) return null;
-            return Math.floor(d.getTime() / 1000);
-        }
-
-        // Hàm chuyển Unix timestamp sang "dd/MM/yyyy"
-        function unixToDateStr(unix) {
-            if (!unix || isNaN(unix)) return '';
-            var d = new Date(unix * 1000);
-            var day = ('0' + d.getDate()).slice(-2);
-            var month = ('0' + (d.getMonth() + 1)).slice(-2);
-            var year = d.getFullYear();
-            return day + '/' + month + '/' + year;
-        }
-
-        $(document).ready(function () {
-            // Nếu giá trị ngày thành lập là số (unix timestamp), chuyển sang chuỗi ngày
-            var ngayValue = $("input[name='established']").val();
-            if (ngayValue && !ngayValue.includes('/')) {
-                var asInt = parseInt(ngayValue);
-                if (!isNaN(asInt) && asInt > 10000) {
-                    $("input[name='established']").val(unixToDateStr(asInt));
-                }
-            }
-
-            // Xử lý sự kiện submit form
-            $("#editFooterForm").off("submit").on("submit", function (e) {
-                e.preventDefault();
-
-                var footerId = $("#footerId").val();
-                var method = footerId ? "PUT" : "POST";
-                var url = footerId ? "/api/FooterApi/" + footerId : "/api/FooterApi";
-
-                // Lấy ngày thành lập dạng chuỗi và chuyển sang unix timestamp
-                var ngayThanhLapUnix = parseDateToUnix($("input[name='established']").val());
-
-                var formData = {
-                    ID: footerId ? parseInt(footerId) : 0,
-                    FullName: $("input[name='fullName']").val(),
-                    EnglishName: $("input[name='englishName']").val(),
-                    NgayThanhLap: ngayThanhLapUnix,
-                    DiaChi: $("input[name='address']").val(),
-                    DienThoai: $("input[name='phone']").val(),
-                    Email: $("input[name='email']").val(),
-                    VideoUrl: $("input[name='videoUrl']").val(),
-                    FooterCopyright: $("input[name='footerCopyright']").val(),
-                    FooterNote: $("input[name='footerNote']").val()
-                };
-
-                $.ajax({
-                    url: url,
-                    type: method,
-                    contentType: "application/json",
-                    data: JSON.stringify(formData),
-                    success: function (response) {
-                        $("#alert-success .alert-message").text("Lưu thành công!");
-                        $("#alert-success").show().delay(3000).fadeOut();
-                        if (!footerId) {
-                            $("#footerId").val(response.ID);
-                        }
-                    },
-                    error: function (xhr) {
-                        var errorMsg = "Lỗi: " + xhr.status + " - " + xhr.statusText;
-                        $("#alert-error .alert-message").html(errorMsg);
-                        $("#alert-error").show().delay(3000).fadeOut();
-                    }
-                });
-            });
-
-            // Xử lý sự kiện xóa
-            $("#btnDelete").off("click").on("click", function () {
-                var footerId = $("#footerId").val();
-                if (!footerId) {
-                    $("#alert-error .alert-message").text("Không có dữ liệu để xóa!");
-                    $("#alert-error").show().delay(3000).fadeOut();
-                    return;
-                }
-
-                if (confirm("Bạn có chắc chắn muốn xóa footer này?")) {
-                    $.ajax({
-                        url: "/api/FooterApi/" + footerId,
-                        type: "DELETE",
-                        success: function () {
-                            $("#alert-success .alert-message").text("Xóa thành công!");
-                            $("#alert-success").show();
-                            $("#editFooterForm")[0].reset();
-                            $("#footerId").val("");
-                        },
-                        error: function (xhr) {
-                            var errorMsg = "Lỗi: " + xhr.status + " - " + xhr.statusText;
-                            $("#alert-error .alert-message").html(errorMsg);
-                            $("#alert-error").show().delay(3000).fadeOut();
-                        }
-                    });
-                }
-            });
-        });
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="~/Areas/Admin/Scripts/EditFooter.js"></script>
 }
