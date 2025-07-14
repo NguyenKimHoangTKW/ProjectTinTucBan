@@ -7,14 +7,17 @@
     body {
         background-color: white !important;
     }
+
     .main-content {
         padding: 20px;
         margin-top: 70px;
     }
+
     .main-content,
     .page-container {
         background-color: white !important;
     }
+
     .table-responsive {
         padding: 10px;
         background-color: #fff;
@@ -23,10 +26,11 @@
     #table_load_baiviet {
         width: 100%;
         background-color: #fff;
-/*        table-layout: fixed;*/
+        /*        table-layout: fixed;*/
         box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         overflow: hidden;
     }
+
         #table_load_baiviet th,
         #table_load_baiviet td {
             padding: 10px 8px;
@@ -35,6 +39,7 @@
             white-space: normal;
             word-break: break-word;
         }
+
         #table_load_baiviet,
         #table_load_baiviet th,
         #table_load_baiviet td {
@@ -43,42 +48,42 @@
             background-color: #fff;
         }
 
-        #table_load_baiviet thead th {
-            background-color: #5a8dee;
-            color: white;
-            text-align: center;
-            font-weight: 600;
-        }
-
-        #table_load_baiviet td {
-            text-align: center;
-        }
-            /* Cột STT (cột số 2) */
-            #table_load_baiviet th:nth-child(2),
-            #table_load_baiviet td:nth-child(2) {
-                width: 50px;
-            }
-            /* Cột Tiêu đề (cột số 3) */
-            #table_load_baiviet td:nth-child(3) {
-                text-align:left;
-            }
-            /* Cột Mục lục (cột số 5) */
-            #table_load_baiviet td:nth-child(5) {
-                text-align:left !important;
+            #table_load_baiviet thead th {
+                background-color: #5a8dee;
+                color: white;
+                text-align: center;
+                font-weight: 600;
             }
 
-            /* Cột nội dung (cột số 4) */
-            #table_load_baiviet th:nth-child(4),
-            #table_load_baiviet td:nth-child(4) {
-                width: 80px; /* Hoặc giá trị phù hợp hơn tùy nhu cầu */
-                padding: 4px !important;
+            #table_load_baiviet td {
+                text-align: center;
             }
-
-                /* Button "Xem" bên trong cột nội dung */
-                #table_load_baiviet td:nth-child(4) .btn-xem {
-                    width: 100%;
-                    display: block
+                /* Cột STT (cột số 2) */
+                #table_load_baiviet th:nth-child(2),
+                #table_load_baiviet td:nth-child(2) {
+                    width: 50px;
                 }
+                /* Cột Tiêu đề (cột số 3) */
+                #table_load_baiviet td:nth-child(3) {
+                    text-align: left;
+                }
+                /* Cột Mục lục (cột số 5) */
+                #table_load_baiviet td:nth-child(5) {
+                    text-align: left !important;
+                }
+
+                /* Cột nội dung (cột số 4) */
+                #table_load_baiviet th:nth-child(4),
+                #table_load_baiviet td:nth-child(4) {
+                    width: 80px; /* Hoặc giá trị phù hợp hơn tùy nhu cầu */
+                    padding: 4px !important;
+                }
+
+                    /* Button "Xem" bên trong cột nội dung */
+                    #table_load_baiviet td:nth-child(4) .btn-xem {
+                        width: 100%;
+                        display: block
+                    }
 
             /* Cột Ngày đăng & Ngày cập nhật */
             #table_load_baiviet th:nth-child(6),
@@ -94,38 +99,40 @@
             }
 
 
-        /* Thumbnail */
-        #table_load_baiviet td:nth-child(8) img {
-            max-width: 80px;
-            height: auto;
-            border-radius: 4px;
-        }
-
-        /* Cột PDF */
-        #table_load_baiviet th:nth-child(9),
-        #table_load_baiviet td:nth-child(9) {
-            width: 70px;
-            padding: 5px;
-        }
-
-            #table_load_baiviet td:nth-child(9) button {
-                margin: 2px 0;
-                padding: 4px 8px;
-                font-size: 13px;
+            /* Thumbnail */
+            #table_load_baiviet td:nth-child(8) img {
+                max-width: 80px;
+                height: auto;
+                border-radius: 4px;
             }
 
-        /* Cột hành động */
-        #table_load_baiviet th:nth-child(10),
-        #table_load_baiviet td:nth-child(10) {
-            width: 100px;
-        }
+            /* Cột PDF */
+            #table_load_baiviet th:nth-child(9),
+            #table_load_baiviet td:nth-child(9) {
+                width: 70px;
+                padding: 5px;
+            }
+
+                #table_load_baiviet td:nth-child(9) button {
+                    margin: 2px 0;
+                    padding: 4px 8px;
+                    font-size: 13px;
+                }
+
+            /* Cột hành động */
+            #table_load_baiviet th:nth-child(10),
+            #table_load_baiviet td:nth-child(10) {
+                width: 100px;
+            }
 
     .cke_contents {
         min-height: 400px !important;
     }
+
     .cke_notifications_area {
         display: none;
     }
+
     #previewPDF {
         display: flex;
         flex-wrap: wrap;
@@ -167,6 +174,7 @@
             text-align: center;
             cursor: pointer;
         }
+
     .modal-footer {
         display: flex;
         flex-wrap: wrap;
@@ -209,30 +217,34 @@
             <input type="text" id="searchKeyword" class="form-control" placeholder="Nhập từ khóa tìm kiếm...">
         </div>
     </div>
-    <div class="table-responsive p-3">
-        <table id="table_load_baiviet" class="table table-striped">
-            <thead>
-                <tr>
-                    <th class="d-none">ID</th>
-                    <th class="text-center">STT</th>
-                    <th class="text-center">Tiêu đề</th>
-                    <th class="text-center">Nội dung</th>
-                    <th class="text-center">Mục lục</th>
-                    <th class="text-center">Ngày đăng</th>
-                    <th class="text-center">Ngày cập nhật</th>
-                    <th class="text-center">Thumbnail</th>
-                    <th class="text-center" style="width: 120px;">PDF</th>
-                    <th class="text-center">Lượt xem</th>
-                    <th class="text-center" style="width: 120px;">Hành động</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+    <div id="tableAreaWrapper">
+        <div id="tableWrapper" class="table-responsive p-3" style="display: none;">
+            <table id="table_load_baiviet" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th class="d-none">ID</th>
+                        <th class="text-center">STT</th>
+                        <th class="text-center">Tiêu đề</th>
+                        <th class="text-center">Nội dung</th>
+                        <th class="text-center">Mục lục</th>
+                        <th class="text-center">Ngày đăng</th>
+                        <th class="text-center">Ngày cập nhật</th>
+                        <th class="text-center">Thumbnail</th>
+                        <th class="text-center" style="width: 120px;">PDF</th>
+                        <th class="text-center">Lượt xem</th>
+                        <th class="text-center" style="width: 120px;">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
     <!-- Khu vực phân trang tự tạo -->
-    <div class="pagination-container d-flex justify-content-end">
+    <div id="paginationWrapper" class="pagination-container d-flex justify-content-end" style="display: none;">
         <ul id="pagination" class="pagination"></ul>
     </div>
+    <!-- Loader -->
+    <div id="loaderWrapper"></div>
 </div>
 
 <div class="modal fade" id="modalBaiViet" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
@@ -387,7 +399,6 @@
 
 @section scriptsAdmin {
     <!-- Bootstrap & DataTables -->
-
     <!-- SweetAlert2 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
@@ -403,5 +414,4 @@
     <script src="~/Areas/Admin/Scripts/BaiViet.js"></script>
     <script src="~/Areas/Admin/Scripts/Upload.js"></script>
     <script src="~/Areas/Admin/Scripts/ThuVienAnh.js"></script>
-
 }

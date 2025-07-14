@@ -1,4 +1,4 @@
-﻿﻿@model ProjectTinTucBan.Models.BaiViet
+﻿@model ProjectTinTucBan.Models.BaiViet
 
 @{
     ViewBag.Title = "Xem Nội Dung";
@@ -62,6 +62,7 @@
                 margin: 10px auto;
                 clear: both;
             }
+
         .cke_notifications_area {
             display: none;
         }
@@ -147,7 +148,7 @@
         <!-- Nếu bạn cũng muốn bỏ Razor Model.ID thì cần lấy ID từ URL hoặc truyền từ trước -->
         <!-- CKEditor -->
         <div id="xemNoiDungContainer">
-            <textarea id="NoiDung"></textarea>
+            <textarea id="NoiDung" name="NoiDung"></textarea>
         </div>
 
 
@@ -166,6 +167,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <!-- Script riêng -->
+
     <script src="~/Areas/Admin/Scripts/XemNoiDung.js"></script>
+    <script src="~/Areas/Admin/Scripts/Module_Chung.js"></script>
 </body>
 </html>

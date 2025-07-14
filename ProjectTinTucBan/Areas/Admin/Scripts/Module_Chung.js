@@ -1,14 +1,12 @@
-﻿
-    function Sweet_Alert(icon, title) {
-        Swal.fire({
-            position: "center",
-            icon: icon,
-            title: title,
-            showConfirmButton: false,
-            timer: 2500
-        });
-    }
-
+﻿function Sweet_Alert(icon, title) {
+    Swal.fire({
+        position: "center",
+        icon: icon,
+        title: title,
+        showConfirmButton: false,
+        timer: 2500
+    });
+}
 
 function formatTimestamp(unixTimestamp) {
     if (!unixTimestamp) return "Chưa có dữ liệu";
