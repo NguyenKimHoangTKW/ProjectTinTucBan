@@ -41,24 +41,40 @@
 
 <!-- Tiêu đề mục lục -->
 <div class="max-w-7xl mx-auto px-4 py-8">
-    <div class="border border-blue-300 rounded shadow bg-gray-100 p-4 mb-8">
+    <div class="border border-blue-300 rounded shadow bg-gray-100 p-4 mb-6">
         <h1 class="text-2xl font-bold text-left text-blue-800 uppercase">
             @mucTenCoDau
         </h1>
     </div>
 
-    <!-- Danh sách bài viết -->
-    <div id="tinTucList" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10"></div>
-
-    <!-- Nút điều khiển -->
-    <div class="text-center mt-6" id="btnXemThemWrapper">
-        <button id="btnXemThem" class="inline-block border border-gray-300 hover:border-orange-600 text-gray-700 hover:text-orange-600 px-6 py-2 rounded transition">
-            XEM THÊM
+    <!-- 🔍 Ô tìm kiếm -->
+    <div class="mb-6 flex flex-col sm:flex-row items-center gap-2">
+        <input id="searchInput" type="text" placeholder="Nhập từ khóa tìm bài viết..."
+               class="w-full sm:w-1/2 border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <button id="btnSearch"
+                class="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700 transition">
+            <i class="fas fa-search mr-2"></i>Tìm kiếm
         </button>
-        <button id="btnAnBot" class="hidden ml-3 inline-block border border-gray-500 text-gray-700 hover:bg-gray-200 px-6 py-2 rounded transition">
-            ẨN BỚT</button>
-        <a id="btnXemTatCa" href="#" class="ml-3 inline-block border border-blue-600 text-blue-700 hover:bg-blue-600 hover:text-white px-6 py-2 rounded transition">
-            XEM TẤT CẢ </a>
+    </div>
+
+    <!-- Danh sách bài viết -->
+    <div class="max-w-7xl mx-auto px-4">
+        <div id="tinTucList" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
+            <!-- Các bài viết sẽ được JavaScript render tại đây -->
+        </div>
+
+        <!-- Nút điều khiển -->
+        <div class="text-center mt-6" id="btnXemThemWrapper">
+            <button id="btnXemThem" class="inline-block border border-gray-300 hover:border-orange-600 text-gray-700 hover:text-orange-600 px-6 py-2 rounded transition">
+                XEM THÊM
+            </button>
+            <button id="btnAnBot" class="hidden ml-3 inline-block border border-gray-500 text-gray-700 hover:bg-gray-200 px-6 py-2 rounded transition">
+                ẨN BỚT
+            </button>
+            <a id="btnXemTatCa" href="#" class="ml-3 inline-block border border-blue-600 text-blue-700 hover:bg-blue-600 hover:text-white px-6 py-2 rounded transition">
+                XEM TẤT CẢ
+            </a>
+        </div>
     </div>
 </div>
 
@@ -107,6 +123,7 @@
             });
         });
     </script>
-    <script src="~/Scripts/Scripts/DanhSachBaiViet.js"></script>
+
     <!-- Script quản lý bài viết -->
+    <script src="~/Scripts/Scripts/DanhSachBaiViet.js"></script>
 }
