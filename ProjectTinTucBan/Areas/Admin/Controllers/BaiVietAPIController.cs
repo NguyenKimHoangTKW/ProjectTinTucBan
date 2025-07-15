@@ -1,4 +1,5 @@
-﻿using ProjectTinTucBan.Helper;
+﻿using Microsoft.Ajax.Utilities;
+using ProjectTinTucBan.Helper;
 using ProjectTinTucBan.Models;
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -137,14 +138,14 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         public async Task<IHttpActionResult> ThemBaiViet([FromBody] BaiViet model)
         {
             if (model == null || string.IsNullOrWhiteSpace(model.TieuDe))
-                return Content(HttpStatusCode.BadRequest, new { success = false, message = "Dữ liệu không hợp lệ." });
+                return Json(new { success = false, message = "Dữ liệu không hợp lệ." });
 
             try
             {
                 int currentTimestamp = GetUnixTimestamp();
                 var tk = Helper.SessionHelper.GetUser();
                 if (tk == null)
-                    return Content(HttpStatusCode.Unauthorized, new { success = false, message = "Bạn cần đăng nhập để thực hiện thao tác này." });
+                    return Json(new { success = false, message = "Bạn cần đăng nhập để thực hiện thao tác này." });
                 // Gán thêm ngày đăng + view + tài khoản
                 model.NgayDang = currentTimestamp;
                 model.NgayCapNhat = currentTimestamp;
@@ -152,7 +153,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 model.ID_NguoiDang = tk.ID; // Lấy ID người đăng từ session
 
                 if (model.ID_NguoiDang <= 0)
-                    return Content(HttpStatusCode.BadRequest, new { success = false, message = "Thiếu ID người đăng bài." });
+                    return Json(new { success = false, message = "Thiếu ID người đăng bài." });
 
                 db.BaiViets.Add(model);
                 await db.SaveChangesAsync();
@@ -172,7 +173,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             }
             catch (Exception ex)
             {
-                return Content(HttpStatusCode.InternalServerError, new
+                return Json(new
                 {
                     success = false,
                     message = "Lỗi khi thêm bài viết.",
@@ -214,17 +215,17 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             {
                 var baiViet = await db.BaiViets.FindAsync(id);
                 if (baiViet == null)
-                    return Content(HttpStatusCode.NotFound, new { success = false, message = "Không tìm thấy bài viết." });
+                    return Json(new { success = false, message = "Không tìm thấy bài viết." });
 
                 // Lấy người dùng hiện tại từ session
                 var currentUser = Helper.SessionHelper.GetUser();
                 if (currentUser == null)
-                    return Content(HttpStatusCode.Unauthorized, new { success = false, message = "Bạn cần đăng nhập." });
+                    return Json(new { success = false, message = "Bạn cần đăng nhập." });
 
                 // Cho phép xóa nếu: là admin (id_role == 1) hoặc là tác giả
                 if (currentUser.ID_role != 1 && baiViet.ID_NguoiDang != currentUser.ID)
                 {
-                    return Content(HttpStatusCode.Forbidden, new
+                    return Json(new
                     {
                         success = false,
                         message = "Bạn không có quyền xóa bài viết này."
@@ -238,7 +239,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             }
             catch (Exception ex)
             {
-                return Content(HttpStatusCode.InternalServerError, new
+                return Json(new
                 {
                     success = false,
                     message = "Lỗi trong quá trình xóa.",
@@ -254,7 +255,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         {
             if (body == null || body.noiDung == null)
             {
-                return Content(HttpStatusCode.BadRequest, new
+                return Json(new
                 {
                     success = false,
                     message = "Nội dung không được để trống."
@@ -264,7 +265,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             var baiViet = await db.BaiViets.FindAsync(id);
             if (baiViet == null)
             {
-                return Content(HttpStatusCode.NotFound, new
+                return Json(new
                 {
                     success = false,
                     message = "Không tìm thấy bài viết."
@@ -274,7 +275,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             var currentUser = SessionHelper.GetUser();
             if (currentUser == null)
             {
-                return Content(HttpStatusCode.Unauthorized, new
+                return Json(new
                 {
                     success = false,
                     message = "Bạn cần đăng nhập để thực hiện thao tác này."
@@ -284,7 +285,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             // ✅ Phân quyền: chỉ admin (ID_role == 1) hoặc là người đăng mới được sửa
             if (currentUser.ID_role != 1 && baiViet.ID_NguoiDang != currentUser.ID)
             {
-                return Content(HttpStatusCode.Forbidden, new
+                return Json(new
                 {
                     success = false,
                     message = "Bạn không có quyền sửa bài viết này."
@@ -307,7 +308,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             catch (Exception ex)
             {
                 // Có thể log thêm ex.StackTrace nếu cần
-                return Content(HttpStatusCode.InternalServerError, new
+                return Json(new
                 {
                     success = false,
                     message = "Lỗi khi cập nhật nội dung.",
@@ -352,7 +353,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             }
             catch (Exception ex)
             {
-                return Content(HttpStatusCode.InternalServerError, new
+                return Json(new
                 {
                     success = false,
                     message = "Không thể tải thư viện ảnh.",
@@ -406,14 +407,18 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         }
         [HttpGet]
         [Route("download-pdf")]
-        public HttpResponseMessage DownloadPdf(string fileName, string originalName)
+        public IHttpActionResult DownloadPdf(string fileName, string originalName)
         {
             if (string.IsNullOrWhiteSpace(fileName))
-                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            {
+                return Json(new { success = false, message = "Thiếu tên tệp tin." });
+            }
 
             var path = HttpContext.Current.Server.MapPath($"~/Uploads/PDFs/{fileName}");
             if (!File.Exists(path))
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
+            {
+                return Json(new { success = false, message = "Không tìm thấy tệp PDF." });
+            }
 
             var bytes = File.ReadAllBytes(path);
             var stream = new MemoryStream(bytes);
@@ -424,15 +429,11 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             };
             response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
 
-            // ✅ Xử lý tên file Unicode an toàn
             string displayName = originalName ?? fileName;
             string headerValue = $"attachment; filename*=UTF-8''{Uri.EscapeDataString(displayName)}";
-
             response.Content.Headers.ContentDisposition = ContentDispositionHeaderValue.Parse(headerValue);
 
-            return response;
+            return ResponseMessage(response); // ✅ Chuẩn API
         }
-
-
     }
 }

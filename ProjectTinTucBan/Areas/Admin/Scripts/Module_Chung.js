@@ -23,7 +23,6 @@ function formatTimestamp(unixTimestamp) {
         var formattedDate = dayOfWeek + ', ' + day + "-" + month + "-" + year + " " + hours + ":" + minutes + ":" + seconds;
         return formattedDate;
     }
-
     function showLoading(selector, message = "Đang tải dữ liệu...") {
         const container = $(selector);
         if (!container.length) return;
@@ -61,8 +60,6 @@ function formatTimestamp(unixTimestamp) {
         // Xóa dữ liệu đã lưu
         container.removeData('original-content');
     }
-
-
     const dataTableDefaults = {
         pageLength: 5,
         lengthMenu: [5, 10, 15, 25, 50],
@@ -80,7 +77,3 @@ function formatTimestamp(unixTimestamp) {
             infoFiltered: "(lọc từ _MAX_ mục)"
         }
     };
-
-    
-
-
