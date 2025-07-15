@@ -1,190 +1,7 @@
-﻿
-
-
-
-
-
-
-const BASE_URL = `/api/v1/admin`;
-
-// ✅ Định nghĩa hàm handlePasteOrDrop
-function handlePasteOrDrop(evt, editor) {
-    const items = (evt.clipboardData || evt.dataTransfer)?.items;
-    if (!items) return;
-
-    for (let i = 0; i < items.length; i++) {
-        const item = items[i];
-        if (item.type.indexOf('image') !== -1) {
-            evt.preventDefault();
-            const file = item.getAsFile();
-
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                const img = new Image();
-
-                img.onload = function () {
-                    const originalWidth = img.width;
-                    const originalHeight = img.height;
-
-                    const maxWidth = 600;
-                    const maxHeight = 400;
-
-                    let newWidth = originalWidth;
-                    let newHeight = originalHeight;
-
-                    if (originalWidth > maxWidth || originalHeight > maxHeight) {
-                        const ratio = Math.min(maxWidth / originalWidth, maxHeight / originalHeight);
-                        newWidth = Math.round(originalWidth * ratio);
-                        newHeight = Math.round(originalHeight * ratio);
-
-                        const canvas = document.createElement('canvas');
-                        canvas.width = newWidth;
-                        canvas.height = newHeight;
-
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, newWidth, newHeight);
-
-                        const resizedDataUrl = canvas.toDataURL(file.type);
-
-                        insertImage(editor, resizedDataUrl, newWidth, newHeight, true);
-                    } else {
-                        insertImage(editor, e.target.result, newWidth, newHeight, false);
-                    }
-                };
-
-                img.src = e.target.result;
-            };
-
-            reader.readAsDataURL(file);
-        }
-    }
-}
-
-function insertImage(editor, src, width, height, showToast) {
-    // Tạo đoạn trống trước ảnh để tránh ảnh chèn sát chữ đầu
-    const before = editor.document.createElement('p');
-    before.setHtml('&nbsp;');
-    editor.insertElement(before);
-
-    // Tạo ảnh
-    const img = editor.document.createElement('img');
-    img.setAttribute('src', src);
-    img.setAttribute('width', width);
-    img.setAttribute('height', height);
-    img.setStyle('display', 'block');
-    img.setStyle('margin', '10px auto');
-
-    // Bọc img trong div
-    const wrapper = editor.document.createElement('div');
-    wrapper.setAttribute('class', 'cke-custom-image-wrapper');
-    wrapper.append(img);
-
-    // ❗️Dùng insertHtml thay vì insertElement (ổn định hơn với trình tự nội dung)
-    editor.insertHtml(wrapper.getOuterHtml());
-
-    // Thêm đoạn trống sau ảnh để ngắt nội dung tiếp theo
-    const after = editor.document.createElement('p');
-    after.setHtml('&nbsp;');
-    editor.insertElement(after);
-
-    if (showToast) {
-        Swal.fire({
-            toast: true,
-            position: 'top-end',
-            icon: 'success',
-            title: `Ảnh đã resize về ${width}x${height}`,
-            showConfirmButton: false,
-            timer: 2000,
-            timerProgressBar: true
-        });
-    }
-}
-
-function restoreSessionStorageFromServer() {
-    return new Promise((resolve) => {
-        $.ajax({
-            url: '/api/v1/admin/current-user',
-            type: 'GET',
-            dataType: 'json',
-            success: function (res) {
-                if (res.success && res.isLoggedIn && res.user) {
-                    sessionStorage.setItem('loginInfo', JSON.stringify({
-                        userId: res.user.id,
-                        name: res.user.name,
-                        email: res.user.email,
-                        role: res.user.role
-                    }));
-                } else {
-                }
-                resolve(); // luôn resolve để tiếp tục
-            },
-            error: function () {
-                resolve(); // vẫn resolve để không làm treo flow
-            }
-        });
-    });
-}
-// ✅ Định nghĩa hàm khởi tạo CKEditor
-function initCKEditor(elementId) {
-    if (CKEDITOR.instances[elementId]) {
-        CKEDITOR.instances[elementId].destroy(true);
-    }
-
-    CKEDITOR.replace(elementId, {
-        extraPlugins: 'justify',
-        allowedContent: true,
-        height: 500,
-        resize_enabled: false,
-        width: '100%',
-        toolbar: [
-            { name: 'clipboard', items: ['Cut', 'Copy', 'Paste', 'Undo', 'Redo'] },
-            { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike'] },
-            { name: 'paragraph', items: ['NumberedList', 'BulletedList', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'] },
-            { name: 'insert', items: ['Image', 'Table'] },
-            { name: 'tools', items: ['Maximize'] }
-        ],
-        on: {
-            instanceReady: function (evt) {
-                const editor = evt.editor;
-                // ❌ CHẶN CKEditor xử lý dán ảnh mặc định
-                editor.on('paste', function (evt) {
-                    const data = evt.data;
-                    const transfer = data?.dataTransfer?._ || data?.dataTransfer?.$;
-
-                    if (transfer?.files?.length > 0) {
-                        let hasImage = false;
-
-                        for (const f of transfer.files) {
-                            if (f.type.startsWith('image/')) {
-                                hasImage = true;
-                            }
-                        }
-
-                        // ❌ Nếu có ảnh, nhưng không phải chỉ có ảnh —> KHÔNG cancel, để giữ lại chữ
-                        if (hasImage && transfer.files.length === 1) {
-                            evt.cancel(); // Chỉ cancel nếu là ảnh duy nhất
-                        }
-                    }
-                });
-
-                // ✅ Gọi xử lý ảnh tùy chỉnh khi paste hoặc kéo-thả
-                editor.document.on('paste', function (e) {
-                    handlePasteOrDrop(e.data.$, editor);
-                });
-
-                editor.document.on('drop', function (e) {
-                    handlePasteOrDrop(e.data.$, editor);
-                });
-            }
-        }
-    });
-}
-
+﻿const BASE_URL = `/api/v1/admin`;
 $(document).ready(async function () {
     await restoreSessionStorageFromServer();
-    //showLoading('#xemNoiDungContainer', 'Đang tải danh sách bài viết...');
     initCKEditor('NoiDung');
-    //hideLoading('#xemNoiDungContainer'); // Ẩn loading sau khi khởi tạo CKEditor
     // ---------- Lưu nội dung ----------
     $('#btnLuuNoiDung').on('click', async function () {
         const result = await Swal.fire({
@@ -460,24 +277,193 @@ $(document).ready(async function () {
         } else {
             $('#btnLuuNoiDung').show(); // Hiện lại nếu có quyền
         }
-        
+
     });
 
-    // Hàm chuyển timestamp về dạng dd/MM/yyyy
-    function formatUnixDate(unixSeconds) {
-        if (!unixSeconds) return "N/A";
+});
+// ✅ Định nghĩa hàm handlePasteOrDrop
+function handlePasteOrDrop(evt, editor) {
+    const items = (evt.clipboardData || evt.dataTransfer)?.items;
+    if (!items) return;
 
-        const date = new Date(unixSeconds * 1000);
-        const weekdays = ['Chủ Nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
-        const dayOfWeek = weekdays[date.getDay()];
-        const day = ("0" + date.getDate()).slice(-2);
-        const month = ("0" + (date.getMonth() + 1)).slice(-2);
-        const year = date.getFullYear();
-        const hours = ("0" + date.getHours()).slice(-2);
-        const minutes = ("0" + date.getMinutes()).slice(-2);
-        const seconds = ("0" + date.getSeconds()).slice(-2);
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (item.type.indexOf('image') !== -1) {
+            evt.preventDefault();
+            const file = item.getAsFile();
 
-        return `${dayOfWeek}, ${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = new Image();
+
+                img.onload = function () {
+                    const originalWidth = img.width;
+                    const originalHeight = img.height;
+
+                    const maxWidth = 600;
+                    const maxHeight = 400;
+
+                    let newWidth = originalWidth;
+                    let newHeight = originalHeight;
+
+                    if (originalWidth > maxWidth || originalHeight > maxHeight) {
+                        const ratio = Math.min(maxWidth / originalWidth, maxHeight / originalHeight);
+                        newWidth = Math.round(originalWidth * ratio);
+                        newHeight = Math.round(originalHeight * ratio);
+
+                        const canvas = document.createElement('canvas');
+                        canvas.width = newWidth;
+                        canvas.height = newHeight;
+
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, newWidth, newHeight);
+
+                        const resizedDataUrl = canvas.toDataURL(file.type);
+
+                        insertImage(editor, resizedDataUrl, newWidth, newHeight, true);
+                    } else {
+                        insertImage(editor, e.target.result, newWidth, newHeight, false);
+                    }
+                };
+
+                img.src = e.target.result;
+            };
+
+            reader.readAsDataURL(file);
+        }
+    }
+}
+function insertImage(editor, src, width, height, showToast) {
+    // Tạo đoạn trống trước ảnh để tránh ảnh chèn sát chữ đầu
+    const before = editor.document.createElement('p');
+    before.setHtml('&nbsp;');
+    editor.insertElement(before);
+
+    // Tạo ảnh
+    const img = editor.document.createElement('img');
+    img.setAttribute('src', src);
+    img.setAttribute('width', width);
+    img.setAttribute('height', height);
+    img.setStyle('display', 'block');
+    img.setStyle('margin', '10px auto');
+
+    // Bọc img trong div
+    const wrapper = editor.document.createElement('div');
+    wrapper.setAttribute('class', 'cke-custom-image-wrapper');
+    wrapper.append(img);
+
+    // ❗️Dùng insertHtml thay vì insertElement (ổn định hơn với trình tự nội dung)
+    editor.insertHtml(wrapper.getOuterHtml());
+
+    // Thêm đoạn trống sau ảnh để ngắt nội dung tiếp theo
+    const after = editor.document.createElement('p');
+    after.setHtml('&nbsp;');
+    editor.insertElement(after);
+
+    if (showToast) {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: `Ảnh đã resize về ${width}x${height}`,
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+        });
+    }
+}
+function restoreSessionStorageFromServer() {
+    return new Promise((resolve) => {
+        $.ajax({
+            url: '/api/v1/admin/current-user',
+            type: 'GET',
+            dataType: 'json',
+            success: function (res) {
+                if (res.success && res.isLoggedIn && res.user) {
+                    sessionStorage.setItem('loginInfo', JSON.stringify({
+                        userId: res.user.id,
+                        name: res.user.name,
+                        email: res.user.email,
+                        role: res.user.role
+                    }));
+                } else {
+                }
+                resolve(); // luôn resolve để tiếp tục
+            },
+            error: function () {
+                resolve(); // vẫn resolve để không làm treo flow
+            }
+        });
+    });
+}
+// ✅ Định nghĩa hàm khởi tạo CKEditor
+function initCKEditor(elementId) {
+    if (CKEDITOR.instances[elementId]) {
+        CKEDITOR.instances[elementId].destroy(true);
     }
 
-});
+    CKEDITOR.replace(elementId, {
+        extraPlugins: 'justify',
+        allowedContent: true,
+        height: 500,
+        resize_enabled: false,
+        width: '100%',
+        toolbar: [
+            { name: 'clipboard', items: ['Cut', 'Copy', 'Paste', 'Undo', 'Redo'] },
+            { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike'] },
+            { name: 'paragraph', items: ['NumberedList', 'BulletedList', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'] },
+            { name: 'insert', items: ['Image', 'Table'] },
+            { name: 'tools', items: ['Maximize'] }
+        ],
+        on: {
+            instanceReady: function (evt) {
+                const editor = evt.editor;
+                // ❌ CHẶN CKEditor xử lý dán ảnh mặc định
+                editor.on('paste', function (evt) {
+                    const data = evt.data;
+                    const transfer = data?.dataTransfer?._ || data?.dataTransfer?.$;
+
+                    if (transfer?.files?.length > 0) {
+                        let hasImage = false;
+
+                        for (const f of transfer.files) {
+                            if (f.type.startsWith('image/')) {
+                                hasImage = true;
+                            }
+                        }
+
+                        // ❌ Nếu có ảnh, nhưng không phải chỉ có ảnh —> KHÔNG cancel, để giữ lại chữ
+                        if (hasImage && transfer.files.length === 1) {
+                            evt.cancel(); // Chỉ cancel nếu là ảnh duy nhất
+                        }
+                    }
+                });
+
+                // ✅ Gọi xử lý ảnh tùy chỉnh khi paste hoặc kéo-thả
+                editor.document.on('paste', function (e) {
+                    handlePasteOrDrop(e.data.$, editor);
+                });
+
+                editor.document.on('drop', function (e) {
+                    handlePasteOrDrop(e.data.$, editor);
+                });
+            }
+        }
+    });
+}
+// Hàm chuyển timestamp về dạng dd/MM/yyyy
+function formatUnixDate(unixSeconds) {
+    if (!unixSeconds) return "N/A";
+
+    const date = new Date(unixSeconds * 1000);
+    const weekdays = ['Chủ Nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+    const dayOfWeek = weekdays[date.getDay()];
+    const day = ("0" + date.getDate()).slice(-2);
+    const month = ("0" + (date.getMonth() + 1)).slice(-2);
+    const year = date.getFullYear();
+    const hours = ("0" + date.getHours()).slice(-2);
+    const minutes = ("0" + date.getMinutes()).slice(-2);
+    const seconds = ("0" + date.getSeconds()).slice(-2);
+
+    return `${dayOfWeek}, ${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+}
