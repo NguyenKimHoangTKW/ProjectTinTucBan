@@ -62,6 +62,7 @@ function renderGroupMenuTabs(groupMenus) {
         switch (asignTo) {
             case 1: return 'Header';
             case 2: return 'User Navbar';
+            case 0: return 'Chưa được dùng';
             default: return 'Không xác định';
         }
     }
@@ -122,7 +123,6 @@ function renderGroupMenuTabs(groupMenus) {
                                 data-id="${group.ID}" 
                                 data-ten="${group.Ten}"
                                 data-asignto="${group.AsignTo}"
-                                data-isimportant="${group.IsImportant}"
                                 title="Sửa group menu">
                             <i class="fas fa-edit"></i><span class="d-none d-md-inline ml-1">Sửa</span>
                         </button>
@@ -370,14 +370,13 @@ function initializeTabHandlers() {
 
 /* Code chức năng */
 // Thêm group menu
-function addGroupMenu(ten, isImportant, asignTo) {
+function addGroupMenu(ten, asignTo) {
     $.ajax({
         url: `${BASE_URL}/add-groupmenu`,
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify({
             Ten: ten,
-            IsImportant: isImportant,
             AsignTo: asignTo
         }),
         success: function (res) {
@@ -393,7 +392,7 @@ function addGroupMenu(ten, isImportant, asignTo) {
 }
 
 // Sửa group menu
-function editGroupMenu(id, ten, isImportant, asignTo) {
+function editGroupMenu(id, ten, asignTo) {
     $.ajax({
         url: `${BASE_URL}/edit-groupmenu`,
         type: 'POST',
@@ -401,7 +400,6 @@ function editGroupMenu(id, ten, isImportant, asignTo) {
         data: JSON.stringify({
             ID: id,
             Ten: ten,
-            IsImportant: isImportant,
             AsignTo: asignTo
         }),
         success: function (res) {
@@ -693,12 +691,11 @@ $(document).ready(function () {
         e.preventDefault();
         var ten = $('#groupMenuName').val().trim();
         var asignTo = $('#groupAsignTo').val().trim();
-        var isImportant = $('#groupImportant').is(':checked') ? 1 : 0;
         if (!ten) {
             alert('Tên group không được để trống!');
             return;
         }
-        addGroupMenu(ten, isImportant, asignTo);
+        addGroupMenu(ten, asignTo);
         $('#addGroupMenuModal').modal('hide');
         loadGroupMenus();
     });
@@ -736,17 +733,15 @@ $(document).ready(function () {
         $('#editGroupMenuId').val('');
         $('#editGroupMenuName').val('');
         $('#editGroupAsignTo').val('');
-        $('#editGroupImportant').prop('checked', false);
 
 
         var id = $(this).data('id');
         var ten = $(this).data('ten');
-        var asignTo = $(this).data('asignto') || 0;
-        var isImportant = $(this).data('isimportant') || 0;
+        var asignTo = $(this).data('asignto');
+
         $('#editGroupMenuId').val(id);
         $('#editGroupMenuName').val(ten);
         $('#editGroupAsignTo').val(asignTo);
-        $('#editGroupImportant').prop('checked', isImportant === 1);
         $('#editGroupMenuModal').modal('show');
     });
 
@@ -762,13 +757,13 @@ $(document).ready(function () {
         e.preventDefault();
         var id = $('#editGroupMenuId').val();
         var ten = $('#editGroupMenuName').val().trim();
-        var asignTo = $('#editGroupAsignTo').val().trim();
-        var isImportant = $('#editGroupImportant').is(':checked') ? 1 : 0;
+        var asignTo = parseInt($('#editGroupAsignTo').val(), 10);
+        
         if (!ten) {
             alert('Tên group không được để trống!');
             return;
         }
-        editGroupMenu(id, ten, isImportant, asignTo);
+        editGroupMenu(id, ten, asignTo);
         $('#editGroupMenuModal').modal('hide');
         loadGroupMenus();
     });
@@ -796,6 +791,7 @@ $(document).ready(function () {
         });
     }
 
+    /*
     // Xóa submenu khỏi group
     function deleteSubMenuFromGroup(subMenuId, menuId, groupMenuId, btn) {
         if (btn) $(btn).prop('disabled', true);
@@ -818,6 +814,7 @@ $(document).ready(function () {
             }
         });
     }
+    */
 
     // Xử lý sự kiện nhấn nút xóa để xóa menu khỏi group
     $(document).on('click', '.delete-menu-from-group-btn', function (e) {

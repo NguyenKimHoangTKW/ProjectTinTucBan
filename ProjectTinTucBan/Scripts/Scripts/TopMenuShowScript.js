@@ -17,10 +17,19 @@
                         const $li = $('<li></li>');
                         if (hasSub) $li.addClass('has-dropdown');
 
-                        // Biểu tượng ▼ nếu có submenu
+                        // Kiểm tra nếu là "Đăng Nhập" thì link cứng
+                        let href = 'javascript:void(0)';
+                        if (!hasSub) {
+                            if (menu.MenuName?.trim().toLowerCase() === 'đăng nhập') {
+                                href = 'https://localhost:44305/Home/Login';
+                            } else {
+                                href = menu.MenuLink || '#';
+                            }
+                        }
+
                         const $a = $('<a></a>')
                             .addClass('admin-topmenu-link')
-                            .attr('href', menu.MenuLink || '#')
+                            .attr('href', href)
                             .html(menu.MenuName + (hasSub ? ' <span class="dropdown-icon">▼</span>' : ''));
 
                         $li.append($a);
@@ -42,8 +51,7 @@
                     });
                 });
             })
-            .fail(function (jqXHR, textStatus, errorThrown) {
-                console.error('Lỗi khi tải menu:', textStatus, errorThrown);
+            .fail(function () {
                 $('.admin-topmenu-nav').empty()
                     .append('<li><span class="admin-topmenu-link text-danger">Lỗi tải menu</span></li>');
             });

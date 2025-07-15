@@ -430,6 +430,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 {
                     g.ID,
                     g.Ten,
+                    g.AsignTo,
                     g.NgayTao,
                     g.NgayCapNhat
                 }).ToListAsync();
@@ -449,12 +450,13 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 return BadRequest("Tên group menu không được để trống.");
 
             var now = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+
             var group = new Menu_Group
             {
                 Ten = dto.Ten,
                 NgayTao = now,
                 NgayCapNhat = now,
-                IsImportant = dto.IsImportant,
+                IsImportant = (dto.AsignTo != 0) ? 1 : 0,
                 AsignTo = dto.AsignTo
             };
             db.Menu_Group.Add(group);
@@ -475,8 +477,8 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 return BadRequest("Không tìm thấy group menu.");
 
             group.Ten = dto.Ten;
-            group.IsImportant = dto.IsImportant;
             group.AsignTo = dto.AsignTo;
+            group.IsImportant = (dto.AsignTo != 0) ? 1 : 0; // Nếu không có dùng thì IsImportant thì mặc định là 0
             group.NgayCapNhat = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
 
             // Luôn đồng bộ IsImportant cho tất cả menu thuộc group này

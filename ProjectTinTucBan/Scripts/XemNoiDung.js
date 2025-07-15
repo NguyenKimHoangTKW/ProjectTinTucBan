@@ -60,10 +60,12 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    console.log("Đã tăng lượt xem:", data.viewCount);
+                    // Đã tăng lượt xem
                 }
             })
-            .catch(err => console.error("Lỗi tăng lượt xem:", err));
+            .catch(() => {
+                // Lỗi tăng lượt xem
+            });
     }, 15000);
 });
 
@@ -82,8 +84,6 @@ $(document).ready(function () {
             }
 
             const bv = res.data;
-            console.log("🔍 Dữ liệu bài viết:", bv);
-            console.log("🧾 Danh sách bài viết cùng mục:", bv.BaiVietsCungMuc);
 
             const thumb = bv.LinkThumbnail?.trim()
                 ? bv.LinkThumbnail
@@ -93,7 +93,6 @@ $(document).ready(function () {
             const noiDungChuan = convertImagePaths(bv.NoiDung);
             const tenMucLuc = bv.MucLuc?.TenMucLuc?.trim() || "Không rõ";
             const tenMucLucSlug = bv.MucLuc?.TenMucLuc ? toSlug(bv.MucLuc.TenMucLuc) : "";
-
 
             const breadcrumb = `
         <nav class="flex flex-wrap gap-x-1">
@@ -108,14 +107,38 @@ $(document).ready(function () {
     `;
             $("#breadcrumbContainer").html(breadcrumb);
 
-            const pdfBlock = bv.LinkPDF?.trim()
-                ? `<div class="mt-6">
-                <p class="text-base font-semibold text-gray-700 mb-2">📄 Tài liệu đính kèm:</p>
-                <embed src="${bv.LinkPDF}" type="application/pdf" class="rounded border shadow w-full" />
+            let pdfBlock = "";
+            if (bv.LinkPDF?.trim()) {
+                const pdfLinks = bv.LinkPDF.split(",").map(link => link.trim()).filter(link => link !== "");
+                if (pdfLinks.length === 1) {
+                    pdfBlock = `
+            <div class="mt-6">
+                <embed src="${pdfLinks[0]}" type="application/pdf" class="rounded border shadow w-full h-[500px]" />
                 <div class="text-sm text-gray-500 mt-2">
-                    Nếu không hiển thị, <a href="${bv.LinkPDF}" class="text-blue-600 hover:underline" target="_blank">nhấn vào đây để tải về</a>.
+                    Nếu không hiển thị, <a href="${pdfLinks[0]}" class="text-blue-600 hover:underline" target="_blank">nhấn vào đây để tải về</a>.
                 </div>
-           </div>` : '';
+            </div>
+        `;
+                } else {
+                    pdfBlock = `
+            <div class="mt-6">
+                <p class="text-base font-semibold text-gray-700 mb-3">📎 File đính kèm:</p>
+                <ul class="space-y-2">
+                    ${pdfLinks.map((pdf, index) => {
+                        const fileName = pdf.split("/").pop();
+                        return `
+                            <li>
+                                <a href="${pdf}" target="_blank" class="flex items-center gap-2 text-blue-600 hover:underline">
+                                    <i class="fa-solid fa-file-pdf text-red-600"></i> Tài liệu ${index + 1} (${fileName})
+                                </a>
+                            </li>
+                        `;
+                    }).join("")}
+                </ul>
+            </div>
+        `;
+                }
+            }
 
             const html = `
         <h1 class="text-2xl md:text-3xl font-bold text-center text-blue-800 mb-6 uppercase">
@@ -153,25 +176,19 @@ $(document).ready(function () {
     `;
             $("#baivietContainer").html(html);
 
-            // ✅ Cập nhật tên mục lục đúng
             $("#tenMucLuc").replaceWith(`
         <p id="tenMucLuc" class="text-red-700 font-bold text-xl uppercase mb-2">
             ${tenMucLuc}
         </p>
     `);
 
-            // ✅ Hiển thị danh sách bài viết cùng mục lục
-            // ✅ Hiển thị danh sách bài viết cùng mục lục
             if (Array.isArray(bv.BaiVietsCungMuc) && bv.BaiVietsCungMuc.length > 0) {
                 const baiVietKhac = bv.BaiVietsCungMuc
                     .filter(item => item.ID !== bv.ID)
                     .sort(() => Math.random() - 0.5)
                     .slice(0, 5);
 
-                let htmlList = `
-        <h2 class="text-xl font-bold text-gray-800 mb-4"></h2>
-        <div class="space-y-4">
-    `;
+                let htmlList = `<h2 class="text-xl font-bold text-gray-800 mb-4"></h2><div class="space-y-4">`;
 
                 baiVietKhac.forEach(item => {
                     const tieuDe = escapeHtml((item.TieuDe || "Không có tiêu đề"));
@@ -194,8 +211,6 @@ $(document).ready(function () {
             } else {
                 $("#mucLucBaiViet").html("<p class='text-gray-500 text-sm'>Không có bài viết liên quan.</p>");
             }
-
-
         },
 
         error: function () {
@@ -219,14 +234,12 @@ $(document).on("click", ".scroll-to", function (e) {
     }
 });
 
-// Nếu trở về từ nút Back, reload lại trang để cập nhật
 window.addEventListener("pageshow", function (event) {
     if (event.persisted) {
         window.location.reload();
     }
 });
 
-// Khi vào trang chủ, nếu có slug đã lưu thì scroll đến đó
 $(document).ready(function () {
     const savedSlug = localStorage.getItem("scrollToSlug");
     if (savedSlug) {
@@ -240,4 +253,4 @@ $(document).ready(function () {
             localStorage.removeItem("scrollToSlug");
         }, 400);
     }
-}); 
+});

@@ -1,4 +1,11 @@
-﻿const BASE_URL = `/api/v1/admin`;
+﻿
+
+
+
+
+
+
+const BASE_URL = `/api/v1/admin`;
 
 // ✅ Định nghĩa hàm handlePasteOrDrop
 function handlePasteOrDrop(evt, editor) {
@@ -175,9 +182,9 @@ function initCKEditor(elementId) {
 
 $(document).ready(async function () {
     await restoreSessionStorageFromServer();
-
+    //showLoading('#xemNoiDungContainer', 'Đang tải danh sách bài viết...');
     initCKEditor('NoiDung');
-
+    //hideLoading('#xemNoiDungContainer'); // Ẩn loading sau khi khởi tạo CKEditor
     // ---------- Lưu nội dung ----------
     $('#btnLuuNoiDung').on('click', async function () {
         const result = await Swal.fire({
@@ -375,7 +382,6 @@ $(document).ready(async function () {
             });
 
         } catch (error) {
-            console.error('Lỗi khi tạo PDF:', error);
             Swal.fire('Lỗi', 'Không thể tạo PDF. Vui lòng thử lại.', 'error');
         }
     });
@@ -454,6 +460,7 @@ $(document).ready(async function () {
         } else {
             $('#btnLuuNoiDung').show(); // Hiện lại nếu có quyền
         }
+        
     });
 
     // Hàm chuyển timestamp về dạng dd/MM/yyyy

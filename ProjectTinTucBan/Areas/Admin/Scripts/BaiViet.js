@@ -409,16 +409,39 @@ let pageSize = 6;          // Bao nhiêu bài mỗi trang
 let currentPage = 1;        // Trang hiện tại
 
 async function GetAllBaiViet() {
-    const res = await $.ajax({ url: `${BASE_URL}/get-all-baiviet`, type: 'GET' });
-    if (res.success) {
-        allBaiViet = res.data;
-        filteredBaiViet = allBaiViet; // mặc định là tất cả
-        renderPage(1);
-        setupPagination();
-    } else {
-        $('#table_load_baiviet tbody').html(`<tr><td colspan="11">${res.message}</td></tr>`);
+    // Ẩn bảng và phân trang
+    $('#tableWrapper').hide();
+    $('#paginationWrapper').hide();
+
+    // Hiện loader
+    showLoading('#loaderWrapper', 'Đang tải danh sách bài viết...');
+
+    try {
+        const res = await $.ajax({
+            url: `${BASE_URL}/get-all-baiviet`,
+            type: 'GET'
+        });
+
+        if (res.success) {
+            allBaiViet = res.data;
+            filteredBaiViet = allBaiViet;
+
+            renderPage(1);
+            setupPagination();
+
+            // Hiện bảng và phân trang, ẩn loader
+            $('#tableWrapper').show();
+            $('#paginationWrapper').show();
+            $('#loaderWrapper').empty(); // ✅ clear hẳn nội dung loader
+        } else {
+            $('#loaderWrapper').html(`<p class="text-danger text-center">${res.message}</p>`);
+        }
+    } catch (error) {
+        $('#loaderWrapper').html(`<p class="text-danger text-center">Đã xảy ra lỗi khi tải dữ liệu.</p>`);
     }
 }
+
+
 function renderPage(page) {
     const tableBody = $('#table_load_baiviet tbody');
     let html = '';

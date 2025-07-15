@@ -29,7 +29,7 @@
             <div class="swiper-pagination"></div>
         </div>
     </section>
-
+    
     <!-- Tin tức -->
     <section class="py-10">
         <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -41,101 +41,100 @@
                 <!-- Nội dung Khối và Đơn vị sẽ được load bằng JavaScript -->
             </aside>
         </div>
-    </section>
-
-    <!-- Giới thiệu + Video -->
-    <section class="w-full bg-white px-4 py-8">
-        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
-            <div class="w-full aspect-video">
-                <iframe id="video"
-                        class="w-full h-full rounded shadow-lg"
-                        src=""
-                        title="YouTube video player"
-                        frameborder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        allowfullscreen>
-                </iframe>
-            </div>
-
-            <div>
-                <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-6">
-                    Giới thiệu về Trung tâm
-                </h2>
-
-                <div class="space-y-5 mb-8">
-                    <div class="flex items-start gap-4">
-                        <div class="bg-blue-100 text-blue-600 rounded-full p-3 shadow-sm">
-                            <i class="fas fa-check text-xl"></i>
-                        </div>
-                        <div>
-                            <p class="font-semibold text-gray-700">Tên đầy đủ</p>
-                            <p class="text-red-600 font-bold" id="fullName"></p>
-                        </div>
-                    </div>
-
-                    <div class="flex items-start gap-4">
-                        <div class="bg-blue-100 text-blue-600 rounded-full p-3 shadow-sm">
-                            <i class="fas fa-check text-xl"></i>
-                        </div>
-                        <div>
-                            <p class="font-semibold text-gray-700">Tên tiếng Anh</p>
-                            <p class="text-red-600 font-bold leading-snug" id="englishName"></p>
-                        </div>
-                    </div>
-
-                    <div class="flex items-start gap-4">
-                        <div class="bg-blue-100 text-blue-600 rounded-full p-3 shadow-sm">
-                            <i class="fas fa-calendar-alt text-xl"></i>
-                        </div>
-                        <div>
-                            <p class="font-semibold text-gray-700">Ngày thành lập</p>
-                            <p class="text-blue-700 font-bold" id="established"></p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex items-center gap-4 mb-8">
-                    <button class="bg-blue-600 text-white px-6 py-2 rounded shadow hover:bg-blue-700 transition" id="btnChiTiet">
-                        CHI TIẾT
-                    </button>
-                    <a href="#video" class="flex items-center gap-2 text-black hover:text-blue-700" id="btnWatchVideo">
-                        <div class="border border-blue-600 rounded-full p-2 text-blue-600">
-                            <i class="fas fa-play"></i>
-                        </div>
-                        <span class="font-medium">Watch Video</span>
-                    </a>
-                </div>
-
-                <div class="border-t pt-4 text-sm space-y-2 text-gray-800">
-                    <div class="flex items-center gap-2">
-                        <i class="fas fa-map-marker-alt text-blue-600"></i>
-                        <span id="address"></span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <i class="fas fa-phone text-blue-600"></i>
-                        <span id="phone"></span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <i class="fas fa-envelope text-blue-600"></i>
-                        <a href="#" class="text-blue-600 hover:underline" id="email"></a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Modal Video -->
-    <div id="videoModal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg overflow-hidden shadow-lg relative w-full max-w-3xl">
-            <button id="closeVideoModal" class="absolute top-2 right-2 text-gray-700 hover:text-red-600 text-2xl">&times;</button>
-            <iframe id="popupVideo" class="w-full h-[400px]" src="" frameborder="0" allowfullscreen></iframe>
-        </div>
-    </div>
-
-    <!-- Scripts -->
+    </section>    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
-    <script src="~/Areas/Admin/Scripts/EditFooter.js"></script>
+    <script>
+        function toSlug(str) {
+            return str.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+        }
+
+        function formatDate(yyyymmdd) {
+            if (!yyyymmdd || yyyymmdd.toString().length !== 8) return '';
+            const str = yyyymmdd.toString();
+            return `${str.substring(6, 8)}/${str.substring(4, 6)}/${str.substring(0, 4)}`;
+        }
+
+        // Hàm chuyển Unix timestamp sang "dd/MM/yyyy"
+        function unixToDateStr(unix) {
+            if (!unix || isNaN(unix)) return '';
+            var d = new Date(unix * 1000);
+            var day = ('0' + d.getDate()).slice(-2);
+            var month = ('0' + (d.getMonth() + 1)).slice(-2);
+            var year = d.getFullYear();
+            return day + '/' + month + '/' + year;
+        }
+
+        new Swiper(".mySwiper", {
+            loop: true,
+            autoplay: { delay: 3000, disableOnInteraction: false },
+            pagination: { el: ".swiper-pagination", clickable: true },
+            navigation: { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" }
+        });
+
+        // Lưu trữ dữ liệu mục lục bài viết
+        window.mucLucData = {};
+
+        $(document).ready(function () {
+            // Đọc dữ liệu footer từ API thay vì file JSON
+            fetch('/api/FooterApi/1')  // Giả sử ID của footer là 1
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('video').src = data.VideoUrl;
+                    document.getElementById('fullName').textContent = data.FullName;
+                    document.getElementById('englishName').innerHTML = data.EnglishName.replaceAll(',', '<br>');
+                    // Sửa tại đây: chuyển Unix timestamp sang ngày
+                    document.getElementById('established').textContent = unixToDateStr(data.NgayThanhLap);
+                    document.getElementById('address').textContent = data.DiaChi;
+                    document.getElementById('phone').textContent = data.DienThoai;
+                    document.getElementById('email').textContent = data.Email;
+                    document.getElementById('email').href = 'mailto:' + data.Email;
+                    document.getElementById('footerCopyright').textContent = data.FooterCopyright || "";
+                    document.getElementById('footerNote').textContent = data.FooterNote || "";
+
+                    // Lưu VideoUrl để sử dụng cho popupVideo
+                    let videoUrl = data.VideoUrl;
+
+                    // Xử lý play video khi nhấn "Watch Video" (hiện popup)
+                    document.getElementById('btnWatchVideo').addEventListener('click', function (e) {
+                        e.preventDefault();
+                        var modal = document.getElementById('videoModal');
+                        var popupVideo = document.getElementById('popupVideo');
+                        var url = videoUrl;
+                        if (!url.includes('autoplay=1')) {
+                            url += (url.includes('?') ? '&' : '?') + 'autoplay=1';
+                        }
+                        popupVideo.src = url;
+                        modal.classList.remove('hidden');
+                    });
+                });
+
+            // Đóng modal khi nhấn nút đóng
+            document.getElementById('closeVideoModal').addEventListener('click', function () {
+                var modal = document.getElementById('videoModal');
+                var popupVideo = document.getElementById('popupVideo');
+                modal.classList.add('hidden');
+                popupVideo.src = "";
+            });
+
+            // Đóng modal khi click ra ngoài nội dung
+            document.getElementById('videoModal').addEventListener('click', function (e) {
+                if (e.target === this) {
+                    this.classList.add('hidden');
+                    document.getElementById('popupVideo').src = "";
+                }
+            });
+
+            // Xử lý chuyển hướng khi nhấn "CHI TIẾT"
+            document.getElementById('btnChiTiet').addEventListener('click', function (e) {
+                e.preventDefault();
+                window.open('https://bdbcl.tdmu.edu.vn/danh-muc/Gioi-thieu/gioi-thieu-chung', '_blank');
+            });
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+
     <script src="~/Scripts/Scripts/BaiVietTrangChu.js"></script>
     <footer class="bg-[#29A3E0] text-white text-sm py-6">
         <div class="max-w-7xl mx-auto px-4 space-y-2 text-center sm:texta-left">

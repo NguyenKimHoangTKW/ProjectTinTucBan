@@ -37,6 +37,7 @@
             text-decoration: none;
             position: relative;
             transition: color 0.3s ease;
+            cursor: pointer;
         }
 
             .admin-topmenu-link:hover {
@@ -58,6 +59,7 @@
             position: relative;
         }
 
+        /* Dropdown Style */
         .admin-topmenu-dropdown {
             list-style: none;
             position: absolute;
@@ -68,15 +70,19 @@
             border-radius: 12px;
             box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.1);
             min-width: 220px;
-            max-width: 300px; /* ✅ Giới hạn chiều rộng menu */
-            z-index: 999;
-            display: none;
+            max-width: 300px;
             padding: 12px 0;
-            animation: fadeIn 0.2s ease-in-out;
+            z-index: 999;
+            pointer-events: auto;
+            /* Hiệu ứng ẩn hiện */
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease-in-out;
         }
 
         .has-dropdown:hover .admin-topmenu-dropdown {
-            display: block;
+            opacity: 1;
+            visibility: visible;
         }
 
         .admin-topmenu-dropdown li {
@@ -91,11 +97,11 @@
             color: #1f2937;
             text-decoration: none;
             transition: background 0.2s, color 0.2s;
-            white-space: normal; /* ✅ Cho phép xuống dòng */
-            word-wrap: break-word; /* ✅ Ngắt từ dài */
+            white-space: normal;
+            word-wrap: break-word;
             word-break: break-word;
             overflow-wrap: break-word;
-            max-width: 260px; /* ✅ Chiều rộng tối đa cho mỗi item */
+            max-width: 260px;
             line-height: 1.4;
             border-left: 3px solid transparent;
         }
@@ -106,17 +112,6 @@
                 border-left: 3px solid #f97316;
             }
 
-        @@keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-8px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
     </style>
 </div>
 
