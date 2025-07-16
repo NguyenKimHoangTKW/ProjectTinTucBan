@@ -325,14 +325,14 @@
     <Compile Include="Areas\Admin\Controllers\BaiVietAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\DashboardController.cs" />
     <Compile Include="Areas\Admin\Controllers\DonViTrucThuocController.cs" />
+    <Compile Include="Areas\Admin\Controllers\EditTaiKhoanApiController.cs" />
     <Compile Include="Areas\Admin\Controllers\FooterController.cs" />
     <Compile Include="Areas\Admin\Controllers\FunctionAdminAPIController.cs" />
-    <Compile Include="Areas\Admin\Controllers\EditTaiKhoanControllers.cs" />
+    <Compile Include="Areas\Admin\Controllers\EditTaiKhoanController.cs" />
     <Compile Include="Areas\Admin\Controllers\InterfaceAdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\KhoiController.cs" />
     <Compile Include="Controllers\LoginAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\MucLucAdminAPIController.cs" />
-    <Compile Include="Areas\Admin\Controllers\TestController.cs" />
     <Compile Include="Areas\Admin\Controllers\UserAdminAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\RolesAdminAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\MenuApiAdminController.cs" />
@@ -1616,7 +1616,6 @@
     <Content Include="Views\BaiViet\XemNoiDung.cshtml" />
     <Content Include="Views\Shared\TrangChuHeaderPartial.cshtml" />
     <Content Include="Views\Shared\TrangChuNavPartial.cshtml" />
-    <Content Include="Views\Shared\TrangChuFooterPartial.cshtml" />
     <Content Include="Views\Home\TinTuc.cshtml" />
     <Content Include="Views\Home\DanhSachBaiViet.cshtml" />
     <Content Include="Views\Shared\SliderShowPartial.cshtml" />

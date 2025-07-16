@@ -9,34 +9,13 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
     {
         private WebTinTucTDMUEntities db = new WebTinTucTDMUEntities();
 
+        // GET: api/Admin/DonViTrucThuoc/GetAll
         [HttpGet]
-        [Route("")]
-        public IHttpActionResult Get()
+        [Route("GetAll")]
+        public IHttpActionResult GetAll()
         {
             var list = db.DonViTrucThuocs
-                .OrderBy(d => d.ThuTuShow) // Sắp xếp theo thứ tự hiển thị
-                .ThenBy(d => d.ID)         // Sắp xếp phụ theo ID để tránh trùng thứ tự
-                .Select(d => new
-                {
-                    id = d.ID,
-                    idKhoi = d.ID_Khoi,
-                    tenDonVi = d.TenDonVi,
-                    thuTuShow = d.ThuTuShow,
-                    link = d.Link,
-                    ngayDang = d.NgayDang,
-                    ngayCapNhat = d.NgayCapNhat,
-                    trangThai = d.IsActive == 1
-                }).ToList();
-            return Ok(list);
-        }
-
-        [HttpGet]
-        [Route("ByKhoi/{idKhoi:int}")]
-        public IHttpActionResult GetByKhoi(int idKhoi)
-        {
-            var list = db.DonViTrucThuocs
-                .Where(d => d.ID_Khoi == idKhoi)
-                .OrderBy(d => d.ThuTuShow) // Sắp xếp theo thứ tự hiển thị
+                .OrderBy(d => d.ThuTuShow)
                 .ThenBy(d => d.ID)
                 .Select(d => new
                 {
@@ -52,8 +31,32 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             return Ok(list);
         }
 
+        // GET: api/Admin/DonViTrucThuoc/ByKhoi/{idKhoi}
         [HttpGet]
-        [Route("{id:int}")]
+        [Route("ByKhoi/{idKhoi}")]
+        public IHttpActionResult GetByKhoi(int idKhoi)
+        {
+            var list = db.DonViTrucThuocs
+                .Where(d => d.ID_Khoi == idKhoi)
+                .OrderBy(d => d.ThuTuShow)
+                .ThenBy(d => d.ID)
+                .Select(d => new
+                {
+                    id = d.ID,
+                    idKhoi = d.ID_Khoi,
+                    tenDonVi = d.TenDonVi,
+                    thuTuShow = d.ThuTuShow,
+                    link = d.Link,
+                    ngayDang = d.NgayDang,
+                    ngayCapNhat = d.NgayCapNhat,
+                    trangThai = d.IsActive == 1
+                }).ToList();
+            return Ok(list);
+        }
+
+        // GET: api/Admin/DonViTrucThuoc/{id}
+        [HttpGet]
+        [Route("{id}")]
         public IHttpActionResult Get(int id)
         {
             var d = db.DonViTrucThuocs.Find(id);
@@ -71,8 +74,9 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             });
         }
 
+        // POST: api/Admin/DonViTrucThuoc/Create
         [HttpPost]
-        [Route("")]
+        [Route("Create")]
         public IHttpActionResult Post([FromBody] DonViTrucThuoc donvi)
         {
             if (!ModelState.IsValid)
@@ -94,8 +98,9 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             });
         }
 
+        // PUT: api/Admin/DonViTrucThuoc/{id}
         [HttpPut]
-        [Route("{id:int}")]
+        [Route("{id}")]
         public IHttpActionResult Put(int id, [FromBody] DonViTrucThuoc donvi)
         {
             if (!ModelState.IsValid)
@@ -125,8 +130,9 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             });
         }
 
+        // DELETE: api/Admin/DonViTrucThuoc/{id}
         [HttpDelete]
-        [Route("{id:int}")]
+        [Route("{id}")]
         public IHttpActionResult Delete(int id)
         {
             var donvi = db.DonViTrucThuocs.Find(id);
@@ -138,6 +144,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             return Ok();
         }
 
+        // PUT: api/Admin/DonViTrucThuoc/ToggleTrangThai/{id}
         [HttpPut]
         [Route("ToggleTrangThai/{id:int}")]
         public IHttpActionResult ToggleTrangThai(int id, [FromBody] ToggleTrangThaiModel model)

@@ -5,6 +5,7 @@ using System;
 using System.Web.Mvc;
 using Newtonsoft.Json.Linq;
 using System.Globalization;
+using RouteAttribute = System.Web.Http.RouteAttribute;
 
 namespace ProjectTinTucBan.Areas.Admin.Controllers
 {
@@ -19,8 +20,10 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             return Ok(list);
         }
 
-        // GET: api/admin/footerapi/5
-        public IHttpActionResult GetById(int id)
+        // GET: api/admin/footerapi
+        [System.Web.Http.HttpGet]
+        [Route("api/FooterApi/{id}")]
+        public IHttpActionResult Get(int id)
         {
             var footer = db.Footers.FirstOrDefault(f => f.ID == id);
             if (footer == null)
@@ -44,8 +47,9 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             return Ok(model);
         }
 
-        // PUT: api/admin/footerapi/5
+        // PUT: api/FooterApi
         [System.Web.Http.HttpPut]
+        [Route("api/FooterApi/{id}")]
         public IHttpActionResult Update(int id, [FromBody] Footer model)
         {
             var footer = db.Footers.FirstOrDefault(f => f.ID == id);
@@ -69,8 +73,9 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             return Ok(footer);
         }
 
-        // DELETE: api/admin/footerapi/5
+        // DELETE: api/FooterApi
         [System.Web.Http.HttpDelete]
+        [Route("api/FooterApi/{id}")]
         public IHttpActionResult Delete(int id)
         {
             var footer = db.Footers.FirstOrDefault(f => f.ID == id);

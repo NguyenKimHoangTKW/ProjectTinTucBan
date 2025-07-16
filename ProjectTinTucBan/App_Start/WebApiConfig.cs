@@ -5,7 +5,7 @@ using System.Web.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace ProjectTinTucBan
+namespace ProjectTinTucBan.Areas.Admin.Controllers
 {
     public static class WebApiConfig
     {

@@ -8,14 +8,14 @@ using ProjectTinTucBan.Models;
 
 namespace ProjectTinTucBan.Controllers.Api
 {
-    [RoutePrefix("api/Khoi")]
+    [RoutePrefix("api/Admin/Khoi")]
     public class KhoiController : ApiController
     {
         private WebTinTucTDMUEntities db = new WebTinTucTDMUEntities();
 
-        // GET: api/Khoi
+        // GET: api/Admin/Khoi/GetAll
         [HttpGet]
-        [Route("")]
+        [Route("GetAll")]
         public IHttpActionResult Get()
         {
             var khois = db.Khois.Select(k => new
@@ -30,9 +30,9 @@ namespace ProjectTinTucBan.Controllers.Api
             return Ok(khois);
         }
 
-        // GET: api/Khoi/5
+        // GET: api/Admin/Khoi/Get/{id}
         [HttpGet]
-        [Route("{id:int}")]
+        [Route("Get/{id}")]
         public IHttpActionResult Get(int id)
         {
             var khoi = db.Khois.Where(k => k.ID == id)
@@ -57,9 +57,9 @@ namespace ProjectTinTucBan.Controllers.Api
             return (int)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds;
         }
 
-        // POST: api/Khoi
+        // POST: api/Admin/Khoi/Create
         [HttpPost]
-        [Route("")]
+        [Route("Create")]
         public IHttpActionResult Post([FromBody] Khoi khoi)
         {
             if (!ModelState.IsValid)
@@ -79,9 +79,9 @@ namespace ProjectTinTucBan.Controllers.Api
             });
         }
 
-        // PUT: api/Khoi/5
+        // PUT: api/Admin/Khoi/Update/{id}
         [HttpPut]
-        [Route("{id:int}")]
+        [Route("Update/{id}")]
         public IHttpActionResult Put(int id, [FromBody] Khoi khoi)
         {
             if (!ModelState.IsValid)
@@ -106,9 +106,9 @@ namespace ProjectTinTucBan.Controllers.Api
             });
         }
 
-        // PUT: api/Khoi/ToggleTrangThai/5
+        // PUT: api/Admin/Khoi/ToggleTrangThai/{id}
         [HttpPut]
-        [Route("ToggleTrangThai/{id:int}")]
+        [Route("ToggleTrangThai/{id}")]
         public IHttpActionResult ToggleTrangThai(int id, [FromBody] ToggleTrangThaiModel model)
         {
             var khoi = db.Khois.Find(id);
@@ -126,9 +126,9 @@ namespace ProjectTinTucBan.Controllers.Api
             public bool IsActive { get; set; }
         }
 
-        // DELETE: api/Khoi/5
+        // DELETE: api/Admin/Khoi/Delete/{id}
         [HttpDelete]
-        [Route("{id:int}")]
+        [Route("Delete/{id}")]
         public IHttpActionResult Delete(int id)
         {
             var khoi = db.Khois.Find(id);

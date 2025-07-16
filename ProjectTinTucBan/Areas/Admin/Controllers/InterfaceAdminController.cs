@@ -7,52 +7,7 @@ using Newtonsoft.Json.Linq;
 
 
 using ProjectTinTucBan.Helper;
-using System.Security.Claims;
-using System.Web;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.Owin;
-using Microsoft.Owin.Security;
-using ProjectTinTucBan.Models;
-using Microsoft.Owin.Security.Cookies;
-using ProjectTinTucBan.Helper;
-using System.Data.Entity; 
-using System.Collections.Generic; 
 
-
-using System.Security.Claims;
-using System.Web;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.Owin;
-using Microsoft.Owin.Security;
-using ProjectTinTucBan.Models;
-using Microsoft.Owin.Security.Cookies;
-using ProjectTinTucBan.Helper;
-using System.Data.Entity; 
-using System.Collections.Generic; 
-
-
-using System.Security.Claims;
-using System.Web;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.Owin;
-using Microsoft.Owin.Security;
-using ProjectTinTucBan.Models;
-using Microsoft.Owin.Security.Cookies;
-using ProjectTinTucBan.Helper;
-using System.Data.Entity; 
-using System.Collections.Generic; 
-
-
-using System.Security.Claims;
-using System.Web;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.Owin;
-using Microsoft.Owin.Security;
-using ProjectTinTucBan.Models;
-using Microsoft.Owin.Security.Cookies;
-using ProjectTinTucBan.Helper;
-using System.Data.Entity; 
-using System.Collections.Generic; 
 
 
 namespace ProjectTinTucBan.Areas.Admin.Controllers

@@ -1,4 +1,131 @@
-﻿// Hàm chuyển Unix timestamp thành chuỗi ngày giờ
+﻿$(document).ready(function () {
+    loadDanhSachKhoi().then(function () {
+        initDataTable();
+        loadDonViTrucThuoc();
+    });
+
+    $('#filterKhoi').change(function () {
+        loadDonViTrucThuoc($(this).val());
+    });
+
+    $('#btnShowDonViModal').click(function () {
+        $('#ID').val('');
+        $('#donViForm')[0].reset();
+        $('#donViModal').modal('show');
+    });
+
+    $('#donViForm').submit(function (e) {
+        e.preventDefault();
+
+        var id = $('#ID').val();
+        var donVi = {
+            ID_Khoi: $('#ID_Khoi').val(),
+            TenDonVi: $('#TenDonVi').val(),
+            ThuTuShow: $('#ThuTuShow').val(),
+            Link: $('#Link').val()
+        };
+
+        if (id) {
+            // Cập nhật
+            $.ajax({
+                url: '/api/Admin/DonViTrucThuoc/' + id,
+                type: 'PUT',
+                data: JSON.stringify(donVi),
+                contentType: 'application/json',
+                success: function () {
+                    $('#donViForm')[0].reset();
+                    $('#ID').val('');
+                    $('#donViModal').modal('hide');
+                    loadDonViTrucThuoc($('#filterKhoi').val());
+                    Swal.fire('Thành công!', 'Đã cập nhật đơn vị.', 'success');
+                },
+                error: function (xhr) {
+                    Swal.fire('Lỗi!', getErrorMessage(xhr), 'error');
+                }
+            });
+        } else {
+            // Thêm mới
+            $.ajax({
+                url: '/api/Admin/DonViTrucThuoc/Create',
+                type: 'POST',
+                data: JSON.stringify(donVi),
+                contentType: 'application/json',
+                success: function () {
+                    $('#donViForm')[0].reset();
+                    $('#donViModal').modal('hide');
+                    loadDonViTrucThuoc($('#filterKhoi').val());
+                    Swal.fire('Thành công!', 'Đã thêm đơn vị mới.', 'success');
+                },
+                error: function (xhr) {
+                    Swal.fire('Lỗi!', getErrorMessage(xhr), 'error');
+                }
+            });
+        }
+    });
+
+    $('#btnClear').click(function () {
+        $('#donViForm')[0].reset();
+        $('#ID').val('');
+    });
+
+    $(document).on('click', '.btn-sua-donvi', function () {
+        var id = $(this).data('id');
+        editDonVi(id);
+    });
+
+    $(document).on('click', '.btn-xoa-donvi', function () {
+        var id = $(this).data('id');
+        deleteDonVi(id);
+    });
+
+    // Sửa đoạn này để cập nhật trạng thái vào DB khi bật/tắt switch
+    $(document).on('change', '.toggle-trangthai-donvi', function () {
+        var id = $(this).data('id');
+        var isActive = $(this).is(':checked');
+        var thuTu = $(this).data('thutu');
+
+        // Nếu bật 1 checkbox, tắt các checkbox khác cùng thứ tự
+        if (isActive) {
+            $('.toggle-trangthai-donvi[data-thutu="' + thuTu + '"]').not(this).each(function () {
+                if ($(this).is(':checked')) {
+                    $(this).prop('checked', false);
+                    // Gửi API cập nhật trạng thái về false cho các đơn vị khác cùng thứ tự
+                    var otherId = $(this).data('id');
+                    $.ajax({
+                        url: '/api/Admin/DonViTrucThuoc/ToggleTrangThai/' + otherId,
+                        type: 'PUT',
+                        data: JSON.stringify({ IsActive: false }),
+                        contentType: 'application/json'
+                    });
+                }
+            });
+        }
+
+        // Gửi API cập nhật trạng thái cho đơn vị này
+        $.ajax({
+            url: '/api/Admin/DonViTrucThuoc/ToggleTrangThai/' + id,
+            type: 'PUT',
+            data: JSON.stringify({ IsActive: isActive }),
+            contentType: 'application/json',
+            success: function () {
+                // Có thể reload lại bảng nếu muốn đồng bộ trạng thái
+                // loadDonViTrucThuoc($('#filterKhoi').val());
+            },
+            error: function (xhr) {
+                Swal.fire('Lỗi!', getErrorMessage(xhr), 'error');
+            }
+        });
+    });
+
+    $('#table_load_donvi').on('draw.dt', function () {
+        var PageInfo = $('#table_load_donvi').DataTable().page.info();
+        $('#table_load_donvi').DataTable().column(1, { page: 'current' }).nodes().each(function (cell, i) {
+            cell.innerHTML = i + 1 + PageInfo.start;
+        });
+    });
+});
+
+// Hàm chuyển Unix timestamp thành chuỗi ngày giờ
 function unixToDateTimeString(unix) {
     if (!unix || unix == 0) return '';
     var date = new Date(unix * 1000);
@@ -35,10 +162,10 @@ var dataTable;
 // Load danh sách Khối
 function loadDanhSachKhoi() {
     return $.ajax({
-        url: '/api/Khoi',
+        url: '/api/Admin/Khoi/GetAll',
         type: 'GET',
         success: function (data) {
-        
+
             danhSachKhoi = data;
             var options = '<option value="">-- Tất cả Khối --</option>';
             var formOptions = '<option value="">-- Chọn Khối --</option>';
@@ -50,7 +177,7 @@ function loadDanhSachKhoi() {
             $('#ID_Khoi').html(formOptions);
         },
         error: function (xhr) {
-           
+
         }
     });
 }
@@ -154,7 +281,7 @@ function initDataTable() {
 function loadDonViTrucThuoc(idKhoi) {
     var url = idKhoi
         ? '/api/Admin/DonViTrucThuoc/ByKhoi/' + idKhoi
-        : '/api/Admin/DonViTrucThuoc';
+        : '/api/Admin/DonViTrucThuoc/GetAll';
     $.ajax({
         url: url,
         type: 'GET',
@@ -184,7 +311,6 @@ function editDonVi(id) {
         },
         error: function (xhr) {
             Swal.fire('Lỗi!', getErrorMessage(xhr), 'error');
-          
         }
     });
 }
@@ -215,138 +341,8 @@ function deleteDonVi(id) {
                 },
                 error: function (xhr) {
                     Swal.fire('Lỗi!', getErrorMessage(xhr), 'error');
-                   
                 }
             });
         }
     });
 }
-
-$(document).ready(function () {
-    loadDanhSachKhoi().then(function () {
-        initDataTable();
-        loadDonViTrucThuoc();
-    });
-
-    $('#filterKhoi').change(function () {
-        loadDonViTrucThuoc($(this).val());
-    });
-
-    $('#btnShowDonViModal').click(function () {
-        $('#ID').val('');
-        $('#donViForm')[0].reset();
-        $('#donViModal').modal('show');
-    });
-
-    $('#donViForm').submit(function (e) {
-        e.preventDefault();
-
-        var id = $('#ID').val();
-        var donVi = {
-            ID_Khoi: $('#ID_Khoi').val(),
-            TenDonVi: $('#TenDonVi').val(),
-            ThuTuShow: $('#ThuTuShow').val(),
-            Link: $('#Link').val()
-        };
-
-        if (id) {
-            // Cập nhật
-            $.ajax({
-                url: '/api/Admin/DonViTrucThuoc/' + id,
-                type: 'PUT',
-                data: JSON.stringify(donVi),
-                contentType: 'application/json',
-                success: function () {
-                    $('#donViForm')[0].reset();
-                    $('#ID').val('');
-                    $('#donViModal').modal('hide');
-                    loadDonViTrucThuoc($('#filterKhoi').val());
-                    Swal.fire('Thành công!', 'Đã cập nhật đơn vị.', 'success');
-                },
-                error: function (xhr) {
-                    Swal.fire('Lỗi!', getErrorMessage(xhr), 'error');
-                    
-                }
-            });
-        } else {
-            // Thêm mới
-            $.ajax({
-                url: '/api/Admin/DonViTrucThuoc',
-                type: 'POST',
-                data: JSON.stringify(donVi),
-                contentType: 'application/json',
-                success: function () {
-                    $('#donViForm')[0].reset();
-                    $('#donViModal').modal('hide');
-                    loadDonViTrucThuoc($('#filterKhoi').val());
-                    Swal.fire('Thành công!', 'Đã thêm đơn vị mới.', 'success');
-                },
-                error: function (xhr) {
-                    Swal.fire('Lỗi!', getErrorMessage(xhr), 'error');
-                   
-                }
-            });
-        }
-    });
-
-    $('#btnClear').click(function () {
-        $('#donViForm')[0].reset();
-        $('#ID').val('');
-    });
-
-    $(document).on('click', '.btn-sua-donvi', function () {
-        var id = $(this).data('id');
-        editDonVi(id);
-    });
-
-    $(document).on('click', '.btn-xoa-donvi', function () {
-        var id = $(this).data('id');
-        deleteDonVi(id);
-    });
-
-    // Sửa đoạn này để cập nhật trạng thái vào DB khi bật/tắt switch
-    $(document).on('change', '.toggle-trangthai-donvi', function () {
-        var id = $(this).data('id');
-        var isActive = $(this).is(':checked');
-        var thuTu = $(this).data('thutu');
-
-        // Nếu bật 1 checkbox, tắt các checkbox khác cùng thứ tự
-        if (isActive) {
-            $('.toggle-trangthai-donvi[data-thutu="' + thuTu + '"]').not(this).each(function () {
-                if ($(this).is(':checked')) {
-                    $(this).prop('checked', false);
-                    // Gửi API cập nhật trạng thái về false cho các đơn vị khác cùng thứ tự
-                    var otherId = $(this).data('id');
-                    $.ajax({
-                        url: '/api/Admin/DonViTrucThuoc/ToggleTrangThai/' + otherId,
-                        type: 'PUT',
-                        data: JSON.stringify({ IsActive: false }),
-                        contentType: 'application/json'
-                    });
-                }
-            });
-        }
-
-        // Gửi API cập nhật trạng thái cho đơn vị này
-        $.ajax({
-            url: '/api/Admin/DonViTrucThuoc/ToggleTrangThai/' + id,
-            type: 'PUT',
-            data: JSON.stringify({ IsActive: isActive }),
-            contentType: 'application/json',
-            success: function () {
-                // Có thể reload lại bảng nếu muốn đồng bộ trạng thái
-                // loadDonViTrucThuoc($('#filterKhoi').val());
-            },
-            error: function (xhr) {
-                Swal.fire('Lỗi!', getErrorMessage(xhr), 'error');
-            }
-        });
-    });
-
-    $('#table_load_donvi').on('draw.dt', function () {
-        var PageInfo = $('#table_load_donvi').DataTable().page.info();
-        $('#table_load_donvi').DataTable().column(1, { page: 'current' }).nodes().each(function (cell, i) {
-            cell.innerHTML = i + 1 + PageInfo.start;
-        });
-    });
-});
