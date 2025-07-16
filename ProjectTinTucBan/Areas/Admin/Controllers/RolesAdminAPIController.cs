@@ -1,12 +1,13 @@
-﻿using System;
+﻿using ProjectTinTucBan.Helper;
+using ProjectTinTucBan.Models;
+using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Web.Http;
-using ProjectTinTucBan.Models;
 using System.Threading.Tasks;
+using System.Web.Http;
 namespace ProjectTinTucBan.Areas.Admin.Controllers
 {
     [RoutePrefix("api/v1/admin")]
@@ -26,6 +27,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("Get-All-Roles")]
         public async Task<IHttpActionResult> GetAllRoles()
         {
+            var user = SessionHelper.GetUser();
             try
             {
                 var GetALLRoles = await db.Roles
@@ -60,6 +62,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("Create-Roles")]
         public async Task<IHttpActionResult> CreateMucLuc(Role Item)
         {
+            var user = SessionHelper.GetUser();
             try
             {
                 if (Item == null)
@@ -100,6 +103,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("Get-Roles-By-Id/{id}")]
         public async Task<IHttpActionResult> GetRolesById(int id)
         {
+            var user = SessionHelper.GetUser();
             try
             {
                 var GetRolesById = await db.Roles
@@ -134,6 +138,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("Update-Roles")]
         public async Task<IHttpActionResult> UpdateRoles(Role Item)
         {
+            var user = SessionHelper.GetUser();
             try
             {
                 if (Item == null || Item.ID <= 0)
@@ -174,6 +179,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("Delete-Roles")]
         public async Task<IHttpActionResult> DeleteRole(Role Item)
         {
+            var userSession = SessionHelper.GetUser();
             try
             {
                 if (Item == null || Item.ID <= 0)

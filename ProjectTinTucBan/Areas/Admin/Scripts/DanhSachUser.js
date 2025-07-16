@@ -1,20 +1,21 @@
+// ================== BIẾN TOÀN CỤC ==================
+let dataTableInstance = null;
+const defaultContent = "Không có dữ liệu";
+
+// ================== XỬ LÝ SỰ KIỆN & KHỞI TẠO ==================
 $(document).ready(function () {
     // Khởi tạo thành phần Select2 nếu có sẵn
-    if ($.fn.select2) {
+    if ($.select2) {
         $(".select2").select2();
     }
 
-    // Thiết lập tìm kiếm nâng cao và mặc định tải dữ liệu
-    setupAdvancedSearch();
     load_data();
     loadRoles();
 
-    // Xử lý sự kiện chuyển tab trong modal
+    // Sự kiện chuyển tab trong modal
     $('#userModalTabs a').on('click', function (e) {
         e.preventDefault();
         $(this).tab('show');
-
-        // Hiển thị/ẩn các nút phù hợp với tab
         const tabId = $(this).attr('href');
         if (tabId === '#permissions-content') {
             $("#formButtons").hide();
@@ -41,33 +42,13 @@ $(document).ready(function () {
         }
     });
 
-    // Sự kiện click nút chi tiết
-    $(document).on("click", ".btn-detail", function () {
-        const id = $(this).data("id");
-        openViewUserModal(id);
+    // Sự kiện lưu phân quyền
+    $("#btnSavePermissions").on("click", function () {
+        saveUserPermissions();
     });
 
-    // Thêm xử lý sự kiện cho nút phân quyền
-    $(document).on("click", ".btn-permissions", function () {
-        const id = $(this).data("id");
-        const username = $(this).data("username");
-        openPermissionsModal(id, username);
-    });
-
-    // Sự kiện click nút chỉnh sửa
-    $(document).on("click", ".btn-edit", function () {
-        const id = $(this).data("id");
-        openEditUserModal(id);
-    });
-
-    // Sự kiện click nút xóa
-    $(document).on("click", ".btn-delete", function () {
-        const id = $(this).data("id");
-        deleteUser(id);
-    });
-
-    $(document).on("change", "#changePasswordCheck", function () {
-
+    // Sự kiện đổi trạng thái đổi mật khẩu
+    $("#changePasswordCheck").on("change", function () {
         if ($(this).is(":checked")) {
             $("#newPasswordFields").slideDown(300);
         } else {
@@ -75,14 +56,8 @@ $(document).ready(function () {
         }
     });
 
-    // Thêm xử lý sự kiện cho việc lưu phân quyền
-    $("#btnSavePermissions").on("click", function () {
-        saveUserPermissions();
-    });
-
-    // Thêm xử lý khi đóng modal để đặt lại trạng thái hoàn toàn
+    // Sự kiện đóng modal
     $("#UserModal").on("hidden.bs.modal", function () {
-        // Đặt lại tất cả phần tử modal
         $(".form-fields").show();
         $("#userDetails").hide();
         $("#formButtons").show();
@@ -90,50 +65,75 @@ $(document).ready(function () {
         $("#permissionButtons").hide();
         $("#changePasswordSection").hide();
         $("#editOnlyFields").hide();
-
-        // Reset tab về tab thông tin
         $('#userModalTabs a[href="#info-content"]').tab('show');
-
-        // Reset form và các giá trị
         $("#UserForm")[0].reset();
         $("#userId").val("");
         $("#permissionUserId").val("");
         $("#permissionUserName").text("");
         $("#formMode").val("edit");
-
-        // Xóa dữ liệu bảng phân quyền
         $("#functionsTableBody").html("");
         $("#noFunctionsMessage").hide();
     });
 
-    // Xóa handler cũ trước khi đăng ký mới
+    // Sự kiện nút chỉnh sửa trong modal chi tiết (nút này sinh động)
     $(document).off('click', '#btnEditFromView');
-
-    // Đăng ký sự kiện cho nút chỉnh sửa trong modal với cách xử lý tốt hơn
     $(document).on('click', '#btnEditFromView', function (e) {
         e.preventDefault();
-        e.stopPropagation(); // Ngăn sự kiện lan truyền
-
-        // Ưu tiên lấy ID từ data-id của nút
+        e.stopPropagation();
         let userId = $(this).attr("data-id");
-
-
-        // Nếu không có từ button, thử lấy từ hidden field
         if (!userId || userId === "") {
             userId = $("#userId").val();
-
         }
-
         if (!userId || userId === "") {
             Sweet_Alert("error", "Không tìm thấy ID tài khoản để chỉnh sửa");
             return;
         }
-
         switchToEditMode(userId);
+    });
+
+    // Thiết lập tìm kiếm nâng cao
+    $(document).on('click', '#btnApplySearch', function () {
+        applyAdvancedSearch();
+    });
+    $(document).on('click', '#btnResetSearch', function () {
+        resetAdvancedSearch();
+    });
+    $('#searchTenTaiKhoan, #searchTenNguoiDung, #searchRole, #searchIsBanned').on('keypress', function (e) {
+        if (e.which === 13) {
+            applyAdvancedSearch();
+        }
+    });
+
+    // Các nút động trong bảng (chi tiết, phân quyền, sửa, xóa)
+    $(document).on("click", ".btn-detail", function () {
+        const id = $(this).data("id");
+        openViewUserModal(id);
+    });
+    $(document).on("click", ".btn-permissions", function () {
+        const id = $(this).data("id");
+        const username = $(this).data("username");
+        openPermissionsModal(id, username);
+    });
+    $(document).on("click", ".btn-edit", function () {
+        const id = $(this).data("id");
+        openEditUserModal(id);
+    });
+    $(document).on("click", ".btn-delete", function () {
+        const id = $(this).data("id");
+        deleteUser(id);
+    });
+
+    // Checkbox động trong bảng phân quyền
+    $(document).on("change", ".function-checkbox", function () {
+        updateCheckAllState();
+    });
+    $("#checkAllFunctions").on("change", function () {
+        const isChecked = $(this).prop("checked");
+        $(".function-checkbox").prop("checked", isChecked);
     });
 });
 
-let dataTableInstance = null;
+// ================== HÀM XỬ LÝ DỮ LIỆU, AJAX, TIỆN ÍCH ==================
 
 // Tải danh sách vai trò cho dropdown
 function loadRoles() {
@@ -154,25 +154,6 @@ function loadRoles() {
     });
 }
 
-// Thiết lập tìm kiếm nâng cao
-function setupAdvancedSearch() {
-    // Sự kiện cho nút tìm kiếm
-    $(document).on('click', '#btnApplySearch', function () {
-        applyAdvancedSearch();
-    });
-
-    // Sự kiện cho nút đặt lại
-    $(document).on('click', '#btnResetSearch', function () {
-        resetAdvancedSearch();
-    });
-
-    // Sự kiện nhấn Enter trong các trường tìm kiếm
-    $('#searchTenTaiKhoan, #searchTenNguoiDung, #searchRole, #searchIsBanned').on('keypress', function (e) {
-        if (e.which === 13) {
-            applyAdvancedSearch();
-        }
-    });
-}
 
 // Áp dụng tìm kiếm nâng cao
 function applyAdvancedSearch() {
@@ -182,30 +163,19 @@ function applyAdvancedSearch() {
     const searchIsBanned = $('#searchIsBanned').val();
 
     if (dataTableInstance) {
-        // Định nghĩa hàm tìm kiếm tùy chỉnh
         $.fn.dataTable.ext.search.push(function (settings, data, dataIndex, rowData) {
-            // Data[1] = Tên tài khoản, Data[2] = Tên người dùng, Data[3] = Vai trò, Data[4] = Trạng thái
             const tenTaiKhoan = data[1].toLowerCase();
             const tenNguoiDung = data[2].toLowerCase();
             const role = rowData.ID_role ? rowData.ID_role.toString() : "";
             const isBanned = rowData.IsBanned ? rowData.IsBanned.toString() : "";
-
-            // Kiểm tra điều kiện tìm kiếm
             const matchTen = searchTenTaiKhoan === '' || tenTaiKhoan.includes(searchTenTaiKhoan);
             const matchHoTen = searchTenNguoiDung === '' || tenNguoiDung.includes(searchTenNguoiDung);
             const matchRole = searchRole === '' || role === searchRole;
             const matchIsBanned = searchIsBanned === '' || isBanned === searchIsBanned;
-
             return matchTen && matchHoTen && matchRole && matchIsBanned;
         });
-
-        // Áp dụng tìm kiếm và vẽ lại bảng
         dataTableInstance.draw();
-
-        // Xóa bộ lọc tìm kiếm sau khi đã áp dụng
         $.fn.dataTable.ext.search.pop();
-
-        // Thông báo kết quả tìm kiếm
         const visibleRows = dataTableInstance.rows({ search: 'applied' }).count();
         if (visibleRows === 0) {
             Sweet_Alert("info", "Không tìm thấy kết quả phù hợp");
@@ -213,33 +183,21 @@ function applyAdvancedSearch() {
     }
 }
 
-// Đặt lại tìm kiếm nâng cao
-function resetAdvancedSearch() {
+// Đặt lại tìm kiếm nâng cao (async version)
+async function resetAdvancedSearch() {
     $('#searchTenTaiKhoan').val('');
     $('#searchTenNguoiDung').val('');
     $('#searchRole').val('');
     $('#searchIsBanned').val('');
-
     if (dataTableInstance) {
         dataTableInstance.search('').columns().search('').draw();
     }
 }
 
-// Lấy tên vai trò từ ID
-function getRoleName(roleId, rolesData) {
-    const role = rolesData.find(r => r.ID === roleId);
-    return role ? role.TenRole : "Không xác định";
-}
-
-defaultContent = "Không có dữ liệu";
-
 // Tải dữ liệu từ API
 async function load_data() {
     try {
-        // Hiển thị loading
         showLoading('#data-table', 'Đang tải dữ liệu...');
-
-        // Tải dữ liệu vai trò
         let rolesData = [];
         try {
             const rolesResponse = await $.ajax({
@@ -247,27 +205,21 @@ async function load_data() {
                 type: 'GET',
                 dataType: 'json'
             });
-
             if (rolesResponse.success && Array.isArray(rolesResponse.data)) {
                 rolesData = rolesResponse.data;
             }
         } catch (error) {
             Sweet_Alert("error", "Không thể tải danh sách vai trò");
         }
-
-        // Gọi API tải danh sách người dùng
         $.ajax({
             url: '/api/v1/admin/Get-All-Users',
             type: 'GET',
             dataType: 'json',
             cache: false,
             success: function (response) {
-                // Xóa DataTable cũ nếu đã tồn tại
                 if ($.fn.DataTable.isDataTable('#data-table')) {
                     $('#data-table').DataTable().destroy();
                 }
-
-                // Xóa nội dung loading và tạo lại cấu trúc table
                 $('#data-table').html(`
                     <thead>
                         <tr>
@@ -283,32 +235,23 @@ async function load_data() {
                     </thead>
                     <tbody></tbody>
                 `);
-
-                // Xử lý dữ liệu cho hiển thị
                 let processedData = [];
                 if (response.data && Array.isArray(response.data)) {
                     processedData = response.data.map(item => {
-                        // Tạo một object mới với các thuộc tính của item
                         const newItem = { ...item };
-
-                        // Xử lý cả hai trường hợp viết hoa và viết thường
                         if (item.NgayTao && !isNaN(parseInt(item.NgayTao))) {
                             newItem.NgayTao = formatTimestamp(parseInt(item.NgayTao));
                         } else if (item.ngayTao && !isNaN(parseInt(item.ngayTao))) {
                             newItem.NgayTao = formatTimestamp(parseInt(item.ngayTao));
                         }
-
                         if (item.NgayCapNhat && !isNaN(parseInt(item.NgayCapNhat))) {
                             newItem.NgayCapNhat = formatTimestamp(parseInt(item.NgayCapNhat));
                         } else if (item.ngayCapNhat && !isNaN(parseInt(item.ngayCapNhat))) {
                             newItem.NgayCapNhat = formatTimestamp(parseInt(item.ngayCapNhat));
                         }
-
                         return newItem;
                     });
                 }
-
-                // Khởi tạo DataTable với dữ liệu
                 dataTableInstance = $('#data-table').DataTable({
                     ...dataTableDefaults,
                     data: processedData || [],
@@ -332,7 +275,9 @@ async function load_data() {
                         {
                             data: 'ID_role',
                             render: function (data, type, row) {
-                                const roleName = getRoleName(data, rolesData);
+                                // Tìm tên vai trò đồng bộ từ rolesData
+                                const role = rolesData.find(r => r.ID === data);
+                                const roleName = role ? role.TenRole : "Không xác định";
                                 return `<span class="badge badge-primary">${roleName}</span>`;
                             }
                         },
@@ -356,9 +301,7 @@ async function load_data() {
                             data: null,
                             orderable: false,
                             render: function (data) {
-                                // Sử dụng hàm getUserId để trích xuất ID một cách chính xác
                                 const userId = getUserId(data);
-
                                 return `
                                     <div class="d-flex justify-content-center">
                                         <button class="btn-action btn-detail mr-1" data-id="${userId}" title="Xem chi tiết">
@@ -376,14 +319,11 @@ async function load_data() {
                         }
                     ]
                 });
-
-                // Hiển thị thông báo nếu không có dữ liệu
                 if (!response.success) {
                     Sweet_Alert("info", response.message || "Không có dữ liệu");
                 }
             },
             error: function (xhr, status, error) {
-                // Hiển thị thông báo lỗi
                 $('#data-table').empty().html(`
                     <thead>
                         <tr>
@@ -403,271 +343,81 @@ async function load_data() {
                         </tr>
                     </tbody>
                 `);
-
                 Sweet_Alert("error", "Không thể tải danh sách: " + xhr.statusText);
             }
         });
     } catch (error) {
-
         Sweet_Alert("error", "Lỗi JavaScript: " + error.message);
     }
 }
 
 // Mở modal xem chi tiết người dùng
 async function openViewUserModal(userId) {
-    // Đặt lại form và thiết lập chế độ xem
     $("#UserForm")[0].reset();
     $(".form-fields").hide();
     $("#userDetails").show();
     $("#formButtons").hide();
     $("#viewButtons").show();
     $("#permissionButtons").hide();
-
-    // Reset và hiển thị tab thông tin
     $('#userModalTabs a[href="#info-content"]').tab('show');
-    $("#permissions-tab-item").hide(); // Ẩn tab phân quyền khi ở chế độ xem
-
-    // Hiển thị modal trước với nội dung trống
+    $("#permissions-tab-item").hide();
     $("#UserModalLabel").text("Chi tiết tài khoản");
     $("#UserModal").modal("show");
 
     try {
-        // Hiển thị lớp phủ loading
         showLoading("#info-content");
-
-        // Tải dữ liệu người dùng, quyền hạn và tất cả chức năng song song
         const [userResponse, permissionsResponse, functionsResponse] = await Promise.all([
-            $.ajax({
-                url: `/api/v1/admin/Get-User-By-Id/${userId}`,
-                type: 'GET'
-            }),
-            $.ajax({
-                url: `/api/v1/admin/Get-User-Permissions/${userId}`,
-                type: 'GET'
-            }),
-            $.ajax({
-                url: '/api/v1/admin/Get-All-Functions',
-                type: 'GET'
-            })
+            $.ajax({ url: `/api/v1/admin/Get-User-By-Id/${userId}`, type: 'GET' }),
+            $.ajax({ url: `/api/v1/admin/Get-User-Permissions/${userId}`, type: 'GET' }),
+            $.ajax({ url: '/api/v1/admin/Get-All-Functions', type: 'GET' })
         ]);
-
 
         if (userResponse.success && userResponse.data) {
             const user = userResponse.data;
-
-            // Lấy ID một cách nhất quán với tất cả trường hợp
             const userIdValue = user.ID || user.Id || user.id;
-
-            // Thiết lập ID người dùng trong trường ẩn và log ra console để kiểm tra
             $("#userId").val(userIdValue);
 
-
-            // Lấy tên vai trò để hiển thị
+            // Lấy tên vai trò
             let roleName = "Không xác định";
             try {
-                const roleResponse = await $.ajax({
-                    url: '/api/v1/admin/Get-All-Roles',
-                    type: 'GET'
-                });
-
+                const roleResponse = await $.ajax({ url: '/api/v1/admin/Get-All-Roles', type: 'GET' });
                 if (roleResponse.success && roleResponse.data) {
                     const role = roleResponse.data.find(r => r.ID === user.ID_role);
                     roleName = role ? role.TenRole : "Không xác định";
                 }
-            } catch (error) {
-                Sweet_Alert("error", "Lỗi khi tải vai trò: " + error.message);
-            }
+            } catch (error) { }
 
-            // Ẩn lớp phủ loading
+            await waitMinLoading("#info-content");
             hideLoading("#info-content");
 
-            // Định dạng thời gian
+            // Gán dữ liệu vào các thẻ đã có sẵn trong .cshtml
+            $("#detailTenTaiKhoan").text(user.TenTaiKhoan || "N/A");
+            $("#detailTenNguoiDung").text(user.TenNguoiDung || user.Name || "N/A");
+            $("#detailTrangThai").html(
+                user.IsBanned === 1
+                    ? '<span class="badge badge-pill badge-danger px-3 py-2"><i class="anticon anticon-lock mr-1"></i>Tài khoản bị khóa</span>'
+                    : '<span class="badge badge-pill badge-success px-3 py-2"><i class="anticon anticon-unlock mr-1"></i>Đang hoạt động</span>'
+            );
+            $("#detailID").text(userIdValue || "N/A");
+            $("#detailTenTaiKhoan2").text(user.TenTaiKhoan || "N/A");
+            $("#detailTenNguoiDung2").text(user.TenNguoiDung || user.Name || "N/A");
+            $("#detailVaiTro").text(roleName);
+            $("#detailGmail").html(
+                user.Gmail
+                    ? `<a href="mailto:${user.Gmail}" class="text-primary"><i class="anticon anticon-mail mr-1"></i>${user.Gmail}</a>`
+                    : "N/A"
+            );
+            $("#detailSDT").html(
+                user.SDT
+                    ? `<a href="tel:${user.SDT}" class="text-primary"><i class="anticon anticon-phone mr-1"></i>${user.SDT}</a>`
+                    : "N/A"
+            );
             let ngayTao = user.NgayTao || user.ngayTao;
             let ngayCapNhat = user.NgayCapNhat || user.ngayCapNhat;
-            const formattedNgayTao = ngayTao ? formatTimestamp(parseInt(ngayTao)) : "N/A";
-            const formattedNgayCapNhat = ngayCapNhat ? formatTimestamp(parseInt(ngayCapNhat)) : "N/A";
+            $("#detailNgayTao").text(ngayTao ? formatTimestamp(parseInt(ngayTao)) : "N/A");
+            $("#detailNgayCapNhat").text(ngayCapNhat ? formatTimestamp(parseInt(ngayCapNhat)) : "N/A");
 
-            // Replace the user details HTML in openViewUserModal with this improved design:
-            // In the openViewUserModal function, update the user details HTML with improved table styling:
-
-            $("#userDetails").html(`
-                <div class="modal-user-details">
-                    <!-- User identity section -->
-                    <div class="user-profile-header mb-4">
-                        <div class="d-flex align-items-center">
-                            <div class="user-avatar-circle bg-primary text-white mr-3">
-                                <i class="anticon anticon-user font-size-24"></i>
-                            </div>
-                            <div>
-                                <h5 class="mb-1">${user.TenTaiKhoan || "N/A"}</h5>
-                                <p class="mb-0 text-muted">${user.TenNguoiDung || user.Name || "N/A"}</p>
-                            </div>
-                            <div class="ml-auto">
-                                ${user.IsBanned === 1 ?
-                    '<span class="badge badge-pill badge-danger px-3 py-2"><i class="anticon anticon-lock mr-1"></i>Tài khoản bị khóa</span>' :
-                    '<span class="badge badge-pill badge-success px-3 py-2"><i class="anticon anticon-unlock mr-1"></i>Đang hoạt động</span>'}
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- User information section -->
-                    <div class="card mb-4 border">
-                        <div class="card-header bg-primary">
-                            <h6 class="mb-0 text-white"><i class="anticon anticon-profile mr-2"></i>Thông tin cơ bản</h6>
-                        </div>
-                        <div class="card-body p-0">
-                            <div class="table-responsive">
-                                <table class="table table-hover mb-0">
-                                    <tbody>
-                                        <tr>
-                                            <td width="30%" class="text-muted font-weight-bold bg-light">ID</td>
-                                            <td class="bg-white">${userIdValue || "N/A"}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-muted font-weight-bold bg-light">Tên tài khoản</td>
-                                            <td class="bg-white">${user.TenTaiKhoan || "N/A"}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-muted font-weight-bold bg-light">Tên người dùng</td>
-                                            <td class="bg-white">${user.TenNguoiDung || user.Name || "N/A"}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-muted font-weight-bold bg-light">Vai trò</td>
-                                            <td class="bg-white"><span class="badge badge-primary">${roleName}</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-muted font-weight-bold bg-light">Gmail</td>
-                                            <td class="bg-white">
-                                                ${user.Gmail ? `<a href="mailto:${user.Gmail}" class="text-primary">
-                                                    <i class="anticon anticon-mail mr-1"></i>${user.Gmail}
-                                                </a>` : "N/A"}
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-muted font-weight-bold bg-light">Số điện thoại</td>
-                                            <td class="bg-white">
-                                                ${user.SDT ? `<a href="tel:${user.SDT}" class="text-primary">
-                                                    <i class="anticon anticon-phone mr-1"></i>${user.SDT}
-                                                </a>` : "N/A"}
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-        
-                    <!-- Timestamps section -->
-                    <div class="card mb-4 border">
-                        <div class="card-header bg-primary">
-                            <h6 class="mb-0 text-white"><i class="anticon anticon-history mr-2"></i>Thông tin thời gian</h6>
-                        </div>
-                        <div class="card-body bg-white">
-                            <div class="row">
-                                <div class="col-md-6 mb-2">
-                                    <label class="font-weight-bold text-muted">Ngày tạo:</label>
-                                    <div class="d-flex align-items-center">
-                                        <i class="anticon anticon-calendar text-primary mr-2"></i>
-                                        <span>${formattedNgayTao}</span>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 mb-2">
-                                    <label class="font-weight-bold text-muted">Ngày cập nhật:</label>
-                                    <div class="d-flex align-items-center">
-                                        <i class="anticon anticon-sync text-primary mr-2"></i>
-                                        <span>${formattedNgayCapNhat}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-        
-                    <!-- Permissions section -->
-                    <div class="card border">
-                        <div class="card-header bg-primary">
-                            <h6 class="mb-0 text-white"><i class="anticon anticon-safety-certificate mr-2"></i>Phân quyền</h6>
-                        </div>
-                        <div class="card-body bg-white">
-                            <div id="viewPermissionsTable" class="table-responsive" style="display: none;">
-                                <table class="table table-bordered user-permissions-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Tên chức năng</th>
-                                            <th>Mã chức năng</th>
-                                            <th>Mô tả</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="viewPermissionsTableBody">
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Add some custom CSS for the user modal -->
-                <style>
-                    .modal-user-details {
-                        font-size: 14px;
-                    }
-                    .user-avatar-circle {
-                        width: 60px;
-                        height: 60px;
-                        border-radius: 50%;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                    }
-                    .modal-user-details .card {
-                        border-radius: 4px;
-                        overflow: hidden;
-                    }
-                    .modal-user-details .card-header {
-                        padding: 12px 15px;
-                        border-bottom: none;
-                        background-color: #5a8dee !important;
-                    }
-                    .modal-user-details .card-header h6 {
-                        color: white !important;
-                        font-weight: 500;
-                    }
-                    .modal-user-details .table {
-                        margin-bottom: 0;
-                    }
-                    .modal-user-details .table td,
-                    .modal-user-details .table th {
-                        padding: 12px 15px;
-                        vertical-align: middle;
-                    }
-        
-                    /* Specific styling for the permissions table */
-                    .user-permissions-table {
-                        width: 100%;
-                        border-collapse: collapse;
-                    }
-                    .user-permissions-table thead tr {
-                        background-color: #5a8dee !important;
-                    }
-                    .user-permissions-table thead th {
-                        font-weight: normal;
-                        border-bottom: none !important;
-                        text-align: center;
-                        padding: 10px;
-                    }
-                    .user-permissions-table tbody td {
-                        padding: 10px;
-                        border: 1px solid #dee2e6;
-                    }
-                    .user-permissions-table tbody tr:nth-child(odd) {
-                        background-color: #f8f9fa;
-                    }
-                    .user-permissions-table tbody tr:nth-child(even) {
-                        background-color: white;
-                    }
-                </style>
-            `);
-
-            // Tạo nút với ID rõ ràng và đảm bảo data-id có giá trị
+            // Nút chức năng
             $("#viewButtons").html(`
                 <button type="button" class="btn btn-primary m-1" id="btnEditFromView" data-id="${userIdValue}">
                     <i class="anticon anticon-edit m-r-5"></i>
@@ -679,38 +429,22 @@ async function openViewUserModal(userId) {
                 </button>
             `);
 
-            // Kiểm tra nút sau khi tạo
-
-            // Hiển thị quyền với cách tiếp cận cải tiến
+            // Phân quyền
             if (permissionsResponse.success && functionsResponse.success) {
-                // Get user permissions and convert ID_Function to numbers for better comparison
                 const userPermissions = permissionsResponse.data || [];
                 const allFunctions = functionsResponse.data || [];
-
-
-                // Clear both states first
                 $("#viewPermissionsTable").hide();
                 $("#noPermissionsMessage").hide();
 
                 if (userPermissions.length > 0 && allFunctions.length > 0) {
-                    // Extract function IDs from user permissions
                     const userFunctionIds = [];
                     userPermissions.forEach(p => {
-                        if (p.ID_Function) {
-                            userFunctionIds.push(parseInt(p.ID_Function));
-                        }
+                        if (p.ID_Function) userFunctionIds.push(parseInt(p.ID_Function));
                     });
-
-
-
-                    // Filter functions that match the user's permissions
                     const userFunctions = allFunctions.filter(func =>
                         userFunctionIds.includes(parseInt(func.ID))
                     );
-
-
                     if (userFunctions.length > 0) {
-                        // Build table HTML
                         let permissionsHtml = '';
                         userFunctions.forEach(func => {
                             permissionsHtml += `
@@ -721,20 +455,18 @@ async function openViewUserModal(userId) {
                                 </tr>
                             `;
                         });
-
-                        // Update the table
                         $("#viewPermissionsTableBody").html(permissionsHtml);
                         $("#viewPermissionsTable").show();
                     } else {
-                        // Show no permissions message
+                        $("#viewPermissionsTableBody").html('');
                         $("#noPermissionsMessage").show();
                     }
                 } else {
-                    // Show no permissions message
+                    $("#viewPermissionsTableBody").html('');
                     $("#noPermissionsMessage").show();
                 }
             } else {
-                // Show no permissions message in case of API errors
+                $("#viewPermissionsTableBody").html('');
                 $("#noPermissionsMessage").show();
             }
         } else {
@@ -747,18 +479,29 @@ async function openViewUserModal(userId) {
     }
 }
 
-
-
 // Thay thế hàm switchToEditMode hiện tại bằng phiên bản được cải tiến này
-function switchToEditMode(userId) {
-
+async function switchToEditMode(userId) {
     try {
-        // Hiển thị loading trong khi thay đổi
+        // Hiển thị loading
         showLoading("#info-content");
 
-        // QUAN TRỌNG: Đặt một timeout ngắn để đảm bảo DOM được cập nhật
-        setTimeout(function () {
-            // Thiết lập giao diện cho chế độ chỉnh sửa - Đảm bảo lệnh thực thi đúng thứ tự
+        // Đợi một chút để đảm bảo DOM cập nhật (nếu thực sự cần)
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        // Lấy dữ liệu người dùng
+        const response = await $.ajax({
+            url: `/api/v1/admin/Get-User-By-Id/${userId}`,
+            type: 'GET'
+        });
+
+        // Đảm bảo loading hiển thị tối thiểu 2s
+        await waitMinLoading("#info-content");
+        hideLoading("#info-content");
+
+        if (response.success && response.data) {
+            const user = response.data;
+
+            // Thiết lập giao diện cho chế độ chỉnh sửa
             $(".form-fields").show();
             $("#userDetails").hide();
             $("#formButtons").show();
@@ -772,65 +515,40 @@ function switchToEditMode(userId) {
             // Cập nhật tiêu đề
             $("#UserModalLabel").text("Cập nhật tài khoản");
 
-        }, 100);
+            // Thiết lập chế độ form và ID
+            $("#formMode").val("edit");
+            $("#userId").val(getUserId(user));
+            $("#permissionUserId").val(getUserId(user));
+            $("#permissionUserName").text(user.TenTaiKhoan || "");
 
-        // Tải dữ liệu người dùng
-        $.ajax({
-            url: `/api/v1/admin/Get-User-By-Id/${userId}`,
-            type: 'GET',
-            success: function (response) {
-                // Ẩn loading
-                hideLoading("#info-content");
+            // Điền thông tin vào các trường form
+            $("#tenTaiKhoan").val(user.TenTaiKhoan || "");
+            $("#tenNguoiDung").val(user.TenNguoiDung || user.Name || "");
+            $("#ID_role").val(user.ID_role || "");
+            $("#Gmail").val(user.Gmail || "");
+            $("#SDT").val(user.SDT || "");
+            $("#IsBanned").val(user.IsBanned || 0);
 
-                if (response.success && response.data) {
-                    const user = response.data;
+            // Định dạng và hiển thị thời gian
+            let ngayTao = user.NgayTao || user.ngayTao;
+            let ngayCapNhat = user.NgayCapNhat || user.ngayCapNhat;
+            $("#NgayTao").val(ngayTao ? formatTimestamp(parseInt(ngayTao)) : "N/A");
+            $("#NgayCapNhat").val(ngayCapNhat ? formatTimestamp(parseInt(ngayCapNhat)) : "N/A");
 
-                    // Đảm bảo giao diện vẫn đang ở chế độ chỉnh sửa
-                    $(".form-fields").show();
-                    $("#userDetails").hide();
-                    $("#formButtons").show();
-                    $("#viewButtons").hide();
+            // Hiển thị các phần chỉ dành cho chỉnh sửa
+            if ($("#editOnlyFields").length) $("#editOnlyFields").show();
+            if ($("#changePasswordSection").length) $("#changePasswordSection").show();
+            if ($("#newPasswordFields").length) $("#newPasswordFields").hide();
+            $("#changePasswordCheck").prop("checked", false);
 
-                    // Thiết lập chế độ form và ID
-                    $("#formMode").val("edit");
-                    $("#userId").val(getUserId(user));
-                    $("#permissionUserId").val(getUserId(user));
-                    $("#permissionUserName").text(user.TenTaiKhoan || "");
-
-                    // Điền thông tin vào các trường form
-                    $("#tenTaiKhoan").val(user.TenTaiKhoan || "");
-                    $("#tenNguoiDung").val(user.TenNguoiDung || user.Name || "");
-                    $("#ID_role").val(user.ID_role || "");
-                    $("#Gmail").val(user.Gmail || "");
-                    $("#SDT").val(user.SDT || "");
-                    $("#IsBanned").val(user.IsBanned || 0);
-
-                    // Định dạng và hiển thị thời gian
-                    let ngayTao = user.NgayTao || user.ngayTao;
-                    let ngayCapNhat = user.NgayCapNhat || user.ngayCapNhat;
-                    $("#NgayTao").val(ngayTao ? formatTimestamp(parseInt(ngayTao)) : "N/A");
-                    $("#NgayCapNhat").val(ngayCapNhat ? formatTimestamp(parseInt(ngayCapNhat)) : "N/A");
-
-                    // Hiển thị các phần chỉ dành cho chỉnh sửa
-                    if ($("#editOnlyFields").length) $("#editOnlyFields").show();
-                    if ($("#changePasswordSection").length) $("#changePasswordSection").show();
-                    if ($("#newPasswordFields").length) $("#newPasswordFields").hide();
-                    $("#changePasswordCheck").prop("checked", false);
-
-                    // Tải dữ liệu phân quyền trong tab phân quyền
-                    loadUserPermissionsData(userId);
-                } else {
-                    Sweet_Alert("error", "Không tìm thấy thông tin tài khoản");
-                }
-            },
-            error: function (xhr, status, error) {
-                hideLoading("#info-content");
-                Sweet_Alert("error", "Không thể tải thông tin tài khoản: " + (xhr.responseText || "Lỗi không xác định"));
-            }
-        });
+            // Tải dữ liệu phân quyền trong tab phân quyền
+            loadUserPermissionsData(userId);
+        } else {
+            Sweet_Alert("error", "Không tìm thấy thông tin tài khoản");
+        }
     } catch (error) {
         hideLoading("#info-content");
-        Sweet_Alert("error", "Lỗi khi chuyển chế độ chỉnh sửa: " + error.message);
+        Sweet_Alert("error", "Không thể tải thông tin tài khoản: " + (error.message || "Lỗi không xác định"));
     }
 }
 
@@ -865,6 +583,7 @@ async function openEditUserModal(userId) {
         });
 
         // Ẩn loading
+        await waitMinLoading("#info-content");
         hideLoading("#info-content");
 
         if (response.success && response.data) {
@@ -1201,17 +920,6 @@ function updateCheckAllState() {
         "indeterminate": checkedCheckboxes > 0 && checkedCheckboxes < totalCheckboxes
     });
 }
-
-// Xử lý sự thay đổi checkbox riêng lẻ
-$(document).on("change", ".function-checkbox", function () {
-    updateCheckAllState();
-});
-
-// Xử lý checkbox "chọn tất cả"
-$(document).on("change", "#checkAllFunctions", function () {
-    const isChecked = $(this).prop("checked");
-    $(".function-checkbox").prop("checked", isChecked);
-});
 
 // Lưu phân quyền người dùng - Cập nhật để sử dụng modal chung
 async function saveUserPermissions() {

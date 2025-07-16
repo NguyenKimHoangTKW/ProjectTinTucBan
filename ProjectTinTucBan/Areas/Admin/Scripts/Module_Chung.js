@@ -1,5 +1,4 @@
-﻿
-function Sweet_Alert(icon, title) {
+﻿function Sweet_Alert(icon, title) {
     Swal.fire({
         position: "center",
         icon: icon,
@@ -8,7 +7,6 @@ function Sweet_Alert(icon, title) {
         timer: 2500
     });
 }
-
 
 function formatTimestamp(unixTimestamp) {
     if (!unixTimestamp) return "Chưa có dữ liệu";
@@ -33,17 +31,30 @@ function showLoading(selector, message = "Đang tải dữ liệu...") {
     // Lưu nội dung gốc trước khi thay thế
     container.data('original-content', container.html());
 
+    // Lưu thời điểm bắt đầu loading
+    container.data('loading-start', Date.now());
+
     // Hiển thị chỉ báo loading
     container.html(`
-            <div class="text-center my-4">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="sr-only">Loading...</span>
-                </div>
-                <p class="mt-2">${message}</p>
+        <div class="text-center my-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Loading...</span>
             </div>
-        `);
+            <p class="mt-2">${message}</p>
+        </div>
+    `);
 }
 
+// Hàm chờ tối thiểu 2s kể từ khi showLoading
+function waitMinLoading(selector, minMs = 2000) {
+    const container = $(selector);
+    const start = container.data('loading-start') || Date.now();
+    const elapsed = Date.now() - start;
+    return new Promise(resolve => {
+        if (elapsed >= minMs) resolve();
+        else setTimeout(resolve, minMs - elapsed);
+    });
+}
 
 function hideLoading(selector, newContent = null) {
     const container = $(selector);
@@ -62,8 +73,8 @@ function hideLoading(selector, newContent = null) {
 
     // Xóa dữ liệu đã lưu
     container.removeData('original-content');
+    container.removeData('loading-start');
 }
-
 
 const dataTableDefaults = {
     pageLength: 5,

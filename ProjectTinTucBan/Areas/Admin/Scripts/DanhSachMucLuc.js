@@ -1,20 +1,26 @@
+// DanhSachMucLuc.js - Quản lý danh sách mục lục trong hệ thống admin
 
+// ----- KHỞI TẠO VÀ BIẾN TOÀN CỤC -----
+// Khởi tạo Select2 nếu plugin đã được tải
 $(document).ready(function () {
     if ($.fn.select2) {
         $(".select2").select2();
     }
 });
 
+// Biến toàn cục để lưu trữ dữ liệu kiểm tra
 let value_check = null;
 
-
+// Tải dữ liệu khi script được tải
 load_data();
 
+// Thiết lập các sự kiện khi DOM đã sẵn sàng
 $(document).ready(function () {
     // Các sự kiện cho modal
     setupMucLucModalEvents();
 });
 
+// ----- XỬ LÝ SỰ KIỆN UI -----
 // Thiết lập các sự kiện cho modal
 function setupMucLucModalEvents() {
     // Mở modal để thêm mới
@@ -52,7 +58,7 @@ function setupMucLucModalEvents() {
     });
 }
 
-// Mở modal ở chế độ thêm mới
+// Mở modal ở chế độ thêm mới - thiết lập form và các giá trị mặc định
 function openMucLucModalForAdd() {
     // Reset form và thiết lập chế độ
     $("#mucLucForm")[0].reset();
@@ -73,9 +79,8 @@ function openMucLucModalForAdd() {
     $("#mucLucModal").modal("show");
 }
 
-// Mở modal ở chế độ chỉnh sửa
+// Mở modal ở chế độ chỉnh sửa - tải dữ liệu cho bản ghi đã chọn
 function openMucLucModalForEdit(id) {
-
     if (!id) {
         Sweet_Alert("error", "ID không hợp lệ");
         return;
@@ -103,7 +108,7 @@ function openMucLucModalForEdit(id) {
     get_muc_luc_by_id(id);
 }
 
-// Lưu mục lục (xử lý cả thêm mới và chỉnh sửa)
+// Lưu mục lục - xử lý cả thêm mới và chỉnh sửa
 function saveMucLuc() {
     const mode = $("#formMode").val();
     const tenMucLuc = $("#tenMucLuc").val();
@@ -129,7 +134,7 @@ function saveMucLuc() {
     }
 }
 
-// Delete button click
+// Xử lý sự kiện nút xóa - hiện hộp thoại xác nhận trước khi xóa
 $(document).on("click", "#btnDelete", function () {
     const id = $(this).data("id");
     const tenMucLuc = $(this).data("ten");
@@ -148,7 +153,8 @@ $(document).on("click", "#btnDelete", function () {
     });
 });
 
-// Delete muc luc
+// ----- THAO TÁC CRUD VỚI API -----
+// Xóa mục lục thông qua API
 async function delete_muc_luc(id) {
     try {
         const res = await $.ajax({
@@ -171,7 +177,7 @@ async function delete_muc_luc(id) {
     }
 }
 
-// Add new muc luc từ modal
+// Thêm mục lục mới từ dữ liệu trong modal
 async function add_new_in_modal() {
     const tenMucLuc = $("#tenMucLuc").val();
     const link = $("#link").val();
@@ -208,7 +214,7 @@ async function add_new_in_modal() {
     }
 }
 
-// Update muc luc từ modal
+// Cập nhật mục lục từ dữ liệu trong modal
 async function update_muc_luc_in_modal() {
     const id = $("#mucLucId").val();
     const tenMucLuc = $("#tenMucLuc").val();
@@ -238,7 +244,6 @@ async function update_muc_luc_in_modal() {
             Sweet_Alert("error", res.message);
         }
     } catch (error) {
-
         // Hiển thị thông báo lỗi chi tiết từ máy chủ nếu có
         if (error.responseJSON) {
             Sweet_Alert("error", error.responseJSON.message || "Đã xảy ra lỗi khi cập nhật mục lục");
@@ -247,8 +252,11 @@ async function update_muc_luc_in_modal() {
         }
     }
 }
+
+// Mặc định hiển thị khi không có dữ liệu
 defaultContent = "Không có dữ liệu";
-// Load data table
+
+// Tải dữ liệu danh sách mục lục và hiển thị vào bảng
 async function load_data() {
     try {
         // Hiển thị loading
@@ -401,7 +409,7 @@ async function load_data() {
     }
 }
 
-// Get muc luc details for edit form
+// Lấy chi tiết mục lục theo ID để hiển thị trong form sửa
 async function get_muc_luc_by_id(id) {
     try {
         showLoading('#mucLucModal .modal-body', 'Đang tải thông tin mục lục...');
@@ -413,15 +421,14 @@ async function get_muc_luc_by_id(id) {
         hideLoading('#mucLucModal .modal-body');
 
         if (res.success && res.data) {
-
-            // Fill form fields with data
+            // Điền dữ liệu vào form
             $("#tenMucLuc").val(res.data.TenMucLuc);
             $("#link").val(res.data.Link);
-            $("#link").prop('readonly', true); // Make link read-only
+            $("#link").prop('readonly', true); // Thiết lập link chỉ đọc
             $("#thuTuShow").val(res.data.ThuTuShow);
 
-            // Set IsActive checkbox correctly based on the IsActive value from the server
-            // Handle different possible data types (boolean or numeric)
+            // Thiết lập checkbox IsActive dựa trên giá trị từ server
+            // Xử lý các trường hợp kiểu dữ liệu khác nhau
             const isActive = res.data.IsActive;
 
             if (typeof isActive === 'boolean') {
@@ -429,7 +436,7 @@ async function get_muc_luc_by_id(id) {
             } else if (typeof isActive === 'number') {
                 $("#isActive").prop('checked', isActive === 1);
             } else {
-                // If for some reason it's a string or other type
+                // Nếu là kiểu dữ liệu khác
                 $("#isActive").prop('checked', isActive === true || isActive === 1 || isActive === "1" || isActive === "true");
             }
 
@@ -454,11 +461,10 @@ async function get_muc_luc_by_id(id) {
     }
 }
 
-
-
-// Convert string to URL-friendly slug
+// ----- HÀM TIỆN ÍCH -----
+// Chuyển đổi chuỗi văn bản thành slug URL thân thiện
 function convertToSlug(text) {
-    // Convert text to lowercase and remove Vietnamese diacritics
+    // Chuyển văn bản sang chữ thường và loại bỏ dấu tiếng Việt
     var slug = text.toLowerCase()
         .replace(/á|à|ả|ạ|ã|ă|ắ|ằ|ẳ|ẵ|ặ|â|ấ|ầ|ẩ|ẫ|ậ/gi, 'a')
         .replace(/é|è|ẻ|ẽ|ẹ|ê|ế|ề|ể|ễ|ệ/gi, 'e')
@@ -467,7 +473,7 @@ function convertToSlug(text) {
         .replace(/ú|ù|ủ|ũ|ụ|ư|ứ|ừ|ử|ữ|ự/gi, 'u')
         .replace(/ý|ỳ|ỷ|ỹ|ỵ/gi, 'y')
         .replace(/đ/gi, 'd')
-        // Remove special characters, replace spaces with hyphens
+        // Loại bỏ ký tự đặc biệt, thay khoảng trắng bằng dấu gạch ngang
         .replace(/[^a-z0-9 -]/g, '')
         .replace(/\s+/g, '-')
         .replace(/-+/g, '-');
@@ -475,7 +481,7 @@ function convertToSlug(text) {
     return slug;
 }
 
-// Thay đổi trạng thái mục lục
+// Cập nhật trạng thái kích hoạt của mục lục
 async function toggleMucLucStatus(id, isActive) {
     try {
         const res = await $.ajax({

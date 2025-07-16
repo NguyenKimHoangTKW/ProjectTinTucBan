@@ -1,4 +1,6 @@
-﻿$(document).ready(function () {
+﻿defaultContent = "Không có dữ liệu";
+
+$(document).ready(function () {
     // Biến toàn cục
     let dataTableInstance = null;
     let isMobile = window.innerWidth < 768;
@@ -13,7 +15,7 @@
      */
     function initializeComponents() {
         // Khởi tạo Select2 nếu có
-        if ($.fn.select2) {
+        if ($.select2) {
             $(".select2").select2({
                 width: '100%',
                 dropdownAutoWidth: true
@@ -46,24 +48,6 @@
             } else {
                 updateFunction();
             }
-        });
-
-        // Sự kiện cho nút xem chi tiết
-        $(document).on("click", ".btn-detail", function () {
-            const id = $(this).data("id");
-            openDetailFunctionModal(id);
-        });
-
-        // Sự kiện cho nút sửa
-        $(document).on("click", ".btn-edit", function () {
-            const id = $(this).data("id");
-            openEditFunctionModal(id);
-        });
-
-        // Sự kiện cho nút xóa
-        $(document).on("click", ".btn-delete", function () {
-            const id = $(this).data("id");
-            deleteFunction(id);
         });
 
         // Sự kiện tìm kiếm mobile
@@ -108,6 +92,25 @@
             }
         });
     }
+
+
+    // Sự kiện cho nút xem chi tiết
+    $(document).on("click", ".btn-detail", function () {
+        const id = $(this).data("id");
+        openDetailFunctionModal(id);
+    });
+
+    // Sự kiện cho nút sửa
+    $(document).on("click", ".btn-edit", function () {
+        const id = $(this).data("id");
+        openEditFunctionModal(id);
+    });
+
+    // Sự kiện cho nút xóa
+    $(document).on("click", ".btn-delete", function () {
+        const id = $(this).data("id");
+        deleteFunction(id);
+    });
 
     /**
      * Điều chỉnh UI dựa vào kích thước màn hình
@@ -159,7 +162,7 @@
     /**
      * Tải danh sách chức năng từ API
      */
-    defaultContent = "Không có dữ liệu";
+   
 
     function loadFunctionList() {
         // Hiển thị loading - Sử dụng showLoading
@@ -309,78 +312,73 @@
      * Mở modal chỉnh sửa chức năng
      */
     async function openEditFunctionModal(functionId) {
+        $("#FunctionModal").modal("show");
+        showLoading("#function-content", "Đang tải thông tin...");
+
         try {
-            // Hiển thị loading toàn màn hình
-            showLoading(null, "Đang tải thông tin...");
-
-            // Tải dữ liệu menu
-            const menuPromise = loadMenuTable();
-
             // Tải dữ liệu chức năng
             const response = await $.ajax({
                 url: `/api/v1/admin/Get-All-Functions`,
                 type: 'GET'
             });
 
-            // Đảm bảo menu đã được tải xong
-            await menuPromise;
-
-            // Ẩn loading
-            hideLoading();
+            await waitMinLoading("#function-content", 1000);
 
             if (response.success && response.data) {
-                // Tìm chức năng theo ID
                 const functionData = response.data.find(item => item.ID === functionId);
 
                 if (!functionData) {
-                    // Hiển thị thông báo lỗi
+                    hideLoading("#function-content");
                     Sweet_Alert("error", "Không tìm thấy thông tin chức năng admin");
                     return;
                 }
 
-                // Thiết lập mode và ID
-                $("#formMode").val("edit");
-                $("#functionId").val(functionData.ID);
+                // Render lại nội dung form và bảng menu vào #function-content
+                const html = `
+                <form id="FunctionForm">
+                    <input type="hidden" id="formMode" value="edit">
+                    <input type="hidden" id="functionId" value="${functionData.ID}">
+                    <div class="form-group">
+                        <label for="tenFunction">Tên chức năng</label>
+                        <input type="text" class="form-control" id="tenFunction" value="${functionData.TenChucNang || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="maFunction">Mã chức năng</label>
+                        <input type="text" class="form-control" id="maFunction" value="${functionData.MaChucNang || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="moTa">Mô tả</label>
+                        <textarea class="form-control" id="moTa">${functionData.MoTa || ''}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Menu liên kết</label>
+                        <table id="menuSelectionTable" class="table">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Tên menu</th>
+                                    <th>Link</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </form>
+            `;
+                hideLoading("#function-content", html);
 
-                // Điền dữ liệu vào form
-                $("#tenFunction").val(functionData.TenChucNang);
-                $("#maFunction").val(functionData.MaChucNang);
-                $("#moTa").val(functionData.MoTa);
+                // Sau khi render xong, mới gọi loadMenuTable và loadFunctionMenus
+                await loadMenuTable();
+                await loadFunctionMenus(functionId);
 
-                // Xử lý timestamp
-                let ngayTao = functionData.NgayTao || functionData.ngayTao;
-                let ngayCapNhat = functionData.NgayCapNhat || functionData.ngayCapNhat;
-
-                // Format và hiển thị timestamp
-                $("#ngayTao").val(ngayTao ? formatTimestamp(parseInt(ngayTao)) : "N/A");
-                $("#ngayCapNhat").val(ngayCapNhat ? formatTimestamp(parseInt(ngayCapNhat)) : "N/A");
-
-                // Cập nhật tiêu đề
-                $("#FunctionModalLabel").text("Cập nhật chức năng admin");
-                $("#btnSaveText").text("Cập nhật");
-
-                // Hiển thị trường thời gian
-                $("#editOnlyFields").show();
-
-                // Xóa các thông báo lỗi validation nếu có
                 $(".is-invalid").removeClass("is-invalid");
                 $(".invalid-feedback").remove();
-
-                // Hiển thị modal
-                $("#FunctionModal").modal("show");
-
-                // Tải và thiết lập menu cho chức năng
-                loadFunctionMenus(functionId);
-
             } else {
-                // Hiển thị thông báo lỗi
+                hideLoading("#function-content");
                 Sweet_Alert("error", "Không thể tải thông tin chức năng admin");
             }
         } catch (error) {
-            // Ẩn loading
-            hideLoading();
-
-            // Hiển thị thông báo lỗi
+            hideLoading("#function-content");
             Sweet_Alert("error", "Không thể tải thông tin chức năng admin");
         }
     }
@@ -389,58 +387,89 @@
      * Mở modal xem chi tiết chức năng
      */
     async function openDetailFunctionModal(functionId) {
+        $("#detailFunctionModal").modal("show");
+        showLoading("#FunctionDetailModal");
         try {
-            // Hiển thị loading toàn màn hình
-            showLoading(null, "Đang tải thông tin...");
-
-            const response = await $.ajax({
+            const functionPromise = $.ajax({
                 url: `/api/v1/admin/Get-All-Functions`,
                 type: 'GET'
             });
 
-            // Ẩn loading
-            hideLoading();
+            await waitMinLoading("#FunctionDetailModal");
+            hideLoading("#FunctionDetailModal");
 
+            const response = await functionPromise;
             if (response.success && response.data) {
-                // Tìm chức năng theo ID
                 const functionData = response.data.find(item => item.ID === functionId);
 
                 if (!functionData) {
-                    // Hiển thị thông báo lỗi
                     Sweet_Alert("error", "Không tìm thấy thông tin chức năng admin");
                     return;
                 }
 
-                // Cập nhật tiêu đề
+                // Điền dữ liệu vào modal chi tiết
                 $("#detailFunctionModalLabel").text("Chi tiết chức năng admin");
-
-                // Điền dữ liệu vào form
                 $("#detailTenFunction").text(functionData.TenChucNang || defaultContent);
                 $("#detailMaFunction").text(functionData.MaChucNang || defaultContent);
                 $("#detailMoTa").text(functionData.MoTa || defaultContent);
 
-                // Xử lý timestamp
                 let ngayTao = functionData.NgayTao || functionData.ngayTao;
                 let ngayCapNhat = functionData.NgayCapNhat || functionData.ngayCapNhat;
-
-                // Format và hiển thị timestamp
                 $("#detailNgayTao").text(ngayTao ? formatTimestamp(parseInt(ngayTao)) : "N/A");
                 $("#detailNgayCapNhat").text(ngayCapNhat ? formatTimestamp(parseInt(ngayCapNhat)) : "N/A");
 
-                // Hiển thị modal
+                $("#btnEditFromDetail").data("id", functionId);
+
+                loadFunctionMenusForDetails(functionId);
+
+                // Chỉ mở modal chi tiết
                 $("#detailFunctionModal").modal("show");
             } else {
-                // Hiển thị thông báo lỗi
                 Sweet_Alert("error", "Không thể tải thông tin chức năng admin");
             }
         } catch (error) {
-            // Ẩn loading
-            hideLoading();
-
-            // Hiển thị thông báo lỗi
+            hideLoading("#function-content");
             Sweet_Alert("error", "Không thể tải thông tin chức năng admin");
         }
     }
+
+    // Add this new function to load menus for detail view
+    async function loadFunctionMenusForDetails(functionId) {
+        try {
+            const response = await $.ajax({
+                url: `/api/v1/admin/function-menus/${functionId}`,
+                type: 'GET'
+            });
+
+            if (response && Array.isArray(response) && response.length > 0) {
+                let tableContent = '';
+
+                // Generate table rows for each menu
+                response.forEach((menu, index) => {
+                    tableContent += `
+                <tr>
+                    <td class="text-center">${index + 1}</td>
+                    <td>${menu.MenuName || ''}</td>
+                    <td>${menu.MenuLink || ''}</td>
+                </tr>`;
+                });
+
+                $("#detailMenuTableBody").html(tableContent);
+            } else {
+                $("#detailMenuTableBody").html('<tr><td colspan="3" class="text-center">Không có menu nào được liên kết</td></tr>');
+            }
+        } catch (error) {
+            $("#detailMenuTableBody").html('<tr><td colspan="3" class="text-center text-danger">Không thể tải dữ liệu menu</td></tr>');
+            console.error("Error loading function menus:", error);
+        }
+    }
+
+    // Add event handler for Edit button in detail view
+    $(document).on("click", "#btnEditFromDetail", function () {
+        const id = $(this).data("id");
+        $("#detailFunctionModal").modal("hide");
+        openEditFunctionModal(id);
+    });
 
     /**
      * Thêm chức năng mới
@@ -654,10 +683,7 @@
         });
     }
 
-    /**
-     * Validate form trước khi submit
-     * @returns {boolean} - Form có hợp lệ hay không
-     */
+
     function validateForm() {
         let isValid = true;
 
@@ -745,8 +771,6 @@
 function loadMenuTable() {
     return new Promise((resolve, reject) => {
         const tableBody = $('#menuSelectionTable tbody');
-
-        // Check if the table exists
         if (tableBody.length === 0) {
             resolve();
             return;
@@ -755,21 +779,21 @@ function loadMenuTable() {
         // Hiển thị indicator loading trực tiếp trong bảng
         tableBody.html('<tr><td colspan="3" class="text-center"><div class="spinner-border text-primary" role="status"></div><p class="mt-2">Đang tải danh sách menu...</p></td></tr>');
 
-        // Use jQuery AJAX for consistency with your other code
         $.ajax({
             url: '/api/v1/admin/get-menus-QL',
             type: 'GET',
             dataType: 'json',
             success: function (data) {
-                // Handle different response formats
+                // Debug dữ liệu trả về
+                console.log("Menu API response:", data);
+
                 let menuData = data;
                 if (data && data.data) {
-                    menuData = data.data; // If API returns { data: [...] }
+                    menuData = data.data;
                 }
 
-                if (menuData && menuData.length > 0) {
+                if (Array.isArray(menuData) && menuData.length > 0) {
                     let tableContent = '';
-
                     menuData.forEach((menu, index) => {
                         tableContent += `
                         <tr>
@@ -784,7 +808,6 @@ function loadMenuTable() {
                             <td>${menu.MenuLink || ''}</td>
                         </tr>`;
                     });
-
                     tableBody.html(tableContent);
                     resolve();
                 } else {

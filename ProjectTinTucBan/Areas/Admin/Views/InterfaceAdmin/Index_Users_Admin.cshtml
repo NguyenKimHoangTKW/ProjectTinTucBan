@@ -3,337 +3,8 @@
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
-<div class="main-content">
-    <div class="container-fluid">
-        <h2 class="header-title">Quản lý tài khoản</h2>
-        <hr />
-        <!-- Header và breadcrumb -->
-        <div class="page-header">
-            <h2 class="header-title">Quản lý tài khoản</h2>
-            <div class="header-sub-title">
-                <nav class="breadcrumb breadcrumb-dash">
-                    <a href="/Admin/InterfaceAdmin/Index" class="breadcrumb-item"><i class="anticon anticon-home m-r-5"></i>Trang chủ</a>
-                    <span class="breadcrumb-item active">Quản lý tài khoản</span>
-                </nav>
-            </div>
-        </div>
-
-        <!-- Card chứa bảng dữ liệu -->
-        <div class="card">
-            <div class="card-body">
-                <div class="row m-b-30">
-                    <div class="col-lg-8">
-                        <h4>Danh sách tài khoản</h4>
-                    </div>
-                </div>
-
-                <!-- Bảng dữ liệu -->
-                <table id="data-table" class="display hover nowrap" style="width:100%">
-                    <thead>
-                        <tr>
-                            <th>STT</th>
-                            <th>Tên tài khoản</th>
-                            <th>Tên người dùng</th>
-                            <th>Vai trò</th>
-                            <th>Trạng thái</th>
-                            <th>Ngày tạo</th>
-                            <th>Ngày cập nhật</th>
-                            <th>Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Data will be loaded here -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Unified Modal for User Management (Add/Edit/View/Permissions) -->
-<div class="modal fade" id="UserModal" tabindex="-1" role="dialog" aria-labelledby="UserModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="UserModalLabel">Quản lý tài khoản</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <!-- Tab navigation -->
-                <ul class="nav nav-tabs" id="userModalTabs" role="tablist">
-                    <li class="nav-item">
-                        <a class="nav-link active" id="info-tab" data-toggle="tab" href="#info-content" role="tab">
-                            Thông tin tài khoản
-                        </a>
-                    </li>
-                    <li class="nav-item" id="permissions-tab-item">
-                        <a class="nav-link" id="permissions-tab" data-toggle="tab" href="#permissions-content" role="tab">
-                            Phân quyền
-                        </a>
-                    </li>
-                </ul>
-
-                <!-- Tab content -->
-                <div class="tab-content mt-3" id="userModalTabsContent">
-                    <!-- Tab thông tin tài khoản -->
-                    <div class="tab-pane fade show active" id="info-content" role="tabpanel">
-                        <form id="UserForm">
-                            <input type="hidden" id="userId" value="" />
-                            <input type="hidden" id="formMode" value="add" />
-
-                            <div class="form-fields">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="tenTaiKhoan">Tên tài khoản <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" id="tenTaiKhoan" name="tenTaiKhoan" placeholder="Nhập tên tài khoản" required>
-                                            <small class="form-text text-muted">Tên đăng nhập của tài khoản</small>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="tenNguoiDung">Tên người dùng <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" id="tenNguoiDung" name="tenNguoiDung" placeholder="Nhập tên người dùng" required>
-                                            <small class="form-text text-muted">Tên hiển thị của người dùng</small>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="Gmail">Gmail <span class="text-danger">*</span></label>
-                                            <input type="email" class="form-control" id="Gmail" name="Gmail" placeholder="Nhập địa chỉ Gmail" required>
-                                            <small class="form-text text-muted">Địa chỉ Gmail liên kết</small>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="ID_role">Vai trò <span class="text-danger">*</span></label>
-                                            <select class="form-control" id="ID_role" name="ID_role" required>
-                                                <option value="">-- Chọn vai trò --</option>
-                                                <!-- Options will be loaded from API -->
-                                            </select>
-                                            <small class="form-text text-muted">Quyền hạn của tài khoản</small>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="SDT">Số điện thoại</label>
-                                            <input type="tel" class="form-control" id="SDT" name="SDT" placeholder="Nhập số điện thoại">
-                                            <small class="form-text text-muted">Số điện thoại liên hệ</small>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="IsBanned">Trạng thái tài khoản</label>
-                                            <select class="form-control" id="IsBanned" name="IsBanned">
-                                                <option value="0">Hoạt động</option>
-                                                <option value="1">Khóa</option>
-                                            </select>
-                                            <small class="form-text text-muted">Trạng thái hoạt động của tài khoản</small>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Chỉ hiển thị khi ở chế độ sửa -->
-                                <div id="editOnlyFields" style="display:none">
-                                    <div class="form-group">
-                                        <label>Thông tin thời gian</label>
-                                        <div class="row">
-                                            <div class="col-md-6 col-sm-12 mb-3">
-                                                <input type="text" class="form-control" id="NgayTao" name="NgayTao" readonly placeholder="Ngày tạo">
-                                                <small class="form-text text-muted">Ngày tạo</small>
-                                            </div>
-                                            <div class="col-md-6 col-sm-12">
-                                                <input type="text" class="form-control" id="NgayCapNhat" name="NgayCapNhat" readonly placeholder="Ngày cập nhật">
-                                                <small class="form-text text-muted">Cập nhật gần nhất</small>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Khu vực đổi mật khẩu (chỉ hiển thị khi edit) -->
-                                    <div id="changePasswordSection" class="mt-3">
-                                        <div class="custom-control custom-checkbox mb-2">
-                                            <input type="checkbox" class="custom-control-input" id="changePasswordCheck">
-                                            <label class="custom-control-label" for="changePasswordCheck">Đổi mật khẩu</label>
-                                        </div>
-                                        <div id="newPasswordFields" style="display:none;">
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <div class="form-group">
-                                                        <label for="matKhauMoi">Mật khẩu mới</label>
-                                                        <input type="password" class="form-control" id="matKhauMoi" name="matKhauMoi" placeholder="Nhập mật khẩu mới">
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="form-group">
-                                                        <label for="xacNhanMatKhauMoi">Xác nhận mật khẩu mới</label>
-                                                        <input type="password" class="form-control" id="xacNhanMatKhauMoi" name="xacNhanMatKhauMoi" placeholder="Nhập lại mật khẩu mới">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Detail view for View mode -->
-                            <div id="userDetails" style="display:none;">
-                                <div class="detail-group">
-                                    <label>ID:</label>
-                                    <p id="viewUserId" class="detail-value"></p>
-                                </div>
-                                <div class="detail-group">
-                                    <label>Tên tài khoản:</label>
-                                    <p id="viewTenTaiKhoan" class="detail-value"></p>
-                                </div>
-                                <div class="detail-group">
-                                    <label>Tên người dùng:</label>
-                                    <p id="viewTenNguoiDung" class="detail-value"></p>
-                                </div>
-                                <div class="detail-group">
-                                    <label>Gmail:</label>
-                                    <p id="viewGmail" class="detail-value"></p>
-                                </div>
-                                <div class="detail-group">
-                                    <label>Số điện thoại:</label>
-                                    <p id="viewSDT" class="detail-value"></p>
-                                </div>
-                                <div class="detail-group">
-                                    <label>Vai trò:</label>
-                                    <p id="viewRole" class="detail-value"></p>
-                                </div>
-                                <div class="detail-group">
-                                    <label>Trạng thái:</label>
-                                    <p id="viewIsBanned" class="detail-value"></p>
-                                </div>
-                                <div class="detail-group">
-                                    <label>Ngày tạo:</label>
-                                    <p id="viewNgayTao" class="detail-value"></p>
-                                </div>
-                                <div class="detail-group">
-                                    <label>Ngày cập nhật:</label>
-                                    <p id="viewNgayCapNhat" class="detail-value"></p>
-                                </div>
-
-                                <!-- User Permissions Section -->
-                                <div class="detail-group">
-                                    <label>Quyền đã được cấp:</label>
-                                    <div class="table-responsive functions-table-container">
-                                        <table class="table table-sm" id="viewPermissionsTable">
-                                            <thead>
-                                                <tr>
-                                                    <th style="width: 40%">Tên chức năng</th>
-                                                    <th style="width: 20%">Mã chức năng</th>
-                                                    <th style="width: 40%">Mô tả</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="viewPermissionsTableBody">
-                                                <!-- Permissions will be loaded here -->
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    <div id="noPermissionsMessage" class="text-center text-muted" style="display: none;">
-                                        <p>Người dùng này chưa được cấp quyền nào</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-
-                    <!-- Tab phân quyền (chuyển từ UserPermissionModal) -->
-                    <div class="tab-pane fade" id="permissions-content" role="tabpanel">
-                        <input type="hidden" id="permissionUserId" value="" />
-
-                        <div class="row mb-3">
-                            <div class="col-md-12">
-                                <div class="alert alert-info">
-                                    <div class="d-flex align-items-center">
-                                        <i class="anticon anticon-info-circle mr-2"></i>
-                                        <span>Chọn các chức năng để phân quyền cho người dùng <strong id="permissionUserName"></strong></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="table-responsive functions-table-container">
-                                    <table class="table table-hover" id="functionsTable">
-                                        <thead>
-                                            <tr>
-                                                <th style="width: 10%">
-                                                    <div class="custom-control custom-checkbox">
-                                                        <input type="checkbox" class="custom-control-input" id="checkAllFunctions">
-                                                        <label class="custom-control-label" for="checkAllFunctions"></label>
-                                                    </div>
-                                                </th>
-                                                <th style="width: 30%">Tên chức năng</th>
-                                                <th style="width: 20%">Mã chức năng</th>
-                                                <th style="width: 40%">Mô tả</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="functionsTableBody">
-                                            <!-- Chức năng sẽ được load từ API -->
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row mt-3">
-                            <div class="col-md-12">
-                                <div class="alert alert-warning" id="noFunctionsMessage" style="display: none;">
-                                    <div class="d-flex align-items-center">
-                                        <i class="anticon anticon-exclamation-circle mr-2"></i>
-                                        <span>Không tìm thấy chức năng nào.</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer flex-wrap justify-content-center">
-                <!-- Nút cho thông tin tài khoản -->
-                <div id="formButtons">
-                    <button type="button" class="btn btn-primary m-1" id="btnSaveUser">
-                        <i class="anticon anticon-save m-r-5"></i>
-                        <span id="btnSaveText">Lưu</span>
-                    </button>
-                    <button type="button" class="btn btn-default m-1" data-dismiss="modal">Hủy</button>
-                </div>
-
-                <!-- Nút cho xem chi tiết -->
-                <div id="viewButtons" style="display:none;">
-                    <button type="button" class="btn btn-primary m-1" id="btnEditFromView" data-id="">
-                        <i class="anticon anticon-edit m-r-5"></i>
-                        <span>Chỉnh sửa</span>
-                    </button>
-                    <button type="button" class="btn btn-secondary m-1" data-dismiss="modal">Đóng</button>
-                </div>
-
-                <!-- Nút cho phân quyền -->
-                <div id="permissionButtons" style="display:none;">
-                    <button type="button" class="btn btn-primary m-1" id="btnSavePermissions">
-                        <i class="anticon anticon-save m-r-5"></i>
-                        <span>Lưu phân quyền</span>
-                    </button>
-                    <button type="button" class="btn btn-default m-1" data-dismiss="modal">Đóng</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <style>
-
     .main-content {
         padding: calc(70px + -25px) 25px 25px !important;
     }
@@ -554,8 +225,424 @@
             height: 36px;
         }
     }
+
+    .modal-user-details {
+        font-size: 14px;
+    }
+
+    .user-avatar-circle {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-user-details .card {
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .modal-user-details .card-header {
+        padding: 12px 15px;
+        border-bottom: none;
+        background-color: #5a8dee !important;
+    }
+
+        .modal-user-details .card-header h6 {
+            color: white !important;
+            font-weight: 500;
+        }
+
+    .modal-user-details .table {
+        margin-bottom: 0;
+    }
+
+        .modal-user-details .table td,
+        .modal-user-details .table th {
+            padding: 12px 15px;
+            vertical-align: middle;
+        }
+
+    /* Specific styling for the permissions table */
+    .user-permissions-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .user-permissions-table thead tr {
+            background-color: #5a8dee !important;
+        }
+
+        .user-permissions-table thead th {
+            font-weight: normal;
+            border-bottom: none !important;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .user-permissions-table tbody td {
+            padding: 10px;
+            border: 1px solid #dee2e6;
+        }
+
+        .user-permissions-table tbody tr:nth-child(odd) {
+            background-color: #f8f9fa;
+        }
+
+        .user-permissions-table tbody tr:nth-child(even) {
+            background-color: white;
+        }
 </style>
+<div class="main-content">
+    <div class="container-fluid">
+        <h2 class="header-title">Quản lý tài khoản</h2>
+        <hr />
+        <!-- Header và breadcrumb -->
+        <div class="page-header">
+            <h2 class="header-title">Quản lý tài khoản</h2>
+            <div class="header-sub-title">
+                <nav class="breadcrumb breadcrumb-dash">
+                    <a href="/Admin/InterfaceAdmin/Index" class="breadcrumb-item"><i class="anticon anticon-home m-r-5"></i>Trang chủ</a>
+                    <span class="breadcrumb-item active">Quản lý tài khoản</span>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Card chứa bảng dữ liệu -->
+        <div class="card">
+            <div class="card-body">
+                <div class="row m-b-30">
+                    <div class="col-lg-8">
+                        <h4>Danh sách tài khoản</h4>
+                    </div>
+                </div>
+
+                <!-- Bảng dữ liệu -->
+                <div id="data-table-wrapper">
+                    <table id="data-table" class="display hover nowrap" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Tên tài khoản</th>
+                                <th>Tên người dùng</th>
+                                <th>Vai trò</th>
+                                <th>Trạng thái</th>
+                                <th>Ngày tạo</th>
+                                <th>Ngày cập nhật</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Unified Modal for User Management (Add/Edit/View/Permissions) -->
+<div class="modal fade" id="UserModal" tabindex="-1" role="dialog" aria-labelledby="UserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="UserModalLabel">Quản lý tài khoản</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Tab navigation -->
+                <ul class="nav nav-tabs" id="userModalTabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="info-tab" data-toggle="tab" href="#info-content" role="tab">
+                            Thông tin tài khoản
+                        </a>
+                    </li>
+                    <li class="nav-item" id="permissions-tab-item">
+                        <a class="nav-link" id="permissions-tab" data-toggle="tab" href="#permissions-content" role="tab">
+                            Phân quyền
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- Tab content -->
+                <div class="tab-content mt-3" id="userModalTabsContent">
+                    <!-- Tab thông tin tài khoản -->
+                    <div class="tab-pane fade show active" id="info-content" role="tabpanel">
+                        <form id="UserForm">
+                            <input type="hidden" id="userId" value="" />
+                            <input type="hidden" id="formMode" value="add" />
+
+                            <div class="form-fields">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="tenTaiKhoan">Tên tài khoản <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="tenTaiKhoan" name="tenTaiKhoan" placeholder="Nhập tên tài khoản" required>
+                                            <small class="form-text text-muted">Tên đăng nhập của tài khoản</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="tenNguoiDung">Tên người dùng <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="tenNguoiDung" name="tenNguoiDung" placeholder="Nhập tên người dùng" required>
+                                            <small class="form-text text-muted">Tên hiển thị của người dùng</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="Gmail">Gmail <span class="text-danger">*</span></label>
+                                            <input type="email" class="form-control" id="Gmail" name="Gmail" placeholder="Nhập địa chỉ Gmail" required>
+                                            <small class="form-text text-muted">Địa chỉ Gmail liên kết</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="ID_role">Vai trò <span class="text-danger">*</span></label>
+                                            <select class="form-control" id="ID_role" name="ID_role" required>
+                                                <option value="">-- Chọn vai trò --</option>
+                                                <!-- Options will be loaded from API -->
+                                            </select>
+                                            <small class="form-text text-muted">Quyền hạn của tài khoản</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="SDT">Số điện thoại</label>
+                                            <input type="tel" class="form-control" id="SDT" name="SDT" placeholder="Nhập số điện thoại">
+                                            <small class="form-text text-muted">Số điện thoại liên hệ</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="IsBanned">Trạng thái tài khoản</label>
+                                            <select class="form-control" id="IsBanned" name="IsBanned">
+                                                <option value="0">Hoạt động</option>
+                                                <option value="1">Khóa</option>
+                                            </select>
+                                            <small class="form-text text-muted">Trạng thái hoạt động của tài khoản</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Chỉ hiển thị khi ở chế độ sửa -->
+                                <div id="editOnlyFields" style="display:none">
+                                    <div class="form-group">
+                                        <label>Thông tin thời gian</label>
+                                        <div class="row">
+                                            <div class="col-md-6 col-sm-12 mb-3">
+                                                <input type="text" class="form-control" id="NgayTao" name="NgayTao" readonly placeholder="Ngày tạo">
+                                                <small class="form-text text-muted">Ngày tạo</small>
+                                            </div>
+                                            <div class="col-md-6 col-sm-12">
+                                                <input type="text" class="form-control" id="NgayCapNhat" name="NgayCapNhat" readonly placeholder="Ngày cập nhật">
+                                                <small class="form-text text-muted">Cập nhật gần nhất</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+
+                        <!-- Detail view for View mode -->
+                        <div id="userDetails" style="display:none;">
+                            <div class="modal-user-details">
+                                <div class="user-profile-header mb-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-avatar-circle bg-primary text-white mr-3">
+                                            <i class="anticon anticon-user font-size-24"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="mb-1" id="detailTenTaiKhoan"></h5>
+                                            <p class="mb-0 text-muted" id="detailTenNguoiDung"></p>
+                                        </div>
+                                        <div class="ml-auto" id="detailTrangThai"></div>
+                                    </div>
+                                </div>
+                                <div class="card mb-4 border">
+                                    <div class="card-header bg-primary">
+                                        <h6 class="mb-0 text-white"><i class="anticon anticon-profile mr-2"></i>Thông tin cơ bản</h6>
+                                    </div>
+                                    <div class="card-body p-0">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover mb-0">
+                                                <tbody>
+                                                    <tr>
+                                                        <td width="30%" class="text-muted font-weight-bold bg-light">ID</td>
+                                                        <td class="bg-white" id="detailID"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted font-weight-bold bg-light">Tên tài khoản</td>
+                                                        <td class="bg-white" id="detailTenTaiKhoan2"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted font-weight-bold bg-light">Tên người dùng</td>
+                                                        <td class="bg-white" id="detailTenNguoiDung2"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted font-weight-bold bg-light">Vai trò</td>
+                                                        <td class="bg-white"><span class="badge badge-primary" id="detailVaiTro"></span></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted font-weight-bold bg-light">Gmail</td>
+                                                        <td class="bg-white" id="detailGmail"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted font-weight-bold bg-light">Số điện thoại</td>
+                                                        <td class="bg-white" id="detailSDT"></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card mb-4 border">
+                                    <div class="card-header bg-primary">
+                                        <h6 class="mb-0 text-white"><i class="anticon anticon-history mr-2"></i>Thông tin thời gian</h6>
+                                    </div>
+                                    <div class="card-body bg-white">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-2">
+                                                <label class="font-weight-bold text-muted">Ngày tạo:</label>
+                                                <div class="d-flex align-items-center">
+                                                    <i class="anticon anticon-calendar text-primary mr-2"></i>
+                                                    <span id="detailNgayTao"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 mb-2">
+                                                <label class="font-weight-bold text-muted">Ngày cập nhật:</label>
+                                                <div class="d-flex align-items-center">
+                                                    <i class="anticon anticon-sync text-primary mr-2"></i>
+                                                    <span id="detailNgayCapNhat"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card border">
+                                    <div class="card-header bg-primary">
+                                        <h6 class="mb-0 text-white"><i class="anticon anticon-safety-certificate mr-2"></i>Phân quyền</h6>
+                                    </div>
+                                    <div class="card-body bg-white">
+                                        <div id="viewPermissionsTable" class="table-responsive" style="display: none;">
+                                            <table class="table table-bordered user-permissions-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Tên chức năng</th>
+                                                        <th>Mã chức năng</th>
+                                                        <th>Mô tả</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="viewPermissionsTableBody"></tbody>
+                                            </table>
+                                        </div>
+                                        <div id="noPermissionsMessage" style="display:none;">
+                                            <div class="alert alert-info mb-0">
+                                                <i class="anticon anticon-info-circle mr-2"></i>Không có phân quyền
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab phân quyền (chuyển từ UserPermissionModal) -->
+                    <div class="tab-pane fade" id="permissions-content" role="tabpanel">
+                        <input type="hidden" id="permissionUserId" value="" />
+
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <div class="alert alert-info">
+                                    <div class="d-flex align-items-center">
+                                        <i class="anticon anticon-info-circle mr-2"></i>
+                                        <span>Chọn các chức năng để phân quyền cho người dùng <strong id="permissionUserName"></strong></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="table-responsive functions-table-container">
+                                    <table class="table table-hover" id="functionsTable">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 10%">
+                                                    <div class="custom-control custom-checkbox">
+                                                        <input type="checkbox" class="custom-control-input" id="checkAllFunctions">
+                                                        <label class="custom-control-label" for="checkAllFunctions"></label>
+                                                    </div>
+                                                </th>
+                                                <th style="width: 30%">Tên chức năng</th>
+                                                <th style="width: 20%">Mã chức năng</th>
+                                                <th style="width: 40%">Mô tả</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="functionsTableBody">
+                                            <!-- Chức năng sẽ được load từ API -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <div class="alert alert-warning" id="noFunctionsMessage" style="display: none;">
+                                    <div class="d-flex align-items-center">
+                                        <i class="anticon anticon-exclamation-circle mr-2"></i>
+                                        <span>Không tìm thấy chức năng nào.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer flex-wrap justify-content-center">
+                <!-- Nút cho thông tin tài khoản -->
+                <div id="formButtons">
+                    <button type="button" class="btn btn-primary m-1" id="btnSaveUser">
+                        <i class="anticon anticon-save m-r-5"></i>
+                        <span id="btnSaveText">Lưu</span>
+                    </button>
+                    <button type="button" class="btn btn-default m-1" data-dismiss="modal">Hủy</button>
+                </div>
+
+                <!-- Nút cho xem chi tiết -->
+                <div id="viewButtons" style="display:none;">
+                    <button type="button" class="btn btn-primary m-1" id="btnEditFromView" data-id="">
+                        <i class="anticon anticon-edit m-r-5"></i>
+                        <span>Chỉnh sửa</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary m-1" data-dismiss="modal">Đóng</button>
+                </div>
+
+                <!-- Nút cho phân quyền -->
+                <div id="permissionButtons" style="display:none;">
+                    <button type="button" class="btn btn-primary m-1" id="btnSavePermissions">
+                        <i class="anticon anticon-save m-r-5"></i>
+                        <span>Lưu phân quyền</span>
+                    </button>
+                    <button type="button" class="btn btn-default m-1" data-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section scriptsAdmin {
     <script src="~/Areas/Admin/Scripts/DanhSachUser.js"></script>
 }
+

@@ -225,7 +225,8 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     .Where(f => f.ID_FUNCTION == id)
                     .Select(f => new {
                         MenuId = f.ID_MENU,
-                        MenuName = f.Menu.Ten
+                        MenuName = f.Menu.Ten,
+                        MenuLink = f.Menu.Link
                     })
                     .ToListAsync();
 

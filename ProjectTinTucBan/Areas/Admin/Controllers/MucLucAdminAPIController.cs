@@ -59,6 +59,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("Get-Muc-Luc-By-Id/{id}")]
         public async Task<IHttpActionResult> GetMucLucById(int id)
         {
+            var user = SessionHelper.GetUser();
             try
             {
                 // Sử dụng FindAsync thay vì truy vấn LINQ phức tạp
@@ -95,6 +96,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("Create-Muc-Luc")]
         public async Task<IHttpActionResult> CreateMucLuc(MucLuc Item)
         {
+            var user = SessionHelper.GetUser();
             try
             {
                 if (Item == null)
@@ -159,6 +161,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("Update-Muc-Luc")]
         public async Task<IHttpActionResult> UpdateMucLuc(MucLuc Item)
         {
+            var user = SessionHelper.GetUser();
             try
             {
                 if (Item == null || Item.ID <= 0)
@@ -214,6 +217,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("Update-Muc-Luc-Status")]
         public async Task<IHttpActionResult> UpdateMucLucStatus(MucLuc item)
         {
+            var user = SessionHelper.GetUser();
             try
             {
                 if (item == null || item.ID <= 0)
@@ -257,6 +261,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("Delete-Muc-Luc")]
         public async Task<IHttpActionResult> DeleteMucLuc(MucLuc Item)
         {
+            var user = SessionHelper.GetUser();
             try
             {
                 if (Item == null || Item.ID <= 0)
