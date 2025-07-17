@@ -3,149 +3,6 @@
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
-<div class="main-content">
-    <div class="container-fluid">
-        <h2 class="header-title">Quản lý quyền admin</h2>
-        <hr />
-        <!-- Header và breadcrumb -->
-        <div class="page-header">
-            <h2 class="header-title">Quản lý quyền Admin</h2>
-            <div class="header-sub-title">
-                <nav class="breadcrumb breadcrumb-dash">
-                    <a href="/Admin/InterfaceAdmin/Index" class="breadcrumb-item"><i class="anticon anticon-home m-r-5"></i>Trang chủ</a>
-                    <span class="breadcrumb-item active">Quản lý quyền Admin</span>
-                </nav>
-            </div>
-        </div>
-
-        <!-- Card chứa bảng dữ liệu -->
-        <div class="card">
-            <div class="card-body">
-                <div class="row m-b-30">
-                    <div class="col-lg-8">
-                        <h4>Danh sách quyền Admin</h4>
-                    </div>
-                    <div class="col-lg-4 text-right">
-                        <button class="btn btn-primary" id="btnAddRoles">
-                            <i class="anticon anticon-plus-circle m-r-5"></i>
-                            <span>Thêm quyền admin mới</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Bảng dữ liệu -->
-                <table id="data-table" class="display hover nowrap" style="width:100%">
-                    <thead>
-                        <tr>
-                            <th>STT</th>
-                            <th>Tên quyền</th>
-                            <th>Mô tả</th>
-                            <th>Ngày tạo</th>
-                            <th>Ngày cập nhật</th>
-                            <th>Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Data will be loaded here -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Unified Modal for Role Management (Add/Edit/View) -->
-<div class="modal fade" id="RolesModal" tabindex="-1" role="dialog" aria-labelledby="RolesModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="RolesModalLabel">Quản lý quyền Admin</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="RolesForm">
-                    <input type="hidden" id="roleId" value="" />
-                    <input type="hidden" id="formMode" value="add" /> <!-- 'add' hoặc 'edit' -->
-                    <!-- Form for Add/Edit modes -->
-                    <div class="form-fields">
-                        <div class="form-group">
-                            <label for="tenRole">Tên quyền <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="tenRole" name="tenRole" placeholder="Nhập tên quyền admin" required>
-                            <small class="form-text text-muted">Tên quyền trong hệ thống</small>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="moTa">Mô tả <span class="text-danger">*</span></label>
-                            <textarea class="form-control" id="moTa" name="moTa" rows="3" placeholder="Nhập mô tả quyền admin" required></textarea>
-                            <small class="form-text text-muted">Mô tả chi tiết về quyền này</small>
-                        </div>
-
-                        <!-- Chỉ hiển thị khi ở chế độ sửa -->
-                        <div id="editOnlyFields" style="display:none">
-                            <div class="form-group">
-                                <label>Thông tin thời gian</label>
-                                <div class="row">
-                                    <div class="col-md-6 col-sm-12 mb-3">
-                                        <input type="text" class="form-control" id="ngayTao" name="ngayTao" readonly placeholder="Ngày tạo">
-                                        <small class="form-text text-muted">Ngày tạo</small>
-                                    </div>
-                                    <div class="col-md-6 col-sm-12">
-                                        <input type="text" class="form-control" id="ngayCapNhat" name="ngayCapNhat" readonly placeholder="Ngày cập nhật">
-                                        <small class="form-text text-muted">Cập nhật gần nhất</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Detail view for View mode -->
-                    <div id="roleDetails" style="display:none;">
-                        <div class="detail-group">
-                            <label>ID:</label>
-                            <p id="viewRoleId" class="detail-value"></p>
-                        </div>
-                        <div class="detail-group">
-                            <label>Tên quyền:</label>
-                            <p id="viewTenRole" class="detail-value"></p>
-                        </div>
-                        <div class="detail-group">
-                            <label>Mô tả:</label>
-                            <p id="viewMoTa" class="detail-value"></p>
-                        </div>
-                        <div class="detail-group">
-                            <label>Ngày tạo:</label>
-                            <p id="viewNgayTao" class="detail-value"></p>
-                        </div>
-                        <div class="detail-group">
-                            <label>Ngày cập nhật:</label>
-                            <p id="viewNgayCapNhat" class="detail-value"></p>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer flex-wrap justify-content-center">
-                <div id="formButtons">
-                    <button type="button" class="btn btn-primary m-1" id="btnSaveRole">
-                        <i class="anticon anticon-save m-r-5"></i>
-                        <span id="btnSaveText">Lưu</span>
-                    </button>
-                    <button type="button" class="btn btn-default m-1" data-dismiss="modal">Hủy</button>
-                </div>
-
-                <div id="viewButtons" style="display:none;">
-                    <button type="button" class="btn btn-primary m-1" id="btnEditFromView" data-id="">
-                        <i class="anticon anticon-edit m-r-5"></i>
-                        <span>Chỉnh sửa</span>
-                    </button>
-                    <button type="button" class="btn btn-secondary m-1" data-dismiss="modal">Đóng</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <style>
     /* ===== DATA TABLE STYLES ===== */
     .dataTables_wrapper .dataTables_filter {
@@ -205,14 +62,6 @@
             text-align: center;
         }
 
-        #data-table th,
-        #data-table td {
-            white-space: normal !important;
-            word-wrap: break-word;
-            max-width: 200px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
 
             #data-table th:nth-child(4),
             #data-table td:nth-child(4),
@@ -221,6 +70,25 @@
                 width: 12.5%;
             }
 
+            /* Chống tràn cho cột Tên quyền */
+            #data-table th:nth-child(2),
+            #data-table td:nth-child(2) {
+                max-width: 180px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                text-align: left;
+            }
+
+            /* Chống tràn cho cột Mô tả */
+            #data-table th:nth-child(3),
+            #data-table td:nth-child(3) {
+                max-width: 220px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                text-align: left;
+            }
     /* ===== ACTION BUTTONS ===== */
     .btn-action {
         width: 40px;
@@ -418,6 +286,151 @@
             }
     }
 </style>
+
+
+<div class="main-content">
+    <div class="container-fluid">
+        <h2 class="header-title">Quản lý quyền admin</h2>
+        <hr />
+        <!-- Header và breadcrumb -->
+        <div class="page-header">
+            <h2 class="header-title">Quản lý quyền Admin</h2>
+            <div class="header-sub-title">
+                <nav class="breadcrumb breadcrumb-dash">
+                    <a href="/Admin/InterfaceAdmin/Index" class="breadcrumb-item"><i class="anticon anticon-home m-r-5"></i>Trang chủ</a>
+                    <span class="breadcrumb-item active">Quản lý quyền Admin</span>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Card chứa bảng dữ liệu -->
+        <div class="card">
+            <div class="card-body">
+                <div class="row m-b-30">
+                    <div class="col-lg-8">
+                        <h4>Danh sách quyền Admin</h4>
+                    </div>
+                    <div class="col-lg-4 text-right">
+                        <button class="btn btn-primary" id="btnAddRoles">
+                            <i class="anticon anticon-plus-circle m-r-5"></i>
+                            <span>Thêm quyền admin mới</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Bảng dữ liệu -->
+                <table id="data-table" class="display hover nowrap" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Tên quyền</th>
+                            <th>Mô tả</th>
+                            <th>Ngày tạo</th>
+                            <th>Ngày cập nhật</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Unified Modal for Role Management (Add/Edit/View) -->
+<div class="modal fade" id="RolesModal" tabindex="-1" role="dialog" aria-labelledby="RolesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="RolesModalLabel">Quản lý quyền Admin</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="RolesForm">
+                    <input type="hidden" id="roleId" value="" />
+                    <input type="hidden" id="formMode" value="add" /> <!-- 'add' hoặc 'edit' -->
+                    <!-- Form for Add/Edit modes -->
+                    <div class="form-fields">
+                        <div class="form-group">
+                            <label for="tenRole">Tên quyền <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="tenRole" name="tenRole" placeholder="Nhập tên quyền admin" required>
+                            <small class="form-text text-muted">Tên quyền trong hệ thống</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="moTa">Mô tả <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="moTa" name="moTa" rows="3" placeholder="Nhập mô tả quyền admin" required></textarea>
+                            <small class="form-text text-muted">Mô tả chi tiết về quyền này</small>
+                        </div>
+
+                        <!-- Chỉ hiển thị khi ở chế độ sửa -->
+                        <div id="editOnlyFields" style="display:none">
+                            <div class="form-group">
+                                <label>Thông tin thời gian</label>
+                                <div class="row">
+                                    <div class="col-md-6 col-sm-12 mb-3">
+                                        <input type="text" class="form-control" id="ngayTao" name="ngayTao" readonly placeholder="Ngày tạo">
+                                        <small class="form-text text-muted">Ngày tạo</small>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12">
+                                        <input type="text" class="form-control" id="ngayCapNhat" name="ngayCapNhat" readonly placeholder="Ngày cập nhật">
+                                        <small class="form-text text-muted">Cập nhật gần nhất</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detail view for View mode -->
+                    <div id="roleDetails" style="display:none;">
+                        <div class="detail-group">
+                            <label>ID:</label>
+                            <p id="viewRoleId" class="detail-value"></p>
+                        </div>
+                        <div class="detail-group">
+                            <label>Tên quyền:</label>
+                            <p id="viewTenRole" class="detail-value"></p>
+                        </div>
+                        <div class="detail-group">
+                            <label>Mô tả:</label>
+                            <p id="viewMoTa" class="detail-value"></p>
+                        </div>
+                        <div class="detail-group">
+                            <label>Ngày tạo:</label>
+                            <p id="viewNgayTao" class="detail-value"></p>
+                        </div>
+                        <div class="detail-group">
+                            <label>Ngày cập nhật:</label>
+                            <p id="viewNgayCapNhat" class="detail-value"></p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer flex-wrap justify-content-center">
+                <div id="formButtons">
+                    <button type="button" class="btn btn-primary m-1" id="btnSaveRole">
+                        <i class="anticon anticon-save m-r-5"></i>
+                        <span id="btnSaveText">Lưu</span>
+                    </button>
+                    <button type="button" class="btn btn-default m-1" data-dismiss="modal">Hủy</button>
+                </div>
+
+                <div id="viewButtons" style="display:none;">
+                    <button type="button" class="btn btn-primary m-1" id="btnEditFromView" data-id="">
+                        <i class="anticon anticon-edit m-r-5"></i>
+                        <span>Chỉnh sửa</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary m-1" data-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 @section scriptsAdmin {
 

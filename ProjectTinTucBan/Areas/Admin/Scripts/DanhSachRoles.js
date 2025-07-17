@@ -183,6 +183,9 @@ async function load_data() {
                     processedData = response.data.map(item => {
                         // Tạo một object mới với các thuộc tính của item
                         const newItem = { ...item };
+                        //Xử lý Escape
+                        newItem.TenRole = escapeHtml(item.TenRole);
+                        newItem.MoTa = escapeHtml(item.MoTa);
 
                         // Xử lý cả hai trường hợp viết hoa và viết thường
                         if (item.NgayTao && !isNaN(parseInt(item.NgayTao))) {

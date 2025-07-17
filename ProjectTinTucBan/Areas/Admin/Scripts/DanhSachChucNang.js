@@ -188,6 +188,10 @@ $(document).ready(function () {
                 if (response.data && Array.isArray(response.data)) {
                     processedData = response.data.map(item => {
                         const newItem = { ...item };
+                        // Escape các trường text
+                        newItem.TenChucNang = escapeHtml(item.TenChucNang);
+                        newItem.MaChucNang = escapeHtml(item.MaChucNang);
+                        newItem.MoTa = escapeHtml(item.MoTa);
 
                         // Xử lý timestamp, sử dụng formatTimestamp
                         if (item.NgayTao !== undefined && !isNaN(parseInt(item.NgayTao))) {

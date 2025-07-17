@@ -44,23 +44,24 @@
 
 
       <Diagram DiagramId="76b3c91e0ce24ca5adac6e2ed33cfc90" Name="Diagram1" ZoomLevel="64">
-        <EntityTypeShape EntityType="WebTinTucTDMUModel.BaiViet" Width="1.5" PointX="3.2855197150658446" PointY="8.64859185025496" />
-        <EntityTypeShape EntityType="WebTinTucTDMUModel.ChucNangQuyenUser" Width="1.5" PointX="11.440982848145525" PointY="25.305374321204319" />
-        <EntityTypeShape EntityType="WebTinTucTDMUModel.DonViTrucThuoc" Width="1.5" PointX="8.615247179109252" PointY="19.52317183628826" />
-        <EntityTypeShape EntityType="WebTinTucTDMUModel.Footer" Width="1.5" PointX="8.9693685904933922" PointY="8.32491931706896" />
-        <EntityTypeShape EntityType="WebTinTucTDMUModel.Function_By_Menu" Width="1.5" PointX="2.151791269961647" PointY="19.377339729749291" />
-        <EntityTypeShape EntityType="WebTinTucTDMUModel.Group_By_Menu_And_Sub" Width="1.5" PointX="3.5176607926924062" PointY="20.625809097953983" />
-        <EntityTypeShape EntityType="WebTinTucTDMUModel.Khoi" Width="1.5" PointX="7.0836043875122456" PointY="13.611415779968452" />
-        <EntityTypeShape EntityType="WebTinTucTDMUModel.Menu" Width="1.5" PointX="11.205295454340659" PointY="9.2821876896928011" />
-        <EntityTypeShape EntityType="WebTinTucTDMUModel.Menu_by_sub" Width="1.5" PointX="3.8776326998498445" PointY="17.860131868096129" />
-        <EntityTypeShape EntityType="WebTinTucTDMUModel.Menu_Group" Width="1.5" PointX="4.4446358496531087" PointY="23.321017618906225" />
-        <EntityTypeShape EntityType="WebTinTucTDMUModel.MucLuc" Width="1.5" PointX="10.362165474501515" PointY="18.004318200985118" />
-        <EntityTypeShape EntityType="WebTinTucTDMUModel.PhanQuyenUser" Width="1.5" PointX="9.0602665250470249" PointY="29.319756119195258" />
-        <EntityTypeShape EntityType="WebTinTucTDMUModel.Role" Width="1.5" PointX="0.50802846462839679" PointY="17.650555380457341" />
-        <EntityTypeShape EntityType="WebTinTucTDMUModel.Slider" Width="1.5" PointX="2.7588164260419163" PointY="11.377290641599004" />
-        <EntityTypeShape EntityType="WebTinTucTDMUModel.Sub_Menu" Width="1.5" PointX="7.2135278318140319" PointY="22.374238978314324" />
-        <EntityTypeShape EntityType="WebTinTucTDMUModel.sysdiagram" Width="1.5" PointX="2.7470062071210735" PointY="28.940223871236771" />
-        <EntityTypeShape EntityType="WebTinTucTDMUModel.TaiKhoan" Width="1.5" PointX="6.7332193212272688" PointY="15.988599859172758" />
+        <EntityTypeShape EntityType="WebTinTucTDMUModel.BaiViet" Width="1.5" PointX="11.362849691586034" PointY="29.65757810960411" />
+        <EntityTypeShape EntityType="WebTinTucTDMUModel.ChucNangQuyenUser" Width="1.5" PointX="11.761526355408842" PointY="14.646263472105499" />
+        <EntityTypeShape EntityType="WebTinTucTDMUModel.DonViTrucThuoc" Width="1.5" PointX="0.5223099256503908" PointY="8.799352232739027" />
+        <EntityTypeShape EntityType="WebTinTucTDMUModel.Footer" Width="1.5" PointX="2.4933169607507608" PointY="18.00770240370543" />
+        <EntityTypeShape EntityType="WebTinTucTDMUModel.Function_By_Menu" Width="1.5" PointX="11.189919456462338" PointY="30.529828577549118" />
+        <EntityTypeShape EntityType="WebTinTucTDMUModel.Group_By_Menu_And_Sub" Width="1.5" PointX="4.7012475136207641" PointY="18.675036155933064" />
+        <EntityTypeShape EntityType="WebTinTucTDMUModel.Khoi" Width="1.5" PointX="5.7168911871113313" PointY="17.139112689131458" />
+        <EntityTypeShape EntityType="WebTinTucTDMUModel.Menu" Width="1.5" PointX="3.492850817503804" PointY="28.690163655527943" />
+        <EntityTypeShape EntityType="WebTinTucTDMUModel.Menu_by_sub" Width="1.5" PointX="1.7091635436327959" PointY="21.837688530719696" />
+        <EntityTypeShape EntityType="WebTinTucTDMUModel.Menu_Group" Width="1.5" PointX="3.3893842023747895" PointY="23.181484933561407" />
+        <EntityTypeShape EntityType="WebTinTucTDMUModel.MucLuc" Width="1.5" PointX="3.13218849856974" PointY="12.16937546998699" />
+        <EntityTypeShape EntityType="WebTinTucTDMUModel.PhanQuyenUser" Width="1.5" PointX="10.459839216647595" PointY="30.92401738414728" />
+        <EntityTypeShape EntityType="WebTinTucTDMUModel.Role" Width="1.5" PointX="4.2651516423864066" PointY="28.323929889278453" />
+        <EntityTypeShape EntityType="WebTinTucTDMUModel.Slider" Width="1.5" PointX="10.139749304456519" PointY="3.7030660825330139" />
+        <EntityTypeShape EntityType="WebTinTucTDMUModel.Sub_Menu" Width="1.5" PointX="5.7213603787689289" PointY="28.789026109869138" />
+        <EntityTypeShape EntityType="WebTinTucTDMUModel.sysdiagram" Width="1.5" PointX="2.8329235701043736" PointY="21.64464242274158" />
+        <EntityTypeShape EntityType="WebTinTucTDMUModel.TaiKhoan" Width="1.5" PointX="4.6766054447165715" PointY="31.825210809626249" />
+        <EntityTypeShape EntityType="WebTinTucTDMUModel.VisitorLog" Width="1.5" PointX="7.8237509689404394" PointY="27.902069849847848" />
         <AssociationConnector Association="WebTinTucTDMUModel.FK__BaiViet__ID_MucL__49C3F6B7" />
         <AssociationConnector Association="WebTinTucTDMUModel.FK__BaiViet__ID_Nguo__4AB81AF0" />
         <AssociationConnector Association="WebTinTucTDMUModel.FK_Function_By_Menu_ChucNangQuyenUser" />

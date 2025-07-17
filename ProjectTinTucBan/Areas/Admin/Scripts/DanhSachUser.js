@@ -197,7 +197,10 @@ async function resetAdvancedSearch() {
 // Tải dữ liệu từ API
 async function load_data() {
     try {
+        // Hiển thị loading
         showLoading('#data-table', 'Đang tải dữ liệu...');
+
+        // Gọi API lấy danh sách vai trò (nếu cần cho hiển thị)
         let rolesData = [];
         try {
             const rolesResponse = await $.ajax({
@@ -211,15 +214,20 @@ async function load_data() {
         } catch (error) {
             Sweet_Alert("error", "Không thể tải danh sách vai trò");
         }
+
+        // Gọi API lấy danh sách user
         $.ajax({
             url: '/api/v1/admin/Get-All-Users',
             type: 'GET',
             dataType: 'json',
             cache: false,
             success: function (response) {
+                // Xóa DataTable cũ nếu đã tồn tại
                 if ($.fn.DataTable.isDataTable('#data-table')) {
                     $('#data-table').DataTable().destroy();
                 }
+
+                // Xóa nội dung loading và tạo lại cấu trúc table
                 $('#data-table').html(`
                     <thead>
                         <tr>
@@ -235,10 +243,18 @@ async function load_data() {
                     </thead>
                     <tbody></tbody>
                 `);
+
+                // Xử lý dữ liệu cho hiển thị
                 let processedData = [];
                 if (response.data && Array.isArray(response.data)) {
                     processedData = response.data.map(item => {
                         const newItem = { ...item };
+                        // Escape các trường text nếu cần
+                        newItem.TenTaiKhoan = escapeHtml(item.TenTaiKhoan);
+                        newItem.Name = escapeHtml(item.Name);
+                        newItem.TenNguoiDung = escapeHtml(item.TenNguoiDung);
+
+                        // Xử lý timestamp
                         if (item.NgayTao && !isNaN(parseInt(item.NgayTao))) {
                             newItem.NgayTao = formatTimestamp(parseInt(item.NgayTao));
                         } else if (item.ngayTao && !isNaN(parseInt(item.ngayTao))) {
@@ -252,8 +268,9 @@ async function load_data() {
                         return newItem;
                     });
                 }
-                dataTableInstance = $('#data-table').DataTable({
-                    ...dataTableDefaults,
+
+                // Khởi tạo DataTable với dữ liệu
+                $('#data-table').DataTable({
                     data: processedData || [],
                     columns: [
                         {
@@ -265,19 +282,22 @@ async function load_data() {
                         {
                             data: 'TenTaiKhoan',
                             defaultContent,
-                            className: 'text-left'
+                            render: function (data, type, row) {
+                                return type === 'display' ? escapeHtml(data) : data;
+                            }
                         },
                         {
                             data: 'Name',
                             defaultContent,
-                            className: 'text-left'
+                            render: function (data, type, row) {
+                                return type === 'display' ? escapeHtml(data) : data;
+                            }
                         },
                         {
                             data: 'ID_role',
                             render: function (data, type, row) {
-                                // Tìm tên vai trò đồng bộ từ rolesData
                                 const role = rolesData.find(r => r.ID === data);
-                                const roleName = role ? role.TenRole : "Không xác định";
+                                const roleName = role ? escapeHtml(role.TenRole) : "Không xác định";
                                 return `<span class="badge badge-primary">${roleName}</span>`;
                             }
                         },
@@ -289,14 +309,8 @@ async function load_data() {
                                     '<span class="badge badge-success">Hoạt động</span>';
                             }
                         },
-                        {
-                            data: 'NgayTao',
-                            defaultContent
-                        },
-                        {
-                            data: 'NgayCapNhat',
-                            defaultContent
-                        },
+                        { data: 'NgayTao', defaultContent },
+                        { data: 'NgayCapNhat', defaultContent },
                         {
                             data: null,
                             orderable: false,
@@ -317,8 +331,25 @@ async function load_data() {
                                 `;
                             }
                         }
-                    ]
+                    ],
+                    pageLength: 5,
+                    lengthMenu: [5, 10, 15, 25, 50],
+                    language: {
+                        paginate: {
+                            next: "Tiếp",
+                            previous: "Trước"
+                        },
+                        search: "Tìm nhanh:",
+                        lengthMenu: "Hiển thị _MENU_ tài khoản",
+                        emptyTable: "Không có dữ liệu",
+                        zeroRecords: "Không tìm thấy kết quả phù hợp",
+                        info: "Hiển thị _START_ đến _END_ của _TOTAL_ tài khoản",
+                        infoEmpty: "Hiển thị 0 đến 0 của 0 tài khoản",
+                        infoFiltered: "(lọc từ _MAX_ tài khoản)"
+                    }
                 });
+
+                // Hiển thị thông báo nếu không có dữ liệu
                 if (!response.success) {
                     Sweet_Alert("info", response.message || "Không có dữ liệu");
                 }

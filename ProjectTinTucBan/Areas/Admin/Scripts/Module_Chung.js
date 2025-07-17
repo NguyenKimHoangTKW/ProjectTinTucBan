@@ -93,7 +93,3 @@ const dataTableDefaults = {
         infoFiltered: "(lọc từ _MAX_ mục)"
     }
 };
-
-
-
-
