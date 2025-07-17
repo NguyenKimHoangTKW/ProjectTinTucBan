@@ -357,7 +357,7 @@
             data.forEach((menu, menuIndex) => {
                 const menuNumber = menuIndex + 1;
                 const hasSubMenus = menu.SubMenus?.length > 0;
-                const menuName = escapseHtml(menu.MenuName);
+                const menuName = escapeHtml(menu.MenuName);
 
                 const $toggleSubBtn = hasSubMenus
                     ? $('<button type="button" class="btn btn-xs-custom btn-light toggle-submenu-btn">')

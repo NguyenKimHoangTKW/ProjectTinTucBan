@@ -29,29 +29,9 @@ $(document).ready(function () {
         changeYear: true,
         yearRange: "-70:+5"
     }).datepicker("refresh");
-    load_permission()
+    
 })
-async function load_permission() {
-    const res = await $.ajax({
-        url: '/api/v1/phanquyen/load_permission_user',
-        type: 'POST'
-    })
-    if (res.success) {
-        $('.nav-item.dropdown').each(function () {
-            var ma = $(this).data('ma');
-            if (res.data.includes(ma)) {
-                $(this).show();
-            }
-        });
-    }
-    else {
-        Swal.fire({
-            icon: "error",
-            title: "Oops...",
-            text: res.message,
-        });
-    }
-}
+
 function goBack() {
     window.history.back();
 }
