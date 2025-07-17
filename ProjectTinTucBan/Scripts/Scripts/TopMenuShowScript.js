@@ -33,9 +33,9 @@
                         }
 
                         const $a = $('<a></a>')
-                            .addClass('admin-topmenu-link')
+                            .addClass('admin-topmenu-link text-lg') // text-lg = 1.125rem (~18px)
                             .attr('href', href)
-                            .html(menuName + (hasSub ? ' <span class="dropdown-icon">☰</span>' : ''));
+                            .html(menuName + (hasSub ? ' <span class="dropdown-icon"></span>' : ''));
 
                         $li.append($a);
 

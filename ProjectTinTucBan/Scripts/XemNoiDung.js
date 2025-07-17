@@ -80,38 +80,76 @@ $(document).ready(function () {
 
             let pdfBlock = "";
             if (bv.LinkPDF?.trim()) {
-                const pdfLinks = bv.LinkPDF.split(",").map(link => link.trim()).filter(link => link !== "");
-                if (pdfLinks.length === 1) {
-                    pdfBlock = `
-                    <div class="mt-6 flex justify-center">
-                        <embed 
-                            src="${pdfLinks[0]}" 
-                            type="application/pdf" 
-                            style="width: 80%; height: 800px;" 
-                            class="rounded border shadow"
-                        />
-                    </div>
-                    <div class="text-sm text-gray-500 mt-2 text-center">
-                        Nếu không hiển thị, <a href="${pdfLinks[0]}" class="text-blue-600 hover:underline" target="_blank">nhấn vào đây để tải về</a>.
-                    </div>`;
+                const pdfLinks = bv.LinkPDF.split(";").map(link => link.trim()).filter(link => link !== "");
 
+                if (pdfLinks.length === 1) {
+                    const pdfUrl = encodeURI(pdfLinks[0]);
+                    const pdfId = "pdfContainerSingle";
+                    pdfBlock = `
+        <div class="mt-6 flex justify-center hidden" id="${pdfId}">
+            <embed 
+                src="${pdfUrl}" 
+                type="application/pdf" 
+                style="width: 80%; height: 800px;" 
+                class="rounded border shadow"
+            />
+        </div>
+        <div class="text-sm text-gray-500 mt-2 text-center hidden" id="pdfFallback">
+            Nếu không hiển thị, <a href="${pdfUrl}" class="text-blue-600 hover:underline" target="_blank">nhấn vào đây để tải về</a>.
+        </div>
+        <script>
+            $.ajax({
+                url: "${pdfUrl}",
+                type: "HEAD",
+                success: function () {
+                    $("#${pdfId}").removeClass("hidden");
+                    $("#pdfFallback").removeClass("hidden");
+                },
+                error: function () {
+                    console.warn("PDF không tồn tại:", "${pdfUrl}");
+                }
+            });
+        </script>
+    `;
                 } else {
                     pdfBlock = `
-                        <div class="mt-6">
-                            <p class="text-base font-semibold text-gray-700 mb-3">📎 File đính kèm:</p>
-                            <ul class="space-y-2">
-                                ${pdfLinks.map((pdf, index) => {
-                        const fileName = pdf.split("/").pop();
-                        return `
-                                        <li>
-                                            <a href="${pdf}" target="_blank" class="flex items-center gap-2 text-blue-600 hover:underline">
-                                                <i class="fa-solid fa-file-pdf text-red-600"></i> Tài liệu ${index + 1} (${fileName})
-                                            </a>
-                                        </li>`;
-                    }).join("")}
-                            </ul>
-                        </div>`;
+    <div class="mt-6 hidden" id="pdfListBlock">
+        <p class="text-base font-semibold text-gray-700 mb-3">📎 File đính kèm:</p>
+        <ul class="space-y-2" id="pdfListBlockUl"></ul>
+    </div>
+    <script>
+        const pdfList = ${JSON.stringify(pdfLinks)};
+        let validPdfCount = 0;
+
+        pdfList.forEach((pdf, index) => {
+            $.ajax({
+                url: pdf,
+                type: "HEAD",
+                success: function () {
+                    const fileName = pdf.split("/").pop();
+                    $("#pdfListBlockUl").append(\`
+                        <li>
+                            <a href="\${pdf}" target="_blank" class="flex items-center gap-2 text-blue-600 hover:underline">
+                                <i class="fa-solid fa-file-pdf text-red-600"></i> Tài liệu \${++validPdfCount} (\${fileName})
+                            </a>
+                        </li>
+                    \`);
+
+                    // Chỉ hiện khối nếu có ít nhất 1 file hợp lệ
+                    if (validPdfCount === 1) {
+                        $("#pdfListBlock").removeClass("hidden");
+                    }
+                },
+                error: function () {
+                    console.warn("Không tìm thấy PDF:", pdf);
                 }
+            });
+        });
+    </script>`;
+                }
+
+
+
             }
 
             const html = `
@@ -195,20 +233,26 @@ $(document).ready(function () {
 
 $(document).ready(function () {
     const postId = window.postId;
-    setTimeout(function () {
-        $.ajax({
-            url: `/api/v1/admin/increase-views/${postId}`,
-            type: "POST",
-            success: function (data) {
-                if (data.success) {
-                    // Đã tăng lượt xem
+
+    // ✅ Kiểm tra xem đã xem bài viết hôm nay chưa
+    if (!hasViewedToday(postId)) {
+        // ❗Nếu chưa thì sau 15 giây mới gửi API tăng view
+        setTimeout(function () {
+            $.ajax({
+                url: `/api/v1/admin/increase-views/${postId}`,
+                type: "POST",
+                success: function (data) {
+                    if (data.success) {
+                        // ✅ Đánh dấu đã xem hôm nay
+                        markViewed(postId);
+                    }
+                },
+                error: function () {
+                    console.error("❌ Lỗi tăng lượt xem");
                 }
-            },
-            error: function () {
-                // Lỗi tăng lượt xem
-            }
-        });
-    }, 15000);
+            });
+        }, 15000);
+    }
 });
 
 

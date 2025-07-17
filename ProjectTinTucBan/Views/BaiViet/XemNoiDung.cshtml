@@ -64,9 +64,8 @@
 
     <!-- Breadcrumb -->
     <div class="bg-gray-100 py-2">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-sm text-gray-600 flex justify-between items-center">
-            <div></div>
-            <div id="breadcrumbContainer" class="text-sm text-gray-600"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="w-full text-left" id="breadcrumbContainer"></div>
         </div>
     </div>
 
@@ -78,26 +77,28 @@
             </a>
         </div>
 
-        <!-- Bố cục chia 2 cột -->
-        <!-- Nội dung bài viết -->
-        <div id="baivietContainer" class="mb-10">
-            <p class="text-center text-gray-500">Đang tải nội dung...</p>
-        </div>
-
-        <!-- Danh sách bài viết cùng mục -->
-        <section class="bg-white p-4 rounded  max-w-4xl mx-auto mb-16">
-            <p id="tenMucLuc" class="text-red-700 font-bold uppercase text-xl mb-4 border-b border-red-600 pb-2">
-                Đang tải...
-            </p>
-
-            <h2 class="text-2xl font-semibold text-gray-800 mb-6"></h2>
-
-            <div id="mucLucBaiViet" class="space-y-4">bg-white p-4 rounded  max-w-4xl mx-auto mb-16
-                <!-- Các bài viết sẽ được JS đẩy vào đây -->
+        <!-- Bố cục 2 cột: Nội dung trái, bài viết liên quan phải -->
+        <div class="flex flex-col lg:flex-row gap-6">
+            <!-- Cột trái: Nội dung bài viết -->
+            <div class="lg:w-2/3 w-full" id="baivietContainer">
+                <p class="text-center text-gray-500">Đang tải nội dung...</p>
             </div>
-        </section>
 
+            <!-- Cột phải: Danh sách bài viết cùng mục -->
+            <aside class="lg:w-1/3 w-full bg-white p-4 rounded shadow-md">
+                <p id="tenMucLuc" class="text-red-700 font-bold uppercase text-lg mb-4 border-b border-red-600 pb-2">
+                    Đang tải...
+                </p>
+
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Các bài viết cùng nội dung</h2>
+
+                <div id="mucLucBaiViet" class="space-y-4">
+                    <!-- Các bài viết sẽ được JS đẩy vào đây -->
+                </div>
+            </aside>
+        </div>
     </section>
+
 
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <script>

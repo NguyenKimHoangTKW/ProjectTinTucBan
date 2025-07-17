@@ -155,42 +155,9 @@
             </aside>
         </div>
     </section>
-    <!-- Thêm trong body ở nơi hiển thị -->
-    <div class="text-sm text-gray-600">
-        Tổng lượt truy cập: <span id="visitorTotal" class="font-semibold"></span> |
-        Đang online: <span id="visitorOnline" class="font-semibold"></span>
-    </div>
-
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            // Gọi API tăng lượt truy cập (POST) khi trang vừa tải xong
-            $.ajax({
-                type: "POST",
-                url: "/api/visitor/increase",
-                success: function (data) {
-                    // data = { total, online }
-                    $("#visitorTotal").text(data.total);
-                    $("#visitorOnline").text(data.online);
-                },
-                error: function (xhr, status, error) {
-                    console.error("❌ Lỗi cập nhật truy cập:", error);
-                }
-            });
-        });
-
-        // Gửi request giảm lượt truy cập khi người dùng rời trang
-        $(window).on("beforeunload", function () {
-            // Dùng jQuery để gửi request giảm online (nếu cần)
-            $.ajax({
-                type: "POST",
-                url: "/api/visitor/decrease",
-                async: false // Đảm bảo request được gửi trước khi trình duyệt đóng trang
-            });
-        });
-    </script>
     <script src="~/Scripts/Scripts/BaiVietTrangChu.js"></script>
 </body>
 </html>

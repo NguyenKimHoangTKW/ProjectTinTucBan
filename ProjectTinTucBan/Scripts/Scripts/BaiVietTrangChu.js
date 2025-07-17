@@ -239,33 +239,37 @@ $(document).ready(function () {
                         perPage: isSuKien ? 3 : 6
                     };
 
-                html += `
-                <div id="muc-${mucId}">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="list-${mucId}"></div>
-                    ${allBaiViets.length > (isSuKien ? 3 : 6)
-                        ? `<div class="text-center mt-8">
+                    html += `
+                    <div id="muc-${mucId}">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="list-${mucId}"></div>
+                        ${allBaiViets.length > (isSuKien ? 3 : 6)
+                                                ? `<div class="text-right mt-4 space-x-2">
                             <button data-id="${mucId}"
-                                class="btn-xem-them inline-block border-2 border-red-600 text-red-600 hover:bg-blue-600 hover:text-white hover:border-blue-600 px-6 py-2 rounded transition">
-                                XEM THÊM ${muc.TenMucLuc.toUpperCase()}
+                                class="btn-xem-them inline-flex items-center gap-2 px-4 py-2 border border-red-600 text-red-600 hover:border-red-700 hover:bg-red-50 hover:text-red-700 rounded-lg transition"
+                                title="Xem thêm">
+                                <i class="fas fa-chevron-down text-blue-600 text-base"></i>
                             </button>
                             <button data-id="${mucId}"
-                                class="btn-an-bot hidden ml-3 inline-block border-2 border-gray-600 text-gray-700 hover:bg-gray-300 px-6 py-2 rounded transition">
-                                ẨN BỚT
+                                class="btn-an-bot hidden inline-flex items-center gap-2 px-4 py-2 border border-gray-600 text-gray-600 hover:border-red-700 hover:bg-red-50 hover:text-red-700 rounded-lg transition"
+                                title="Ẩn bớt">
+                                <i class="fas fa-chevron-up text-blue-600 text-base"></i>
                             </button>
                         </div>`
-                        : ''}
-                </div>`;
-
-                // 👉 Thêm nút "XEM TẤT CẢ SỰ KIỆN" nếu là sự kiện
-                if (isSuKien) {
-                    html += `
-                    <div class="text-center mt-6">
-                        <a href="/danh-sach-bai-viet?mucId=${muc.ID}&slug=${toSlug(stripHtml(muc.TenMucLuc))}" 
-                           class="inline-block border-2 border-yellow-600 text-yellow-700 hover:bg-yellow-600 hover:text-white px-6 py-2 rounded transition">
-                            XEM TẤT CẢ ${stripHtml(muc.TenMucLuc).toUpperCase()}
-                        </a>
+                                                : ''}
                     </div>`;
-                }
+
+                    // 👉 Thêm nút "XEM TẤT CẢ SỰ KIỆN" nếu là sự kiện
+                    if (isSuKien) {
+                        html += `
+                        <div class="text-right mt-4">
+                            <a href="/danh-sach-bai-viet?mucId=${muc.ID}&slug=${toSlug(stripHtml(muc.TenMucLuc))}"
+                               class="inline-flex items-center gap-2 px-4 py-2 border border-yellow-700 text-yellow-700 hover:border-red-700 hover:bg-red-50 hover:text-red-700 rounded-lg transition"
+                               title="Xem tất cả sự kiện">
+                                <i class="fas fa-arrow-right text-blue-600 text-base"></i>
+                            </a>
+                        </div>
+                        `;
+                    }
             }
 
             html += `</div>`; // kết thúc khối từng mục
@@ -379,7 +383,7 @@ $(document).ready(function () {
                 // Nếu là sự kiện thì xác định top 3 bài có lượt xem cao
                 let topHotIDs = [];
                 if (isSuKien) {
-                    topHotIDs = muc.data
+                    topHotIDs = [...muc.data] // hoặc muc.data.slice()
                         .sort((a, b) => (b.LuotXem ?? 0) - (a.LuotXem ?? 0))
                         .slice(0, 3)
                         .map(b => b.ID);
@@ -424,11 +428,12 @@ $(document).ready(function () {
             // Xác định top 3 bài viết sự kiện có lượt xem cao nhất
             let topHotIDs = [];
             if (isSuKien) {
-                topHotIDs = muc.data
+                topHotIDs = [...muc.data] // hoặc muc.data.slice()
                     .sort((a, b) => (b.LuotXem ?? 0) - (a.LuotXem ?? 0))
                     .slice(0, 3)
                     .map(b => b.ID);
             }
+
 
             let html = "";
             currentList.forEach(bv => {

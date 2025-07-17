@@ -17,12 +17,24 @@
         .swiper-button-next {
             color: white;
             filter: drop-shadow(0 0 4px black);
+        }      
+        .loader {
+          border: 4px solid #e5e7eb;
+          border-top: 4px solid #3b82f6;
+          border-radius: 50%;
+          width: 36px;
+          height: 36px;
+          animation: spin 0.8s linear infinite;
+        }
+        @@keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
         }
 
-            .swiper-button-prev::after,
-            .swiper-button-next::after {
-                font-size: 24px;
-            }
+    .swiper-button-prev::after,
+    .swiper-button-next::after {
+    font-size: 24px;
+    }
     </style>
 </head>
 
@@ -51,16 +63,22 @@
     <div class="mb-6 flex flex-col sm:flex-row items-center gap-2">
         <input id="searchInput" type="text" placeholder="Nhập từ khóa tìm bài viết..."
                class="w-full sm:w-1/2 border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-        <button id="btnSearch"
-                class="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700 transition">
-            <i class="fas fa-search mr-2"></i>Tìm kiếm
-        </button>
     </div>
 
     <!-- Danh sách bài viết -->
     <div class="max-w-7xl mx-auto px-4">
         <div id="tinTucList" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
             <!-- Các bài viết sẽ được JavaScript render tại đây -->
+        </div>
+        <!-- Loading Indicator -->
+        <div id="loadingIndicator" class="w-full text-center py-4 hidden">
+            <div class="inline-flex items-center space-x-2 text-blue-600">
+                <svg class="animate-spin h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                </svg>
+                <span>Đang tải dữ liệu...</span>
+            </div>
         </div>
 
         <!-- Nút điều khiển -->
@@ -85,43 +103,7 @@
     <script>
         // Truyền biến Razor -> JS
         window.mucIdFromView = @Html.Raw(mucId ?? "0");
-        window.mucTen = "@mucTenCoDau";
-
-        $(document).ready(function () {
-            // Load banner slider
-            $.get("/api/v1/home/get-slider", function (data) {
-                let html = "";
-                if (!data || data.length === 0) {
-                    html = `<div class="swiper-slide flex items-center justify-center text-center h-full">
-                                <p class="text-gray-500 text-xl">Không có banner hiển thị</p>
-                            </div>`;
-                } else {
-                    data.forEach(item => {
-                        html += `
-                            <div class="swiper-slide relative">
-                                <img loading="lazy"
-                                     src="${item.LinkHinh}"
-                                     onerror="this.src='/images/fallback.jpg'"
-                                     alt="${item.TieuDe || 'Banner'}"
-                                     class="w-full h-full object-cover rounded-md" />
-                                ${item.TieuDe ? `<div class="absolute bottom-4 left-4 bg-black bg-opacity-50 text-white p-3 rounded text-lg max-w-[90%]">${item.TieuDe}</div>` : ""}
-                            </div>`;
-                    });
-                }
-
-                $("#slider-container").html(html);
-
-                new Swiper(".mySwiper", {
-                    loop: true,
-                    autoplay: { delay: 3000, disableOnInteraction: false },
-                    pagination: { el: ".swiper-pagination", clickable: true },
-                    navigation: {
-                        nextEl: ".swiper-button-next",
-                        prevEl: ".swiper-button-prev"
-                    }
-                });
-            });
-        });
+        window.mucTen = "@mucTenCoDau";    
     </script>
 
     <!-- Script quản lý bài viết -->

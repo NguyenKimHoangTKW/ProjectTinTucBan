@@ -18,6 +18,5 @@ namespace ProjectTinTucBan.Models
         public Nullable<int> NgayTao { get; set; }
         public Nullable<int> TotalAmount { get; set; }
         public Nullable<int> CurrentActive { get; set; }
-
     }
 }
