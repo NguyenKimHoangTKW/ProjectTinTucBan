@@ -83,8 +83,9 @@ $(document).ready(function () {
 
                 // Video
                 if (footer.VideoUrl) {
-                    $('#video').attr('src', footer.VideoUrl);
-                    $('#popupVideo').attr('src', footer.VideoUrl);
+                    var embedUrl = toEmbedYoutubeUrl(footer.VideoUrl);
+                    $('#video').attr('src', embedUrl);
+                    $('#popupVideo').attr('src', embedUrl);
                 }
 
                 // Footer cuối trang
@@ -110,8 +111,6 @@ $(document).ready(function () {
         });
     }
 });
-
-// ==== TẤT CẢ FUNCTION ĐỂ XUỐNG DƯỚI ====
 
 // Chuyển "dd/MM/yyyy" sang Unix timestamp (UTC 00:00:00)
 function parseDateToUnix(dateStr) {
@@ -240,6 +239,34 @@ function deleteFooterById(id) {
             $('#alert-error').html(errorMsg).show().delay(3000).fadeOut();
         }
     });
+}
+
+// Hàm chuyển đổi link YouTube thường/thường rút gọn/thường shorts sang link nhúng
+function toEmbedYoutubeUrl(url) {
+    if (!url) return '';
+    // Nếu đã là link nhúng thì trả về luôn
+    if (url.includes('youtube.com/embed/') || url.includes('youtu.be/embed/')) return url;
+
+    // Nếu là link youtu.be
+    var match = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
+    if (match && match[1]) {
+        return 'https://www.youtube.com/embed/' + match[1];
+    }
+
+    // Nếu là link youtube.com/watch?v=...
+    match = url.match(/v=([a-zA-Z0-9_-]+)/);
+    if (match && match[1]) {
+        return 'https://www.youtube.com/embed/' + match[1];
+    }
+
+    // Nếu là link youtube.com/shorts/...
+    match = url.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]+)/);
+    if (match && match[1]) {
+        return 'https://www.youtube.com/embed/' + match[1];
+    }
+
+    // Trả về nguyên bản nếu không nhận diện được
+    return url;
 }
 
 // Các hàm tiện ích khác

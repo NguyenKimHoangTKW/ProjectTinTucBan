@@ -202,6 +202,15 @@
           <Property Name="LockTimeout" Type="int" />
           <Property Name="LockTime" Type="int" />
         </EntityType>
+        <EntityType Name="VisitorLog">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="NgayTao" Type="int" />
+          <Property Name="TotalAmount" Type="int" />
+          <Property Name="CurrentActive" Type="int" />
+        </EntityType>
         <Association Name="FK__BaiViet__ID_MucL__49C3F6B7">
           <End Role="MucLuc" Type="Self.MucLuc" Multiplicity="0..1" />
           <End Role="BaiViet" Type="Self.BaiViet" Multiplicity="*" />
@@ -376,6 +385,7 @@
           <EntitySet Name="Sub_Menu" EntityType="Self.Sub_Menu" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="TaiKhoan" EntityType="Self.TaiKhoan" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="VisitorLog" EntityType="Self.VisitorLog" Schema="dbo" store:Type="Tables" />
           <AssociationSet Name="FK__BaiViet__ID_MucL__49C3F6B7" Association="Self.FK__BaiViet__ID_MucL__49C3F6B7">
             <End Role="MucLuc" EntitySet="MucLuc" />
             <End Role="BaiViet" EntitySet="BaiViet" />
@@ -451,6 +461,7 @@
           <EntitySet Name="Sub_Menu" EntityType="WebTinTucTDMUModel.Sub_Menu" />
           <EntitySet Name="sysdiagrams" EntityType="WebTinTucTDMUModel.sysdiagram" />
           <EntitySet Name="TaiKhoans" EntityType="WebTinTucTDMUModel.TaiKhoan" />
+          <EntitySet Name="VisitorLogs" EntityType="WebTinTucTDMUModel.VisitorLog" />
           <AssociationSet Name="FK__BaiViet__ID_MucL__49C3F6B7" Association="WebTinTucTDMUModel.FK__BaiViet__ID_MucL__49C3F6B7">
             <End Role="MucLuc" EntitySet="MucLucs" />
             <End Role="BaiViet" EntitySet="BaiViets" />
@@ -726,6 +737,15 @@
           <NavigationProperty Name="BaiViets" Relationship="WebTinTucTDMUModel.FK__BaiViet__ID_Nguo__4AB81AF0" FromRole="TaiKhoan" ToRole="BaiViet" />
           <NavigationProperty Name="PhanQuyenUsers" Relationship="WebTinTucTDMUModel.FK_PhanQuyenUser_TaiKhoan" FromRole="TaiKhoan" ToRole="PhanQuyenUser" />
           <NavigationProperty Name="Role" Relationship="WebTinTucTDMUModel.FK_TaiKhoan_Roles" FromRole="TaiKhoan" ToRole="Role" />
+        </EntityType>
+        <EntityType Name="VisitorLog">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="NgayTao" Type="Int32" />
+          <Property Name="TotalAmount" Type="Int32" />
+          <Property Name="CurrentActive" Type="Int32" />
         </EntityType>
         <Association Name="FK__BaiViet__ID_MucL__49C3F6B7">
           <End Type="WebTinTucTDMUModel.MucLuc" Role="MucLuc" Multiplicity="0..1" />
@@ -1099,6 +1119,16 @@
                 <ScalarProperty Name="MatKhau" ColumnName="MatKhau" />
                 <ScalarProperty Name="TenTaiKhoan" ColumnName="TenTaiKhoan" />
                 <ScalarProperty Name="ID_role" ColumnName="ID_role" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="VisitorLogs">
+            <EntityTypeMapping TypeName="WebTinTucTDMUModel.VisitorLog">
+              <MappingFragment StoreEntitySet="VisitorLog">
+                <ScalarProperty Name="CurrentActive" ColumnName="CurrentActive" />
+                <ScalarProperty Name="TotalAmount" ColumnName="TotalAmount" />
+                <ScalarProperty Name="NgayTao" ColumnName="NgayTao" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>
