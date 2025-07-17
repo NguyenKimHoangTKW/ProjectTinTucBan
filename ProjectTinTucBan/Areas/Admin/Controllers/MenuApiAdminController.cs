@@ -27,7 +27,53 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             DateTime now = DateTime.UtcNow;
             unixTimestamp = (int)(now.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
         }
+        #region các DTO sử dụng trong API
+        public class AddSubMenuToGroupDto
+        {
+            public int GroupMenuId { get; set; }
+            public int MenuId { get; set; }
+            public int SubMenuId { get; set; }
+        }
+        public class AddMenuToGroupDto
+        {
+            public int MenuId { get; set; }
+            public int GroupMenuId { get; set; }
 
+        }
+        public class GroupMenuDto
+        {
+            public int ID { get; set; }
+            public string Ten { get; set; }
+            public int? IsImportant { get; set; }
+            public int? AsignTo { get; set; }
+        }
+        public class EditMenuDto
+        {
+            public int ID { get; set; }
+            public string Ten { get; set; }
+            public string Link { get; set; }
+            public int? ThuTuShow { get; set; }
+            public string IconName { get; set; }
+        }
+        public class AddSubMenuDto
+        {
+            public int MenuId { get; set; }
+            public string SubMenuName { get; set; }
+            public string SubMenuLink { get; set; }
+            public string IconName { get; set; }
+        }
+        public class MenuDto
+        {
+            public int MenuId { get; set; }
+            public string MenuName { get; set; }
+            public string MenuLink { get; set; }
+            public string IconName { get; set; }
+            public int? IsImportant { get; set; }
+            public int? MenuOrder { get; set; }
+        }
+        #endregion
+
+        #region API phục vụ cho menu và submenu
         // 1. Lấy danh sách menu và submenu
         [HttpGet]
         [Route("menus-with-submenus")]
@@ -66,7 +112,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                         .ToList()
                 })
                 .ToListAsync();
-
+            await SyncMenuImportantWithGroupAsync();
             if (menus == null || menus.Count == 0)
                 return NotFound();
             else
@@ -93,15 +139,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 return Ok(submenus);
         }
 
-        public class MenuDto
-        {
-            public int MenuId { get; set; }
-            public string MenuName { get; set; }
-            public string MenuLink { get; set; }
-            public string IconName { get; set; }
-            public int? IsImportant { get; set; }
-            public int? MenuOrder { get; set; }
-        }
+        
 
         [HttpGet]
         [Route("get-menus")]
@@ -194,13 +232,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             return Ok();
         }
 
-        public class AddSubMenuDto
-        {
-            public int MenuId { get; set; }
-            public string SubMenuName { get; set; }
-            public string SubMenuLink { get; set; }
-            public string IconName { get; set; }
-        }
+        
 
         // 3. Thêm submenu mới
         [HttpPost]
@@ -265,14 +297,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         }
 
 
-        public class EditMenuDto
-        {
-            public int ID { get; set; }
-            public string Ten { get; set; }
-            public string Link { get; set; }
-            public int? ThuTuShow { get; set; }
-            public string IconName { get; set; }
-        }
+        
 
         [HttpPost]
         [Route("edit-menu")]
@@ -407,19 +432,9 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             return Ok(new { success = true });
         }
 
-
+        #endregion
         /* Bắt đầu phần xử lý api quản lý cho group menu */
-
-
-        // Thêm DTO cho GroupMenu
-        public class GroupMenuDto
-        {
-            public int ID { get; set; }
-            public string Ten { get; set; }
-            public int? IsImportant { get; set; }
-            public int? AsignTo { get; set; }
-        }
-
+        #region API quản lý group menu
         // Lấy danh sách group menu
         [HttpGet]
         [Route("groupmenus")]
@@ -517,19 +532,13 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             await db.SaveChangesAsync();
             return Ok(new { success = true });
         }
-
+        #endregion
 
 
         /* Xử lý tương tác giữa groupmenu với các bảng khác*/
 
-
+        #region Chức năng groupmenu có tương tác với menu và submenu
         // Thêm DTO cho việc thêm menu vào group menu
-        public class AddMenuToGroupDto
-        {
-            public int MenuId { get; set; }
-            public int GroupMenuId { get; set; }
-
-        }
 
         [HttpPost]
         [Route("add-menu-to-group")]
@@ -602,62 +611,6 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
             return Ok(new { success = true, message = "Thêm menu vào group thành công." });
         }
-
-
-
-        public class AddSubMenuToGroupDto
-        {
-            public int GroupMenuId { get; set; }
-            public int MenuId { get; set; }
-            public int SubMenuId { get; set; }
-        }
-
-        /*
-        [HttpPost]
-        [Route("add-submenus-to-menu-in-group")]
-        public async Task<IHttpActionResult> AddSubmenusToMenuInGroup(AddSubmenuRequest req)
-        {
-            if (req == null || req.GroupMenuId <= 0 || req.MenuId <= 0 || req.SubMenuIds == null || !req.SubMenuIds.Any())
-                return BadRequest("Dữ liệu không hợp lệ.");
-
-            // Kiểm tra tồn tại Group & Menu
-            var groupExists = await db.Menu_Group.AnyAsync(g => g.ID == req.GroupMenuId);
-            var menuExists = await db.Menus.AnyAsync(m => m.ID == req.MenuId);
-            if (!groupExists || !menuExists)
-                return BadRequest("Group hoặc Menu không tồn tại.");
-
-            // Duyệt danh sách SubMenu
-            foreach (var subId in req.SubMenuIds)
-            {
-                var exists = await db.Group_By_Menu_And_Sub.AnyAsync(x =>
-                    x.ID_GROUP == req.GroupMenuId &&
-                    x.ID_MENU == req.MenuId &&
-                    x.ID_SUB == subId);
-
-                if (!exists)
-                {
-                    db.Group_By_Menu_And_Sub.Add(new Group_By_Menu_And_Sub
-                    {
-                        ID_GROUP = req.GroupMenuId,
-                        ID_MENU = req.MenuId,
-                        ID_SUB = subId
-                    });
-                }
-            }
-
-            await db.SaveChangesAsync();
-
-            return Ok(new { success = true, message = "Gán submenu thành công." });
-        }
-        */
-
-        public class AddSubmenuRequest
-        {
-            public int GroupMenuId { get; set; }
-            public int MenuId { get; set; }
-            public List<int> SubMenuIds { get; set; }
-        }
-
 
         [HttpPost]
         [Route("delete-menu-from-group")]
@@ -760,6 +713,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                                         })
                                 })
                         }).ToListAsync();
+            await SyncMenuImportantWithGroupAsync();
             if (groups == null || groups.Count == 0)
                 return NotFound();
             else
@@ -912,51 +866,37 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             }
         }
 
-        [HttpGet]
-        [Route("get-menus-user")]
-        public async Task<IHttpActionResult> Getmenus_U()
+        public async Task<int> SyncMenuImportantWithGroupAsync()
         {
-            var menus = await db.Menus.
-                OrderBy(x => x.ThuTuShow)
-                        .Select(x => new
-                        {
-                            MenuId = x.ID,
-                            MenuName = x.Ten,
-                            MenuLink = x.Link,
-                            IconName = x.IconName,
-                            IsImportant = x.IsImportant,
-                            MenuOrder = x.ThuTuShow
-                        }).Where(x => x.IsImportant != 2)
-                        .ToListAsync();
+            // Lấy tất cả các liên kết group - menu
+            var groupMenuLinks = await db.Group_By_Menu_And_Sub
+                .Include(x => x.Menu)
+                .Include(x => x.Menu_Group)
+                .Where(x => x.Menu != null && x.Menu_Group != null)
+                .ToListAsync();
 
-            if (menus == null || menus.Count == 0)
-                return NotFound();
-            else
-                return Ok(menus);
+            int updateCount = 0;
+
+            foreach (var link in groupMenuLinks)
+            {
+                var menu = link.Menu;
+                var group = link.Menu_Group;
+
+                if (menu.IsImportant != group.IsImportant)
+                {
+                    menu.IsImportant = group.IsImportant;
+                    updateCount++;
+                }
+            }
+
+            if (updateCount > 0)
+            {
+                await db.SaveChangesAsync();
+            }
+
+            return updateCount; // Trả về số bản ghi đã cập nhật
         }
 
-        [HttpGet]
-        [Route("get-menus-QL")]
-        public async Task<IHttpActionResult> Getmenus_A()
-        {
-            var menus = await db.Menus.
-                OrderBy(x => x.ThuTuShow)
-                        .Select(x => new
-                        {
-                            MenuId = x.ID,
-                            MenuName = x.Ten,
-                            MenuLink = x.Link,
-                            IconName = x.IconName,
-                            IsImportant = x.IsImportant,
-                            MenuOrder = x.ThuTuShow
-                        }).Where(x => x.IsImportant == 2)
-                        .ToListAsync();
-
-            if (menus == null || menus.Count == 0)
-                return NotFound();
-            else
-                return Ok(menus);
-        }
-
+        #endregion
     }
 }

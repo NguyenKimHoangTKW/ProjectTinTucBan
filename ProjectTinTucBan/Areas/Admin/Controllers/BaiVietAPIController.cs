@@ -33,6 +33,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             if (bv == null) return NotFound();
 
             bv.ViewCount = (bv.ViewCount ?? 0) + 1;
+            bv.ViewUpdate = GetUnixTimestamp();
             db.SaveChanges();
 
             return Ok(new { success = true, viewCount = bv.ViewCount });

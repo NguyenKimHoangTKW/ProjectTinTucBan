@@ -419,6 +419,7 @@ async function GetAllBaiViet() {
         $('#table_load_baiviet tbody').html(`<tr><td colspan="11">${res.message}</td></tr>`);
     }
 }
+
 function renderPage(page) {
     const tableBody = $('#table_load_baiviet tbody');
     let html = '';

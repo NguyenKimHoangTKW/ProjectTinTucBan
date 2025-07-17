@@ -23,9 +23,21 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             unixTimestamp = (int)(now.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
         }
 
-        
+
+        public class ChangeOrderRequest
+        {
+            public int id { get; set; }
+            public string direction { get; set; }
+        }
+
+        public class SetSlideActiveRequest
+        {
+            public int id { get; set; }
+            public bool isActive { get; set; }
+        }
 
 
+        #region Lấy dữ liệu
         // Upload hình ảnh cho slide
         [HttpPost]
         [Route("upload-slide-image")]
@@ -43,14 +55,14 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 var ext = Path.GetExtension(filename);
                 var newFileName = Guid.NewGuid() + ext;
                 // Update the folder path to Areas/Admin/Uploads/Slider
-                var folderPath = HttpContext.Current.Server.MapPath("~/Areas/Admin/Uploads/Slider/");
+                var folderPath = HttpContext.Current.Server.MapPath("~/Uploads/Slider/");
                 if (!Directory.Exists(folderPath))
                     Directory.CreateDirectory(folderPath);
                 var filePath = Path.Combine(folderPath, newFileName);
                 var buffer = await file.ReadAsByteArrayAsync();
                 File.WriteAllBytes(filePath, buffer);
                 // Update the link to match the new path
-                var link = "/Areas/Admin/Uploads/Slider/" + newFileName;
+                var link = "/Uploads/Slider/" + newFileName;
                 return Ok(new { success = true, link });
             }
             return BadRequest("No file uploaded.");
@@ -93,7 +105,9 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
             return Ok(slides);
         }
+        #endregion
 
+        #region Các api quản lý
         // Thêm slide mới
         [HttpPost]
         [Route("add-slide")]
@@ -188,15 +202,9 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
             return Ok(new { success = true, message = "Xóa slide thành công." });
         }
-
-
+        #endregion
+        #region các api quản lý chức năng thao tác trên giao diện hiển thị slide
         // Thay đổi thứ tự hiển thị của slide
-        public class ChangeOrderRequest
-        {
-            public int id { get; set; }
-            public string direction { get; set; }
-        }
-
         [HttpPost]
         [Route("change-slide-order")]
         public async Task<IHttpActionResult> ChangeSlideOrder([FromBody] ChangeOrderRequest req)
@@ -238,11 +246,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         }
 
         // Đặt trạng thái hoạt động của slide
-        public class SetSlideActiveRequest
-        {
-            public int id { get; set; }
-            public bool isActive { get; set; }
-        }
+        
 
         [HttpPost]
         [Route("set-slide-active")]
@@ -261,7 +265,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             await ReindexSlideOrderAsync();
             return Ok(new { success = true, message = "Cập nhật trạng thái thành công." });
         }
-
+        #endregion
 
     }
 }

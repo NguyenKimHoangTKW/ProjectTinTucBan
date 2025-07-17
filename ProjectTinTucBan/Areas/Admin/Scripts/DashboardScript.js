@@ -1,4 +1,4 @@
-﻿const BASE_URL = '/api/v1/admin/';
+﻿const BASE_URL = '/api/v1/admin';
 
 function showChart(type) {
     $.ajax({
@@ -94,7 +94,7 @@ $(document).ready(function () {
         loadMucLucs(() => {
             $('#showtarget').html(`
             <div class="table-responsive p-3">
-            <div class="card-body" id="baiviet" style="cursor: pointer; text-align: center;">
+            <div class="card-body" id="baiviet-header" style="cursor: pointer; text-align: center;">
                 <h5>Top 10 bài viết nhiều lượt xem trong tháng</h5>
             </div>
                 <table id="table_load_baiviet" class="table table-striped">
@@ -232,19 +232,3 @@ function renderChartist(labels, data, type) {
 
     $('#viewsChart').prepend('<div style="text-align:center;font-weight:bold;margin-bottom:10px;">' + title + '</div>');
 }
-/* Test xuất dữ liệu api
-$(document).ready(function () {
-    $.ajax({
-        url: `${BASE_URL}/top10-baiviet-thang`,
-        method: 'GET',
-        success: function (data) {
-            $('#output').text(JSON.stringify(data, null, 4));
-        },
-        error: function (xhr, status, error) {
-            $('#output').text('Lỗi khi tải dữ liệu: ' + error);
-        }
-    });
-});
-//Bỏ phần này vô view để test xuất dữ liệu api
-<pre id="output" style="background: #f4f4f4; padding: 10px; border: 1px solid #ccc;"></pre>
-*/

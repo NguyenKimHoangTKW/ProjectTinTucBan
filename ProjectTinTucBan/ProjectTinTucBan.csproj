@@ -448,6 +448,9 @@
     <Compile Include="Models\TaiKhoan.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\VisitorLog.cs">
+      <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -477,6 +480,7 @@
     <Content Include="Areas\Admin\Scripts\XemNoiDung.js" />
     <Content Include="Areas\Admin\Uploads\Slider\0b5f243b-7900-434f-a448-782df0e12e5d.png" />
     <Content Include="Areas\Admin\Uploads\Slider\1dc28ab9-5825-418b-986f-0195bb6a8600.png" />
+    <Content Include="Uploads\Slider\943e81a8-4243-4a93-a6e3-2fffb1b49302.png" />
     <Content Include="Views\Home\Login.cshtml" />
     <Content Include="Areas\Admin\Uploads\Slider\750dc5f4-cbcf-4811-8d9e-fd84eea809f5.png" />
     <Content Include="Areas\Admin\Uploads\Slider\80a320ff-3dcf-450f-a53d-30db654ffcae.jpg" />
@@ -1566,7 +1570,6 @@
     <Content Include="Areas\Admin\Views\InterfaceAdmin\EditTaiKhoan.cshtml" />
     <Content Include="Content\data.json" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\EditFooter.cshtml" />
-    <Content Include="Areas\Admin\Scripts\data.json" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\Scripts\DanhSachBaiViet.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
@@ -1623,7 +1626,6 @@
     <Folder Include="App_Data\" />
     <Folder Include="Areas\Admin\Data\" />
     <Folder Include="Areas\Admin\Views\TinTuc\" />
-    <Folder Include="Uploads\Slider\" />
     <Folder Include="Views\TinTuc\" />
   </ItemGroup>
   <ItemGroup>
