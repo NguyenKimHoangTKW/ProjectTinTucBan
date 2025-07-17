@@ -349,7 +349,6 @@
                 return iconName
                     ? $('<i>').addClass(iconName + ' mr-2')
                     : $('<img>')
-                        .attr('src', '~/Areas/assets/images/logo/favicon.png')
                         .addClass('mr-2')
                         .css({ width: '20px', height: '20px', objectFit: 'contain' });
             };

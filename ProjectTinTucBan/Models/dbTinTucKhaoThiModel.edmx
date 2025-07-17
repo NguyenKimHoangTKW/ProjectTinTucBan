@@ -61,6 +61,7 @@
           <Property Name="FooterNote" Type="nvarchar(max)" />
           <Property Name="NgayCapNhat" Type="int" />
           <Property Name="NgayDang" Type="int" />
+          <Property Name="IsActive" Type="int" />
         </EntityType>
         <EntityType Name="Function_By_Menu">
           <Key>
@@ -577,6 +578,7 @@
           <Property Name="FooterNote" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="NgayCapNhat" Type="Int32" />
           <Property Name="NgayDang" Type="Int32" />
+          <Property Name="IsActive" Type="Int32" />
         </EntityType>
         <EntityType Name="Function_By_Menu">
           <Key>
@@ -957,6 +959,7 @@
           <EntitySetMapping Name="Footers">
             <EntityTypeMapping TypeName="WebTinTucTDMUModel.Footer">
               <MappingFragment StoreEntitySet="Footer">
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
                 <ScalarProperty Name="NgayDang" ColumnName="NgayDang" />
                 <ScalarProperty Name="NgayCapNhat" ColumnName="NgayCapNhat" />
                 <ScalarProperty Name="FooterNote" ColumnName="FooterNote" />

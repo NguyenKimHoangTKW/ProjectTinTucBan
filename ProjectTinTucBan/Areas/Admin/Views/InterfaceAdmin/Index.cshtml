@@ -100,13 +100,14 @@
             }
 
             #table_load_baiviet td {
-                text-align: center;
+                text-align: left;
             }
 
                 /* STT */
                 #table_load_baiviet th:nth-child(2),
                 #table_load_baiviet td:nth-child(2) {
                     width: 50px;
+                    text-align:center;
                 }
             /* Ngày đăng & cập nhật */
             #table_load_baiviet th:nth-child(5),
@@ -125,6 +126,11 @@
                 max-width: 80px;
                 height: auto;
                 border-radius: 4px;
+                text-align: center;
+            }
+            #table_load_baiviet td:nth-child(8) {
+                text-align: center;
+                width: 120px;
             }
 </style>
 <div class="main-content">
@@ -203,7 +209,9 @@
                 <div id="viewsChart" style="height:100%;"></div>
             </div>
             <!-- Bảng bài viết -->
-            <div id="showtarget" class="col-12"></div>
+            <div id="showtarget" class="col-12">
+
+            </div>
         </div>
 
     </div>
