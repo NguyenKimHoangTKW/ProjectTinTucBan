@@ -30,7 +30,7 @@ namespace ProjectTinTucBan.ApiControllers
         }
 
         [HttpGet]
-        [Route("get-baiviet-by-id/{id:int}")]
+        [Route("get-baiviet-by-id/{id}")]
         public IHttpActionResult GetBaiVietById(int id)
         {
             var baiViet = db.BaiViets

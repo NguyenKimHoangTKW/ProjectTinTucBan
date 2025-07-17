@@ -8,19 +8,24 @@
                     return;
                 }
 
+                const addedMenus = new Set(); // Dùng để lọc trùng theo tên
+
                 data.forEach(group => {
                     if (!Array.isArray(group.Menus) || group.Menus.length === 0) return;
 
                     group.Menus.forEach(menu => {
-                        const hasSub = Array.isArray(menu.SubMenus) && menu.SubMenus.length > 0;
+                        const menuName = menu.MenuName?.trim();
+                        if (!menuName || addedMenus.has(menuName)) return; // Bỏ qua nếu trùng
 
+                        addedMenus.add(menuName); // Đánh dấu đã thêm
+
+                        const hasSub = Array.isArray(menu.SubMenus) && menu.SubMenus.length > 0;
                         const $li = $('<li></li>');
                         if (hasSub) $li.addClass('has-dropdown');
 
-                        // Kiểm tra nếu là "Đăng Nhập" thì link cứng
                         let href = 'javascript:void(0)';
                         if (!hasSub) {
-                            if (menu.MenuName?.trim().toLowerCase() === 'đăng nhập') {
+                            if (menuName.toLowerCase() === 'đăng nhập') {
                                 href = 'https://localhost:44305/Home/Login';
                             } else {
                                 href = menu.MenuLink || '#';
@@ -30,7 +35,7 @@
                         const $a = $('<a></a>')
                             .addClass('admin-topmenu-link')
                             .attr('href', href)
-                            .html(menu.MenuName + (hasSub ? ' <span class="dropdown-icon">▼</span>' : ''));
+                            .html(menuName + (hasSub ? ' <span class="dropdown-icon">☰</span>' : ''));
 
                         $li.append($a);
 

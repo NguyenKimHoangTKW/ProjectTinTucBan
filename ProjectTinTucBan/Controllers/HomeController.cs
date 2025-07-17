@@ -64,7 +64,7 @@ namespace ProjectTinTucBan.Controllers
         }
 
         // Chi tiết bài viết
-        [Route("noi-dung/{id:int}")]
+        [Route("noi-dung/{id}")]
         public ActionResult XemNoiDung(int id)
         {
             var baiViet = db.BaiViets

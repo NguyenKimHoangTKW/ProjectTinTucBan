@@ -25,7 +25,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        [Route("increase-views/{id:int}")]
+        [Route("increase-views/{id}")]
 
         public IHttpActionResult IncreaseViews(int id)
         {
