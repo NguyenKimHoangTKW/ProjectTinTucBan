@@ -9,6 +9,7 @@ $(document).ready(function () {
     initializeComponents();
     setupEventHandlers();
     loadFunctionList();
+    loadMenuTable();
 
     /**
      * Khởi tạo các thành phần UI ban đầu
@@ -304,6 +305,16 @@ $(document).ready(function () {
         $(".is-invalid").removeClass("is-invalid");
         $(".invalid-feedback").remove();
 
+        // Xóa checked menu (nếu có)
+        $('#menuSelectionTable .menu-checkbox').prop('checked', false);
+
+        // Xóa các giá trị cũ của trường chi tiết (nếu có)
+        $("#tenFunction").val("");
+        $("#maFunction").val("");
+        $("#moTa").val("");
+        $("#ngayTao").val("");
+        $("#ngayCapNhat").val("");
+
         // Hiển thị modal
         $("#FunctionModal").modal("show");
     }
@@ -312,29 +323,35 @@ $(document).ready(function () {
      * Mở modal chỉnh sửa chức năng
      */
     async function openEditFunctionModal(functionId) {
-        $("#FunctionModal").modal("show");
-        showLoading("#function-content", "Đang tải thông tin...");
+    $("#FunctionModal").modal("show");
+    showLoading("#function-content", "Đang tải thông tin...");
 
-        try {
-            // Tải dữ liệu chức năng
-            const response = await $.ajax({
-                url: `/api/v1/admin/Get-All-Functions`,
-                type: 'GET'
-            });
+    try {
+        const response = await $.ajax({
+            url: `/api/v1/admin/Get-All-Functions`,
+            type: 'GET'
+        });
 
-            await waitMinLoading("#function-content", 1000);
+        await waitMinLoading("#function-content", 1000);
 
-            if (response.success && response.data) {
-                const functionData = response.data.find(item => item.ID === functionId);
+        if (response.success && response.data) {
+            const functionData = response.data.find(item => item.ID === functionId);
 
-                if (!functionData) {
-                    hideLoading("#function-content");
-                    Sweet_Alert("error", "Không tìm thấy thông tin chức năng admin");
-                    return;
-                }
+            if (!functionData) {
+                hideLoading("#function-content");
+                Sweet_Alert("error", "Không tìm thấy thông tin chức năng admin");
+                return;
+            }
 
-                // Render lại nội dung form và bảng menu vào #function-content
-                const html = `
+            // Cập nhật tiêu đề và nút lưu cho chế độ sửa
+            $("#FunctionModalLabel").text("Chỉnh sửa chức năng admin");
+            $("#btnSaveText").text("Cập nhật");
+
+            // Hiển thị các trường chỉ dành cho sửa
+            $("#editOnlyFields").show();
+
+            // Render lại nội dung form và bảng menu vào #function-content
+            const html = `
                 <form id="FunctionForm">
                     <input type="hidden" id="formMode" value="edit">
                     <input type="hidden" id="functionId" value="${functionData.ID}">
@@ -365,23 +382,22 @@ $(document).ready(function () {
                     </div>
                 </form>
             `;
-                hideLoading("#function-content", html);
+            hideLoading("#function-content", html);
 
-                // Sau khi render xong, mới gọi loadMenuTable và loadFunctionMenus
-                await loadMenuTable();
-                await loadFunctionMenus(functionId);
+            await loadMenuTable();
+            await loadFunctionMenus(functionId);
 
-                $(".is-invalid").removeClass("is-invalid");
-                $(".invalid-feedback").remove();
-            } else {
-                hideLoading("#function-content");
-                Sweet_Alert("error", "Không thể tải thông tin chức năng admin");
-            }
-        } catch (error) {
+            $(".is-invalid").removeClass("is-invalid");
+            $(".invalid-feedback").remove();
+        } else {
             hideLoading("#function-content");
             Sweet_Alert("error", "Không thể tải thông tin chức năng admin");
         }
+    } catch (error) {
+        hideLoading("#function-content");
+        Sweet_Alert("error", "Không thể tải thông tin chức năng admin");
     }
+}
 
     /**
      * Mở modal xem chi tiết chức năng
@@ -475,7 +491,6 @@ $(document).ready(function () {
      * Thêm chức năng mới
      */
     async function addNewFunction() {
-        // Validate form trước khi submit
         if (!validateForm()) {
             return;
         }
@@ -483,13 +498,11 @@ $(document).ready(function () {
         const tenFunction = $("#tenFunction").val().trim();
         const maFunction = $("#maFunction").val().trim();
         const moTa = $("#moTa").val().trim();
+        const selectedMenuIds = getSelectedMenuIds();
 
         try {
-            // Vô hiệu hóa nút lưu và hiển thị loading trên nút
             $("#btnSaveFunction").prop("disabled", true);
             $("#btnSaveText").html('<i class="anticon anticon-loading"></i> Đang xử lý...');
-
-            // Hiển thị loading overlay toàn màn hình 
             showLoading(null, "Đang thêm chức năng...");
 
             const res = await $.ajax({
@@ -497,45 +510,32 @@ $(document).ready(function () {
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({
-                    TenChucNang: tenFunction,
-                    MaChucNang: maFunction,
-                    MoTa: moTa
+                    Function: {
+                        TenChucNang: tenFunction,
+                        MaChucNang: maFunction,
+                        MoTa: moTa
+                    },
+                    MenuIds: selectedMenuIds
                 })
             });
 
-            // Ẩn loading
             hideLoading();
-
-            // Kích hoạt lại nút
             $("#btnSaveFunction").prop("disabled", false);
             $("#btnSaveText").text("Thêm mới");
 
-            // Xử lý phản hồi từ API
             if (res.success) {
-                // Đóng modal
                 $("#FunctionModal").modal("hide");
-
-                // Hiển thị thông báo thành công
                 Sweet_Alert("success", res.message || "Thêm chức năng thành công");
-
-                // Tải lại danh sách để cập nhật dữ liệu mới
                 loadFunctionList();
             } else {
-                // Hiển thị thông báo lỗi
                 Sweet_Alert("error", res.message || "Không thể thêm chức năng");
             }
         } catch (error) {
-            // Ẩn loading
             hideLoading();
-
-            // Kích hoạt lại nút
             $("#btnSaveFunction").prop("disabled", false);
             $("#btnSaveText").text("Thêm mới");
 
-            // Xử lý lỗi từ server nếu có
             let errorMessage = "Đã xảy ra lỗi khi thêm chức năng";
-
-            // Trích xuất thông báo lỗi từ response nếu có
             if (error.responseJSON) {
                 if (error.responseJSON.message) {
                     errorMessage = error.responseJSON.message;
@@ -543,8 +543,6 @@ $(document).ready(function () {
                     errorMessage = error.responseJSON.error;
                 }
             }
-
-            // Hiển thị thông báo lỗi
             Sweet_Alert("error", errorMessage);
         }
     }

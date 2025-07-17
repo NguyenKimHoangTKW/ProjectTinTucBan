@@ -49,25 +49,24 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         // POST: api/v1/admin/Create-Function
         [HttpPost]
         [Route("Create-Function")]
-        public async Task<IHttpActionResult> CreateFunction(ChucNangQuyenUser Item)
+        public async Task<IHttpActionResult> CreateFunction([FromBody] UpdateFunctionRequest request)
         {
             try
             {
-                // Kiểm tra dữ liệu đầu vào có hợp lệ không
-                if (Item == null)
+                if (request == null || request.Function == null)
                 {
                     return Ok(new { message = "Dữ liệu không hợp lệ", success = false });
                 }
 
                 // Kiểm tra xem tên chức năng đã tồn tại chưa
-                var existingFunction = await db.ChucNangQuyenUsers.FirstOrDefaultAsync(x => x.TenChucNang == Item.TenChucNang);
+                var existingFunction = await db.ChucNangQuyenUsers.FirstOrDefaultAsync(x => x.TenChucNang == request.Function.TenChucNang);
                 if (existingFunction != null)
                 {
                     return Ok(new { message = "Chức năng đã tồn tại", success = false });
                 }
 
                 // Kiểm tra xem mã chức năng đã tồn tại chưa
-                var existingIdFunction = await db.ChucNangQuyenUsers.FirstOrDefaultAsync(x => x.MaChucNang == Item.MaChucNang);
+                var existingIdFunction = await db.ChucNangQuyenUsers.FirstOrDefaultAsync(x => x.MaChucNang == request.Function.MaChucNang);
                 if (existingIdFunction != null)
                 {
                     return Ok(new { message = "Mã chức năng đã tồn tại", success = false });
@@ -77,9 +76,9 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 unixTimestamp = (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
                 var newFunction = new ChucNangQuyenUser
                 {
-                    MaChucNang = Item.MaChucNang,
-                    TenChucNang = Item.TenChucNang,
-                    MoTa = Item.MoTa,
+                    MaChucNang = request.Function.MaChucNang,
+                    TenChucNang = request.Function.TenChucNang,
+                    MoTa = request.Function.MoTa,
                     NgayTao = unixTimestamp,
                     NgayCapNhat = unixTimestamp
                 };
@@ -87,12 +86,24 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 db.ChucNangQuyenUsers.Add(newFunction);
                 await db.SaveChangesAsync();
 
-                // Trả về kết quả thành công 
+                // Thêm liên kết menu nếu có
+                if (request.MenuIds != null && request.MenuIds.Count > 0)
+                {
+                    foreach (var menuId in request.MenuIds)
+                    {
+                        db.Function_By_Menu.Add(new Function_By_Menu
+                        {
+                            ID_FUNCTION = newFunction.ID,
+                            ID_MENU = menuId
+                        });
+                    }
+                    await db.SaveChangesAsync();
+                }
+
                 return Ok(new { message = "Thêm chức năng thành công", success = true });
             }
             catch (Exception ex)
             {
-                // Xử lý ngoại lệ và trả về thông báo lỗi dễ hiểu
                 return Ok(new
                 {
                     message = "Lỗi hệ thống: " + ex.Message,
