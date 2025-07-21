@@ -16,6 +16,53 @@ function showChart(type) {
 
 document.addEventListener("DOMContentLoaded", function () {
     showChart('day');
+
+    const yearInput = document.getElementById('filter-year');
+    const monthSelect = document.getElementById('filter-month');
+    const fromInput = document.getElementById('filter-from');
+    const toInput = document.getElementById('filter-to');
+
+    // Tạo option tháng 1-12
+    for (let i = 1; i <= 12; i++) {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = `Tháng ${i}`;
+        monthSelect.appendChild(option);
+    }
+
+    // Ban đầu: disable tháng và ngày
+    monthSelect.disabled = true;
+    fromInput.disabled = true;
+    toInput.disabled = true;
+
+    // Khi nhập năm
+    yearInput.addEventListener('input', function () {
+        const yearVal = yearInput.value.trim();
+        if (yearVal !== '' && yearVal.length === 4 && Number(yearVal) >= 2000 && Number(yearVal) <= 2100) {
+            monthSelect.disabled = false;
+        } else {
+            monthSelect.value = '';
+            monthSelect.disabled = true;
+
+            fromInput.value = '';
+            toInput.value = '';
+            fromInput.disabled = true;
+            toInput.disabled = true;
+        }
+    });
+
+    // Khi chọn tháng
+    monthSelect.addEventListener('change', function () {
+        if (monthSelect.value !== '') {
+            fromInput.disabled = false;
+            toInput.disabled = false;
+        } else {
+            fromInput.value = '';
+            toInput.value = '';
+            fromInput.disabled = true;
+            toInput.disabled = true;
+        }
+    });
 });
 
 $(document).ready(function () {
@@ -42,11 +89,11 @@ $(document).ready(function () {
         $('#chartContainer').show();
         showChart(type);
     }
-
+    /*
     $('#day').on('click', function () { handleShowChart('day'); });
     $('#month').on('click', function () { handleShowChart('month'); });
     $('#year').on('click', function () { handleShowChart('year'); });
-
+    */
     $(document).on('click', function (e) {
         if ($(e.target).closest('#chartContainer, #day, #month, #year').length === 0) {
             $('#chartContainer').hide();
@@ -60,10 +107,18 @@ $(document).ready(function () {
         const month = $('#filter-month').val();
         const fromDay = $('#filter-from').val();
         const toDay = $('#filter-to').val();
+
         if (!year && !month && !fromDay && !toDay) {
             Sweet_Alert('warning', 'Vui lòng nhập khoảng thời gian cần hiển thị vào bộ lọc.');
             return;
         }
+
+        // Kiểm tra from > to
+        if (fromDay && toDay && Number(fromDay) > Number(toDay)) {
+            Sweet_Alert('warning', 'Ngày bắt đầu không được lớn hơn ngày kết thúc.');
+            return;
+        }
+
         const params = new URLSearchParams();
 
         if (year) params.append('year', year);
@@ -78,8 +133,8 @@ $(document).ready(function () {
         const fromTs = parseDatePartsToUnix(year, month, fromDay);
         const toTs = parseDatePartsToUnix(year, month, toDay);
 
-        params.append('from', fromTs);
-        params.append('to', toTs);
+        if (fromTs) params.append('from', fromTs);
+        if (toTs) params.append('to', toTs);
 
         $.getJSON(`${BASE_URL}/dashboard-filter/chart?type=range&${params.toString()}`, function (res) {
             const { labels, data } = res;
