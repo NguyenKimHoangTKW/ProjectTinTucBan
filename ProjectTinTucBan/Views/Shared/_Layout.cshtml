@@ -54,89 +54,9 @@
     @Scripts.Render("~/bundles/bootstrap")
     @RenderSection("scripts", required: false)
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-
+    <script src="~/Scripts/Scripts/LayoutTrangChu.js"></script>
     <!-- Back to top logic -->
-    <script>
-        const btn = document.getElementById("backToTop");
-        window.addEventListener("scroll", () => {
-            btn.classList.toggle("hidden", window.scrollY <= 200);
-        });
-        btn.addEventListener("click", () => {
-            window.scrollTo({ top: 0, behavior: "smooth" });
-        });
-    </script>
-
     <!-- Mục lục động trong Navbar -->
-    <script>
-        function toSlug(str) {
-            return str.toLowerCase()
-                .normalize("NFD")
-                .replace(/\p{Diacritic}/gu, '')
-                .replace(/[^a-z0-9]+/g, '-')
-                .replace(/(^-|-$)+/g, '');
-        }
-
-        $(document).ready(function () {
-            // Load mục lục động
-            $.get("/api/v1/home/get-mucluc-with-baiviet", function (res) {
-                if (!res.success || !res.data) return;
-
-                const nav = $("#dynamicNav");
-
-                res.data.forEach(muc => {
-                    const slug = toSlug(muc.TenMucLuc);
-                    const ten = muc.TenMucLuc.toUpperCase();
-
-                    // ✅ Dùng jQuery tạo thẻ <a> và đặt text bằng .text() để tránh render HTML
-                    // Sửa đoạn này trong Layout.cshtml
-                    const link = $("<a>")
-                        .attr("href", `#${slug}`) // để scroll nếu đang ở trang chủ
-                        .attr("data-target", slug) // để xác định mục tiêu
-                        .addClass("hover:text-blue-600 scroll-to")
-                        .text(ten);
-
-                    nav.append(link);
-                });
-            });
-
-            // Xử lý click vào mục lục
-            $(document).on("click", ".scroll-to", function (e) {
-                const slug = $(this).data("target");
-
-                // Nếu không đang ở trang chủ thì lưu slug rồi redirect về "/"
-                if (window.location.pathname !== "/") {
-                    e.preventDefault();
-                    localStorage.setItem("scrollToSlug", slug);
-                    window.location.href = "/";
-                    return;
-                }
-
-                // Nếu đang ở trang chủ thì scroll mượt
-                e.preventDefault();
-                const offset = $(`#${slug}`).offset()?.top;
-                if (offset) {
-                    $("html, body").animate({ scrollTop: offset - 100 }, 500);
-                }
-            });
-
-
-            // Khi về từ trang khác, scroll tới mục
-            const savedSlug = localStorage.getItem("scrollToSlug");
-            if (savedSlug) {
-                setTimeout(() => {
-                    const target = $(`#${savedSlug}`);
-                    if (target.length) {
-                        $("html, body").animate({
-                            scrollTop: target.offset().top - 100
-                        }, 500);
-                    }
-                    localStorage.removeItem("scrollToSlug");
-                }, 400); // Chờ DOM render xong
-            }
-
-        });
-    </script>
-
 </body>
 
 </html>

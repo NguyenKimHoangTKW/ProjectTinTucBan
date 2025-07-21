@@ -185,24 +185,33 @@ $(document).ready(function () {
                     <div class="mt-8 pt-4 border-t border-gray-200">
                     <p class="text-sm font-semibold text-gray-600 mb-2">🔗 Chia sẻ bài viết:</p>
                     <div class="flex flex-wrap gap-3 text-sm">
-                        <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.origin + '/noi-dung/' + bv.ID)}"
-                           class="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-                           target="_blank" rel="noopener noreferrer">
+                        <!-- Nút chia sẻ Facebook -->
+                        <button
+                            class="btn-share-facebook flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                            data-url="${window.location.origin + '/noi-dung/' + bv.ID}">
                             <i class="fab fa-facebook-f"></i> Facebook
-                        </a>
-
-                        <a href="https://www.instagram.com/?url=${encodeURIComponent(window.location.origin + '/noi-dung/' + bv.ID)}"
-                           class="flex items-center gap-2 px-3 py-2 bg-pink-500 text-white rounded hover:bg-pink-600 transition"
-                           target="_blank" rel="noopener noreferrer">
-                            <i class="fab fa-instagram"></i> Instagram
-                        </a>
-
-                        <button onclick="navigator.clipboard.writeText('${window.location.origin + '/noi-dung/' + bv.ID}')"
-                           class="flex items-center gap-2 px-3 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition">
-                            <i class="fas fa-copy"></i> Sao chép liên kết
                         </button>
-                    </div>
-                </div>
+
+                        <!-- Nút sao chép liên kết -->
+                        <button
+                    onclick="navigator.clipboard.writeText('${window.location.origin + '/noi-dung/' + bv.ID}')
+                        .then(() => {
+                            const toast = document.createElement('div');
+                            toast.id = 'copied-toast';
+                            toast.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-blue-600 text-white px-4 py-2 rounded shadow-lg z-50';
+                            toast.textContent = 'Đã sao chép liên kết!';
+                            document.body.appendChild(toast);
+                            setTimeout(() => {
+                                toast.remove();
+                            }, 2000);
+                        });"
+                    class="flex items-center gap-2 px-3 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition">
+                    <i class="fas fa-copy"></i> Sao chép liên kết
+                </button>
+
+    </div>
+</div>
+
 
                 </div>`;
 
@@ -248,6 +257,15 @@ $(document).ready(function () {
     });
 });
 
+$(document).on("click", ".btn-share-facebook", function (e) {
+    e.preventDefault();
+    const url = $(this).data("url");
+
+    // Dùng Facebook Share Dialog
+    const fbShareUrl = `https://www.facebook.com/dialog/share?app_id=87741124305&display=popup&href=${encodeURIComponent(url)}&redirect_uri=${encodeURIComponent(url)}`;
+
+    window.open(fbShareUrl, "_blank", "width=600,height=500");
+});
 
 function hasViewedToday(postId) {
     const key = `viewed_${postId}`;

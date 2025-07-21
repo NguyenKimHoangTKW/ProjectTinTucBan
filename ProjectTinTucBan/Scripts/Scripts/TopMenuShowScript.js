@@ -1,7 +1,10 @@
 ﻿$(function () {
     function loadTopMenu() {
-        $.getJSON('/api/v1/admin/menus-with-submenus-by-asignto/2')
-            .done(function (data) {
+        $.ajax({
+            url: '/api/v1/admin/menus-with-submenus-by-asignto/2',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
                 const $nav = $('.admin-topmenu-nav').empty();
                 if (!Array.isArray(data) || data.length === 0) {
                     $nav.append('<li><span class="admin-topmenu-link">Không có menu</span></li>');
@@ -33,7 +36,7 @@
                         }
 
                         const $a = $('<a></a>')
-                            .addClass('admin-topmenu-link text-lg') // text-lg = 1.125rem (~18px)
+                            .addClass('admin-topmenu-link text-base')
                             .attr('href', href)
                             .html(menuName + (hasSub ? ' <span class="dropdown-icon"></span>' : ''));
 
@@ -55,11 +58,12 @@
                         $nav.append($li);
                     });
                 });
-            })
-            .fail(function () {
+            },
+            error: function () {
                 $('.admin-topmenu-nav').empty()
                     .append('<li><span class="admin-topmenu-link text-danger">Lỗi tải menu</span></li>');
-            });
+            }
+        });
     }
 
     loadTopMenu();

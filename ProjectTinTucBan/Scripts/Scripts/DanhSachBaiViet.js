@@ -4,58 +4,78 @@
 $(document).ready(function () {
     
     // 👉 Lấy danh sách slider banner
-    $.get("/api/v1/home/get-slider", function (data) {
-        let html = "";
-        data.forEach(slider => {
-            html += `
+    $.ajax({
+        url: "/api/v1/home/get-slider",
+        type: "GET",
+        dataType: "json",
+        success: function (data) {
+            let html = "";
+            data.forEach(slider => {
+                html += `
                 <div class="swiper-slide flex items-center justify-center">
                     <img src="${slider.LinkHinh}" class="w-full h-[400px] object-contain rounded-md mx-auto flex items-center justify-center" alt="Banner ${slider.ID}" />
                 </div>`;
-        });
-        $("#slider-container").html(html);
-
-        // 👉 Khởi tạo slider sau khi thêm vào DOM
-        setTimeout(() => {
-            new Swiper(".mySwiper", {
-                loop: true,
-                autoplay: { delay: 3000, disableOnInteraction: false },
-                navigation: { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" }
             });
-        }, 0);
+            $("#slider-container").html(html);
+
+            // 👉 Khởi tạo slider sau khi thêm vào DOM
+            setTimeout(() => {
+                new Swiper(".mySwiper", {
+                    loop: true,
+                    autoplay: { delay: 3000, disableOnInteraction: false },
+                    navigation: { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" }
+                });
+            }, 0);
+        },
+        error: function () {
+            $("#slider-container").html(`
+            <div class="swiper-slide flex items-center justify-center text-center h-[400px]">
+                <p class="text-red-500 text-xl">Lỗi khi tải banner</p>
+            </div>
+        `);
+        }
     });
 
+
     // 👉 Lấy dữ liệu mục lục và bài viết tương ứng theo ID
-    $.get("/api/v1/home/get-mucluc-with-baiviet", function (res) {
-        if (!res.success || !res.data) {
-            $("#tinTucList").html("<p class='col-span-3 text-center text-gray-500'>Không có dữ liệu.</p>");
-            return;
+    $.ajax({
+        url: "/api/v1/home/get-mucluc-with-baiviet",
+        type: "GET",
+        dataType: "json",
+        success: function (res) {
+            if (!res.success || !res.data) {
+                $("#tinTucList").html("<p class='col-span-3 text-center text-gray-500'>Không có dữ liệu.</p>");
+                return;
+            }
+
+            const muc = res.data.find(m => m.ID === mucId);
+            if (!muc || !muc.BaiViets || muc.BaiViets.length === 0) {
+                $("#tinTucList").html("<p class='col-span-3 text-center text-gray-500'>Không có bài viết nào trong mục này.</p>");
+                return;
+            }
+
+            window.mucTen = muc.Ten;
+            $("#tenMucLuc").text((muc.TenMucLuc || "Không rõ").toUpperCase());
+            renderBreadcrumb(muc.TenMucLuc); // 👉 Tạo breadcrumb
+
+            allPosts = muc.BaiViets;
+
+            const isThongBao = (window.mucTen || "").toLowerCase().includes("thông báo");
+            const isSuKien = (muc.TenMucLuc || "").toLowerCase().includes("sự kiện");
+            window.isSuKien = isSuKien;
+
+            if (isThongBao) {
+                renderThongBao();
+            } else if (isDanhSachMuc && isSuKien) {
+                renderAllPosts(); // ❗ Nếu là trang danh sách sự kiện => hiện hết
+                $("#btnXemThem, #btnAnBot, #btnXemTatCa").hide();
+            } else {
+                renderPosts(); // 👉 Ngược lại, render thường
+            }
+        },
+        error: function () {
+            $("#tinTucList").html("<p class='col-span-3 text-center text-red-500'>Lỗi khi tải dữ liệu.</p>");
         }
-
-        const muc = res.data.find(m => m.ID === mucId);
-        if (!muc || !muc.BaiViets || muc.BaiViets.length === 0) {
-            $("#tinTucList").html("<p class='col-span-3 text-center text-gray-500'>Không có bài viết nào trong mục này.</p>");
-            return;
-        }
-
-        window.mucTen = muc.Ten;
-        $("#tenMucLuc").text((muc.TenMucLuc || "Không rõ").toUpperCase());
-        renderBreadcrumb(muc.TenMucLuc); // 👉 Tạo breadcrumb
-
-        allPosts = muc.BaiViets;
-
-        const isThongBao = (window.mucTen || "").toLowerCase().includes("thông báo");
-        const isSuKien = (muc.TenMucLuc || "").toLowerCase().includes("sự kiện");
-        window.isSuKien = isSuKien;
-
-        if (isThongBao) {
-            renderThongBao();
-        } else if (isDanhSachMuc && isSuKien) {
-            renderAllPosts(); // ❗ Nếu là trang danh sách sự kiện => hiện hết
-            $("#btnXemThem, #btnAnBot, #btnXemTatCa").hide();
-        } else {
-            renderPosts();
-        }
-           // 👉 Ngược lại, render thường
     });
 
     // 👉 Sự kiện nút "XEM THÊM"
@@ -271,9 +291,12 @@ function renderPosts() {
 
         if (end >= allPosts.length) {
             $("#btnXemThem").hide();
+            $("#btnXemTatCa").hide(); // 👈 Thêm dòng này
         } else {
             $("#btnXemThem").show();
+            $("#btnXemTatCa").show(); // 👈 Và dòng này
         }
+
 
         if (currentPage > 1) {
             $("#btnAnBot").removeClass("hidden");

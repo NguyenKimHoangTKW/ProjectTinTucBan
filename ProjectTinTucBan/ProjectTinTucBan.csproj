@@ -530,6 +530,7 @@
     <Content Include="Areas\Admin\Scripts\XemNoiDung.js" />
     <Content Include="Areas\Admin\Uploads\Slider\0b5f243b-7900-434f-a448-782df0e12e5d.png" />
     <Content Include="Areas\Admin\Uploads\Slider\1dc28ab9-5825-418b-986f-0195bb6a8600.png" />
+    <Content Include="Scripts\Scripts\TrangChuFooter.js" />
     <Content Include="Views\Home\Login.cshtml" />
     <Content Include="Areas\Admin\Uploads\Slider\750dc5f4-cbcf-4811-8d9e-fd84eea809f5.png" />
     <Content Include="Areas\Admin\Uploads\Slider\80a320ff-3dcf-450f-a53d-30db654ffcae.jpg" />
