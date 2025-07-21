@@ -1674,11 +1674,6 @@
     <Folder Include="Areas\Admin\Data\" />
     <Folder Include="Areas\Admin\Views\TinTuc\" />
     <Folder Include="Uploads\Slider\" />
-    <Folder Include="Views\TinTuc\" />
-    <Folder Include="Views\VisitorAPI\" />
-    <Folder Include="Views\VisitorHelper\" />
-    <Folder Include="Views\VisitorHub\" />
-    <Folder Include="Views\VisitorLog\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Scripts\bootstrap.min.js.map" />

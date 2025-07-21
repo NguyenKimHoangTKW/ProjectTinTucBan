@@ -13,11 +13,67 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
 
     <style>
+        /* Swiper điều hướng */
         .swiper-button-prev,
         .swiper-button-next {
             color: white;
-            filter: drop-shadow(0 0 4px black);
-        }      
+            width: 40px;
+            height: 40px;
+            background-color: rgba(0, 0, 0, 0.4);
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: background-color 0.3s;
+        }
+
+            .swiper-button-prev:hover,
+            .swiper-button-next:hover {
+                background-color: rgba(0, 0, 0, 0.6);
+            }
+
+            .swiper-button-prev::after,
+            .swiper-button-next::after {
+                font-size: 20px;
+                font-weight: bold;
+            }
+
+        .swiper-button-prev {
+            left: 16px;
+        }
+
+        .swiper-button-next {
+            right: 16px;
+        }
+        
+        .swiper {
+            width: 100vw;
+            height: 600px; /* hoặc dùng h-[600px] nếu Tailwind */
+        }
+
+
+        .swiper-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .swiper-pagination-bullet {
+            width: 30px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 1;
+            margin: 0 4px !important;
+            border-radius: 0;
+            transition: background 0.3s;
+        }
+
+        .swiper-pagination-bullet-active {
+            background: white;
+        }
         .loader {
           border: 4px solid #e5e7eb;
           border-top: 4px solid #3b82f6;
@@ -39,11 +95,13 @@
 </head>
 
 <!-- Banner -->
-<section class="w-full">
-    <div class="swiper mySwiper w-full h-[400px] overflow-hidden">
-        <div class="swiper-wrapper" id="slider-container"></div>
-        <div class="swiper-button-next"></div>
+<section class="w-full relative">
+    <div class="swiper mySwiper w-full h-[600px] overflow-hidden relative">
+        <div class="swiper-wrapper" id="slider-container">
+            <!-- Ảnh được load động từ JS -->
+        </div>
         <div class="swiper-button-prev"></div>
+        <div class="swiper-button-next"></div>
         <div class="swiper-pagination"></div>
     </div>
 </section>

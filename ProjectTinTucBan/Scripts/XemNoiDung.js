@@ -41,7 +41,24 @@ $(document).ready(function () {
             localStorage.removeItem("scrollToSlug");
         }, 400);
     }
+    const postId = window.postId;
 
+    if (!hasViewedToday(postId)) {
+        setTimeout(function () {
+            $.ajax({
+                url: `/api/v1/admin/increase-views/${postId}`,
+                type: "POST",
+                success: function (data) {
+                    if (data.success) {
+                        markViewed(postId);
+                    }
+                },
+                error: function () {
+                    console.error("❌ Lỗi tăng lượt xem");
+                }
+            });
+        }, 15000); // chờ 15 giây trước khi gửi API
+    }
     const urlParts = window.location.pathname.split('/');
     const id = urlParts[urlParts.length - 1];
 
@@ -231,29 +248,21 @@ $(document).ready(function () {
     });
 });
 
-$(document).ready(function () {
-    const postId = window.postId;
 
-    // ✅ Kiểm tra xem đã xem bài viết hôm nay chưa
-    if (!hasViewedToday(postId)) {
-        // ❗Nếu chưa thì sau 15 giây mới gửi API tăng view
-        setTimeout(function () {
-            $.ajax({
-                url: `/api/v1/admin/increase-views/${postId}`,
-                type: "POST",
-                success: function (data) {
-                    if (data.success) {
-                        // ✅ Đánh dấu đã xem hôm nay
-                        markViewed(postId);
-                    }
-                },
-                error: function () {
-                    console.error("❌ Lỗi tăng lượt xem");
-                }
-            });
-        }, 15000);
-    }
-});
+function hasViewedToday(postId) {
+    const key = `viewed_${postId}`;
+    const viewedData = localStorage.getItem(key);
+    if (!viewedData) return false;
+
+    const today = new Date().toDateString();
+    return viewedData === today;
+}
+
+function markViewed(postId) {
+    const key = `viewed_${postId}`;
+    const today = new Date().toDateString();
+    localStorage.setItem(key, today);
+}
 
 
 $(document).on("click", "aside a", function (e) {
@@ -301,18 +310,6 @@ function convertImagePaths(content) {
     return content.replace(/src="\/img/g, `src="${baseUrl}/img`);
 }
 
-function hasViewedToday(postId) {
-    const key = `viewed_${postId}`;
-    const lastView = localStorage.getItem(key);
-    const today = new Date().toISOString().slice(0, 10);
-    return lastView === today;
-}
-
-function markViewed(postId) {
-    const key = `viewed_${postId}`;
-    const today = new Date().toISOString().slice(0, 10);
-    localStorage.setItem(key, today);
-}
 
 function escapeHtml(text) {
     return text

@@ -29,7 +29,8 @@ namespace ProjectTinTucBan.ApiControllers
                 }
 
                 string onlineKey = $"online_{clientIp}";
-                string dailyKey = $"daily_{clientIp}_{DateTime.Now:yyyyMMdd}";
+                int todayUnix = GetUnixTimestampStartOfDay();
+                string dailyKey = $"daily_{clientIp}_{todayUnix}";
 
                 lock (_lock)
                 {
@@ -51,8 +52,7 @@ namespace ProjectTinTucBan.ApiControllers
                     // Kiểm tra IP đã được tính lượt trong ngày chưa
                     if (cache.Contains(dailyKey))
                     {
-                        int today = int.Parse(DateTime.Now.ToString("yyyyMMdd"));
-                        var todayLog = db.VisitorLogs.FirstOrDefault(v => v.NgayTao == today);
+                        var todayLog = db.VisitorLogs.FirstOrDefault(v => v.NgayTao == todayUnix);
                         if (todayLog != null)
                         {
                             todayLog.CurrentActive = GetOnlineUserCount();
@@ -72,14 +72,13 @@ namespace ProjectTinTucBan.ApiControllers
                     // Lần đầu IP này được tính lượt trong ngày
                     cache.Add(dailyKey, true, DateTimeOffset.Now.AddHours(24));
 
-                    int todayDate = int.Parse(DateTime.Now.ToString("yyyyMMdd"));
-                    var log = db.VisitorLogs.FirstOrDefault(v => v.NgayTao == todayDate);
+                    var log = db.VisitorLogs.FirstOrDefault(v => v.NgayTao == todayUnix);
 
                     if (log == null)
                     {
                         log = new VisitorLog
                         {
-                            NgayTao = todayDate,
+                            NgayTao = todayUnix,
                             TotalAmount = 1,
                             CurrentActive = GetOnlineUserCount()
                         };
@@ -122,6 +121,7 @@ namespace ProjectTinTucBan.ApiControllers
                 }
 
                 string onlineKey = $"online_{clientIp}";
+                int todayUnix = GetUnixTimestampStartOfDay();
 
                 lock (_lock)
                 {
@@ -129,8 +129,7 @@ namespace ProjectTinTucBan.ApiControllers
                     {
                         cache.Remove(onlineKey);
 
-                        int todayDate = int.Parse(DateTime.Now.ToString("yyyyMMdd"));
-                        var log = db.VisitorLogs.FirstOrDefault(v => v.NgayTao == todayDate);
+                        var log = db.VisitorLogs.FirstOrDefault(v => v.NgayTao == todayUnix);
                         if (log != null)
                         {
                             log.CurrentActive = Math.Max((log.CurrentActive ?? 1) - 1, 0);
@@ -140,7 +139,7 @@ namespace ProjectTinTucBan.ApiControllers
                     }
 
                     int totalAll = db.VisitorLogs.Sum(v => (int?)v.TotalAmount) ?? 0;
-                    var todayLog = db.VisitorLogs.FirstOrDefault(v => v.NgayTao == int.Parse(DateTime.Now.ToString("yyyyMMdd")));
+                    var todayLog = db.VisitorLogs.FirstOrDefault(v => v.NgayTao == todayUnix);
 
                     return Ok(new
                     {
@@ -166,8 +165,8 @@ namespace ProjectTinTucBan.ApiControllers
         {
             var total = db.VisitorLogs.Sum(v => (int?)v.TotalAmount) ?? 0;
 
-            int today = int.Parse(DateTime.Now.ToString("yyyyMMdd"));
-            var todayLog = db.VisitorLogs.FirstOrDefault(v => v.NgayTao == today);
+            int todayUnix = GetUnixTimestampStartOfDay();
+            var todayLog = db.VisitorLogs.FirstOrDefault(v => v.NgayTao == todayUnix);
             int online = todayLog?.CurrentActive ?? 0;
 
             return Ok(new
@@ -200,6 +199,15 @@ namespace ProjectTinTucBan.ApiControllers
             }
 
             return request.ServerVariables["REMOTE_ADDR"];
+        }
+
+        // ✅ Hàm tính Unix timestamp cho đầu ngày (UTC+7)
+        private int GetUnixTimestampStartOfDay()
+        {
+            var timeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            var nowInUtc7 = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone).Date;
+            var startOfDayUtc = TimeZoneInfo.ConvertTimeToUtc(nowInUtc7, timeZone);
+            return (int)(startOfDayUtc.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
         }
     }
 }

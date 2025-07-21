@@ -349,21 +349,28 @@ $(document).ready(function () {
 
         $("#slider-container").html(html);
 
-        new Swiper(".mySwiper", {
-            loop: true,
-            autoplay: {
-                delay: 3000,
-                disableOnInteraction: false
+        const slideCount = document.querySelectorAll('.swiper-slide').length;
+
+        const swiper = new Swiper(".mySwiper", {
+            loop: slideCount > 1, // Bật loop khi có từ 2 slide trở lên
+            slidesPerView: 1,     // ❗ Hiển thị đúng 1 slide tại một thời điểm
+            centeredSlides: false,
+            spaceBetween: 0,
+            grabCursor: true,
+            pagination: {
+                el: ".swiper-pagination",
+                clickable: true,
             },
             navigation: {
                 nextEl: ".swiper-button-next",
-                prevEl: ".swiper-button-prev"
+                prevEl: ".swiper-button-prev",
             },
-            pagination: {
-                el: ".swiper-pagination",
-                clickable: true
-            }
+            autoplay: {
+                delay: 2500,
+                disableOnInteraction: false,
+            },
         });
+
     });
     // Cuộn mượt
     $(document).on("click", ".scroll-to", function (e) {

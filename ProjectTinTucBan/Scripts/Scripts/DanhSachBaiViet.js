@@ -45,6 +45,7 @@ $(document).ready(function () {
 
         const isThongBao = (window.mucTen || "").toLowerCase().includes("thông báo");
         const isSuKien = (muc.TenMucLuc || "").toLowerCase().includes("sự kiện");
+        window.isSuKien = isSuKien;
 
         if (isThongBao) {
             renderThongBao();
@@ -107,32 +108,33 @@ $(document).ready(function () {
         </div>
     `);
 
+        // ✅ Ẩn nút "Xem tất cả" trong lúc tìm kiếm
+        $("#btnXemTatCa").hide();
+
         // ✅ Xử lý sau 300ms
         setTimeout(() => {
             if (keyword === "") {
                 currentPage = 1;
                 $("#tinTucList").html("");
 
-                const mucTen = (window.mucTen || "").toString().toLowerCase();
-                if (isDanhSachMuc && mucTen.includes("sự kiện")) {
+                if (isDanhSachMuc && window.isSuKien) {
                     renderAllPosts();
                     $("#btnXemThem, #btnAnBot, #btnXemTatCa").hide();
                 } else {
                     renderPosts();
                     $("#btnXemThem").show();
                     $("#btnAnBot").addClass("hidden");
+                    $("#btnXemTatCa").show();
                 }
                 return;
             }
 
-
             const filtered = allPosts.filter(post =>
                 (post.TieuDe || "").toLowerCase().includes(keyword)
             );
-
             if (filtered.length === 0) {
                 $("#tinTucList").html("<p class='text-center text-gray-500'>Không tìm thấy bài viết phù hợp.</p>");
-                $("#btnXemThem, #btnAnBot").hide();
+                $("#btnXemThem, #btnAnBot, #btnXemTatCa").hide(); // ✅ Thêm #btnXemTatCa vào đây
             } else {
                 renderFilteredPosts(filtered);
                 $("#btnXemThem").hide();
@@ -140,6 +142,7 @@ $(document).ready(function () {
             }
         }, 300);
     });
+
 
 
     // 👉 Tìm kiếm khi nhấn Enter
