@@ -74,15 +74,23 @@
             const reader = new FileReader();
             reader.onload = function (e) {
                 const imgWrapper = $(`
-                <div class="position-relative" style="width: 120px; height: 80px;">
-                    <img src="${e.target.result}" alt="preview-${index}" class="img-thumbnail w-100 h-100 object-fit-cover">
-                </div>
-            `);
+            <div class="preview-img-wrapper">
+                <img src="${e.target.result}" alt="preview-${index}" />
+            </div>
+        `);
                 $previewContainer.append(imgWrapper);
             };
             reader.readAsDataURL(file);
         });
+
     });
+
+    $('#btn-range-chart').on('click', function () {
+        $('#showtarget').empty();
+        $('#chartContainer').show();
+        showChart('range');
+    });
+
 
 
     // Xem trước ảnh khi chọn file (sửa)
@@ -393,6 +401,37 @@
             }
         });
     }
+
+    function showChart(type, filters = {}) {
+        let url = `${BASE_URL}/dashboard/chart?type=${type}`;
+
+        if (type === 'month' && filters.year && filters.month) {
+            url += `&year=${filters.year}&month=${filters.month}`;
+        } else if (type === 'year' && filters.year) {
+            url += `&year=${filters.year}`;
+        } else if (type === 'range' && filters.from && filters.to) {
+            url += `&from=${filters.from}&to=${filters.to}`;
+        }
+
+        $.ajax({
+            url: url,
+            method: 'GET',
+            success: function (result) {
+                renderChartist(result.labels, result.data, type);
+                $('#chartContainer').show();
+            },
+            error: function () {
+                alert('Không thể tải dữ liệu biểu đồ.');
+            }
+        });
+    }
+
+    function filterChart(type, filters) {
+        $('#showtarget').empty();
+        $('#chartContainer').show();
+        showChart(type, filters);
+    }
+
 
     // Gọi khi resize màn hình
     window.addEventListener('resize', updateOrderLayout);

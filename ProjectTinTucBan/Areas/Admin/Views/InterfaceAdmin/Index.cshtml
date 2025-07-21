@@ -107,7 +107,7 @@
                 #table_load_baiviet th:nth-child(2),
                 #table_load_baiviet td:nth-child(2) {
                     width: 50px;
-                    text-align:center;
+                    text-align: center;
                 }
             /* Ngày đăng & cập nhật */
             #table_load_baiviet th:nth-child(5),
@@ -128,10 +128,33 @@
                 border-radius: 4px;
                 text-align: center;
             }
+
             #table_load_baiviet td:nth-child(8) {
                 text-align: center;
                 width: 120px;
             }
+
+    <style >
+    .chart-filter {
+        background: #f9f9f9;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+    }
+
+    .chart-filter label {
+        font-weight: 600;
+    }
+
+    .chart-filter .form-control {
+        font-size: 14px;
+    }
+
+    .chart-filter button {
+        font-size: 14px;
+    }
+</style>
+
 </style>
 <div class="main-content">
 
@@ -139,8 +162,42 @@
     <div class="container-fluid">
         <!-- Session info will be displayed here by JavaScript -->
         <!-- Thống kê -->
+        <div class="row-cols-1">
+            <div class="chart-filter row align-items-end mb-4">
+                <div class="col-md-2">
+                    <label for="filter-year">Năm</label>
+                    <input type="number" min="2000" max="2100" class="form-control" id="filter-year" placeholder="VD: 2025">
+                </div>
+                <div class="col-md-2">
+                    <label for="filter-month">Tháng</label>
+                    <select class="form-control" id="filter-month">
+                        <option value="">-- Chọn --</option>
+                        <!-- Tạo option 1-12 -->
+                        <script>
+                            for (let i = 1; i <= 12; i++) {
+                                document.write(`<option value="${i}">Tháng ${i}</option>`);
+                            }
+                        </script>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="filter-from">Từ ngày</label>
+                    <input type="number" min="1" max="31" class="form-control" id="filter-from" placeholder="VD: 1">
+                </div>
+                <div class="col-md-2">
+                    <label for="filter-to">Đến ngày</label>
+                    <input type="number" min="1" max="31" class="form-control" id="filter-to" placeholder="VD: 15">
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-primary w-100 mb-2" id="btn-apply-filter">Lọc</button>
+                    <button class="btn btn-secondary w-100" id="btn-reset-filter">Đặt lại</button>
+                </div>
+            </div>
 
+
+        </div>
         <div class="row">
+
             <div class="col-md-3">
                 <div class="card">
                     <div class="card-body" id="day" style="cursor:pointer;">
@@ -222,16 +279,15 @@
 
 
     <script src="~/Scripts/jquery-3.7.0.min.js"></script>
-    <!-- Chartist CSS (local) -->
     <link href="~/Areas/assets/vendors/chartist/chartist.min.css" rel="stylesheet" />
 
-    <!-- Chartist Tooltip CSS (CDN hoặc local nếu có) -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chartist-plugin-tooltips@0.0.17/dist/chartist-plugin-tooltip.css" />
 
-    <!-- Chartist JS (local) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
+    <script src="https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
+
     <script src="~/Areas/assets/vendors/chartist/chartist.min.js"></script>
-    <!-- Chartist Tooltip JS (CDN hoặc local nếu có) -->
-    <script src="https://cdn.jsdelivr.net/npm/chartist-plugin-tooltips@0.0.17/dist/chartist-plugin-tooltip.min.js"></script>
+
+
     <script src="~/Areas/Admin/Scripts/DashboardScript.js"></script>
 }
 

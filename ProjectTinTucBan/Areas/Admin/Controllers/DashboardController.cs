@@ -186,5 +186,149 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             }
         }
         #endregion
+        #region lấy dữ liệu cho biểu đồ theo bộ lọc
+        [Route("dashboard-filter/chart"), HttpGet]
+        public IHttpActionResult GetChartDataWithFilter(string type = "range", int? year = null, int? month = null, int? from = null, int? to = null)
+        {
+            try
+            {
+                var labels = new List<string>();
+                var data = new List<int>();
+                string typeUsed = "";
+                #region kiểm tra dữ liệu truy vấn theo khoảng ngày
+                if (from.HasValue && to.HasValue)
+                {
+                    // Thống kê theo giờ trong ngày (nếu khoảng <= 1 ngày), ngày (<= 31 ngày), hoặc tháng
+                    var fromDate = DateTimeOffset.FromUnixTimeSeconds(from.Value).UtcDateTime;
+                    var toDate = DateTimeOffset.FromUnixTimeSeconds(to.Value).UtcDateTime;
+                    var totalDays = (toDate - fromDate).TotalDays;
+
+                    if (totalDays <= 1)
+                    {
+                        typeUsed = "hourly";
+                        for (int h = 0; h < 24; h++)
+                        {
+                            var hourStart = fromDate.Date.AddHours(h);
+                            var hourEnd = hourStart.AddHours(1);
+
+                            int unixStart = GetUnixTimestamp(hourStart);
+                            int unixEnd = GetUnixTimestamp(hourEnd);
+
+                            int viewCount = db.BaiViets
+                                .Where(bv => bv.ViewUpdate >= unixStart && bv.ViewUpdate < unixEnd)
+                                .Sum(bv => (int?)bv.ViewCount) ?? 0;
+
+                            labels.Add(h.ToString("D2"));
+                            data.Add(viewCount);
+                        }
+                    }
+                    #endregion
+                    #region nếu khoảng ít hơn 1 tháng
+                    else if (totalDays <= 31)
+                    {
+                        typeUsed = "daily";
+                        for (var d = fromDate.Date; d <= toDate.Date; d = d.AddDays(1))
+                        {
+                            var dayStart = d;
+                            var dayEnd = d.AddDays(1);
+
+                            int unixStart = GetUnixTimestamp(dayStart);
+                            int unixEnd = GetUnixTimestamp(dayEnd);
+
+                            int viewCount = db.BaiViets
+                                .Where(bv => bv.ViewUpdate >= unixStart && bv.ViewUpdate < unixEnd)
+                                .Sum(bv => (int?)bv.ViewCount) ?? 0;
+
+                            labels.Add(d.Day.ToString());
+                            data.Add(viewCount);
+                        }
+                    }
+                    #endregion
+                    #region khoảng lớn hơn 31 ngày
+                    else
+                    {
+                        typeUsed = "monthly";
+                        var current = new DateTime(fromDate.Year, fromDate.Month, 1);
+                        var end = new DateTime(toDate.Year, toDate.Month, 1);
+
+                        while (current <= end)
+                        {
+                            var monthStart = current;
+                            var monthEnd = current.AddMonths(1);
+
+                            int unixStart = GetUnixTimestamp(monthStart);
+                            int unixEnd = GetUnixTimestamp(monthEnd);
+
+                            int viewCount = db.BaiViets
+                                .Where(bv => bv.ViewUpdate >= unixStart && bv.ViewUpdate < unixEnd)
+                                .Sum(bv => (int?)bv.ViewCount) ?? 0;
+
+                            labels.Add(monthStart.Month.ToString("D2"));
+                            data.Add(viewCount);
+
+                            current = current.AddMonths(1);
+                        }
+                    }
+                    #endregion
+                }
+                #region nếu đầu vào có năm và có tháng
+                else if (year.HasValue && month.HasValue)
+                {
+                    typeUsed = "daily-in-month";
+                    int daysInMonth = DateTime.DaysInMonth(year.Value, month.Value);
+                    for (int d = 1; d <= daysInMonth; d++)
+                    {
+                        var dayStart = new DateTime(year.Value, month.Value, d, 0, 0, 0, DateTimeKind.Utc);
+                        var dayEnd = dayStart.AddDays(1);
+
+                        int unixStart = GetUnixTimestamp(dayStart);
+                        int unixEnd = GetUnixTimestamp(dayEnd);
+
+                        int viewCount = db.BaiViets
+                            .Where(bv => bv.ViewUpdate >= unixStart && bv.ViewUpdate < unixEnd)
+                            .Sum(bv => (int?)bv.ViewCount) ?? 0;
+
+                        labels.Add(d.ToString());
+                        data.Add(viewCount);
+                    }
+                }
+                #endregion
+                #region đầu vào chỉ có năm
+                else if (year.HasValue)
+                {
+                    typeUsed = "monthly-in-year";
+                    for (int m = 1; m <= 12; m++)
+                    {
+                        var monthStart = new DateTime(year.Value, m, 1, 0, 0, 0, DateTimeKind.Utc);
+                        var monthEnd = monthStart.AddMonths(1);
+
+                        int unixStart = GetUnixTimestamp(monthStart);
+                        int unixEnd = GetUnixTimestamp(monthEnd);
+
+                        int viewCount = db.BaiViets
+                            .Where(bv => bv.ViewUpdate >= unixStart && bv.ViewUpdate < unixEnd)
+                            .Sum(bv => (int?)bv.ViewCount) ?? 0;
+
+                        labels.Add(m.ToString("D2"));
+                        data.Add(viewCount);
+                    }
+                }
+                #endregion
+
+                else
+                {
+                    // Không đủ dữ liệu đầu vào
+                    return Ok(new { labels = new List<string>(), data = new List<int>(), typeUsed = "none" });
+                }
+
+                return Ok(new { labels, data, typeUsed });
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        #endregion
     }
 }

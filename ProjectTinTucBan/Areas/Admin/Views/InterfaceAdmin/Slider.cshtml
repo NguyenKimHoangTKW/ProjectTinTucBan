@@ -380,7 +380,34 @@
         background-color: #c82333;
         color: white;
     }
+
+    #addPreviewContainer {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        overflow-y: auto;
+        max-height: 180px;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+    }
+
+    #addPreviewContainer .preview-img-wrapper {
+        width: 120px;
+        height: 80px;
+        position: relative;
+    }
+
+        #addPreviewContainer .preview-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 4px;
+        }
 </style>
+
+
 
 <!-- Modal Thêm Slide -->
 <div class="modal fade" id="addSlideModal" tabindex="-1" role="dialog">
@@ -397,7 +424,7 @@
                     <label>Chọn hình ảnh</label>
                     <input type="file" class="form-control" id="addLinkHinh" accept="image/*" multiple />
                     <div class="swiper mySwiper mt-2" style="height: 200px;">
-                        <div id="addPreviewContainer" class="swiper-wrapper"></div>
+                        <div id="addPreviewContainer" class="mt-2"></div>
                     </div>
                 </div>
             </div>
