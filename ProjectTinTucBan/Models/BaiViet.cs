@@ -24,6 +24,7 @@ namespace ProjectTinTucBan.Models
         public Nullable<int> NgayDang { get; set; }
         public string LinkPDF { get; set; }
         public Nullable<int> NgayCapNhat { get; set; }
+        public Nullable<int> ViewUpdate { get; set; }
     
         public virtual MucLuc MucLuc { get; set; }
         public virtual TaiKhoan TaiKhoan { get; set; }

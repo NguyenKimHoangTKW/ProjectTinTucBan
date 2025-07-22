@@ -3,20 +3,7 @@
     ViewBag.Title = "Chỉnh sửa Footer";
 }
 
-@functions{
-    public string GetEmbedUrl(string url)
-    {
-        if (string.IsNullOrEmpty(url)) return "";
-        if (url.Contains("embed")) return url;
-        var regex = new System.Text.RegularExpressions.Regex(@"(?:youtu\.be/|youtube\.com/(?:watch\?v=|embed/|v/|shorts/))([^\?&""'>]+)");
-        var match = regex.Match(url);
-        if (match.Success)
-        {
-            return "https://www.youtube.com/embed/" + match.Groups[1].Value;
-        }
-        return url;
-    }
-}
+
 
 <div class="container-fluid py-4" >
     <div class="row justify-content-center">
@@ -135,19 +122,15 @@
                                 <input type="text" id="footerNote" name="footerNote" class="form-control" value="@(Model != null && Model["footerNote"] != null ? Model["footerNote"] : "")" />
                             </div>
                         </div>
-
                         @if (Model != null && Model["videoUrl"] != null && !string.IsNullOrEmpty((string)Model["videoUrl"]))
                         {
                             <div class="form-row mb-4">
                                 <div class="col-12">
                                     <h5 class="border-bottom pb-2 text-primary">Xem trước video</h5>
-                                    <div class="embed-responsive embed-responsive-16by9 mt-2">
-                                        <iframe class="embed-responsive-item" src="@GetEmbedUrl((string)Model["videoUrl"])" frameborder="0" allowfullscreen></iframe>
-                                    </div>
+                                    <div id="videoPreview" class="embed-responsive embed-responsive-16by9 mt-2"></div>
                                 </div>
                             </div>
                         }
-
                         <div class="form-row">
                             <div class="col-12 text-right">
                                 <button type="button" id="btnDelete" class="btn btn-danger mr-2">

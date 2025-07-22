@@ -39,6 +39,15 @@ $(document).ready(function () {
             deleteFooterById(footerId);
         }
     });
+
+    // Render video preview bằng JS nếu có videoUrl
+    var videoUrl = $('#videoUrl').val();
+    if (videoUrl && videoUrl.trim() !== '') {
+        var embedUrl = getEmbedUrl(videoUrl);
+        $('#videoPreview').html(
+            '<iframe class="embed-responsive-item" src="' + embedUrl + '" frameborder="0" allowfullscreen></iframe>'
+        );
+    }
 });
 
 $(document).ready(function () {
@@ -61,13 +70,10 @@ $(document).ready(function () {
 
     // Tự động load thông tin footer và giới thiệu lên trang Index (chỉ chạy 1 lần, không lặp)
     if ($('#fullName').length && $('#footerCopyright').length) {
-        $.get('/api/FooterApi', function (data) {
-            if (data && data.length > 0) {
-                var footer = data[0];
-                // Thông tin giới thiệu
+        $.get('/api/FooterApi/active', function (footer) {
+            if (footer) {
                 $('#fullName').text(footer.FullName || '');
                 $('#englishName').text(footer.EnglishName || '');
-                // Ngày thành lập (nếu là số thì chuyển sang dd/MM/yyyy)
                 if (footer.NgayThanhLap && !isNaN(footer.NgayThanhLap)) {
                     var d = new Date(footer.NgayThanhLap * 1000);
                     var day = ('0' + d.getUTCDate()).slice(-2);
@@ -80,15 +86,11 @@ $(document).ready(function () {
                 $('#address').text(footer.DiaChi || '');
                 $('#phone').text(footer.DienThoai || '');
                 $('#email').attr('href', 'mailto:' + (footer.Email || '')).text(footer.Email || '');
-
-                // Video
                 if (footer.VideoUrl) {
                     var embedUrl = toEmbedYoutubeUrl(footer.VideoUrl);
                     $('#video').attr('src', embedUrl);
                     $('#popupVideo').attr('src', embedUrl);
                 }
-
-                // Footer cuối trang
                 $('#footerCopyright').text(footer.FooterCopyright || '');
                 $('#footerNote').text(footer.FooterNote || '');
             }
@@ -266,6 +268,17 @@ function toEmbedYoutubeUrl(url) {
     }
 
     // Trả về nguyên bản nếu không nhận diện được
+    return url;
+}
+
+// Chuyển đổi link YouTube sang link nhúng (di chuyển từ Razor C# GetEmbedUrl)
+function getEmbedUrl(url) {
+    if (!url) return '';
+    if (url.includes('embed')) return url;
+    var match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/))([^\?&"'>]+)/);
+    if (match && match[1]) {
+        return 'https://www.youtube.com/embed/' + match[1];
+    }
     return url;
 }
 

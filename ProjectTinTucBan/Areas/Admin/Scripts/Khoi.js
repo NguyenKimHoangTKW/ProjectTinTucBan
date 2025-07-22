@@ -105,8 +105,7 @@
             data: JSON.stringify({ IsActive: isActive }),
             contentType: 'application/json',
             success: function () {
-                // Có thể reload lại bảng nếu muốn đồng bộ trạng thái
-                // loadKhoi();
+                loadKhoi(); // Load lại bảng để cập nhật nút xóa
             },
             error: function () {
                 Swal.fire('Lỗi!', 'Không thể cập nhật trạng thái khối.', 'error');
@@ -154,13 +153,13 @@ function initDataTable() {
             { "data": "tenKhoi" },
             { "data": "thuTuShow" },
             {
-                "data": null, // Không phụ thuộc dữ liệu từ server
+                "data": null,
                 "orderable": false,
                 "className": "text-center",
                 "render": function (data, type, row) {
                     return `
                         <label class="switch">
-                            <input type="checkbox" class="toggle-trangthai-khoi" data-id="${row.id}" data-thutu="${row.thuTuShow}" ${row.isActive ? 'checked' : ''}>
+                            <input type="checkbox" class="toggle-trangthai-khoi" data-id="${row.id}" data-thuTu="${row.thuTuShow}" ${row.isActive ? 'checked' : ''}>
                             <span class="slider"></span>
                         </label>
                     `;
@@ -182,38 +181,32 @@ function initDataTable() {
                 "data": null,
                 "orderable": false,
                 "render": function (data) {
-                    return `
-                        <div class="text-center d-flex flex-row justify-content-center">
-                            <button class="btn-action btn-edit btn-sua" data-id="${data.id}" title="Sửa">
-                                <i class="anticon anticon-edit"></i>
-                            </button>
-                            <button class="btn-action btn-delete btn-xoa" data-id="${data.id}" title="Xóa">
-                                <i class="anticon anticon-delete"></i>
-                            </button>
-                        </div>
-                    `;
+                    let html = `
+            <div class="text-center d-flex flex-row justify-content-center">
+                <button class="btn-action btn-edit btn-sua" data-id="${data.id}" title="Sửa">
+                    <i class="anticon anticon-edit"></i>
+                </button>
+        `;
+                    if (!data.isActive) {
+                        html += `
+                <button class="btn-action btn-delete btn-xoa" data-id="${data.id}" title="Xóa">
+                    <i class="anticon anticon-delete"></i>
+                </button>
+            `;
+                    }
+                    html += `</div>`;
+                    return html;
                 }
             }
         ],
         "columnDefs": [
             {
-                "targets": [1], // Cột STT
-                "width": "50px",
+                "targets": [1, 3, 4, 5, 6, 7], // STT, Thứ tự, Trạng thái, Ngày tạo, Ngày cập nhật, Thao tác
                 "className": "text-center"
             },
             {
-                "targets": [3], // Cột Thứ tự
-                "className": "text-center"
-            },
-            {
-                "targets": [4], // Cột Trạng thái
-                "width": "100px",
-                "className": "text-center"
-            },
-            {
-                "targets": [7], // Cột Hành động
-                "width": "120px",
-                "className": "text-center"
+                "targets": [2], // Tên khối
+                "className": "text-left"
             }
         ],
         "order": []
