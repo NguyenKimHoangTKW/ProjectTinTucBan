@@ -27,17 +27,50 @@ $(document).ready(function () {
             createFooter();
         }
     });
-
     $('#btnDelete').off('click').on('click', function () {
         var footerId = $('#footerId').val();
         if (!footerId) {
-            $('#alert-error .alert-message').text('Không có dữ liệu để xóa!');
-            $('#alert-error').show().delay(3000).fadeOut();
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: 'Không có dữ liệu để xóa!'
+            });
             return;
         }
-        if (confirm('Bạn có chắc chắn muốn xóa footer này?')) {
-            deleteFooterById(footerId);
-        }
+        Swal.fire({
+            title: 'Bạn có chắc chắn muốn xóa footer này?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Xóa',
+            cancelButtonText: 'Hủy',
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '/api/FooterApi/' + footerId,
+                    type: 'DELETE',
+                    success: function () {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Đã xóa thành công!',
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            window.location.href = '/Admin/InterfaceAdmin/Index_Footer';
+                        });
+                    },
+                    error: function (xhr) {
+                        var errorMsg = "Lỗi: " + xhr.status + " - " + xhr.statusText;
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi',
+                            text: errorMsg
+                        });
+                    }
+                });
+            }
+        });
     });
 
     // Render video preview bằng JS nếu có videoUrl
