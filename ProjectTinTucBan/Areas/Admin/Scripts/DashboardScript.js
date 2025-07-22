@@ -1,5 +1,5 @@
 ﻿const BASE_URL = '/api/v1/admin';
-
+/*
 function showChart(type) {
     $.ajax({
         url: `${BASE_URL}/dashboard/chart?type=` + type,
@@ -12,10 +12,9 @@ function showChart(type) {
             Sweet_Alert('error', 'Không thể tải dữ liệu biểu đồ.');
         }
     });
-}
+}*/
 
 document.addEventListener("DOMContentLoaded", function () {
-    showChart('day');
 
     const yearInput = document.getElementById('filter-year');
     const monthSelect = document.getElementById('filter-month');
@@ -63,9 +62,21 @@ document.addEventListener("DOMContentLoaded", function () {
             toInput.disabled = true;
         }
     });
+
+    $('#btn-reset-filter').on('click', function () {
+        $('#filter-year').val('');
+        $('#filter-month').val('');
+        $('#filter-from').val('');
+        $('#filter-to').val('');
+
+        monthSelect.disabled = true;
+        fromInput.disabled = true;
+        toInput.disabled = true;
+    });
 });
 
 $(document).ready(function () {
+    
     $.ajax({
         url: `${BASE_URL}/dashboard`,
         method: 'GET',
@@ -83,22 +94,24 @@ $(document).ready(function () {
             Sweet_Alert('error', 'Không thể tải dữ liệu tổng quan.');
         }
     });
-
+    
+/*
     function handleShowChart(type) {
         $('#showtarget').empty();
         $('#chartContainer').show();
         showChart(type);
     }
-    /*
+    
     $('#day').on('click', function () { handleShowChart('day'); });
     $('#month').on('click', function () { handleShowChart('month'); });
     $('#year').on('click', function () { handleShowChart('year'); });
-    */
+    
     $(document).on('click', function (e) {
         if ($(e.target).closest('#chartContainer, #day, #month, #year').length === 0) {
             $('#chartContainer').hide();
         }
     });
+    */
 
     let mucLucMap = new Map();
 
@@ -118,7 +131,20 @@ $(document).ready(function () {
             Sweet_Alert('warning', 'Ngày bắt đầu không được lớn hơn ngày kết thúc.');
             return;
         }
-
+        if (fromDay && fromDay <= 0) {
+            Sweet_Alert('warning', 'Ngày bắt đầu không được nhỏ hơn 1.');
+            return;
+        }
+        if (toDay && toDay <= 0) {
+            Sweet_Alert('warning', 'Ngày kết thúc không được nhỏ hơn 1.');
+            return;
+        }
+        const daysInCurrentMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
+        if (toDay && toDay > daysInCurrentMonth) {
+            Sweet_Alert('warning', 'Ngày kết thúc không được lớn hơn số ngày trong tháng.');
+            return;
+            
+        }
         const params = new URLSearchParams();
 
         if (year) params.append('year', year);
@@ -157,12 +183,7 @@ $(document).ready(function () {
         });
     });
 
-    $('#btn-reset-filter').on('click', function () {
-        $('#filter-year').val('');
-        $('#filter-month').val('');
-        $('#filter-from').val('');
-        $('#filter-to').val('');
-    });
+    
 
     function loadMucLucs(callback) {
         $.ajax({
@@ -254,6 +275,7 @@ $(document).ready(function () {
 });
 
 // Chartist rendering function
+
 function renderChartist(labels, data, type) {
     var defaultLabels = [], defaultData = [];
 
@@ -322,6 +344,9 @@ function renderChartist(labels, data, type) {
         }
     });
 }
+
+
+
 function updateChart() {
     const year = $('#filter-year').val();
     const month = $('#filter-month').val();

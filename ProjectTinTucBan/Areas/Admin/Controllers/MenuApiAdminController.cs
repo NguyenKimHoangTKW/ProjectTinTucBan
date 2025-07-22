@@ -1,19 +1,13 @@
-﻿using Microsoft.Ajax.Utilities;
-using Microsoft.EntityFrameworkCore.Query.Internal;
-using ProjectTinTucBan.Helper;
+﻿using ProjectTinTucBan.Helper;
 using ProjectTinTucBan.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.ModelBinding;
-using System.Web.Security;
+
 
 namespace ProjectTinTucBan.Areas.Admin.Controllers
 {
@@ -24,7 +18,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         private int unixTimestamp;
         public MenuApiAdminController()
         {
-            DateTime now = DateTime.UtcNow;
+            DateTime now = DateTime.UtcNow.AddHours(7);
             unixTimestamp = (int)(now.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
         }
         #region các DTO sử dụng trong API

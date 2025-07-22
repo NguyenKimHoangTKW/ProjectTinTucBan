@@ -19,7 +19,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         private int unixTimestamp;
         public SliderApiAdminController()
         {
-            DateTime now = DateTime.UtcNow;
+            DateTime now = DateTime.UtcNow.AddHours(7);
             unixTimestamp = (int)(now.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
         }
 

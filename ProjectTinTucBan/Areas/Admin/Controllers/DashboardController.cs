@@ -15,6 +15,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
         WebTinTucTDMUEntities db = new WebTinTucTDMUEntities();
         #region lấy thời gian theo Unix
+        /*
         private int GetUnixTimestamp(DateTime dt)
         {
             return (int)(dt.ToUniversalTime().Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
@@ -25,6 +26,59 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         private DateTime GetEndOfMonth(DateTime now) => GetStartOfMonth(now).AddMonths(1);
         private DateTime GetStartOfYear(DateTime now) => new DateTime(now.Year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         private DateTime GetEndOfYear(DateTime now) => new DateTime(now.Year + 1, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        /**/
+         
+        private static readonly TimeZoneInfo GmtPlus7 = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+        private int GetUnixTimestamp(DateTime dt)
+        {
+            // Đảm bảo dt.Kind == Unspecified trước khi chuyển
+            if (dt.Kind != DateTimeKind.Unspecified)
+            {
+                dt = DateTime.SpecifyKind(dt, DateTimeKind.Unspecified);
+            }
+
+            DateTime gmt7Time = TimeZoneInfo.ConvertTimeToUtc(dt, GmtPlus7);
+            return (int)(gmt7Time.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+        }
+
+        // Lấy đầu ngày theo GMT+7
+        private DateTime GetStartOfDay(DateTime now)
+        {
+            DateTime local = TimeZoneInfo.ConvertTimeFromUtc(now.ToUniversalTime(), GmtPlus7);
+            DateTime startOfDayLocal = new DateTime(local.Year, local.Month, local.Day, 0, 0, 0);
+            return TimeZoneInfo.ConvertTimeToUtc(startOfDayLocal, GmtPlus7);
+        }
+
+        // Lấy đầu tháng theo GMT+7
+        private DateTime GetStartOfMonth(DateTime now)
+        {
+            DateTime local = TimeZoneInfo.ConvertTimeFromUtc(now.ToUniversalTime(), GmtPlus7);
+            DateTime startOfMonthLocal = new DateTime(local.Year, local.Month, 1, 0, 0, 0);
+            return TimeZoneInfo.ConvertTimeToUtc(startOfMonthLocal, GmtPlus7);
+        }
+
+        // Lấy cuối tháng theo GMT+7
+        private DateTime GetEndOfMonth(DateTime now)
+        {
+            return GetStartOfMonth(now).AddMonths(1);
+        }
+
+        // Lấy đầu năm theo GMT+7
+        private DateTime GetStartOfYear(DateTime now)
+        {
+            DateTime local = TimeZoneInfo.ConvertTimeFromUtc(now.ToUniversalTime(), GmtPlus7);
+            DateTime startOfYearLocal = new DateTime(local.Year, 1, 1, 0, 0, 0);
+            return TimeZoneInfo.ConvertTimeToUtc(startOfYearLocal, GmtPlus7);
+        }
+
+        // Lấy cuối năm theo GMT+7
+        private DateTime GetEndOfYear(DateTime now)
+        {
+            return GetStartOfYear(now).AddYears(1);
+        }
+
+        /**/
         #endregion
 
 
@@ -34,7 +88,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         {
             try
             {
-                #region lấy số liệu hiển thị trên dashboard
+                #region Lấy số liệu từ bảng VisitorLogs
                 DateTime now = DateTime.UtcNow;
 
                 int unixNow = GetUnixTimestamp(now);
@@ -42,28 +96,33 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 int unixStartOfMonth = GetUnixTimestamp(GetStartOfMonth(now));
                 int unixStartOfYear = GetUnixTimestamp(GetStartOfYear(now));
 
-                int dayViews = db.BaiViets
-                    .Where(bv => bv.ViewUpdate >= unixStartOfDay && bv.ViewUpdate < unixNow)
-                    .Sum(bv => (int?)bv.ViewCount) ?? 0;
+                // Tổng lượt xem trong ngày
+                int dayViews = await db.VisitorLogs
+                    .Where(v => v.NgayTao >= unixStartOfDay && v.NgayTao < unixNow)
+                    .SumAsync(v => (int?)v.TotalAmount) ?? 0;
 
-                int monthViews = db.BaiViets
-                    .Where(bv => bv.ViewUpdate >= unixStartOfMonth && bv.ViewUpdate < unixNow)
-                    .Sum(bv => (int?)bv.ViewCount) ?? 0;
+                // Tổng lượt xem trong tháng
+                int monthViews = await db.VisitorLogs
+                    .Where(v => v.NgayTao >= unixStartOfMonth && v.NgayTao < unixNow)
+                    .SumAsync(v => (int?)v.TotalAmount) ?? 0;
 
-                int yearViews = db.BaiViets
-                    .Where(bv => bv.ViewUpdate >= unixStartOfYear && bv.ViewUpdate < unixNow)
-                    .Sum(bv => (int?)bv.ViewCount) ?? 0;
+                // Tổng lượt xem trong năm
+                int yearViews = await db.VisitorLogs
+                    .Where(v => v.NgayTao >= unixStartOfYear && v.NgayTao < unixNow)
+                    .SumAsync(v => (int?)v.TotalAmount) ?? 0;
 
-                int totalArticles = db.BaiViets.Count();
+                // Tổng số bản ghi VisitorLogs (nếu cần hiển thị)
+                int totalLogs = await db.VisitorLogs.CountAsync();
 
                 var result = new
                 {
                     DayViews = dayViews,
                     MonthViews = monthViews,
                     YearViews = yearViews,
-                    TotalArticles = totalArticles
+                    TotalLogs = totalLogs
                 };
                 #endregion
+
                 return Ok(result);
             }
             catch (Exception ex)
@@ -72,6 +131,8 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             }
         }
 
+
+        /*
         [Route("dashboard/chart"), HttpGet]
         public IHttpActionResult GetChartData(string type)
         {
@@ -148,7 +209,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             {
                 return InternalServerError(ex);
             }
-        }
+        }*/
         #endregion
         #region lấy dữ liệu cho nút bài viết
         [Route("top10-baiviet-thang"), HttpGet]
@@ -187,6 +248,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         }
         #endregion
         #region lấy dữ liệu cho biểu đồ theo bộ lọc
+        /*
         [Route("dashboard-filter/chart"), HttpGet]
         public IHttpActionResult GetChartDataWithFilter(string type = "range", int? year = null, int? month = null, int? from = null, int? to = null)
         {
@@ -318,6 +380,137 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 else
                 {
                     // Không đủ dữ liệu đầu vào
+                    return Ok(new { labels = new List<string>(), data = new List<int>(), typeUsed = "none" });
+                }
+
+                return Ok(new { labels, data, typeUsed });
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+        */
+
+        [Route("dashboard-filter/chart"), HttpGet]
+        public IHttpActionResult GetChartDataWithFilter(string type = "range", int? year = null, int? month = null, int? from = null, int? to = null)
+        {
+            try
+            {
+                var labels = new List<string>();
+                var data = new List<int>();
+                string typeUsed = "";
+
+                if (from.HasValue && to.HasValue)
+                {
+                    var fromDate = DateTimeOffset.FromUnixTimeSeconds(from.Value).UtcDateTime;
+                    var toDate = DateTimeOffset.FromUnixTimeSeconds(to.Value).UtcDateTime;
+                    var totalDays = (toDate - fromDate).TotalDays;
+
+                    if (totalDays <= 1)
+                    {
+                        typeUsed = "hourly";
+                        for (int h = 0; h < 24; h++)
+                        {
+                            var hourStart = fromDate.Date.AddHours(h);
+                            var hourEnd = hourStart.AddHours(1);
+
+                            int unixStart = (int)((DateTimeOffset)hourStart).ToUnixTimeSeconds();
+                            int unixEnd = (int)((DateTimeOffset)hourEnd).ToUnixTimeSeconds();
+
+                            int viewCount = db.VisitorLogs
+                                .Where(v => v.NgayTao >= unixStart && v.NgayTao < unixEnd)
+                                .Sum(v => (int?)v.TotalAmount) ?? 0;
+
+                            labels.Add(h.ToString("D2"));
+                            data.Add(viewCount);
+                        }
+                    }
+                    else if (totalDays <= 31)
+                    {
+                        typeUsed = "daily";
+                        for (var d = fromDate.Date; d <= toDate.Date; d = d.AddDays(1))
+                        {
+                            var dayStart = d;
+                            var dayEnd = d.AddDays(1);
+
+                            int unixStart = (int)((DateTimeOffset)dayStart).ToUnixTimeSeconds();
+                            int unixEnd = (int)((DateTimeOffset)dayEnd).ToUnixTimeSeconds();
+
+                            int viewCount = db.VisitorLogs
+                                .Where(v => v.NgayTao >= unixStart && v.NgayTao < unixEnd)
+                                .Sum(v => (int?)v.TotalAmount) ?? 0;
+
+                            labels.Add(d.Day.ToString());
+                            data.Add(viewCount);
+                        }
+                    }
+                    else
+                    {
+                        typeUsed = "monthly";
+                        var current = new DateTime(fromDate.Year, fromDate.Month, 1);
+                        var end = new DateTime(toDate.Year, toDate.Month, 1);
+
+                        while (current <= end)
+                        {
+                            var monthStart = current;
+                            var monthEnd = current.AddMonths(1);
+
+                            int unixStart = (int)((DateTimeOffset)monthStart).ToUnixTimeSeconds();
+                            int unixEnd = (int)((DateTimeOffset)monthEnd).ToUnixTimeSeconds();
+
+                            int viewCount = db.VisitorLogs
+                                .Where(v => v.NgayTao >= unixStart && v.NgayTao < unixEnd)
+                                .Sum(v => (int?)v.TotalAmount) ?? 0;
+
+                            labels.Add(current.Month.ToString("D2"));
+                            data.Add(viewCount);
+
+                            current = current.AddMonths(1);
+                        }
+                    }
+                }
+                else if (year.HasValue && month.HasValue)
+                {
+                    typeUsed = "daily-in-month";
+                    int daysInMonth = DateTime.DaysInMonth(year.Value, month.Value);
+                    for (int d = 1; d <= daysInMonth; d++)
+                    {
+                        var dayStart = new DateTime(year.Value, month.Value, d, 0, 0, 0, DateTimeKind.Utc);
+                        var dayEnd = dayStart.AddDays(1);
+
+                        int unixStart = (int)((DateTimeOffset)dayStart).ToUnixTimeSeconds();
+                        int unixEnd = (int)((DateTimeOffset)dayEnd).ToUnixTimeSeconds();
+
+                        int viewCount = db.VisitorLogs
+                            .Where(v => v.NgayTao >= unixStart && v.NgayTao < unixEnd)
+                            .Sum(v => (int?)v.TotalAmount) ?? 0;
+
+                        labels.Add(d.ToString());
+                        data.Add(viewCount);
+                    }
+                }
+                else if (year.HasValue)
+                {
+                    typeUsed = "monthly-in-year";
+                    for (int m = 1; m <= 12; m++)
+                    {
+                        var monthStart = new DateTime(year.Value, m, 1, 0, 0, 0, DateTimeKind.Utc);
+                        var monthEnd = monthStart.AddMonths(1);
+
+                        int unixStart = (int)((DateTimeOffset)monthStart).ToUnixTimeSeconds();
+                        int unixEnd = (int)((DateTimeOffset)monthEnd).ToUnixTimeSeconds();
+
+                        int viewCount = db.VisitorLogs
+                            .Where(v => v.NgayTao >= unixStart && v.NgayTao < unixEnd)
+                            .Sum(v => (int?)v.TotalAmount) ?? 0;
+
+                        labels.Add(m.ToString("D2"));
+                        data.Add(viewCount);
+                    }
+                }
+                else
+                {
                     return Ok(new { labels = new List<string>(), data = new List<int>(), typeUsed = "none" });
                 }
 
