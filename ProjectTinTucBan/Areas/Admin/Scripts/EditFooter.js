@@ -146,6 +146,43 @@ $(document).ready(function () {
         });
     }
 });
+$(document).ready(function () {
+    // 1. Copy email khi click
+    $('#email').on('click', function (e) {
+        e.preventDefault();
+        var email = $(this).text().trim();
+        if (email) {
+            navigator.clipboard.writeText(email).then(function () {
+                $('#emailCopiedMsg').text('Đã copy').show();
+                setTimeout(function () {
+                    $('#emailCopiedMsg').fadeOut();
+                }, 2000);
+            });
+        }
+    });
+
+    // 2. Xem video (reset src mỗi lần mở modal)
+    $('#btnWatchVideo').on('click', function (e) {
+        e.preventDefault();
+        var videoUrl = $('#video').attr('src');
+        $('#popupVideo').attr('src', videoUrl);
+        $('#videoModal').removeClass('hidden');
+    });
+
+    // Đóng modal video
+    $('#closeVideoModal').on('click', function () {
+        $('#videoModal').addClass('hidden');
+        $('#popupVideo').attr('src', ''); // Xóa src để tránh lỗi lần sau
+    });
+
+    // 3. Đóng modal khi nhấn ESC
+    $(document).on('keydown', function (e) {
+        if (e.key === "Escape" && !$('#videoModal').hasClass('hidden')) {
+            $('#videoModal').addClass('hidden');
+            $('#popupVideo').attr('src', '');
+        }
+    });
+});
 
 // Chuyển "dd/MM/yyyy" sang Unix timestamp (UTC 00:00:00)
 function parseDateToUnix(dateStr) {

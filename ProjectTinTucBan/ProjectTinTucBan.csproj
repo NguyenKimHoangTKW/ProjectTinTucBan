@@ -470,6 +470,7 @@
     <Content Include="Areas\Admin\Scripts\Module_Chung.js" />
     <Content Include="Areas\Admin\Scripts\SliderAdminScript.js" />
     <Content Include="Areas\Admin\Scripts\SliderShowScript.js" />
+    <Content Include="Areas\Admin\Scripts\test.js" />
     <Content Include="Areas\Admin\Scripts\TopNavShowScript.js" />
     <Content Include="Areas\Admin\Scripts\BaiViet.js" />
     <Content Include="Areas\Admin\Scripts\DanhSachUser.js" />
