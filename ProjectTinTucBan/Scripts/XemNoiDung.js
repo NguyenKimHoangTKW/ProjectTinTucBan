@@ -43,22 +43,13 @@ $(document).ready(function () {
     }
     const postId = window.postId;
 
-    if (!hasViewedToday(postId)) {
-        setTimeout(function () {
-            $.ajax({
-                url: `/api/v1/admin/increase-views/${postId}`,
-                type: "POST",
-                success: function (data) {
-                    if (data.success) {
-                        markViewed(postId);
-                    }
-                },
-                error: function () {
-                    console.error("❌ Lỗi tăng lượt xem");
-                }
-            });
-        }, 15000); // chờ 15 giây trước khi gửi API
-    }
+    setTimeout(function () {
+        $.ajax({
+            url: `/api/v1/admin/increase-views/${postId}`,
+            type: "POST",
+        });
+    }, 15000); // chờ 15 giây
+
     const urlParts = window.location.pathname.split('/');
     const id = urlParts[urlParts.length - 1];
 
@@ -122,9 +113,7 @@ $(document).ready(function () {
                     $("#${pdfId}").removeClass("hidden");
                     $("#pdfFallback").removeClass("hidden");
                 },
-                error: function () {
-                    console.warn("PDF không tồn tại:", "${pdfUrl}");
-                }
+                
             });
         </script>
     `;
@@ -157,9 +146,7 @@ $(document).ready(function () {
                         $("#pdfListBlock").removeClass("hidden");
                     }
                 },
-                error: function () {
-                    console.warn("Không tìm thấy PDF:", pdf);
-                }
+               
             });
         });
     </script>`;
@@ -314,13 +301,18 @@ window.addEventListener("pageshow", function (event) {
 
 function formatDate(unixTimestamp) {
     if (!unixTimestamp) return "N/A";
-    const date = new Date(unixTimestamp * 1000);
-    const weekdays = ['Chủ Nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
-    const dayOfWeek = weekdays[date.getDay()];
-    const day = ("0" + date.getDate()).slice(-2);
-    const month = ("0" + (date.getMonth() + 1)).slice(-2);
-    const year = date.getFullYear();
-    return `${dayOfWeek}, ${day}-${month}-${year}`;
+
+    var date = new Date(unixTimestamp * 1000);
+    var weekdays = ['Chủ Nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+    var dayOfWeek = weekdays[date.getDay()];
+    var month = ("0" + (date.getMonth() + 1)).slice(-2);
+    var day = ("0" + date.getDate()).slice(-2);
+    var year = date.getFullYear();
+    var hours = ("0" + date.getHours()).slice(-2);
+    var minutes = ("0" + date.getMinutes()).slice(-2);
+    var seconds = ("0" + date.getSeconds()).slice(-2);
+    var formattedDate = dayOfWeek + ', ' + day + "-" + month + "-" + year + " " + hours + ":" + minutes + ":" + seconds;
+    return formattedDate;
 }
 
 function convertImagePaths(content) {

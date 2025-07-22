@@ -21,7 +21,6 @@ $(document).ready(function () {
                 const slug = toSlug(muc.TenMucLuc);
                 const ten = muc.TenMucLuc.toUpperCase();
 
-                // ✅ Dùng jQuery tạo thẻ <a> và đặt text bằng .text() để tránh render HTML
                 const link = $("<a>")
                     .attr("href", `#${slug}`)
                     .attr("data-target", slug)
@@ -30,9 +29,6 @@ $(document).ready(function () {
 
                 nav.append(link);
             });
-        },
-        error: function () {
-            console.error("Lỗi khi tải danh sách mục lục.");
         }
     });
 
@@ -40,7 +36,6 @@ $(document).ready(function () {
     $(document).on("click", ".scroll-to", function (e) {
         const slug = $(this).data("target");
 
-        // Nếu không đang ở trang chủ thì lưu slug rồi redirect về "/"
         if (window.location.pathname !== "/") {
             e.preventDefault();
             localStorage.setItem("scrollToSlug", slug);
@@ -48,7 +43,6 @@ $(document).ready(function () {
             return;
         }
 
-        // Nếu đang ở trang chủ thì scroll mượt
         e.preventDefault();
         const offset = $(`#${slug}`).offset()?.top;
         if (offset) {
@@ -63,7 +57,7 @@ $(document).ready(function () {
     btn.addEventListener("click", () => {
         window.scrollTo({ top: 0, behavior: "smooth" });
     });
-    // Khi về từ trang khác, scroll tới mục
+
     const savedSlug = localStorage.getItem("scrollToSlug");
     if (savedSlug) {
         setTimeout(() => {
@@ -74,7 +68,6 @@ $(document).ready(function () {
                 }, 500);
             }
             localStorage.removeItem("scrollToSlug");
-        }, 400); // Chờ DOM render xong
+        }, 400);
     }
-
 });

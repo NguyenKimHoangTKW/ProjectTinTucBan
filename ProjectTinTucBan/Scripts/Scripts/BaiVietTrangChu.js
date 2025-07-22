@@ -5,17 +5,17 @@
 });
 
 $(document).on("click", ".btn-an-bot", function () {
-    const mucId = $(this).data("id");
-    const muc = window.mucLucData[mucId];
-    if (!muc) return;
+            const mucId = $(this).data("id");
+            const muc = window.mucLucData[mucId];
+            if (!muc) return;
 
-    muc.page = 1;
-    $(`#list-${mucId}`).html("");  // Xóa toàn bộ bài viết đã thêm
-    renderBaiVietForMucLuc(mucId); // Hiển thị lại bài viết ban đầu
+            muc.page = 1;
+            $(`#list-${mucId}`).html("");  // Xóa toàn bộ bài viết đã thêm
+            renderBaiVietForMucLuc(mucId); // Hiển thị lại bài viết ban đầu
 
-    $(this).addClass("hidden"); // Ẩn nút "ẨN BỚT"
-    $(`.btn-xem-them[data-id="${mucId}"]`).show(); // Hiện lại nút "XEM THÊM"
-});
+            $(this).addClass("hidden"); // Ẩn nút "ẨN BỚT"
+            $(`.btn-xem-them[data-id="${mucId}"]`).show(); // Hiện lại nút "XEM THÊM"
+        });
 // File: BaiVietTrangChu.js
 $(document).ready(function () {
     $.ajax({
@@ -260,9 +260,9 @@ $(document).ready(function () {
             if (!res.success || !Array.isArray(res.data)) return;
 
             let html = `
-        <div class="pt-2"> <!-- ❌ Bỏ border, shadow -->
-            <h3 class="text-xl font-bold text-black px-4 pb-2 uppercase">ĐƠN VỊ TRỰC THUỘC</h3>
-            <div class="border rounded px-3 py-3 pl-4 pr-2 pb-4 space-y-5">`; // ✅ Tăng khoảng cách giữa các khối: space-y-5
+    <div class="pt-2">
+        <h3 class="text-xl font-bold text-black px-4 pb-2 uppercase">ĐƠN VỊ TRỰC THUỘC</h3>
+        <div class="border rounded px-3 py-3 pl-4 pr-2 pb-4 space-y-5">`;
 
             res.data.forEach((khoi, index) => {
                 html += `
@@ -271,7 +271,7 @@ $(document).ready(function () {
         data-index="${index}">
         ${khoi.TenKhoi}
     </button>
-    <ul id="donvi-list-${index}" class="block text-base mt-3 text-sm text-gray-800 space-y-1 pl-4">`; // ❌ bỏ border, ✅ mt-3 lùi xuống
+    <ul id="donvi-list-${index}" class="block text-base mt-3 text-sm text-gray-800 space-y-1 pl-4">`;
 
                 khoi.DonVis.forEach(dv => {
                     html += `
@@ -290,9 +290,10 @@ $(document).ready(function () {
             $("#sidebar-khoi-donvi").html(html);
         },
         error: function () {
-            console.error("Lỗi khi tải dữ liệu khối và đơn vị.");
+            // Đã bỏ console.error
         }
     });
+
 
 
     $.ajax({
@@ -334,7 +335,7 @@ $(document).ready(function () {
 
             const swiper = new Swiper(".mySwiper", {
                 loop: slideCount > 1, // Bật loop khi có từ 2 slide trở lên
-                slidesPerView: 1,     // ❗ Hiển thị đúng 1 slide tại một thời điểm
+                slidesPerView: 1,     //  Hiển thị đúng 1 slide tại một thời điểm
                 centeredSlides: false,
                 spaceBetween: 0,
                 grabCursor: true,
@@ -395,7 +396,19 @@ $(document).ready(function () {
             }
         });
 
-        
+        $(document).on("click", ".btn-an-bot", function () {
+            const mucId = $(this).data("id");
+            const muc = window.mucLucData[mucId];
+            if (!muc) return;
+
+            muc.page = 1;
+            $(`#list-${mucId}`).html("");  // Xóa toàn bộ bài viết đã thêm
+            renderBaiVietForMucLuc(mucId); // Hiển thị lại bài viết ban đầu
+
+            $(this).addClass("hidden"); // Ẩn nút "ẨN BỚT"
+            $(`.btn-xem-them[data-id="${mucId}"]`).show(); // Hiện lại nút "XEM THÊM"
+        });
+
     // Hàm phân trang bài viết
     function renderBaiVietForMucLuc(mucId) {
         const container = $(`#list-${mucId}`);

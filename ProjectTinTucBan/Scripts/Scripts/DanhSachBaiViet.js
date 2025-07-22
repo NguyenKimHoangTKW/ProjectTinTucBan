@@ -1,5 +1,5 @@
 ﻿// ===============================
-// 🔽 DOM ready: Tải dữ liệu và gắn sự kiện sau khi trang load
+// DOM ready: Tải dữ liệu và gắn sự kiện sau khi trang load
 // ===============================
 $(document).ready(function () {
     
@@ -18,7 +18,7 @@ $(document).ready(function () {
             });
             $("#slider-container").html(html);
 
-            // 👉 Khởi tạo slider sau khi thêm vào DOM
+            //  Khởi tạo slider sau khi thêm vào DOM
             setTimeout(() => {
                 new Swiper(".mySwiper", {
                     loop: true,
@@ -37,7 +37,7 @@ $(document).ready(function () {
     });
 
 
-    // 👉 Lấy dữ liệu mục lục và bài viết tương ứng theo ID
+    //  Lấy dữ liệu mục lục và bài viết tương ứng theo ID
     $.ajax({
         url: "/api/v1/home/get-mucluc-with-baiviet",
         type: "GET",
@@ -56,7 +56,7 @@ $(document).ready(function () {
 
             window.mucTen = muc.Ten;
             $("#tenMucLuc").text((muc.TenMucLuc || "Không rõ").toUpperCase());
-            renderBreadcrumb(muc.TenMucLuc); // 👉 Tạo breadcrumb
+            renderBreadcrumb(muc.TenMucLuc); //  Tạo breadcrumb
 
             allPosts = muc.BaiViets;
 
@@ -67,10 +67,10 @@ $(document).ready(function () {
             if (isThongBao) {
                 renderThongBao();
             } else if (isDanhSachMuc && isSuKien) {
-                renderAllPosts(); // ❗ Nếu là trang danh sách sự kiện => hiện hết
+                renderAllPosts(); // Nếu là trang danh sách sự kiện => hiện hết
                 $("#btnXemThem, #btnAnBot, #btnXemTatCa").hide();
             } else {
-                renderPosts(); // 👉 Ngược lại, render thường
+                renderPosts(); //  Ngược lại, render thường
             }
         },
         error: function () {
@@ -78,26 +78,26 @@ $(document).ready(function () {
         }
     });
 
-    // 👉 Sự kiện nút "XEM THÊM"
+    //  Sự kiện nút "XEM THÊM"
     $("#btnXemThem").on("click", function () {
         currentPage++;
         renderPosts();
     });
 
-    // 👉 Sự kiện: Xem tất cả
+    //  Sự kiện: Xem tất cả
     $("#btnXemTatCa").on("click", function (e) {
         e.preventDefault();
 
-        // ✨ Xóa từ khóa tìm kiếm
+        //  Xóa từ khóa tìm kiếm
         $("#searchInput").val("");
 
-        // ✨ Reset danh sách về toàn bộ
+        //  Reset danh sách về toàn bộ
         $("#tinTucList").html("");
         renderAllPosts();
 
-        // ✨ Hiển thị lại các nút phù hợp
+        //  Hiển thị lại các nút phù hợp
         if (isDanhSachMuc && isSuKien) {
-            $("#btnXemThem, #btnAnBot, #btnXemTatCa").hide(); // ❗ẩn hết nếu là trang danh sách sự kiện
+            $("#btnXemThem, #btnAnBot, #btnXemTatCa").hide(); // ẩn hết nếu là trang danh sách sự kiện
         } else {
             $("#btnXemThem").hide();
             $("#btnAnBot").removeClass("hidden");
@@ -106,7 +106,7 @@ $(document).ready(function () {
         $("#btnXemTatCa").hide();
     });
 
-    // 👉 Sự kiện nút "ẨN BỚT"
+    //  Sự kiện nút "ẨN BỚT"
     $("#btnAnBot").on("click", function () {
         currentPage = 1;
         $("#tinTucList").html("");
@@ -115,12 +115,12 @@ $(document).ready(function () {
         $("#btnXemThem").show();
     });
 
-    // 👉 Tìm kiếm khi nhập chữ
-    // 👉 Tìm kiếm khi nhập chữ có hiệu ứng loading
+    //  Tìm kiếm khi nhập chữ
+    //  Tìm kiếm khi nhập chữ có hiệu ứng loading
     $("#searchInput").on("input", function () {
         const keyword = $(this).val().trim().toLowerCase();
 
-        // ✅ Show loading ngay trong khung danh sách bài viết
+        //  Show loading ngay trong khung danh sách bài viết
         $("#tinTucList").html(`
         <div class="col-span-3 text-center py-6">
             <div class="loader mx-auto mb-2"></div>
@@ -128,10 +128,10 @@ $(document).ready(function () {
         </div>
     `);
 
-        // ✅ Ẩn nút "Xem tất cả" trong lúc tìm kiếm
+        // Ẩn nút "Xem tất cả" trong lúc tìm kiếm
         $("#btnXemTatCa").hide();
 
-        // ✅ Xử lý sau 300ms
+        //  Xử lý sau 300ms
         setTimeout(() => {
             if (keyword === "") {
                 currentPage = 1;
@@ -154,7 +154,7 @@ $(document).ready(function () {
             );
             if (filtered.length === 0) {
                 $("#tinTucList").html("<p class='text-center text-gray-500'>Không tìm thấy bài viết phù hợp.</p>");
-                $("#btnXemThem, #btnAnBot, #btnXemTatCa").hide(); // ✅ Thêm #btnXemTatCa vào đây
+                $("#btnXemThem, #btnAnBot, #btnXemTatCa").hide(); //  Thêm #btnXemTatCa vào đây
             } else {
                 renderFilteredPosts(filtered);
                 $("#btnXemThem").hide();
@@ -165,17 +165,17 @@ $(document).ready(function () {
 
 
 
-    // 👉 Tìm kiếm khi nhấn Enter
+    //  Tìm kiếm khi nhấn Enter
 });
 
-// 👉 Reload trang khi quay lại từ cache (tránh hiển thị dữ liệu cũ)
+//  Reload trang khi quay lại từ cache (tránh hiển thị dữ liệu cũ)
 window.addEventListener("pageshow", function (event) {
     if (event.persisted) {
         window.location.reload();
     }
 });
 
-// 👉 Khởi tạo Swiper mặc định (nếu chưa gắn sau khi load slider)
+//  Khởi tạo Swiper mặc định (nếu chưa gắn sau khi load slider)
 new Swiper(".mySwiper", {
     loop: true,
     autoplay: { delay: 3000, disableOnInteraction: false },
@@ -184,19 +184,19 @@ new Swiper(".mySwiper", {
 });
 
 // ===============================
-// 🔽 Biến & Hàm hỗ trợ (Helper)
+//  Biến & Hàm hỗ trợ (Helper)
 // ===============================
 
 const mucId = window.mucIdFromView || 0;
 let allPosts = [];
 let currentPage = 1;
 const perPage = 6;
-let filteredPosts = []; // 🔍 Kết quả sau tìm kiếm
-let isSearching = false; // ✅ Đang trong trạng thái tìm kiếm
-let currentFilteredPage = 1; // ✅ Trang tìm kiếm hiện tại
+let filteredPosts = []; //  Kết quả sau tìm kiếm
+let isSearching = false; //  Đang trong trạng thái tìm kiếm
+let currentFilteredPage = 1; // Trang tìm kiếm hiện tại
 const isDanhSachMuc = window.location.pathname.includes("/danh-sach-bai-viet");
 
-// 👉 Hiển thị breadcrumb (mục lục)
+//  Hiển thị breadcrumb (mục lục)
 function renderBreadcrumb(mucTen) {
     const html = `
         <nav class="text-right text-lg text-gray-700 font-medium" aria-label="Breadcrumb">
@@ -215,7 +215,7 @@ function renderBreadcrumb(mucTen) {
     $("#breadcrumbContainer").html(html);
 }
 
-// 👉 Chuyển đổi ký tự HTML đặc biệt để tránh lỗi giao diện
+//  Chuyển đổi ký tự HTML đặc biệt để tránh lỗi giao diện
 function escapeHtml(text) {
     return text
         .replace(/&/g, "&amp;")
@@ -225,7 +225,7 @@ function escapeHtml(text) {
         .replace(/'/g, "&#039;");
 }
 
-// 👉 Format ngày kiểu timestamp -> dd/mm/yyyy
+//  Format ngày kiểu timestamp -> dd/mm/yyyy
 function formatDate(unixTimestamp) {
     if (!unixTimestamp) return "N/A";
     const date = new Date(unixTimestamp * 1000);
@@ -235,7 +235,7 @@ function formatDate(unixTimestamp) {
     return `${day}/${month}/${year}`;
 }
 
-// 👉 Hiển thị tất cả bài viết
+//Hiển thị tất cả bài viết
 function renderAllPosts() {
     const list = $("#tinTucList");
     list.empty();
@@ -245,15 +245,16 @@ function renderAllPosts() {
         const date = formatDate(post.NgayDang);
         const thumb = post.LinkThumbnail || "/images/default.jpg";
         const tieuDe = escapeHtml(post.TieuDe || "Không có tiêu đề").toUpperCase();
-
         html += `
-            <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition overflow-hidden flex flex-col h-full">
-                <img src="${thumb}" class="w-full h-[200px] object-cover" alt="Ảnh">
-                <div class="p-4 flex flex-col flex-1">
-                    <a href="/noi-dung/${post.ID}" class="text-base font-semibold text-gray-800 hover:text-blue-600 leading-snug line-clamp-2 mb-2">${tieuDe}</a>
-                    <p class="text-sm text-gray-500 mt-auto"><i class="fa-regular fa-calendar-days mr-1"></i>${date}</p>
-                </div>
-            </div>`;
+        <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition overflow-hidden flex flex-col h-full">
+    <img src="${thumb}" class="w-full h-[200px] object-cover" alt="Ảnh">
+    <div class="p-4 flex flex-col flex-1">
+        <div class="mt-auto">
+            <p class="text-sm text-gray-500"><i class="fa-regular fa-calendar-days mr-1"></i>${date}</p>
+            <a href="/noi-dung/${post.ID}" class="text-base font-semibold text-gray-800 hover:text-blue-600 leading-snug line-clamp-2 mt-1">${tieuDe}</a>
+        </div>
+    </div>
+</div>`;
     });
 
     list.html(html);
@@ -261,7 +262,7 @@ function renderAllPosts() {
     $("#btnAnBot").removeClass("hidden");
 }
 
-// 👉 Hiển thị danh sách bài viết theo từng trang
+//  Hiển thị danh sách bài viết theo từng trang
 function renderPosts() {
     showLoading();
     setTimeout(() => {
@@ -278,12 +279,14 @@ function renderPosts() {
 
             html += `
                 <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition overflow-hidden flex flex-col h-full">
-                    <img src="${thumb}" class="w-full h-[200px] object-cover" alt="Ảnh">
-                    <div class="p-4 flex flex-col flex-1">
-                        <a href="/noi-dung/${post.ID}" class="text-base font-semibold text-gray-800 hover:text-blue-600 leading-snug line-clamp-2 mb-2">${tieuDe}</a>
-                        <p class="text-sm text-gray-500 mt-auto"><i class="fa-regular fa-calendar-days mr-1"></i>${date}</p>
-                    </div>
-                </div>`;
+    <img src="${thumb}" class="w-full h-[200px] object-cover" alt="Ảnh">
+    <div class="p-4 flex flex-col flex-1">
+        <div class="mt-auto">
+            <p class="text-sm text-gray-500"><i class="fa-regular fa-calendar-days mr-1"></i>${date}</p>
+            <a href="/noi-dung/${post.ID}" class="text-base font-semibold text-gray-800 hover:text-blue-600 leading-snug line-clamp-2 mt-1">${tieuDe}</a>
+        </div>
+    </div>
+</div>`;
         });
 
         list.append(html);
@@ -291,10 +294,10 @@ function renderPosts() {
 
         if (end >= allPosts.length) {
             $("#btnXemThem").hide();
-            $("#btnXemTatCa").hide(); // 👈 Thêm dòng này
+            $("#btnXemTatCa").hide(); //  Thêm dòng này
         } else {
             $("#btnXemThem").show();
-            $("#btnXemTatCa").show(); // 👈 Và dòng này
+            $("#btnXemTatCa").show(); //  Và dòng này
         }
 
 
@@ -311,7 +314,7 @@ function hideLoading() {
     $("#loadingIndicator").addClass("hidden");
 }
 
-// 👉 Hiển thị danh sách bài viết đã lọc (khi tìm kiếm)
+// Hiển thị danh sách bài viết đã lọc (khi tìm kiếm)
 function renderFilteredPosts(posts, page = 1) {
     const perPage = 6;
     const start = (page - 1) * perPage;
@@ -319,7 +322,7 @@ function renderFilteredPosts(posts, page = 1) {
     const paginatedPosts = posts.slice(start, end);
 
     const list = $("#tinTucList");
-    list.html(""); // 👈 làm sạch
+    list.html(""); //  làm sạch
 
     let html = "";
     paginatedPosts.forEach(post => {
@@ -329,24 +332,26 @@ function renderFilteredPosts(posts, page = 1) {
 
         html += `
             <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition overflow-hidden flex flex-col h-full">
-                <img src="${thumb}" class="w-full h-[200px] object-cover" alt="Ảnh">
-                <div class="p-4 flex flex-col flex-1">
-                    <a href="/noi-dung/${post.ID}" class="text-base font-semibold text-gray-800 hover:text-blue-600 leading-snug line-clamp-2 mb-2">${tieuDe}</a>
-                    <p class="text-sm text-gray-500 mt-auto"><i class="fa-regular fa-calendar-days mr-1"></i>${date}</p>
-                </div>
-            </div>`;
+    <img src="${thumb}" class="w-full h-[200px] object-cover" alt="Ảnh">
+    <div class="p-4 flex flex-col flex-1">
+        <div class="mt-auto">
+            <p class="text-sm text-gray-500"><i class="fa-regular fa-calendar-days mr-1"></i>${date}</p>
+            <a href="/noi-dung/${post.ID}" class="text-base font-semibold text-gray-800 hover:text-blue-600 leading-snug line-clamp-2 mt-1">${tieuDe}</a>
+        </div>
+    </div>
+</div>`;
     });
 
     list.html(html);
 
-    // 👇 Nút XEM THÊM khi tìm kiếm
+    //  Nút XEM THÊM khi tìm kiếm
     if (end < posts.length) {
         $("#btnXemThem").show();
     } else {
         $("#btnXemThem").hide();
     }
 
-    // 👉 Ẩn hiện các nút
+    // Ẩn hiện các nút
     $("#btnAnBot").toggle(page > 1);
-    $("#btnXemTatCa").hide(); // ❌ Luôn ẩn "Xem tất cả" khi tìm kiếm
+    $("#btnXemTatCa").hide(); //  Luôn ẩn "Xem tất cả" khi tìm kiếm
 }

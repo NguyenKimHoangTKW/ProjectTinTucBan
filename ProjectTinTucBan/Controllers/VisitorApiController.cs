@@ -7,7 +7,7 @@ using System.Web.Http;
 
 namespace ProjectTinTucBan.ApiControllers
 {
-    [RoutePrefix("api/visitor")]
+    [RoutePrefix("api/v1/visitor")]
     public class VisitorApiController : ApiController
     {
         private WebTinTucTDMUEntities db = new WebTinTucTDMUEntities();
@@ -17,8 +17,8 @@ namespace ProjectTinTucBan.ApiControllers
         private static readonly object _lock = new object();
 
         [HttpPost]
-        [Route("increase")]
-        public IHttpActionResult Increase()
+        [Route("increase-online")]
+        public IHttpActionResult IncreaseOnline()
         {
             try
             {
@@ -30,46 +30,89 @@ namespace ProjectTinTucBan.ApiControllers
 
                 string onlineKey = $"online_{clientIp}";
                 int todayUnix = GetUnixTimestampStartOfDay();
-                string dailyKey = $"daily_{clientIp}_{todayUnix}";
 
                 lock (_lock)
                 {
-                    // Nếu visitor đã có trong cache 20s => không tăng lượt
-                    if (cache.Contains(onlineKey))
+                    if (!cache.Contains(onlineKey))
                     {
-                        int totalAll = db.VisitorLogs.Sum(v => (int?)v.TotalAmount) ?? 0;
-
-                        return Ok(new
-                        {
-                            total = totalAll,
-                            online = GetOnlineUserCount()
-                        });
+                        // Thêm IP vào cache online (20s) để đếm online
+                        cache.Add(onlineKey, true, DateTimeOffset.Now.AddSeconds(20));
                     }
 
-                    // Thêm visitor vào cache 20s tránh tăng nhanh
-                    cache.Add(onlineKey, true, DateTimeOffset.Now.AddSeconds(20));
+                    var todayLog = db.VisitorLogs.FirstOrDefault(v => v.NgayTao == todayUnix);
+                    if (todayLog != null)
+                    {
+                        todayLog.CurrentActive = GetOnlineUserCount();
+                        db.Entry(todayLog).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
+                    }
 
-                    // Kiểm tra IP đã được tính lượt trong ngày chưa
+                    int totalAll = db.VisitorLogs.Sum(v => (int?)v.TotalAmount) ?? 0;
+
+                    return Ok(new
+                    {
+                        total = totalAll,
+                        online = GetOnlineUserCount()
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        [HttpPost]
+        [Route("increase-total")]
+        public IHttpActionResult IncreaseTotal()
+        {
+            try
+            {
+                string clientIp = GetClientIp();
+                if (string.IsNullOrEmpty(clientIp))
+                {
+                    clientIp = Guid.NewGuid().ToString();
+                }
+
+                int todayUnix = GetUnixTimestampStartOfDay();
+                string dailyKey = $"daily_{clientIp}_{todayUnix}";
+                string startKey = $"start_{clientIp}";
+
+                lock (_lock)
+                {
+                    // Nếu IP đã được tính trong ngày thì bỏ qua
                     if (cache.Contains(dailyKey))
                     {
-                        var todayLog = db.VisitorLogs.FirstOrDefault(v => v.NgayTao == todayUnix);
-                        if (todayLog != null)
-                        {
-                            todayLog.CurrentActive = GetOnlineUserCount();
-                            db.Entry(todayLog).State = System.Data.Entity.EntityState.Modified;
-                            db.SaveChanges();
-                        }
-
                         int totalAll = db.VisitorLogs.Sum(v => (int?)v.TotalAmount) ?? 0;
-
                         return Ok(new
                         {
-                            total = totalAll,
-                            online = GetOnlineUserCount()
+                            total = totalAll
                         });
                     }
 
-                    // Lần đầu IP này được tính lượt trong ngày
+                    // Nếu chưa có thời điểm bắt đầu, thêm vào
+                    if (!cache.Contains(startKey))
+                    {
+                        cache.Add(startKey, DateTimeOffset.Now, DateTimeOffset.Now.AddMinutes(10));
+                        int totalAll = db.VisitorLogs.Sum(v => (int?)v.TotalAmount) ?? 0;
+                        return Ok(new
+                        {
+                            total = totalAll
+                        });
+                    }
+
+                    // Kiểm tra thời gian truy cập đủ 15s chưa
+                    var startObj = cache.Get(startKey);
+                    if (!(startObj is DateTimeOffset start) || DateTimeOffset.Now.Subtract(start).TotalSeconds < 15)
+                    {
+                        int totalAll = db.VisitorLogs.Sum(v => (int?)v.TotalAmount) ?? 0;
+                        return Ok(new
+                        {
+                            total = totalAll
+                        });
+                    }
+
+                    // Đủ điều kiện tính tổng truy cập
                     cache.Add(dailyKey, true, DateTimeOffset.Now.AddHours(24));
 
                     var log = db.VisitorLogs.FirstOrDefault(v => v.NgayTao == todayUnix);
@@ -79,26 +122,22 @@ namespace ProjectTinTucBan.ApiControllers
                         log = new VisitorLog
                         {
                             NgayTao = todayUnix,
-                            TotalAmount = 1,
-                            CurrentActive = GetOnlineUserCount()
+                            TotalAmount = 1
                         };
                         db.VisitorLogs.Add(log);
                     }
                     else
                     {
                         log.TotalAmount = (log.TotalAmount ?? 0) + 1;
-                        log.CurrentActive = GetOnlineUserCount();
                         db.Entry(log).State = System.Data.Entity.EntityState.Modified;
                     }
 
                     db.SaveChanges();
 
                     int totalAllAfter = db.VisitorLogs.Sum(v => (int?)v.TotalAmount) ?? 0;
-
                     return Ok(new
                     {
-                        total = totalAllAfter,
-                        online = log.CurrentActive ?? 0
+                        total = totalAllAfter
                     });
                 }
             }
@@ -117,7 +156,7 @@ namespace ProjectTinTucBan.ApiControllers
                 string clientIp = GetClientIp();
                 if (string.IsNullOrEmpty(clientIp))
                 {
-                    clientIp = Guid.NewGuid().ToString();
+                    clientIp = Guid.NewGuid().ToString(); // fallback nếu không có IP
                 }
 
                 string onlineKey = $"online_{clientIp}";
@@ -125,21 +164,34 @@ namespace ProjectTinTucBan.ApiControllers
 
                 lock (_lock)
                 {
+                    // Nếu IP đang tồn tại trong cache thì xóa đi (người dùng rời khỏi)
+                    bool removed = false;
                     if (cache.Contains(onlineKey))
                     {
                         cache.Remove(onlineKey);
+                        removed = true;
+                    }
 
-                        var log = db.VisitorLogs.FirstOrDefault(v => v.NgayTao == todayUnix);
-                        if (log != null)
+                    // Cập nhật CurrentActive dù có key hay không (để đảm bảo đồng bộ)
+                    var todayLog = db.VisitorLogs.FirstOrDefault(v => v.NgayTao == todayUnix);
+                    if (todayLog != null)
+                    {
+                        // Nếu vừa xóa IP khỏi cache thì giảm, nếu không thì giữ nguyên
+                        if (removed)
                         {
-                            log.CurrentActive = Math.Max((log.CurrentActive ?? 1) - 1, 0);
-                            db.Entry(log).State = System.Data.Entity.EntityState.Modified;
-                            db.SaveChanges();
+                            todayLog.CurrentActive = Math.Max((todayLog.CurrentActive ?? 1) - 1, 0);
                         }
+                        else
+                        {
+                            // Đồng bộ lại với số lượng thực tế trong cache nếu cần
+                            todayLog.CurrentActive = GetOnlineUserCount();
+                        }
+
+                        db.Entry(todayLog).State = System.Data.Entity.EntityState.Modified;
+                        db.SaveChanges();
                     }
 
                     int totalAll = db.VisitorLogs.Sum(v => (int?)v.TotalAmount) ?? 0;
-                    var todayLog = db.VisitorLogs.FirstOrDefault(v => v.NgayTao == todayUnix);
 
                     return Ok(new
                     {
