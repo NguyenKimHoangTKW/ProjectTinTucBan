@@ -330,6 +330,7 @@
     <Compile Include="Areas\Admin\Controllers\EditTaiKhoanControllers.cs" />
     <Compile Include="Areas\Admin\Controllers\InterfaceAdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\KhoiController.cs" />
+    <Compile Include="Areas\Admin\Controllers\TaiLieuController.cs" />
     <Compile Include="Controllers\LoginAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\MucLucAdminAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\TestController.cs" />
@@ -448,6 +449,9 @@
     <Compile Include="Models\TaiKhoan.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\TaiLieu.cs">
+      <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\VisitorLog.cs">
       <DependentUpon>dbTinTucKhaoThiModel.tt</DependentUpon>
     </Compile>
@@ -463,6 +467,7 @@
     <Content Include="Areas\Admin\Scripts\EditFooter.js" />
     <Content Include="Areas\Admin\Scripts\EditTaiKhoan.js" />
     <Content Include="Areas\Admin\Scripts\GroupMenuAdminScript.js" />
+    <Content Include="Areas\Admin\Scripts\HDSD_Admin.js" />
     <Content Include="Areas\Admin\Scripts\Khoi.js" />
     <Content Include="Areas\Admin\Scripts\MaHoaKTDB.js" />
     <Content Include="Areas\Admin\Scripts\MenuScript.js" />
@@ -1572,6 +1577,7 @@
     <Content Include="Areas\Admin\Views\InterfaceAdmin\EditTaiKhoan.cshtml" />
     <Content Include="Content\data.json" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\EditFooter.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\HDSD_Admin.cshtml" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\Scripts\DanhSachBaiViet.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
