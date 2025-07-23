@@ -1,6 +1,18 @@
 ﻿// ===============================
 // DOM ready: Tải dữ liệu và gắn sự kiện sau khi trang load
 // ===============================
+document.addEventListener("DOMContentLoaded", function () {
+    const dataEl = document.querySelector("#js-data");
+
+    const mucIdFromView = dataEl?.dataset.mucid ?? "0";
+    const mucTen = dataEl?.dataset.mucten ?? "";
+
+    console.log("Mục ID:", mucIdFromView);
+    console.log("Mục Tên:", mucTen);
+
+    // Tiếp tục xử lý với mucIdFromView và mucTen
+});
+
 $(document).ready(function () {
     
     // 👉 Lấy danh sách slider banner

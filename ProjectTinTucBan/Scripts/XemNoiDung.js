@@ -29,6 +29,7 @@ window.addEventListener("pageshow", function (event) {
 });
 
 $(document).ready(function () {
+    const postId = $('body').data('post-id');
     const savedSlug = localStorage.getItem("scrollToSlug");
     if (savedSlug) {
         setTimeout(() => {
@@ -41,7 +42,6 @@ $(document).ready(function () {
             localStorage.removeItem("scrollToSlug");
         }, 400);
     }
-    const postId = window.postId;
 
     setTimeout(function () {
         $.ajax({

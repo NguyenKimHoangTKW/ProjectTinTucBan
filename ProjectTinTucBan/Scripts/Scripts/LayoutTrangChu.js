@@ -1,11 +1,4 @@
-﻿function toSlug(str) {
-    return str.toLowerCase()
-        .normalize("NFD")
-        .replace(/\p{Diacritic}/gu, '')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)+/g, '');
-}
-
+﻿
 $(document).ready(function () {
     // Load mục lục động
     $.ajax({
@@ -71,3 +64,10 @@ $(document).ready(function () {
         }, 400);
     }
 });
+function toSlug(str) {
+    return str.toLowerCase()
+        .normalize("NFD")
+        .replace(/\p{Diacritic}/gu, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)+/g, '');
+}

@@ -11,7 +11,6 @@
             // Không log lỗi ra console
         }
     });
-
     // Sau 15 giây gọi API tăng tổng lượt truy cập
     setTimeout(function () {
         $.ajax({
@@ -26,7 +25,6 @@
         });
     }, 15000);
 });
-
 // Giảm lượt online khi rời trang
 $(window).on("beforeunload", function () {
     $.ajax({

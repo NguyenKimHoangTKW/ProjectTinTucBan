@@ -187,7 +187,6 @@ $(document).ready(function () {
                             ${index < rightItems.length - 1 ? '<hr class="my-2 border-gray-300">' : ''}
                         </div>`;
                     });
-
                     html += `</div></div>
                     <div class="text-center mt-8">
                         <a href="/danh-sach-bai-viet?mucId=${muc.ID}&slug=${stripHtml(muc.TenMucLuc)}" class="inline-block bg-blue border-2 border-red-600 text-red-600 px-6 py-2 rounded hover:bg-red-600 hover:text-white transition">
@@ -197,7 +196,6 @@ $(document).ready(function () {
                 </div>`;
                     return;
                 }
-
                 html += `<div id="${mucId}" class="${isSuKien ? 'mt-4 pb-10 bg-gradient-to-b from-blue-600 via-blue-300 to-blue-100 py-12 px-4 sm:px-6 lg:px-8' : ''}">
                 <div class="text-center mb-8">
                     <h3 class="${isSuKien ? 'text-white text-2xl sm:text-3xl font-bold uppercase' : 'inline-block bg-blue-600 text-white text-sm sm:text-base md:text-lg font-semibold rounded-full px-6 py-2 uppercase shadow'}">
@@ -213,7 +211,6 @@ $(document).ready(function () {
                         page: 1,
                         perPage: isSuKien ? 3 : 6
                     };
-
                     html += `<div id="muc-${mucId}">
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="list-${mucId}"></div>
                         ${allBaiViets.length > (isSuKien ? 3 : 6) ? `
@@ -235,7 +232,6 @@ $(document).ready(function () {
                     </div>`;
                     }
                 }
-
                 html += `</div>`;
             });
 
