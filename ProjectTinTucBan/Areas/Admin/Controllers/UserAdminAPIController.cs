@@ -207,23 +207,19 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 {
                     return BadRequest("Dữ liệu không hợp lệ");
                 }
-
-                if (userSession == null || userSession.ID_role != 1)
-                {
-                    return Content(HttpStatusCode.Forbidden, new { message = "Chỉ tài khoản quản trị viên mới được phép sửa tài khoản.", success = false });
-                }
-
                 var existingUser = await db.TaiKhoans.FindAsync(Item.ID);
+                
                 if (existingUser == null)
                 {
                     return NotFound();
                 }
 
-                // Check for role ID = 1 restriction
-                if (Item.ID_role == 1)
+               
+                // Không cho phép chuyển role nếu chỉ còn 1 admin (và đang chuyển chính admin đó)
+                if (existingUser.ID_role == 1 && Item.ID_role != 1)
                 {
                     int countRole1 = await db.TaiKhoans.CountAsync(u => u.ID_role == 1);
-                    if (countRole1 == 1)
+                    if ((countRole1 - 1) == 0)
                     {
                         return Content(HttpStatusCode.BadRequest, new { message = "Không thể cập nhật. Hệ thống phải có ít nhất một tài khoản quản trị viên.", success = false });
                     }
