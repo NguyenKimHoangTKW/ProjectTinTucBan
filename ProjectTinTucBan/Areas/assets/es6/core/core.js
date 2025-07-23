@@ -3,7 +3,7 @@ export default class Core {
 
     constructor() {
 		this.sideNav();
-		this.pfScrollBar();
+		//this.pfScrollBar();
 		this.tooltipInit();
 		this.popOverInit();
 		this.toastInit();
@@ -48,11 +48,11 @@ export default class Core {
 			appLayout.toggleClass(isExpand)
 		});
 	} 
-
+	/*
 	pfScrollBar() {
 		$('.scrollable').perfectScrollbar();
 	}
-	
+	*/
 	tooltipInit() {
 		$('[data-toggle="tooltip"]').tooltip()
 	}

@@ -1,14 +1,15 @@
-﻿using System;
+﻿using ProjectTinTucBan.Helper;
+using ProjectTinTucBan.Models;
+using System;
 using System.Collections.Generic;
+using System.Data.Entity;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Web.Http;
-using System.Data.Entity;
 using System.Threading.Tasks;
-using ProjectTinTucBan.Models;
-using System.IO;
 using System.Web;
+using System.Web.Http;
 
 namespace ProjectTinTucBan.Areas.Admin.Controllers
 {
@@ -22,7 +23,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             DateTime now = DateTime.UtcNow.AddHours(7);
             unixTimestamp = (int)(now.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
         }
-
+        #region Dto truyền dữ liệu
 
         public class ChangeOrderRequest
         {
@@ -35,7 +36,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             public int id { get; set; }
             public bool isActive { get; set; }
         }
-
+        #endregion
 
         #region Lấy dữ liệu
         // Upload hình ảnh cho slide
@@ -43,6 +44,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("upload-slide-image")]
         public async Task<IHttpActionResult> UploadSlideImage()
         {
+            var user = SessionHelper.GetUser();
             if (!Request.Content.IsMimeMultipartContent())
                 return BadRequest("Unsupported media type.");
 
@@ -73,6 +75,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("get-slides")]
         public async Task<IHttpActionResult> GetSlides()
         {
+            var user = SessionHelper.GetUser();
             var slides = await db.Sliders
                 .OrderBy(s => s.ThuTuShow)
                 .Select(s => new
@@ -91,6 +94,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("get-slides-show")]
         public async Task<IHttpActionResult> GetSlidesShow()
         {
+            var user = SessionHelper.GetUser();
             var slides = await db.Sliders
                 .OrderBy(s => s.ThuTuShow)
                 .Select(s => new
@@ -113,6 +117,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("add-slide")]
         public async Task<IHttpActionResult> AddSlide([FromBody] Slider slide)
         {
+            var user = SessionHelper.GetUser();
             if (slide == null || string.IsNullOrWhiteSpace(slide.LinkHinh))
                 return BadRequest("Dữ liệu không hợp lệ hoặc thiếu LinkHinh.");
 
@@ -132,6 +137,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
         private async Task ReindexSlideOrderAsync()
         {
+            var user = SessionHelper.GetUser();
             var slides = await db.Sliders.OrderBy(s => s.ThuTuShow).ToListAsync();
             int order = 1;
             foreach (var slide in slides)
@@ -147,6 +153,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("edit-slide")]
         public async Task<IHttpActionResult> EditSlide([FromBody] Slider slide)
         {
+            var user = SessionHelper.GetUser();
             if (slide == null || slide.ID <= 0)
                 return BadRequest("Dữ liệu không hợp lệ.");
 
@@ -171,6 +178,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("delete-slide")]
         public async Task<IHttpActionResult> DeleteSlide([FromBody] int id)
         {
+            var user = SessionHelper.GetUser();
             var slide = await db.Sliders.FindAsync(id);
             if (slide == null)
                 return Ok(new { success = false, message = "Không tìm thấy slide." });
@@ -209,6 +217,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("change-slide-order")]
         public async Task<IHttpActionResult> ChangeSlideOrder([FromBody] ChangeOrderRequest req)
         {
+            var user = SessionHelper.GetUser();
             if (req == null || req.id <= 0 || string.IsNullOrEmpty(req.direction))
                 return BadRequest("Dữ liệu không hợp lệ.");
 
@@ -252,6 +261,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("set-slide-active")]
         public async Task<IHttpActionResult> SetSlideActive(SetSlideActiveRequest req)
         {
+            var user = SessionHelper.GetUser();
             if (req == null || req.id <= 0)
                 return BadRequest("Dữ liệu không hợp lệ.");
 

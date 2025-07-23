@@ -1,18 +1,4 @@
 ﻿const BASE_URL = '/api/v1/admin';
-/*
-function showChart(type) {
-    $.ajax({
-        url: `${BASE_URL}/dashboard/chart?type=` + type,
-        method: 'GET',
-        success: function (result) {
-            renderChartist(result.labels, result.data, type);
-            $('#chartContainer').show();
-        },
-        error: function () {
-            Sweet_Alert('error', 'Không thể tải dữ liệu biểu đồ.');
-        }
-    });
-}*/
 
 document.addEventListener("DOMContentLoaded", function () {
 
@@ -95,23 +81,6 @@ $(document).ready(function () {
         }
     });
     
-/*
-    function handleShowChart(type) {
-        $('#showtarget').empty();
-        $('#chartContainer').show();
-        showChart(type);
-    }
-    
-    $('#day').on('click', function () { handleShowChart('day'); });
-    $('#month').on('click', function () { handleShowChart('month'); });
-    $('#year').on('click', function () { handleShowChart('year'); });
-    
-    $(document).on('click', function (e) {
-        if ($(e.target).closest('#chartContainer, #day, #month, #year').length === 0) {
-            $('#chartContainer').hide();
-        }
-    });
-    */
 
     let mucLucMap = new Map();
 
@@ -144,7 +113,12 @@ $(document).ready(function () {
             Sweet_Alert('warning', 'Ngày kết thúc không được lớn hơn số ngày trong tháng.');
             return;
         }
+        const currentYear = new Date().getFullYear();
 
+        if (year < currentYear - 30 || year > currentYear) {
+            Sweet_Alert("warning", `Chỉ cho phép nhập năm trong khoảng từ ${currentYear - 30} đến ${currentYear}`);
+            return;
+        }
         const params = new URLSearchParams();
 
         if (year) params.append('year', year);
@@ -212,7 +186,7 @@ $(document).ready(function () {
         loadMucLucs(() => {
             $('#showtarget').html(`
                 <div class="table-responsive p-3">
-                    <div class="card-body" id="baiviet-header" style="cursor: pointer; text-align: center;">
+                    <div class="card-body" id="baiviet-header" style="text-align: center;">
                         <h5>Top 10 bài viết nhiều lượt xem trong tháng</h5>
                     </div>
                     <table id="table_load_baiviet" class="table table-striped">
@@ -293,18 +267,7 @@ function renderChartist(labels, data, type,title) {
         }
         labels = defaultLabels;
         data = defaultData;
-    } /*else {
-        labels = labels.map(label => {
-            const num = parseInt(label, 10);
-            return (!isNaN(num) ? (num + 1).toString() : label);
-        });
-    }*/
-    /*
-    var title = '';
-    if (type === 'day') title = 'Lượt xem theo giờ trong ngày';
-    if (type === 'month') title = 'Lượt xem theo ngày trong tháng';
-    if (type === 'year') title = 'Lượt xem theo tháng trong năm';
-    */
+    }
     // Xóa nội dung cũ
     $('#viewsChart').html('').css('height', '300px');
     $('#viewsChart').prepend('<div style="text-align:center;font-weight:bold;margin-bottom:10px;">' + title + '</div>');
@@ -422,21 +385,6 @@ function updateChart() {
             } else if (typeUsed === 'daily') {
                 type = 'month';
                 title = `Lượt xem theo ngày từ ${fromDay}/${month}/${year} đến ${toDay}/${month}/${year}`;
-                /*
-                // Sửa lỗi label đầu tiên bị lệch (ví dụ: '30')
-                const from = parseInt(fromDay, 10);
-                const to = parseInt(toDay, 10);
-                labels = labels.map(l => parseInt(l, 10)); // parse sang số
-
-                // Nếu label đầu tiên < from hoặc > to thì loại bỏ
-                if (labels[0] < from || labels[0] > to) {
-                    labels.shift();
-                    data.shift();
-                }
-
-                // Chuyển lại về chuỗi
-                labels = labels.map(l => l.toString());
-                */
             } else if (typeUsed === 'monthly') {
                 type = 'year';
                 title = `Lượt xem theo tháng trong năm ${year}`;

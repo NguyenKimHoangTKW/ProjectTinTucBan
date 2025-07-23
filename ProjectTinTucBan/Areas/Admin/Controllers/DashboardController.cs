@@ -1,10 +1,11 @@
-﻿using ProjectTinTucBan.Models;
+﻿using ProjectTinTucBan.Helper;
+using ProjectTinTucBan.Models;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Web.Http;
 using System.Data.Entity;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Web.Http;
 using System.Web.Routing;
 
 namespace ProjectTinTucBan.Areas.Admin.Controllers
@@ -15,19 +16,6 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
         WebTinTucTDMUEntities db = new WebTinTucTDMUEntities();
         #region lấy thời gian theo Unix
-        /*
-        private int GetUnixTimestamp(DateTime dt)
-        {
-            return (int)(dt.ToUniversalTime().Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
-        }
-
-        private DateTime GetStartOfDay(DateTime now) => new DateTime(now.Year, now.Month, now.Day, 0, 0, 0, DateTimeKind.Utc);
-        private DateTime GetStartOfMonth(DateTime now) => new DateTime(now.Year, now.Month, 1, 0, 0, 0, DateTimeKind.Utc);
-        private DateTime GetEndOfMonth(DateTime now) => GetStartOfMonth(now).AddMonths(1);
-        private DateTime GetStartOfYear(DateTime now) => new DateTime(now.Year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        private DateTime GetEndOfYear(DateTime now) => new DateTime(now.Year + 1, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        /**/
-         
         private static readonly TimeZoneInfo GmtPlus7 = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
 
         private int GetUnixTimestamp(DateTime dt)
@@ -86,6 +74,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("dashboard"), HttpGet]
         public async Task<IHttpActionResult> GetDashboardData()
         {
+            var user = SessionHelper.GetUser();
             try
             {
                 #region Lấy số liệu từ bảng VisitorLogs
@@ -131,90 +120,12 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             }
         }
 
-
-        /*
-        [Route("dashboard/chart"), HttpGet]
-        public IHttpActionResult GetChartData(string type)
-        {
-            try
-            {
-                DateTime now = DateTime.UtcNow;
-                var labels = new List<string>();
-                var data = new List<int>();
-
-                #region Lọc theo thời gian
-                if (type == "day")
-                {
-                    DateTime startOfDay = GetStartOfDay(now);
-                    for (int h = 0; h < 24; h++)
-                    {
-                        DateTime hourStart = startOfDay.AddHours(h);
-                        DateTime hourEnd = hourStart.AddHours(1);
-                        int unixStart = GetUnixTimestamp(hourStart);
-                        int unixEnd = GetUnixTimestamp(hourEnd);
-
-                        int viewCount = db.BaiViets
-                            .Where(bv => bv.ViewUpdate >= unixStart && bv.ViewUpdate < unixEnd)
-                            .Sum(bv => (int?)bv.ViewCount) ?? 0;
-
-                        labels.Add(h.ToString("D2"));
-                        data.Add(viewCount);
-                    }
-                }
-                else if (type == "month")
-                {
-                    DateTime startOfMonth = GetStartOfMonth(now);
-                    int daysInMonth = DateTime.DaysInMonth(now.Year, now.Month);
-                    for (int d = 1; d <= daysInMonth; d++)
-                    {
-                        DateTime dayStart = new DateTime(now.Year, now.Month, d, 0, 0, 0, DateTimeKind.Utc);
-                        DateTime dayEnd = dayStart.AddDays(1);
-                        int unixStart = GetUnixTimestamp(dayStart);
-                        int unixEnd = GetUnixTimestamp(dayEnd);
-
-                        int viewCount = db.BaiViets
-                            .Where(bv => bv.ViewUpdate >= unixStart && bv.ViewUpdate < unixEnd)
-                            .Sum(bv => (int?)bv.ViewCount) ?? 0;
-
-                        labels.Add(d.ToString());
-                        data.Add(viewCount);
-                    }
-                }
-                else if (type == "year")
-                {
-                    for (int m = 1; m <= 12; m++)
-                    {
-                        DateTime monthStart = new DateTime(now.Year, m, 1, 0, 0, 0, DateTimeKind.Utc);
-                        DateTime monthEnd = monthStart.AddMonths(1);
-                        int unixStart = GetUnixTimestamp(monthStart);
-                        int unixEnd = GetUnixTimestamp(monthEnd);
-
-                        int viewCount = db.BaiViets
-                            .Where(bv => bv.ViewUpdate >= unixStart && bv.ViewUpdate < unixEnd)
-                            .Sum(bv => (int?)bv.ViewCount) ?? 0;
-
-                        labels.Add(m.ToString("D2")); // 01, 02,...
-                        data.Add(viewCount);
-                    }
-                }
-                else
-                {
-                    return Ok(new { labels = new List<string>(), data = new List<int>() });
-                }
-                #endregion
-
-                return Ok(new { labels, data });
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
-        }*/
         #endregion
         #region lấy dữ liệu cho nút bài viết
         [Route("top10-baiviet-thang"), HttpGet]
         public async Task<IHttpActionResult> GetTop10BaiVietTrongThang()
         {
+            var user = SessionHelper.GetUser();
             try
             {
                 DateTime now = DateTime.UtcNow;
@@ -248,153 +159,11 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         }
         #endregion
         #region lấy dữ liệu cho biểu đồ theo bộ lọc
-        /*
-        [Route("dashboard-filter/chart"), HttpGet]
-        public IHttpActionResult GetChartDataWithFilter(string type = "range", int? year = null, int? month = null, int? from = null, int? to = null)
-        {
-            try
-            {
-                var labels = new List<string>();
-                var data = new List<int>();
-                string typeUsed = "";
-                #region kiểm tra dữ liệu truy vấn theo khoảng ngày
-                if (from.HasValue && to.HasValue)
-                {
-                    // Thống kê theo giờ trong ngày (nếu khoảng <= 1 ngày), ngày (<= 31 ngày), hoặc tháng
-                    var fromDate = DateTimeOffset.FromUnixTimeSeconds(from.Value).UtcDateTime;
-                    var toDate = DateTimeOffset.FromUnixTimeSeconds(to.Value).UtcDateTime;
-                    var totalDays = (toDate - fromDate).TotalDays;
-
-                    if (totalDays <= 1)
-                    {
-                        typeUsed = "hourly";
-                        for (int h = 0; h < 24; h++)
-                        {
-                            var hourStart = fromDate.Date.AddHours(h);
-                            var hourEnd = hourStart.AddHours(1);
-
-                            int unixStart = GetUnixTimestamp(hourStart);
-                            int unixEnd = GetUnixTimestamp(hourEnd);
-
-                            int viewCount = db.BaiViets
-                                .Where(bv => bv.ViewUpdate >= unixStart && bv.ViewUpdate < unixEnd)
-                                .Sum(bv => (int?)bv.ViewCount) ?? 0;
-
-                            labels.Add(h.ToString("D2"));
-                            data.Add(viewCount);
-                        }
-                    }
-                    #endregion
-                    #region nếu khoảng ít hơn 1 tháng
-                    else if (totalDays <= 31)
-                    {
-                        typeUsed = "daily";
-                        for (var d = fromDate.Date; d <= toDate.Date; d = d.AddDays(1))
-                        {
-                            var dayStart = d;
-                            var dayEnd = d.AddDays(1);
-
-                            int unixStart = GetUnixTimestamp(dayStart);
-                            int unixEnd = GetUnixTimestamp(dayEnd);
-
-                            int viewCount = db.BaiViets
-                                .Where(bv => bv.ViewUpdate >= unixStart && bv.ViewUpdate < unixEnd)
-                                .Sum(bv => (int?)bv.ViewCount) ?? 0;
-
-                            labels.Add(d.Day.ToString());
-                            data.Add(viewCount);
-                        }
-                    }
-                    #endregion
-                    #region khoảng lớn hơn 31 ngày
-                    else
-                    {
-                        typeUsed = "monthly";
-                        var current = new DateTime(fromDate.Year, fromDate.Month, 1);
-                        var end = new DateTime(toDate.Year, toDate.Month, 1);
-
-                        while (current <= end)
-                        {
-                            var monthStart = current;
-                            var monthEnd = current.AddMonths(1);
-
-                            int unixStart = GetUnixTimestamp(monthStart);
-                            int unixEnd = GetUnixTimestamp(monthEnd);
-
-                            int viewCount = db.BaiViets
-                                .Where(bv => bv.ViewUpdate >= unixStart && bv.ViewUpdate < unixEnd)
-                                .Sum(bv => (int?)bv.ViewCount) ?? 0;
-
-                            labels.Add(monthStart.Month.ToString("D2"));
-                            data.Add(viewCount);
-
-                            current = current.AddMonths(1);
-                        }
-                    }
-                    #endregion
-                }
-                #region nếu đầu vào có năm và có tháng
-                else if (year.HasValue && month.HasValue)
-                {
-                    typeUsed = "daily-in-month";
-                    int daysInMonth = DateTime.DaysInMonth(year.Value, month.Value);
-                    for (int d = 1; d <= daysInMonth; d++)
-                    {
-                        var dayStart = new DateTime(year.Value, month.Value, d, 0, 0, 0, DateTimeKind.Utc);
-                        var dayEnd = dayStart.AddDays(1);
-
-                        int unixStart = GetUnixTimestamp(dayStart);
-                        int unixEnd = GetUnixTimestamp(dayEnd);
-
-                        int viewCount = db.BaiViets
-                            .Where(bv => bv.ViewUpdate >= unixStart && bv.ViewUpdate < unixEnd)
-                            .Sum(bv => (int?)bv.ViewCount) ?? 0;
-
-                        labels.Add(d.ToString());
-                        data.Add(viewCount);
-                    }
-                }
-                #endregion
-                #region đầu vào chỉ có năm
-                else if (year.HasValue)
-                {
-                    typeUsed = "monthly-in-year";
-                    for (int m = 1; m <= 12; m++)
-                    {
-                        var monthStart = new DateTime(year.Value, m, 1, 0, 0, 0, DateTimeKind.Utc);
-                        var monthEnd = monthStart.AddMonths(1);
-
-                        int unixStart = GetUnixTimestamp(monthStart);
-                        int unixEnd = GetUnixTimestamp(monthEnd);
-
-                        int viewCount = db.BaiViets
-                            .Where(bv => bv.ViewUpdate >= unixStart && bv.ViewUpdate < unixEnd)
-                            .Sum(bv => (int?)bv.ViewCount) ?? 0;
-
-                        labels.Add(m.ToString("D2"));
-                        data.Add(viewCount);
-                    }
-                }
-                #endregion
-
-                else
-                {
-                    // Không đủ dữ liệu đầu vào
-                    return Ok(new { labels = new List<string>(), data = new List<int>(), typeUsed = "none" });
-                }
-
-                return Ok(new { labels, data, typeUsed });
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
-        }
-        */
 
         [Route("dashboard-filter/chart"), HttpGet]
         public IHttpActionResult GetChartDataWithFilter(string type = "range", int? year = null, int? month = null, int? from = null, int? to = null)
         {
+            var user = SessionHelper.GetUser();
             try
             {
                 var labels = new List<string>();

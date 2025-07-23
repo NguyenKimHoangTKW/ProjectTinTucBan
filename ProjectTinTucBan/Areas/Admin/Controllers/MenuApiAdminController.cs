@@ -176,6 +176,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("menus-with-submenus-by-asignto/{asignTo}")]
         public async Task<IHttpActionResult> GetMenusByAsignTo(int asignTo)
         {
+            var user = SessionHelper.GetUser();
             var menus = await db.Menu_Group
                 .Where(g => g.AsignTo == asignTo)
                 .Select(g => new {
@@ -205,6 +206,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("add-menu")]
         public async Task<IHttpActionResult> AddMenu([FromBody] Menu menu)
         {
+            var user = SessionHelper.GetUser();
             if (string.IsNullOrEmpty(menu.Ten))
                 return BadRequest("Tên menu không được để trống.");
 
@@ -233,6 +235,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("add-submenu")]
         public async Task<IHttpActionResult> AddSubMenu([FromBody] AddSubMenuDto dto)
         {
+            var user = SessionHelper.GetUser();
             if (dto == null)
                 return BadRequest("Dữ liệu gửi lên không hợp lệ.");
 
@@ -297,6 +300,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("edit-menu")]
         public async Task<IHttpActionResult> EditMenu([FromBody] EditMenuDto dto)
         {
+            var user = SessionHelper.GetUser();
             if (dto == null)
                 return BadRequest("Dữ liệu gửi lên không hợp lệ.");
 
@@ -342,6 +346,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("edit-sub-menu")]
         public async Task<IHttpActionResult> EditSubMenu([FromBody] EditMenuDto dto)
         {
+            var user = SessionHelper.GetUser();
             if (dto == null)
                 return BadRequest("Dữ liệu gửi lên không hợp lệ.");
 
@@ -388,6 +393,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("delete-menu")]
         public async Task<IHttpActionResult> DeleteMenu([FromBody] int id)
         {
+            var user = SessionHelper.GetUser();
             var menu = await db.Menus.FindAsync(id);
             if (menu == null)
                 return Ok(new { success = false, message = "Không tìm thấy menu." });
@@ -411,6 +417,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("delete-submenu")]
         public async Task<IHttpActionResult> DeleteSubMenu([FromBody] int id)
         {
+            var user = SessionHelper.GetUser();
             var subMenu = await db.Sub_Menu.FindAsync(id);
             if (subMenu == null)
                 return Ok(new { success = false, message = "Không tìm thấy menu con." });
@@ -434,6 +441,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("groupmenus")]
         public async Task<IHttpActionResult> GetGroupMenus()
         {
+            var user = SessionHelper.GetUser();
             var groups = await db.Menu_Group
                 .Select(g => new
                 {
@@ -455,6 +463,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("add-groupmenu")]
         public async Task<IHttpActionResult> AddGroupMenu([FromBody] GroupMenuDto dto)
         {
+            var user = SessionHelper.GetUser();
             if (string.IsNullOrWhiteSpace(dto.Ten))
                 return BadRequest("Tên group menu không được để trống.");
 
@@ -478,6 +487,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("edit-groupmenu")]
         public async Task<IHttpActionResult> EditGroupMenu([FromBody] GroupMenuDto dto)
         {
+            var user = SessionHelper.GetUser();
             if (dto == null || string.IsNullOrWhiteSpace(dto.Ten))
                 return BadRequest("Dữ liệu không hợp lệ.");
 
@@ -512,6 +522,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("delete-groupmenu")]
         public async Task<IHttpActionResult> DeleteGroupMenu([FromBody] int id)
         {
+            var user = SessionHelper.GetUser();
             var group = await db.Menu_Group.FindAsync(id);
             if (group == null)
                 return Ok(new { success = false, message = "Không tìm thấy group menu." });
@@ -538,6 +549,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("add-menu-to-group")]
         public async Task<IHttpActionResult> AddMenuToGroup([FromBody] AddMenuToGroupDto dto)
         {
+            var user = SessionHelper.GetUser();
             if (dto == null)
                 return BadRequest("Dữ liệu gửi lên không hợp lệ.");
 
@@ -610,6 +622,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("delete-menu-from-group")]
         public async Task<IHttpActionResult> DeleteMenuFromGroup([FromBody] AddMenuToGroupDto dto)
         {
+            var user = SessionHelper.GetUser();
             if (dto == null)
                 return BadRequest("Dữ liệu gửi lên không hợp lệ.");
 
@@ -652,6 +665,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("delete-submenu-from-group")]
         public async Task<IHttpActionResult> DeleteSubMenuFromGroup([FromBody] AddSubMenuToGroupDto dto)
         {
+            var user = SessionHelper.GetUser();
             if (dto == null)
                 return BadRequest("Dữ liệu không hợp lệ.");
 
@@ -675,7 +689,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("groupmenus-with-menus")]
         public async Task<IHttpActionResult> GetGroupMenusWithMenus()
         {
-
+            var user = SessionHelper.GetUser();
             var groups = await db.Menu_Group
                         .Select(g => new
                         {
@@ -719,6 +733,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("groupmenu-menus/{groupId:int}")]
         public async Task<IHttpActionResult> GetMenusByGroupMenu(int groupId)
         {
+            var user = SessionHelper.GetUser();
             var group = await db.Menu_Group
                 .Where(g => g.ID == groupId)
                 .Select(g => new
@@ -764,6 +779,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("get-groupmenu-menus/{groupId:int}")]
         public async Task<IHttpActionResult> GetMenusByGroup(int groupId)
         {
+            var user = SessionHelper.GetUser();
             var group = await db.Menu_Group
                 .Where(g => g.ID == groupId)
                 .Select(g => new
@@ -796,6 +812,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("get-user-menus")]
         public IHttpActionResult GetUserMenus()
         {
+            var user = SessionHelper.GetUser();
             try
             {
                 var user = SessionHelper.GetUser(); // Lấy user từ session
@@ -862,6 +879,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
         public async Task<int> SyncMenuImportantWithGroupAsync()
         {
+            var user = SessionHelper.GetUser();
             // Lấy tất cả các liên kết group - menu
             var groupMenuLinks = await db.Group_By_Menu_And_Sub
                 .Include(x => x.Menu)
