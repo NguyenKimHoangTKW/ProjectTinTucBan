@@ -46,6 +46,34 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             }
         }
 
+        // GET: api/v1/admin/Get-Function-By-Id/{id}
+        [HttpGet]
+        [Route("Get-Function-By-Id/{id}")]
+        public async Task<IHttpActionResult> GetFunctionById(int id)
+        {
+            var function = await db.ChucNangQuyenUsers
+                .Where(x => x.ID == id)
+                .Select(x => new
+                {
+                    x.ID,
+                    x.TenChucNang,
+                    x.MaChucNang,
+                    x.MoTa,
+                    x.NgayCapNhat,
+                    x.NgayTao
+                })
+                .FirstOrDefaultAsync();
+
+            if (function != null)
+            {
+                return Ok(new { data = function, success = true });
+            }
+            else
+            {
+                return Ok(new { message = "Không tìm thấy chức năng", success = false });
+            }
+        }
+
         // POST: api/v1/admin/Create-Function
         [HttpPost]
         [Route("Create-Function")]
@@ -179,7 +207,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
         // DELETE: api/v1/admin/Delete-Function/{id}
         [HttpDelete]
-        [Route("Delete-Function/{id:int}")]
+        [Route("Delete-Function/{id}")]
         public async Task<IHttpActionResult> DeleteFunction(int id)
         {
             try
@@ -227,7 +255,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         }
 
         [HttpGet]
-        [Route("function-menus/{id:int}")]
+        [Route("function-menus/{id}")]
         public async Task<IHttpActionResult> GetFunctionMenus(int id)
         {
             try

@@ -61,6 +61,7 @@
           <Property Name="FooterNote" Type="nvarchar(max)" />
           <Property Name="NgayCapNhat" Type="int" />
           <Property Name="NgayDang" Type="int" />
+          <Property Name="IsActive" Type="int" />
         </EntityType>
         <EntityType Name="Function_By_Menu">
           <Key>
@@ -202,6 +203,15 @@
           <Property Name="CountPasswordFail" Type="int" />
           <Property Name="LockTimeout" Type="int" />
           <Property Name="LockTime" Type="int" />
+        </EntityType>
+        <EntityType Name="TaiLieu">
+          <Key>
+            <PropertyRef Name="STT" />
+          </Key>
+          <Property Name="STT" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Ten_Tailieu" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Upload_Date" Type="int" Nullable="false" />
+          <Property Name="Download_Link" Type="nvarchar(max)" Nullable="false" />
         </EntityType>
         <EntityType Name="VisitorLog">
           <Key>
@@ -386,6 +396,7 @@
           <EntitySet Name="Sub_Menu" EntityType="Self.Sub_Menu" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="TaiKhoan" EntityType="Self.TaiKhoan" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="TaiLieu" EntityType="Self.TaiLieu" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="VisitorLog" EntityType="Self.VisitorLog" Schema="dbo" store:Type="Tables" />
           <AssociationSet Name="FK__BaiViet__ID_MucL__49C3F6B7" Association="Self.FK__BaiViet__ID_MucL__49C3F6B7">
             <End Role="MucLuc" EntitySet="MucLuc" />
@@ -462,6 +473,7 @@
           <EntitySet Name="Sub_Menu" EntityType="WebTinTucTDMUModel.Sub_Menu" />
           <EntitySet Name="sysdiagrams" EntityType="WebTinTucTDMUModel.sysdiagram" />
           <EntitySet Name="TaiKhoans" EntityType="WebTinTucTDMUModel.TaiKhoan" />
+          <EntitySet Name="TaiLieux" EntityType="WebTinTucTDMUModel.TaiLieu" />
           <EntitySet Name="VisitorLogs" EntityType="WebTinTucTDMUModel.VisitorLog" />
           <AssociationSet Name="FK__BaiViet__ID_MucL__49C3F6B7" Association="WebTinTucTDMUModel.FK__BaiViet__ID_MucL__49C3F6B7">
             <End Role="MucLuc" EntitySet="MucLucs" />
@@ -577,6 +589,7 @@
           <Property Name="FooterNote" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="NgayCapNhat" Type="Int32" />
           <Property Name="NgayDang" Type="Int32" />
+          <Property Name="IsActive" Type="Int32" />
         </EntityType>
         <EntityType Name="Function_By_Menu">
           <Key>
@@ -739,6 +752,15 @@
           <NavigationProperty Name="BaiViets" Relationship="WebTinTucTDMUModel.FK__BaiViet__ID_Nguo__4AB81AF0" FromRole="TaiKhoan" ToRole="BaiViet" />
           <NavigationProperty Name="PhanQuyenUsers" Relationship="WebTinTucTDMUModel.FK_PhanQuyenUser_TaiKhoan" FromRole="TaiKhoan" ToRole="PhanQuyenUser" />
           <NavigationProperty Name="Role" Relationship="WebTinTucTDMUModel.FK_TaiKhoan_Roles" FromRole="TaiKhoan" ToRole="Role" />
+        </EntityType>
+        <EntityType Name="TaiLieu">
+          <Key>
+            <PropertyRef Name="STT" />
+          </Key>
+          <Property Name="STT" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Ten_Tailieu" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Upload_Date" Type="Int32" Nullable="false" />
+          <Property Name="Download_Link" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="VisitorLog">
           <Key>
@@ -957,6 +979,7 @@
           <EntitySetMapping Name="Footers">
             <EntityTypeMapping TypeName="WebTinTucTDMUModel.Footer">
               <MappingFragment StoreEntitySet="Footer">
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
                 <ScalarProperty Name="NgayDang" ColumnName="NgayDang" />
                 <ScalarProperty Name="NgayCapNhat" ColumnName="NgayCapNhat" />
                 <ScalarProperty Name="FooterNote" ColumnName="FooterNote" />
@@ -1123,6 +1146,16 @@
                 <ScalarProperty Name="TenTaiKhoan" ColumnName="TenTaiKhoan" />
                 <ScalarProperty Name="ID_role" ColumnName="ID_role" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TaiLieux">
+            <EntityTypeMapping TypeName="WebTinTucTDMUModel.TaiLieu">
+              <MappingFragment StoreEntitySet="TaiLieu">
+                <ScalarProperty Name="Download_Link" ColumnName="Download_Link" />
+                <ScalarProperty Name="Upload_Date" ColumnName="Upload_Date" />
+                <ScalarProperty Name="Ten_Tailieu" ColumnName="Ten_Tailieu" />
+                <ScalarProperty Name="STT" ColumnName="STT" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

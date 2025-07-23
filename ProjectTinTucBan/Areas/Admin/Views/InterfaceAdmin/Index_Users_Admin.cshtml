@@ -5,6 +5,11 @@
 
 
 <style>
+    .swal2-toast {
+        max-width: 320px !important;
+        white-space: pre-line !important;
+        word-break: break-word !important;
+    }
     .main-content {
         padding: calc(70px + -25px) 25px 25px !important;
     }
@@ -75,14 +80,7 @@
             background-color: #f8f8f8;
         }
 
-    .dataTables_paginate .paginate_button {
-        padding: 5px 10px;
-        margin: 0 2px;
-        border: 1px solid #e8e8e8;
-        border-radius: 4px;
-        background: white;
-        cursor: pointer;
-    }
+   
 
     /* ===== ACTION BUTTONS ===== */
     .btn-action {
@@ -413,14 +411,14 @@
                                         <div class="form-group">
                                             <label for="tenTaiKhoan">Tên tài khoản <span class="text-danger">*</span></label>
                                             <input type="text" class="form-control" id="tenTaiKhoan" name="tenTaiKhoan" placeholder="Nhập tên tài khoản" required>
-                                            <small class="form-text text-muted">Tên đăng nhập của tài khoản</small>
+                                            <small id="TenDangNhapError" class="form-text text-muted">Tên đăng nhập của tài khoản</small>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="tenNguoiDung">Tên người dùng <span class="text-danger">*</span></label>
                                             <input type="text" class="form-control" id="tenNguoiDung" name="tenNguoiDung" placeholder="Nhập tên người dùng" required>
-                                            <small class="form-text text-muted">Tên hiển thị của người dùng</small>
+                                            <small id="TenHienThiError" class="form-text text-muted">Tên hiển thị của người dùng</small>
                                         </div>
                                     </div>
                                 </div>
@@ -429,8 +427,8 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="Gmail">Gmail <span class="text-danger">*</span></label>
-                                            <input type="email" class="form-control" id="Gmail" name="Gmail" placeholder="Nhập địa chỉ Gmail" required>
-                                            <small class="form-text text-muted">Địa chỉ Gmail liên kết</small>
+                                            <input type="email" class="form-control" id="Gmail" name="Gmail" placeholder="Nhập địa chỉ Gmail" required readonly>
+                                            <small id="GmailError" class="form-text text-muted">Địa chỉ Gmail liên kết</small>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
@@ -440,7 +438,7 @@
                                                 <option value="">-- Chọn vai trò --</option>
                                                 <!-- Options will be loaded from API -->
                                             </select>
-                                            <small class="form-text text-muted">Quyền hạn của tài khoản</small>
+                                            <small id="roleError" class="form-text text-muted">Quyền hạn của tài khoản</small>
                                         </div>
                                     </div>
                                 </div>
@@ -450,7 +448,7 @@
                                         <div class="form-group">
                                             <label for="SDT">Số điện thoại</label>
                                             <input type="tel" class="form-control" id="SDT" name="SDT" placeholder="Nhập số điện thoại">
-                                            <small class="form-text text-muted">Số điện thoại liên hệ</small>
+                                            <small id="SDTError" class="form-text text-muted">Số điện thoại liên hệ</small>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
@@ -460,7 +458,7 @@
                                                 <option value="0">Hoạt động</option>
                                                 <option value="1">Khóa</option>
                                             </select>
-                                            <small class="form-text text-muted">Trạng thái hoạt động của tài khoản</small>
+                                            <small id="Active_Error" class="form-text text-muted">Trạng thái hoạt động của tài khoản</small>
                                         </div>
                                     </div>
                                 </div>
@@ -471,11 +469,25 @@
                                         <label>Thông tin thời gian</label>
                                         <div class="row">
                                             <div class="col-md-6 col-sm-12 mb-3">
-                                                <input type="text" class="form-control" id="NgayTao" name="NgayTao" readonly placeholder="Ngày tạo">
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text bg-white">
+                                                            <i class="anticon anticon-calendar text-primary"></i>
+                                                        </span>
+                                                    </div>
+                                                    <input type="text" class="form-control" id="NgayTao" name="NgayTao" readonly placeholder="Ngày tạo">
+                                                </div>
                                                 <small class="form-text text-muted">Ngày tạo</small>
                                             </div>
                                             <div class="col-md-6 col-sm-12">
-                                                <input type="text" class="form-control" id="NgayCapNhat" name="NgayCapNhat" readonly placeholder="Ngày cập nhật">
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text bg-white">
+                                                            <i class="anticon anticon-sync text-primary"></i>
+                                                        </span>
+                                                    </div>
+                                                    <input type="text" class="form-control" id="NgayCapNhat" name="NgayCapNhat" readonly placeholder="Ngày cập nhật">
+                                                </div>
                                                 <small class="form-text text-muted">Cập nhật gần nhất</small>
                                             </div>
                                         </div>
@@ -525,11 +537,15 @@
                                                     </tr>
                                                     <tr>
                                                         <td class="text-muted font-weight-bold bg-light">Gmail</td>
-                                                        <td class="bg-white" id="detailGmail"></td>
+                                                        <td class="bg-white">
+                                                            <span id="detailGmail" class="copy-on-click" style="cursor:pointer;" title="Bấm để copy"></span>
+                                                        </td>
                                                     </tr>
                                                     <tr>
                                                         <td class="text-muted font-weight-bold bg-light">Số điện thoại</td>
-                                                        <td class="bg-white" id="detailSDT"></td>
+                                                        <td class="bg-white">
+                                                            <span id="detailSDT" class="copy-on-click" style="cursor:pointer;" title="Bấm để copy"></span>
+                                                        </td>
                                                     </tr>
                                                 </tbody>
                                             </table>
@@ -538,7 +554,7 @@
                                 </div>
                                 <div class="card mb-4 border">
                                     <div class="card-header bg-primary">
-                                        <h6 class="mb-0 text-white"><i class="anticon anticon-history mr-2"></i>Thông tin thời gian</h6>
+                                        <h6 class="mb-0 text-white"><i class="anticon anticon-clock-circle mr-2"></i>Thông tin thời gian</h6>
                                     </div>
                                     <div class="card-body bg-white">
                                         <div class="row">

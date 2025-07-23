@@ -55,8 +55,6 @@
             background-color: #f8f8f8;
         }
 
-        #data-table tbody td:first-child,
-        #data-table tbody td:last-child,
         #data-table tbody td:nth-child(4),
         #data-table tbody td:nth-child(5),
         #data-table tbody td:nth-child(6),
@@ -64,11 +62,15 @@
             text-align: center;
         }
 
+        #data-table td:last-child,
+        #data-table th:last-child {
+            justify-content: center !important;
+        }
 
         /* Chống tràn cho cột Tên mục lục */
         #data-table th:nth-child(2),
         #data-table td:nth-child(2) {
-            max-width: 180px;
+            max-width: 150px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -78,7 +80,7 @@
         /* Chống tràn cho cột Link */
         #data-table th:nth-child(3),
         #data-table td:nth-child(3) {
-            max-width: 220px;
+            max-width: 150px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -217,24 +219,7 @@
         margin-top: 10px;
     }
 
-        .dataTables_paginate .paginate_button {
-            padding: 5px 10px;
-            margin: 0 2px;
-            border: 1px solid #e8e8e8;
-            border-radius: 4px;
-            background: white;
-            cursor: pointer;
-        }
-
-            .dataTables_paginate .paginate_button.current {
-                background-color: #5a8dee;
-                color: white !important;
-                border-color: #5a8dee;
-            }
-
-            .dataTables_paginate .paginate_button:hover:not(.current) {
-                background-color: #f8f8f8;
-            }
+        
 
     /* Chỉnh mũi tên sắp xếp */
     table.dataTable thead .sorting:after,
@@ -249,16 +234,6 @@
         padding: 5px 10px;
         border: 1px solid #e8e8e8;
         border-radius: 4px;
-    }
-
-    /*Chỉnh xuống dòng*/
-    #data-table th,
-    #data-table td {
-        white-space: normal !important; /* This allows text to wrap */
-        word-wrap: break-word; /* Break long words if necessary */
-        max-width: 200px; /* Maximum width for each column */
-        overflow: hidden;
-        text-overflow: ellipsis;
     }
 
         #data-table th:nth-child(6),
@@ -425,7 +400,7 @@
                             <div class="form-group">
                                 <label for="tenMucLuc">Tên mục lục <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="tenMucLuc" name="tenMucLuc" placeholder="Nhập tên mục lục" required>
-                                <small class="form-text text-muted">Tên hiển thị của mục lục trên website</small>
+                                <small id="tenMucLucError" class="form-text text-muted">Tên hiển thị của mục lục trên website</small>
                             </div>
                         </div>
                     </div>
@@ -447,7 +422,7 @@
                             <div class="form-group">
                                 <label for="thuTuShow">Vị trí hiển thị <span class="text-danger">*</span></label>
                                 <input type="number" class="form-control" id="thuTuShow" name="thuTuShow" min="1" value="1" placeholder="Nhập số thứ tự hiển thị" required>
-                                <small class="form-text text-muted">Số thứ tự hiển thị của mục lục (số nhỏ hiển thị trước)</small>
+                                <small id="thuTuShowError" class="form-text text-muted">Số thứ tự hiển thị của mục lục (số nhỏ hiển thị trước)</small>
                             </div>
                         </div>
                     </div>

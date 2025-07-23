@@ -104,10 +104,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     return Ok(new { message = "Dữ liệu không hợp lệ", data = new object[0], success = false });
                 }
 
-                if (string.IsNullOrWhiteSpace(Item.TenMucLuc))
-                {
-                    return Ok(new { message = "Tên mục lục không được để trống", data = new object[0], success = false });
-                }
+     
 
                 if (Item.ThuTuShow <= 0)
                 {

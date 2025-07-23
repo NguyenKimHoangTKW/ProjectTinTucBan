@@ -1,46 +1,32 @@
 // DanhSachMucLuc.js - Quản lý danh sách mục lục trong hệ thống admin
 
 // ----- KHỞI TẠO VÀ BIẾN TOÀN CỤC -----
+// Biến toàn cục để lưu trữ dữ liệu kiểm tra
+let value_check = null;
+// Mặc định hiển thị khi không có dữ liệu
+defaultContent = "Không có dữ liệu";
 // Khởi tạo Select2 nếu plugin đã được tải
 $(document).ready(function () {
+    // Khởi tạo Select2 nếu plugin đã được tải
     if ($.fn.select2) {
         $(".select2").select2();
     }
-});
 
-// Biến toàn cục để lưu trữ dữ liệu kiểm tra
-let value_check = null;
+    // Nạp dữ liệu bảng mục lục khi trang tải
+    load_data();
 
-// Tải dữ liệu khi script được tải
-load_data();
-
-// Thiết lập các sự kiện khi DOM đã sẵn sàng
-$(document).ready(function () {
-    // Các sự kiện cho modal
-    setupMucLucModalEvents();
-});
-
-// ----- XỬ LÝ SỰ KIỆN UI -----
-// Thiết lập các sự kiện cho modal
-function setupMucLucModalEvents() {
-    // Mở modal để thêm mới
-    $(document).on("click", "#btnAddMucLuc", function () {
+    // Gán sự kiện cho nút thêm mới (static)
+    $("#btnAddMucLuc").on("click", function () {
         openMucLucModalForAdd();
     });
 
-    // Mở modal để chỉnh sửa
-    $(document).on("click", "#btnEdit", function () {
-        const id = $(this).data("id");
-        openMucLucModalForEdit(id);
-    });
-
-    // Xử lý khi nhấn nút lưu
-    $(document).on("click", "#btnSaveMucLuc", function () {
+    // Gán sự kiện cho nút lưu (static)
+    $("#btnSaveMucLuc").on("click", function () {
         saveMucLuc();
     });
 
-    // Thiết lập slug generation khi nhập tên mục lục
-    $(document).on("input", "#tenMucLuc", function () {
+    // Gán sự kiện sinh slug khi nhập tên mục lục (static)
+    $("#tenMucLuc").on("input", function () {
         const tenMucLuc = $(this).val();
         if (tenMucLuc) {
             const linkSuggest = convertToSlug(tenMucLuc);
@@ -50,17 +36,71 @@ function setupMucLucModalEvents() {
         }
     });
 
-    // Xử lý khi chuyển đổi trạng thái
-    $(document).on("change", ".toggle-status", function () {
+    // Gán sự kiện cho các nút sửa, xóa, chuyển trạng thái (dynamic - dùng event delegation)
+    $('#data-table').on("click", ".btn-edit", function () {
+        const id = $(this).data("id");
+        openMucLucModalForEdit(id);
+    });
+
+    $('#data-table').on("click", ".btn-delete", function () {
+        const id = $(this).data("id");
+        const tenMucLuc = $(this).data("ten");
+        Swal.fire({
+            title: "Bạn đang thao tác xóa mục lục?",
+            text: "Bằng việc đồng ý, bạn sẽ xóa mục lục này, bạn có đồng ý không?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Có, tôi đồng ý!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                delete_muc_luc(id);
+            }
+        });
+    });
+
+    $('#data-table').on("change", ".toggle-status", function () {
         const id = $(this).data("id");
         const isChecked = $(this).prop("checked");
         toggleMucLucStatus(id, isChecked);
     });
+
+    // Reset lại trạng thái modal khi đóng
+    $("#mucLucModal").on("hidden.bs.modal", function () {
+        $("#mucLucForm")[0].reset();
+        $("#mucLucId").val("");
+        $("#formMode").val("add");
+        $("#editOnlyFields").hide();
+        // Reset các trường lỗi hoặc trạng thái UI khác nếu có
+    });
+});
+
+// ----- HÀM TIỆN ÍCH -----
+// Chuyển đổi chuỗi văn bản thành slug URL thân thiện
+function convertToSlug(text) {
+    // Chuyển văn bản sang chữ thường và loại bỏ dấu tiếng Việt
+    var slug = text.toLowerCase()
+        .replace(/á|à|ả|ạ|ã|ă|ắ|ằ|ẳ|ẵ|ặ|â|ấ|ầ|ẩ|ẫ|ậ/gi, 'a')
+        .replace(/é|è|ẻ|ẽ|ẹ|ê|ế|ề|ể|ễ|ệ/gi, 'e')
+        .replace(/i|í|ì|ỉ|ĩ|ị/gi, 'i')
+        .replace(/ó|ò|ỏ|õ|ọ|ô|ố|ồ|ổ|ỗ|ộ|ơ|ớ|ờ|ở|ỡ|ợ/gi, 'o')
+        .replace(/ú|ù|ủ|ũ|ụ|ư|ứ|ừ|ử|ữ|ự/gi, 'u')
+        .replace(/ý|ỳ|ỷ|ỹ|ỵ/gi, 'y')
+        .replace(/đ/gi, 'd')
+        // Loại bỏ ký tự đặc biệt, thay khoảng trắng bằng dấu gạch ngang
+        .replace(/[^a-z0-9 -]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-');
+
+    return slug;
 }
 
 // Mở modal ở chế độ thêm mới - thiết lập form và các giá trị mặc định
 function openMucLucModalForAdd() {
     // Reset form và thiết lập chế độ
+    $("#tenMucLucError").text("Tên hiển thị của mục lục trên website").removeClass("text-danger").addClass("text-muted");
+    $("#thuTuShowError").text("Vị trí hiển thị (số nguyên dương)").removeClass("text-danger").addClass("text-muted");
     $("#mucLucForm")[0].reset();
     $("#mucLucId").val("");
     $("#formMode").val("add");
@@ -87,6 +127,8 @@ function openMucLucModalForEdit(id) {
     }
 
     // Reset form và thiết lập chế độ
+    $("#tenMucLucError").text("Tên hiển thị của mục lục trên website").removeClass("text-danger").addClass("text-muted");
+    $("#thuTuShowError").text("Vị trí hiển thị (số nguyên dương)").removeClass("text-danger").addClass("text-muted");
     $("#mucLucForm")[0].reset();
     $("#mucLucId").val(id);
     $("#formMode").val("edit");
@@ -111,47 +153,47 @@ function openMucLucModalForEdit(id) {
 // Lưu mục lục - xử lý cả thêm mới và chỉnh sửa
 function saveMucLuc() {
     const mode = $("#formMode").val();
-    const tenMucLuc = $("#tenMucLuc").val();
+    const tenMucLuc = $("#tenMucLuc").val().trim();
+    const thuTuShow = $("#thuTuShow").val().trim();
 
+    // Reset lỗi
+    $("#tenMucLucError").text("Tên hiển thị của mục lục trên website").removeClass("text-danger").addClass("text-muted");
+    $("#thuTuShowError").text("Vị trí hiển thị (số nguyên dương)").removeClass("text-danger").addClass("text-muted");
+
+    let hasError = false;
+
+    // Validate tên mục lục
     if (!tenMucLuc) {
-        Sweet_Alert("error", "Vui lòng nhập tên mục lục");
-        return;
+        $("#tenMucLucError").text("Vui lòng nhập tên mục lục").removeClass("text-muted").addClass("text-danger");
+        hasError = true;
+    } else if (tenMucLuc.length > 255) {
+        $("#tenMucLucError").text("Tên mục lục không được vượt quá 255 ký tự").removeClass("text-muted").addClass("text-danger");
+        hasError = true;
     }
+
+    // Validate vị trí hiển thị
+    if (!thuTuShow) {
+        $("#thuTuShowError").text("Vui lòng nhập vị trí hiển thị").removeClass("text-muted").addClass("text-danger");
+        hasError = true;
+    } else if (isNaN(thuTuShow) || parseInt(thuTuShow) < 1 || !Number.isInteger(Number(thuTuShow))) {
+        $("#thuTuShowError").text("Vị trí hiển thị phải là số nguyên dương").removeClass("text-muted").addClass("text-danger");
+        hasError = true;
+    }
+
+    if (hasError) return;
 
     // Generate link từ tên
     const link = '/' + convertToSlug(tenMucLuc);
     $("#link").val(link);
 
-    const thuTuShow = $("#thuTuShow").val();
     const isActive = $("#isActive").prop("checked");
 
     if (mode === "add") {
-        // Thêm mới
         add_new_in_modal();
     } else {
-        // Chỉnh sửa
         update_muc_luc_in_modal();
     }
 }
-
-// Xử lý sự kiện nút xóa - hiện hộp thoại xác nhận trước khi xóa
-$(document).on("click", "#btnDelete", function () {
-    const id = $(this).data("id");
-    const tenMucLuc = $(this).data("ten");
-    Swal.fire({
-        title: "Bạn đang thao tác xóa mục lục?",
-        text: "Bằng việc đồng ý, bạn sẽ xóa mục lục này, bạn có đồng ý không?",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Có, tôi đồng ý!"
-    }).then((result) => {
-        if (result.isConfirmed) {
-            delete_muc_luc(id);
-        }
-    });
-});
 
 // ----- THAO TÁC CRUD VỚI API -----
 // Xóa mục lục thông qua API
@@ -217,12 +259,15 @@ async function add_new_in_modal() {
 // Cập nhật mục lục từ dữ liệu trong modal
 async function update_muc_luc_in_modal() {
     const id = $("#mucLucId").val();
-    const tenMucLuc = $("#tenMucLuc").val();
+    const tenMucLuc = $("#tenMucLuc").val().trim();
     const link = $("#link").val();
-    const thuTuShow = $("#thuTuShow").val();
+    const thuTuShow = $("#thuTuShow").val().trim();
     const isActive = $("#isActive").prop("checked"); // Boolean value
 
     try {
+        // Hiển thị loading overlay toàn màn hình
+        showLoading(null, "Đang cập nhật...");
+
         const res = await $.ajax({
             url: '/api/v1/admin/Update-Muc-Luc',
             type: 'POST',
@@ -235,6 +280,10 @@ async function update_muc_luc_in_modal() {
                 IsActive: isActive // Boolean value
             })
         });
+
+        await wait
+        // Ẩn loading
+        hideLoading();
 
         if (res.success) {
             $("#mucLucModal").modal("hide");
@@ -252,9 +301,6 @@ async function update_muc_luc_in_modal() {
         }
     }
 }
-
-// Mặc định hiển thị khi không có dữ liệu
-defaultContent = "Không có dữ liệu";
 
 // Tải dữ liệu danh sách mục lục và hiển thị vào bảng
 async function load_data() {
@@ -346,7 +392,7 @@ async function load_data() {
                             orderable: false,
                             render: function (data) {
                                 return `
-                                    <div class="d-flex">
+                                    <div class="d-flex justify-content-center">
                                         <button class="btn-action btn-edit mr-2" id="btnEdit" data-id="${data.ID}" data-ten="${(data.TenMucLuc || '').replace(/"/g, '&quot;')}">
                                             <i class="anticon anticon-edit"></i>
                                         </button>
@@ -418,6 +464,8 @@ async function get_muc_luc_by_id(id) {
             url: `/api/v1/admin/Get-Muc-Luc-By-Id/${id}`,
             type: 'GET'
         });
+
+        await waitMinLoading('#mucLucModal .modal-body');
         hideLoading('#mucLucModal .modal-body');
 
         if (res.success && res.data) {
@@ -459,26 +507,6 @@ async function get_muc_luc_by_id(id) {
     } catch (error) {
         Sweet_Alert("error", "Đã xảy ra lỗi khi lấy thông tin mục lục");
     }
-}
-
-// ----- HÀM TIỆN ÍCH -----
-// Chuyển đổi chuỗi văn bản thành slug URL thân thiện
-function convertToSlug(text) {
-    // Chuyển văn bản sang chữ thường và loại bỏ dấu tiếng Việt
-    var slug = text.toLowerCase()
-        .replace(/á|à|ả|ạ|ã|ă|ắ|ằ|ẳ|ẵ|ặ|â|ấ|ầ|ẩ|ẫ|ậ/gi, 'a')
-        .replace(/é|è|ẻ|ẽ|ẹ|ê|ế|ề|ể|ễ|ệ/gi, 'e')
-        .replace(/i|í|ì|ỉ|ĩ|ị/gi, 'i')
-        .replace(/ó|ò|ỏ|õ|ọ|ô|ố|ồ|ổ|ỗ|ộ|ơ|ớ|ờ|ở|ỡ|ợ/gi, 'o')
-        .replace(/ú|ù|ủ|ũ|ụ|ư|ứ|ừ|ử|ữ|ự/gi, 'u')
-        .replace(/ý|ỳ|ỷ|ỹ|ỵ/gi, 'y')
-        .replace(/đ/gi, 'd')
-        // Loại bỏ ký tự đặc biệt, thay khoảng trắng bằng dấu gạch ngang
-        .replace(/[^a-z0-9 -]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-');
-
-    return slug;
 }
 
 // Cập nhật trạng thái kích hoạt của mục lục

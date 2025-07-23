@@ -103,24 +103,7 @@
         justify-content: flex-end;
     }
 
-        .dataTables_paginate .paginate_button {
-            padding: 5px 10px;
-            margin: 0 2px;
-            border: 1px solid #e8e8e8;
-            border-radius: 4px;
-            background: white;
-            cursor: pointer;
-        }
-
-            .dataTables_paginate .paginate_button.current {
-                background-color: #5a8dee;
-                color: white !important;
-                border-color: #5a8dee;
-            }
-
-            .dataTables_paginate .paginate_button:hover:not(.current) {
-                background-color: #f8f8f8;
-            }
+        
 
     /* Thiết lập tùy chỉnh hiển thị số mục */
     .dataTables_length select {
@@ -417,6 +400,16 @@
         background-color: #5a8dee;
         border-color: #5a8dee;
     }
+
+    /*menu*/
+    .menu-scroll-wrapper {
+        max-height: 300px; 
+        overflow-y: auto;
+        border: 1px solid #eee;
+        margin-bottom: 10px;
+    }
+    /*MoTa*/
+
 </style>
 
 <div class="main-content">
@@ -506,30 +499,40 @@
                         <div class="form-group">
                             <label for="tenFunction">Tên chức năng <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="tenFunction" name="tenFunction" placeholder="Nhập tên chức năng admin" required>
-                            <small class="form-text text-muted">Tên chức năng trong hệ thống</small>
+                            <small id="tenFunctionError" class="form-text text-muted">Tên chức năng trong hệ thống</small>
                         </div>
 
                         <div class="form-group">
                             <label for="maFunction">Mã chức năng <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="maFunction" name="maFunction" placeholder="Nhập mã chức năng admin" required>
-                            <small class="form-text text-muted">Mã nhận dạng chức năng trong hệ thống</small>
+                            <small id="maFunctionError" class="form-text text-muted">Mã nhận dạng chức năng trong hệ thống</small>
                         </div>
 
                         <div class="form-group">
                             <label for="moTa">Mô tả <span class="text-danger">*</span></label>
-                            <textarea class="form-control" id="moTa" name="moTa" rows="3" placeholder="Nhập mô tả chức năng admin" required></textarea>
-                            <small class="form-text text-muted">Mô tả chi tiết về chức năng này</small>
+                            <textarea class="form-control" id="moTa" name="moTa" rows="3"
+                                      placeholder="Nhập mô tả chức năng admin" required
+                                      style="overflow-x:hidden;resize:vertical;"></textarea>
+                            <small id="moTaError" class="form-text text-muted">Mô tả chi tiết về chức năng này</small>
                         </div>
 
                         <!-- Menu Selection Table -->
                         <div class="form-group">
                             <label>Chọn Menu <span class="text-danger">*</span></label>
                             <div class="table-responsive">
-                                <table class="table table-bordered" id="menuSelectionTable">
-                                    <tbody>
-                                   
-                                    </tbody>
-                                </table>
+                                <div class="menu-scroll-wrapper">
+                                    <table class="table table-bordered" id="menuSelectionTable">
+                                        <thead>
+                                            <tr>
+                                                <th style="width:40px; text-align:center"></th>
+                                                <th>Tên Menu</th>
+                                                <th>Đường dẫn</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
 
@@ -624,18 +627,19 @@
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
-                                    <table class="table table-bordered table-hover" id="detailMenuTable">
-                                        <thead class="thead-light">
-                                            <tr>
-                                                <th style="width: 50px">STT</th>
-                                                <th>Tên Menu</th>
-                                                <th>Đường dẫn</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="detailMenuTableBody">
-                                           
-                                        </tbody>
-                                    </table>
+                                    <div class="menu-scroll-wrapper">
+                                        <table class="table table-bordered" id="detailMenuTable">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width:40px; text-align:center"></th>
+                                                    <th>Tên Menu</th>
+                                                    <th>Đường dẫn</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="detailMenuTableBody">
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
                         </div>

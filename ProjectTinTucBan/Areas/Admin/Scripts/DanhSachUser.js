@@ -63,7 +63,6 @@ $(document).ready(function () {
         $("#formButtons").show();
         $("#viewButtons").hide();
         $("#permissionButtons").hide();
-        $("#changePasswordSection").hide();
         $("#editOnlyFields").hide();
         $('#userModalTabs a[href="#info-content"]').tab('show');
         $("#UserForm")[0].reset();
@@ -75,27 +74,23 @@ $(document).ready(function () {
         $("#noFunctionsMessage").hide();
     });
 
-    // Sự kiện nút chỉnh sửa trong modal chi tiết (nút này sinh động)
-    $(document).off('click', '#btnEditFromView');
-    $(document).on('click', '#btnEditFromView', function (e) {
+    // Sự kiện nút chỉnh sửa trong modal chi tiết (dùng event delegation)
+    $("#UserModal").on("click", "#btnEditFromView", function (e) {
         e.preventDefault();
-        e.stopPropagation();
-        let userId = $(this).attr("data-id");
-        if (!userId || userId === "") {
-            userId = $("#userId").val();
-        }
-        if (!userId || userId === "") {
+        const UserID = $(this).data("id");
+        if (!UserID || UserID === "") {
             Sweet_Alert("error", "Không tìm thấy ID tài khoản để chỉnh sửa");
             return;
         }
-        switchToEditMode(userId);
+        openEditUserModal(UserID);
     });
 
+
     // Thiết lập tìm kiếm nâng cao
-    $(document).on('click', '#btnApplySearch', function () {
+    $("#btnApplySearch").on("click", function () {
         applyAdvancedSearch();
     });
-    $(document).on('click', '#btnResetSearch', function () {
+    $("#btnResetSearch").on("click", function () {
         resetAdvancedSearch();
     });
     $('#searchTenTaiKhoan, #searchTenNguoiDung, #searchRole, #searchIsBanned').on('keypress', function (e) {
@@ -105,31 +100,41 @@ $(document).ready(function () {
     });
 
     // Các nút động trong bảng (chi tiết, phân quyền, sửa, xóa)
-    $(document).on("click", ".btn-detail", function () {
+    $("#data-table").on("click", ".btn-detail", function () {
         const id = $(this).data("id");
         openViewUserModal(id);
     });
-    $(document).on("click", ".btn-permissions", function () {
+    $("#data-table").on("click", ".btn-permissions", function () {
         const id = $(this).data("id");
         const username = $(this).data("username");
         openPermissionsModal(id, username);
     });
-    $(document).on("click", ".btn-edit", function () {
+    $("#data-table").on("click", ".btn-edit", function () {
         const id = $(this).data("id");
         openEditUserModal(id);
     });
-    $(document).on("click", ".btn-delete", function () {
+    $("#data-table").on("click", ".btn-delete", function () {
         const id = $(this).data("id");
         deleteUser(id);
     });
 
     // Checkbox động trong bảng phân quyền
-    $(document).on("change", ".function-checkbox", function () {
+    $("#functionsTableBody").on("change", ".function-checkbox", function () {
         updateCheckAllState();
     });
     $("#checkAllFunctions").on("change", function () {
         const isChecked = $(this).prop("checked");
         $(".function-checkbox").prop("checked", isChecked);
+    });
+
+    // Sự kiện copy-on-click
+    $("#UserModal").on('click', '.copy-on-click', function () {
+        const value = $(this).text().trim();
+        if (value && value !== "N/A") {
+            navigator.clipboard.writeText(value).then(() => {
+                Sweet_Alert("success", "Đã copy: " + value, "top-end");
+            });
+        }
     });
 });
 
@@ -143,9 +148,10 @@ function loadRoles() {
         dataType: 'json',
         success: function (response) {
             if (response.success && response.data) {
+                rolesData = response.data;
                 let options = '<option value="">-- Chọn vai trò --</option>';
                 response.data.forEach(role => {
-                    options += `<option value="${role.ID}">${role.TenRole}</option>`;
+                    options += `<option value="${role.ID}">${escapeHtml(role.TenRole)}</option>`;
                 });
                 $("#ID_role").html(options);
                 $("#searchRole").html('<option value="">-- Tất cả vai trò --</option>' + options);
@@ -154,6 +160,33 @@ function loadRoles() {
     });
 }
 
+// Lấy ID người dùng từ đối tượng dữ liệu
+function getUserId(userData) {
+    // Thử các tên thuộc tính ID có thể có
+    const id = userData.ID || userData.Id || userData.id;
+
+    if (!id) {
+        return null;
+    }
+
+    return id;
+}
+
+// Cập nhật trạng thái checkbox "chọn tất cả"
+function updateCheckAllState() {
+    const totalCheckboxes = $("#functionsTableBody .function-checkbox").length;
+    const checkedCheckboxes = $("#functionsTableBody .function-checkbox:checked").length;
+
+    if (totalCheckboxes === 0) {
+        $("#checkAllFunctions").prop("checked", false);
+        return;
+    }
+
+    $("#checkAllFunctions").prop({
+        "checked": totalCheckboxes === checkedCheckboxes,
+        "indeterminate": checkedCheckboxes > 0 && checkedCheckboxes < totalCheckboxes
+    });
+}
 
 // Áp dụng tìm kiếm nâng cao
 function applyAdvancedSearch() {
@@ -282,16 +315,10 @@ async function load_data() {
                         {
                             data: 'TenTaiKhoan',
                             defaultContent,
-                            render: function (data, type, row) {
-                                return type === 'display' ? escapeHtml(data) : data;
-                            }
                         },
                         {
                             data: 'Name',
                             defaultContent,
-                            render: function (data, type, row) {
-                                return type === 'display' ? escapeHtml(data) : data;
-                            }
                         },
                         {
                             data: 'ID_role',
@@ -408,15 +435,11 @@ async function openViewUserModal(userId) {
             const userIdValue = user.ID || user.Id || user.id;
             $("#userId").val(userIdValue);
 
-            // Lấy tên vai trò
+            // Lấy tên vai trò từ biến rolesData đã có
             let roleName = "Không xác định";
-            try {
-                const roleResponse = await $.ajax({ url: '/api/v1/admin/Get-All-Roles', type: 'GET' });
-                if (roleResponse.success && roleResponse.data) {
-                    const role = roleResponse.data.find(r => r.ID === user.ID_role);
-                    roleName = role ? role.TenRole : "Không xác định";
-                }
-            } catch (error) { }
+            const role = rolesData.find(r => r.ID === user.ID_role);
+            roleName = role ? escapeHtml(role.TenRole) : "Không xác định";
+            $("#detailVaiTro").html(roleName);
 
             await waitMinLoading("#info-content");
             hideLoading("#info-content");
@@ -433,16 +456,8 @@ async function openViewUserModal(userId) {
             $("#detailTenTaiKhoan2").text(user.TenTaiKhoan || "N/A");
             $("#detailTenNguoiDung2").text(user.TenNguoiDung || user.Name || "N/A");
             $("#detailVaiTro").text(roleName);
-            $("#detailGmail").html(
-                user.Gmail
-                    ? `<a href="mailto:${user.Gmail}" class="text-primary"><i class="anticon anticon-mail mr-1"></i>${user.Gmail}</a>`
-                    : "N/A"
-            );
-            $("#detailSDT").html(
-                user.SDT
-                    ? `<a href="tel:${user.SDT}" class="text-primary"><i class="anticon anticon-phone mr-1"></i>${user.SDT}</a>`
-                    : "N/A"
-            );
+            $("#detailGmail").text(user.Gmail || "N/A");
+            $("#detailSDT").text(user.SDT || "N/A");
             let ngayTao = user.NgayTao || user.ngayTao;
             let ngayCapNhat = user.NgayCapNhat || user.ngayCapNhat;
             $("#detailNgayTao").text(ngayTao ? formatTimestamp(parseInt(ngayTao)) : "N/A");
@@ -507,79 +522,6 @@ async function openViewUserModal(userId) {
     } catch (error) {
         hideLoading("#info-content");
         Sweet_Alert("error", "Không thể tải thông tin tài khoản");
-    }
-}
-
-// Thay thế hàm switchToEditMode hiện tại bằng phiên bản được cải tiến này
-async function switchToEditMode(userId) {
-    try {
-        // Hiển thị loading
-        showLoading("#info-content");
-
-        // Đợi một chút để đảm bảo DOM cập nhật (nếu thực sự cần)
-        await new Promise(resolve => setTimeout(resolve, 100));
-
-        // Lấy dữ liệu người dùng
-        const response = await $.ajax({
-            url: `/api/v1/admin/Get-User-By-Id/${userId}`,
-            type: 'GET'
-        });
-
-        // Đảm bảo loading hiển thị tối thiểu 2s
-        await waitMinLoading("#info-content");
-        hideLoading("#info-content");
-
-        if (response.success && response.data) {
-            const user = response.data;
-
-            // Thiết lập giao diện cho chế độ chỉnh sửa
-            $(".form-fields").show();
-            $("#userDetails").hide();
-            $("#formButtons").show();
-            $("#viewButtons").hide();
-            $("#permissionButtons").hide();
-
-            // Hiển thị tab phân quyền
-            $("#permissions-tab-item").show();
-            $('#userModalTabs a[href="#info-content"]').tab('show');
-
-            // Cập nhật tiêu đề
-            $("#UserModalLabel").text("Cập nhật tài khoản");
-
-            // Thiết lập chế độ form và ID
-            $("#formMode").val("edit");
-            $("#userId").val(getUserId(user));
-            $("#permissionUserId").val(getUserId(user));
-            $("#permissionUserName").text(user.TenTaiKhoan || "");
-
-            // Điền thông tin vào các trường form
-            $("#tenTaiKhoan").val(user.TenTaiKhoan || "");
-            $("#tenNguoiDung").val(user.TenNguoiDung || user.Name || "");
-            $("#ID_role").val(user.ID_role || "");
-            $("#Gmail").val(user.Gmail || "");
-            $("#SDT").val(user.SDT || "");
-            $("#IsBanned").val(user.IsBanned || 0);
-
-            // Định dạng và hiển thị thời gian
-            let ngayTao = user.NgayTao || user.ngayTao;
-            let ngayCapNhat = user.NgayCapNhat || user.ngayCapNhat;
-            $("#NgayTao").val(ngayTao ? formatTimestamp(parseInt(ngayTao)) : "N/A");
-            $("#NgayCapNhat").val(ngayCapNhat ? formatTimestamp(parseInt(ngayCapNhat)) : "N/A");
-
-            // Hiển thị các phần chỉ dành cho chỉnh sửa
-            if ($("#editOnlyFields").length) $("#editOnlyFields").show();
-            if ($("#changePasswordSection").length) $("#changePasswordSection").show();
-            if ($("#newPasswordFields").length) $("#newPasswordFields").hide();
-            $("#changePasswordCheck").prop("checked", false);
-
-            // Tải dữ liệu phân quyền trong tab phân quyền
-            loadUserPermissionsData(userId);
-        } else {
-            Sweet_Alert("error", "Không tìm thấy thông tin tài khoản");
-        }
-    } catch (error) {
-        hideLoading("#info-content");
-        Sweet_Alert("error", "Không thể tải thông tin tài khoản: " + (error.message || "Lỗi không xác định"));
     }
 }
 
@@ -766,34 +708,68 @@ async function update_User_in_modal() {
         const sdt = $("#SDT").val().trim();
         const roleId = $("#ID_role").val();
         const isBanned = $("#IsBanned").val();
+        // Reset lỗi trước khi validate
+        $("#TenDangNhapError").text("Tên đăng nhập của tài khoản").removeClass("text-danger").addClass("text-muted");
+        $("#TenHienThiError").text("Tên hiển thị của người dùng").removeClass("text-danger").addClass("text-muted");
+        $("#GmailError").text("Địa chỉ Gmail liên kết").removeClass("text-danger").addClass("text-muted");
+        $("#roleError").text("Quyền hạn của tài khoản").removeClass("text-danger").addClass("text-muted");
+        $("#SDTError").text("Số điện thoại liên hệ").removeClass("text-danger").addClass("text-muted");
 
-        // Xác thực cơ bản
+        let hasError = false;
+
+        // Xác thực các trường bắt buộc
         if (!tenTaiKhoan) {
-            Sweet_Alert("error", "Vui lòng nhập tên tài khoản");
-            return;
+            $("#TenDangNhapError").text("Vui lòng nhập tên tài khoản").removeClass("text-muted").addClass("text-danger");
+            hasError = true;
+        } else if (tenTaiKhoan.length > 200) {
+            $("#TenDangNhapError").text("Tên tài khoản không được vượt quá 200 ký tự").removeClass("text-muted").addClass("text-danger");
+            hasError = true;
         }
 
         if (!tenNguoiDung) {
-            Sweet_Alert("error", "Vui lòng nhập tên người dùng");
-            return;
+            $("#TenHienThiError").text("Vui lòng nhập tên người dùng").removeClass("text-muted").addClass("text-danger");
+            hasError = true;
+        } else if (tenNguoiDung.length > 255) {
+            $("#TenHienThiError").text("Tên người dùng không được vượt quá 255 ký tự").removeClass("text-muted").addClass("text-danger");
+            hasError = true;
         }
 
         if (!email) {
-            Sweet_Alert("error", "Vui lòng nhập địa chỉ Gmail");
-            return;
+            $("#GmailError").text("Vui lòng nhập địa chỉ Gmail").removeClass("text-muted").addClass("text-danger");
+            hasError = true;
+        } else if (email.length > 255) {
+            $("#GmailError").text("Gmail không được vượt quá 255 ký tự").removeClass("text-muted").addClass("text-danger");
+            hasError = true;
         }
 
-        if (!roleId) {
-            Sweet_Alert("error", "Vui lòng chọn vai trò");
-            return;
+        if (!roleId || roleId === "") {
+            $("#roleError").text("Vui lòng chọn vai trò").removeClass("text-muted").addClass("text-danger");
+            hasError = true;
         }
 
-        // Xác thực email bằng regex
+        // Xác thực email
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            Sweet_Alert("error", "Định dạng Gmail không hợp lệ");
-            return;
+        if (email && !emailRegex.test(email)) {
+            $("#GmailError").text("Định dạng Gmail không hợp lệ").removeClass("text-muted").addClass("text-danger");
+            hasError = true;
         }
+
+        // Xác thực số điện thoại (nếu nhập)
+        if (!sdt) {
+            $("#SDTError").text("Vui lòng nhập số điện thoại").removeClass("text-muted").addClass("text-danger");
+            hasError = true;
+        } else if (sdt.length > 20) {
+            $("#SDTError").text("Số điện thoại không được vượt quá 20 ký tự").removeClass("text-muted").addClass("text-danger");
+            hasError = true;
+        } else {
+            const phoneRegex = /^[0-9]{8,20}$/;
+            if (!phoneRegex.test(sdt)) {
+                $("#SDTError").text("Số điện thoại chỉ gồm số và từ 8-20 ký tự").removeClass("text-muted").addClass("text-danger");
+                hasError = true;
+            }
+        }
+
+        if (hasError) return;
 
         // Vô hiệu hóa nút trong quá trình gọi API
         $("#btnSaveUser").prop('disabled', true);
@@ -804,38 +780,12 @@ async function update_User_in_modal() {
             ID: parseInt(userId),
             TenTaiKhoan: tenTaiKhoan,
             TenNguoiDung: tenNguoiDung,
-            Name: tenNguoiDung,  // Thêm trường này để đảm bảo Name cũng được cập nhật
+            Name: tenNguoiDung, 
             Gmail: email,
             SDT: sdt || null,
             ID_role: parseInt(roleId),
             IsBanned: parseInt(isBanned)
         };
-
-        // Thêm mật khẩu nếu đang thay đổi - Cải thiện phần này
-        if ($("#changePasswordCheck").is(":checked")) {
-            const password = $("#matKhauMoi").val();
-            const confirmPassword = $("#xacNhanMatKhauMoi").val();
-
-            if (!password) {
-                Sweet_Alert("error", "Vui lòng nhập mật khẩu mới");
-                $("#btnSaveUser").prop('disabled', false);
-                $("#btnSaveText").html('Cập nhật');
-                return;
-            }
-
-            if (password !== confirmPassword) {
-                Sweet_Alert("error", "Mật khẩu không khớp");
-                $("#btnSaveUser").prop('disabled', false);
-                $("#btnSaveText").html('Cập nhật');
-                return;
-            }
-
-            // Thử nhiều tên trường khác nhau để tăng khả năng tương thích với API
-            updateData.MatKhauMoi = password;
-            updateData.MatKhau = password;  // Thêm trường phổ biến
-            updateData.Password = password; // Thêm tên trường tiếng Anh
-            updateData.NewPassword = password; // Thêm tên trường tiếng Anh khác
-        }
         // Gọi API để cập nhật người dùng với timeout dài hơn
         const response = await $.ajax({
             url: '/api/v1/admin/Update-User',
@@ -844,9 +794,6 @@ async function update_User_in_modal() {
             data: JSON.stringify(updateData),
             timeout: 30000 // 30 giây timeout
         });
-
-
-
         // Kích hoạt lại nút
         $("#btnSaveUser").prop('disabled', false);
         $("#btnSaveText").html('Cập nhật');
@@ -936,21 +883,6 @@ async function openPermissionsModal(userId, username) {
     await loadUserPermissionsData(userId);
 }
 
-// Cập nhật trạng thái checkbox "chọn tất cả"
-function updateCheckAllState() {
-    const totalCheckboxes = $("#functionsTableBody .function-checkbox").length;
-    const checkedCheckboxes = $("#functionsTableBody .function-checkbox:checked").length;
-
-    if (totalCheckboxes === 0) {
-        $("#checkAllFunctions").prop("checked", false);
-        return;
-    }
-
-    $("#checkAllFunctions").prop({
-        "checked": totalCheckboxes === checkedCheckboxes,
-        "indeterminate": checkedCheckboxes > 0 && checkedCheckboxes < totalCheckboxes
-    });
-}
 
 // Lưu phân quyền người dùng - Cập nhật để sử dụng modal chung
 async function saveUserPermissions() {
@@ -1001,14 +933,3 @@ async function saveUserPermissions() {
     }
 }
 
-// Lấy ID người dùng từ đối tượng dữ liệu
-function getUserId(userData) {
-    // Thử các tên thuộc tính ID có thể có
-    const id = userData.ID || userData.Id || userData.id;
-
-    if (!id) {
-        return null;
-    }
-
-    return id;
-}

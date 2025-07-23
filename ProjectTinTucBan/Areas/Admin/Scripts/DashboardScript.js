@@ -59,7 +59,6 @@ $(document).ready(function () {
     
 });
 
-
 // Chartist rendering function
 function renderChartist(labels, data, type) {
     var defaultLabels = [], defaultData = [];
@@ -133,3 +132,12 @@ function renderChartist(labels, data, type) {
 
     $('#viewsChart').prepend('<div style="text-align:center;font-weight:bold;margin-bottom:10px;">' + title + '</div>');
 }
+
+
+$(function () {
+    // Chỉ gọi Sweet_Alert nếu cả hai giá trị đều tồn tại và không rỗng/null/undefined
+    if (window.sweetAlertType && window.sweetAlertMessage)
+    {
+        Sweet_Alert(window.sweetAlertType, window.sweetAlertMessage);
+    }
+});

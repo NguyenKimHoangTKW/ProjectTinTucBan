@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Web;
 using System.Web.Http;
+using ProjectTinTucBan.Models;
 
 namespace ProjectTinTucBan.Helper
 {
@@ -105,6 +106,23 @@ namespace ProjectTinTucBan.Helper
                 System.Diagnostics.Debug.WriteLine($"Error in IsUserLoggedIn: {ex.Message}");
             }
             return false;
+        }
+
+        public static void UpdateUserSession()
+        {
+            var sessionUser = GetUser();
+            if (sessionUser != null)
+            {
+                using (var db = new WebTinTucTDMUEntities())
+                {
+                    var dbUser = db.TaiKhoans.Find(sessionUser.ID);
+                    if (dbUser != null)
+                    {
+                        // Cập nhật lại thông tin user trong session
+                        HttpContext.Current.Session["User"] = dbUser;
+                    }
+                }
+            }
         }
     }
 }

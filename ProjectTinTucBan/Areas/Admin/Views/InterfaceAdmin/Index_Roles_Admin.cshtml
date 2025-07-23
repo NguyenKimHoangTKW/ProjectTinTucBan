@@ -15,14 +15,7 @@
         margin-bottom: 20px;
     }
 
-    .dataTables_wrapper .dataTables_filter input {
-        margin-left: 10px;
-        padding: 6px 10px;
-        border: 1px solid #e8e8e8;
-        border-radius: 4px;
-        min-width: 220px;
-    }
-
+  
     #data-table {
         width: 100%;
         border-collapse: collapse;
@@ -57,38 +50,70 @@
             text-align: center;
         }
 
-        #data-table tbody td:nth-child(4),
-        #data-table tbody td:nth-child(5) {
+        #data-table th:first-child,
+        #data-table td:first-child {
+            width: 36px;
+            min-width: 32px;
+            max-width: 40px;
             text-align: center;
         }
 
+        #data-table th:nth-child(2),
+        #data-table td:nth-child(2) {
+            width: 140px;
+            max-width: 160px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: left;
+        }
 
-            #data-table th:nth-child(4),
-            #data-table td:nth-child(4),
-            #data-table th:nth-child(5),
-            #data-table td:nth-child(5) {
-                width: 12.5%;
-            }
+        #data-table th:nth-child(3),
+        #data-table td:nth-child(3) {
+            width: 200px;
+            max-width: 220px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: left;
+        }
+
+        #data-table th:nth-child(4),
+        #data-table td:nth-child(4),
+        #data-table th:nth-child(5),
+        #data-table td:nth-child(5) {
+            width: 140px;
+            max-width: 160px;
+            text-align: center;
+        }
+
+        #data-table th:last-child,
+        #data-table td:last-child {
+            width: 120px;
+            min-width: 100px;
+            max-width: 140px;
+            text-align: center;
+        }
 
             /* Chống tràn cho cột Tên quyền */
-            #data-table th:nth-child(2),
-            #data-table td:nth-child(2) {
-                max-width: 180px;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                text-align: left;
-            }
+        #data-table th:nth-child(2),
+        #data-table td:nth-child(2) {
+            max-width: 120px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: left;
+        }
 
             /* Chống tràn cho cột Mô tả */
-            #data-table th:nth-child(3),
-            #data-table td:nth-child(3) {
-                max-width: 220px;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                text-align: left;
-            }
+        #data-table th:nth-child(3),
+        #data-table td:nth-child(3) {
+            max-width: 120px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: left;
+        }
     /* ===== ACTION BUTTONS ===== */
     .btn-action {
         width: 40px;
@@ -201,14 +226,7 @@
         margin-top: 10px;
     }
 
-        .dataTables_paginate .paginate_button {
-            padding: 5px 10px;
-            margin: 0 2px;
-            border: 1px solid #e8e8e8;
-            border-radius: 4px;
-            background: white;
-            cursor: pointer;
-        }
+
 
             .dataTables_paginate .paginate_button.current {
                 background-color: #5a8dee;
@@ -353,21 +371,19 @@
                 <form id="RolesForm">
                     <input type="hidden" id="roleId" value="" />
                     <input type="hidden" id="formMode" value="add" /> <!-- 'add' hoặc 'edit' -->
-                    <!-- Form for Add/Edit modes -->
+                    <!-- Form for Add/View/Edit modes -->
                     <div class="form-fields">
                         <div class="form-group">
                             <label for="tenRole">Tên quyền <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="tenRole" name="tenRole" placeholder="Nhập tên quyền admin" required>
-                            <small class="form-text text-muted">Tên quyền trong hệ thống</small>
+                            <small id="tenRoleError" class="form-text text-muted">Tên quyền trong hệ thống</small>
                         </div>
 
                         <div class="form-group">
                             <label for="moTa">Mô tả <span class="text-danger">*</span></label>
                             <textarea class="form-control" id="moTa" name="moTa" rows="3" placeholder="Nhập mô tả quyền admin" required></textarea>
-                            <small class="form-text text-muted">Mô tả chi tiết về quyền này</small>
+                            <small id="moTaError" class="form-text text-muted">Mô tả chi tiết về quyền này</small>
                         </div>
-
-                        <!-- Chỉ hiển thị khi ở chế độ sửa -->
                         <div id="editOnlyFields" style="display:none">
                             <div class="form-group">
                                 <label>Thông tin thời gian</label>
@@ -382,30 +398,6 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Detail view for View mode -->
-                    <div id="roleDetails" style="display:none;">
-                        <div class="detail-group">
-                            <label>ID:</label>
-                            <p id="viewRoleId" class="detail-value"></p>
-                        </div>
-                        <div class="detail-group">
-                            <label>Tên quyền:</label>
-                            <p id="viewTenRole" class="detail-value"></p>
-                        </div>
-                        <div class="detail-group">
-                            <label>Mô tả:</label>
-                            <p id="viewMoTa" class="detail-value"></p>
-                        </div>
-                        <div class="detail-group">
-                            <label>Ngày tạo:</label>
-                            <p id="viewNgayTao" class="detail-value"></p>
-                        </div>
-                        <div class="detail-group">
-                            <label>Ngày cập nhật:</label>
-                            <p id="viewNgayCapNhat" class="detail-value"></p>
                         </div>
                     </div>
                 </form>

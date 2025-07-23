@@ -1,10 +1,16 @@
-﻿function Sweet_Alert(icon, title) {
+﻿function Sweet_Alert(icon, title, position) {
+    if (!position) position = "center";
     Swal.fire({
-        position: "center",
+        position: position,
         icon: icon,
         title: title,
+        toast: position !== "center", 
         showConfirmButton: false,
-        timer: 2500
+        timer: 2500,
+        timerProgressBar: position !== "center",
+        customClass: {
+            popup: position !== "center" ? 'swal2-toast-custom' : ''
+        }
     });
 }
 
