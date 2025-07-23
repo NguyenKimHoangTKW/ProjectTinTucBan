@@ -111,15 +111,15 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     .Where(v => v.NgayTao >= unixStartOfYear && v.NgayTao < unixNow)
                     .SumAsync(v => (int?)v.TotalAmount) ?? 0;
 
-                // Tổng số bản ghi VisitorLogs (nếu cần hiển thị)
-                int totalLogs = await db.VisitorLogs.CountAsync();
+                // Tổng số bản ghi Bài viết
+                int TotalArticles = db.BaiViets.Count();
 
                 var result = new
                 {
                     DayViews = dayViews,
                     MonthViews = monthViews,
                     YearViews = yearViews,
-                    TotalLogs = totalLogs
+                    TotalArticles = TotalArticles
                 };
                 #endregion
 
@@ -401,22 +401,33 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 var data = new List<int>();
                 string typeUsed = "";
 
+                // Xác định múi giờ chuẩn (GMT+7)
+                var timeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
                 if (from.HasValue && to.HasValue)
                 {
-                    var fromDate = DateTimeOffset.FromUnixTimeSeconds(from.Value).UtcDateTime;
-                    var toDate = DateTimeOffset.FromUnixTimeSeconds(to.Value).UtcDateTime;
-                    var totalDays = (toDate - fromDate).TotalDays;
+                    // Chuyển timestamp sang local time, rồi lấy Date
+                    var fromDateLocal = TimeZoneInfo.ConvertTimeFromUtc(
+                        DateTimeOffset.FromUnixTimeSeconds(from.Value).UtcDateTime, timeZone
+                    ).Date;
+
+                    var toDateLocal = TimeZoneInfo.ConvertTimeFromUtc(
+                        DateTimeOffset.FromUnixTimeSeconds(to.Value).UtcDateTime, timeZone
+                    ).Date;
+
+                    var totalDays = (toDateLocal - fromDateLocal).TotalDays;
 
                     if (totalDays <= 1)
                     {
                         typeUsed = "hourly";
                         for (int h = 0; h < 24; h++)
                         {
-                            var hourStart = fromDate.Date.AddHours(h);
-                            var hourEnd = hourStart.AddHours(1);
+                            var hourStartLocal = fromDateLocal.AddHours(h);
+                            var hourStartUtc = TimeZoneInfo.ConvertTimeToUtc(hourStartLocal, timeZone);
+                            var hourEndUtc = hourStartUtc.AddHours(1);
 
-                            int unixStart = (int)((DateTimeOffset)hourStart).ToUnixTimeSeconds();
-                            int unixEnd = (int)((DateTimeOffset)hourEnd).ToUnixTimeSeconds();
+                            int unixStart = (int)((DateTimeOffset)hourStartUtc).ToUnixTimeSeconds();
+                            int unixEnd = (int)((DateTimeOffset)hourEndUtc).ToUnixTimeSeconds();
 
                             int viewCount = db.VisitorLogs
                                 .Where(v => v.NgayTao >= unixStart && v.NgayTao < unixEnd)
@@ -429,13 +440,13 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     else if (totalDays <= 31)
                     {
                         typeUsed = "daily";
-                        for (var d = fromDate.Date; d <= toDate.Date; d = d.AddDays(1))
+                        for (var d = fromDateLocal; d <= toDateLocal; d = d.AddDays(1))
                         {
-                            var dayStart = d;
-                            var dayEnd = d.AddDays(1);
+                            var dayStartUtc = TimeZoneInfo.ConvertTimeToUtc(d, timeZone);
+                            var dayEndUtc = dayStartUtc.AddDays(1);
 
-                            int unixStart = (int)((DateTimeOffset)dayStart).ToUnixTimeSeconds();
-                            int unixEnd = (int)((DateTimeOffset)dayEnd).ToUnixTimeSeconds();
+                            int unixStart = (int)((DateTimeOffset)dayStartUtc).ToUnixTimeSeconds();
+                            int unixEnd = (int)((DateTimeOffset)dayEndUtc).ToUnixTimeSeconds();
 
                             int viewCount = db.VisitorLogs
                                 .Where(v => v.NgayTao >= unixStart && v.NgayTao < unixEnd)
@@ -448,16 +459,16 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     else
                     {
                         typeUsed = "monthly";
-                        var current = new DateTime(fromDate.Year, fromDate.Month, 1);
-                        var end = new DateTime(toDate.Year, toDate.Month, 1);
+                        var current = new DateTime(fromDateLocal.Year, fromDateLocal.Month, 1);
+                        var end = new DateTime(toDateLocal.Year, toDateLocal.Month, 1);
 
                         while (current <= end)
                         {
-                            var monthStart = current;
-                            var monthEnd = current.AddMonths(1);
+                            var monthStartUtc = TimeZoneInfo.ConvertTimeToUtc(current, timeZone);
+                            var monthEndUtc = monthStartUtc.AddMonths(1);
 
-                            int unixStart = (int)((DateTimeOffset)monthStart).ToUnixTimeSeconds();
-                            int unixEnd = (int)((DateTimeOffset)monthEnd).ToUnixTimeSeconds();
+                            int unixStart = (int)((DateTimeOffset)monthStartUtc).ToUnixTimeSeconds();
+                            int unixEnd = (int)((DateTimeOffset)monthEndUtc).ToUnixTimeSeconds();
 
                             int viewCount = db.VisitorLogs
                                 .Where(v => v.NgayTao >= unixStart && v.NgayTao < unixEnd)
@@ -476,11 +487,12 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     int daysInMonth = DateTime.DaysInMonth(year.Value, month.Value);
                     for (int d = 1; d <= daysInMonth; d++)
                     {
-                        var dayStart = new DateTime(year.Value, month.Value, d, 0, 0, 0, DateTimeKind.Utc);
-                        var dayEnd = dayStart.AddDays(1);
+                        var localDate = new DateTime(year.Value, month.Value, d, 0, 0, 0);
+                        var dayStartUtc = TimeZoneInfo.ConvertTimeToUtc(localDate, timeZone);
+                        var dayEndUtc = dayStartUtc.AddDays(1);
 
-                        int unixStart = (int)((DateTimeOffset)dayStart).ToUnixTimeSeconds();
-                        int unixEnd = (int)((DateTimeOffset)dayEnd).ToUnixTimeSeconds();
+                        int unixStart = (int)((DateTimeOffset)dayStartUtc).ToUnixTimeSeconds();
+                        int unixEnd = (int)((DateTimeOffset)dayEndUtc).ToUnixTimeSeconds();
 
                         int viewCount = db.VisitorLogs
                             .Where(v => v.NgayTao >= unixStart && v.NgayTao < unixEnd)
@@ -495,11 +507,12 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     typeUsed = "monthly-in-year";
                     for (int m = 1; m <= 12; m++)
                     {
-                        var monthStart = new DateTime(year.Value, m, 1, 0, 0, 0, DateTimeKind.Utc);
-                        var monthEnd = monthStart.AddMonths(1);
+                        var localDate = new DateTime(year.Value, m, 1, 0, 0, 0);
+                        var monthStartUtc = TimeZoneInfo.ConvertTimeToUtc(localDate, timeZone);
+                        var monthEndUtc = monthStartUtc.AddMonths(1);
 
-                        int unixStart = (int)((DateTimeOffset)monthStart).ToUnixTimeSeconds();
-                        int unixEnd = (int)((DateTimeOffset)monthEnd).ToUnixTimeSeconds();
+                        int unixStart = (int)((DateTimeOffset)monthStartUtc).ToUnixTimeSeconds();
+                        int unixEnd = (int)((DateTimeOffset)monthEndUtc).ToUnixTimeSeconds();
 
                         int viewCount = db.VisitorLogs
                             .Where(v => v.NgayTao >= unixStart && v.NgayTao < unixEnd)

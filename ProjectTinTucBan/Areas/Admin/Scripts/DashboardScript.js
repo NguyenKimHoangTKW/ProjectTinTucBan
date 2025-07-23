@@ -118,8 +118,8 @@ $(document).ready(function () {
     $('#btn-apply-filter').on('click', function () {
         const year = $('#filter-year').val();
         const month = $('#filter-month').val();
-        const fromDay = $('#filter-from').val();
-        const toDay = $('#filter-to').val();
+        let fromDay = $('#filter-from').val();
+        let toDay = $('#filter-to').val();
 
         if (!year && !month && !fromDay && !toDay) {
             Sweet_Alert('warning', 'Vui lòng nhập khoảng thời gian cần hiển thị vào bộ lọc.');
@@ -131,20 +131,20 @@ $(document).ready(function () {
             Sweet_Alert('warning', 'Ngày bắt đầu không được lớn hơn ngày kết thúc.');
             return;
         }
-        if (fromDay && fromDay <= 0) {
+        if (fromDay && Number(fromDay) <= 0) {
             Sweet_Alert('warning', 'Ngày bắt đầu không được nhỏ hơn 1.');
             return;
         }
-        if (toDay && toDay <= 0) {
+        if (toDay && Number(toDay) <= 0) {
             Sweet_Alert('warning', 'Ngày kết thúc không được nhỏ hơn 1.');
             return;
         }
         const daysInCurrentMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
-        if (toDay && toDay > daysInCurrentMonth) {
+        if (toDay && Number(toDay) > daysInCurrentMonth) {
             Sweet_Alert('warning', 'Ngày kết thúc không được lớn hơn số ngày trong tháng.');
             return;
-            
         }
+
         const params = new URLSearchParams();
 
         if (year) params.append('year', year);
@@ -182,6 +182,7 @@ $(document).ready(function () {
             Sweet_Alert('error', 'Không thể áp dụng bộ lọc hoặc tải dữ liệu.');
         });
     });
+
 
     
 
@@ -276,7 +277,7 @@ $(document).ready(function () {
 
 // Chartist rendering function
 
-function renderChartist(labels, data, type) {
+function renderChartist(labels, data, type,title) {
     var defaultLabels = [], defaultData = [];
 
     if (!labels || labels.length === 0) {
@@ -284,21 +285,26 @@ function renderChartist(labels, data, type) {
             defaultLabels = Array.from({ length: 24 }, (_, i) => i.toString());
             defaultData = Array(24).fill(0);
         } else if (type === 'month') {
-            defaultLabels = Array.from({ length: 31 }, (_, i) => (i + 1).toString());
+            defaultLabels = Array.from({ length: 31 }, (_, i) => (i).toString());
             defaultData = Array(31).fill(0);
         } else if (type === 'year') {
-            defaultLabels = Array.from({ length: 12 }, (_, i) => (i + 1).toString());
+            defaultLabels = Array.from({ length: 12 }, (_, i) => (i).toString());
             defaultData = Array(12).fill(0);
         }
         labels = defaultLabels;
         data = defaultData;
-    }
-
+    } /*else {
+        labels = labels.map(label => {
+            const num = parseInt(label, 10);
+            return (!isNaN(num) ? (num + 1).toString() : label);
+        });
+    }*/
+    /*
     var title = '';
     if (type === 'day') title = 'Lượt xem theo giờ trong ngày';
     if (type === 'month') title = 'Lượt xem theo ngày trong tháng';
     if (type === 'year') title = 'Lượt xem theo tháng trong năm';
-
+    */
     // Xóa nội dung cũ
     $('#viewsChart').html('').css('height', '300px');
     $('#viewsChart').prepend('<div style="text-align:center;font-weight:bold;margin-bottom:10px;">' + title + '</div>');
@@ -403,15 +409,12 @@ function updateChart() {
             title = `Lượt xem theo tháng từ ${fromDay}/${month}/${year} đến ${toDay}/${month}/${year}`;
         }
     }
-    else {
-        return;
-    }
 
     // Gửi API
     $.getJSON(`${apiUrl}&${params.toString()}`, function (res) {
-        const { labels, data, typeUsed } = res;
+        let { labels, data, typeUsed } = res;
 
-        // Nếu API trả typeUsed, ưu tiên lấy title từ typeUsed
+        // Xác định title và type từ typeUsed
         if (typeUsed) {
             if (typeUsed === 'hourly') {
                 type = 'day';
@@ -419,6 +422,21 @@ function updateChart() {
             } else if (typeUsed === 'daily') {
                 type = 'month';
                 title = `Lượt xem theo ngày từ ${fromDay}/${month}/${year} đến ${toDay}/${month}/${year}`;
+                /*
+                // Sửa lỗi label đầu tiên bị lệch (ví dụ: '30')
+                const from = parseInt(fromDay, 10);
+                const to = parseInt(toDay, 10);
+                labels = labels.map(l => parseInt(l, 10)); // parse sang số
+
+                // Nếu label đầu tiên < from hoặc > to thì loại bỏ
+                if (labels[0] < from || labels[0] > to) {
+                    labels.shift();
+                    data.shift();
+                }
+
+                // Chuyển lại về chuỗi
+                labels = labels.map(l => l.toString());
+                */
             } else if (typeUsed === 'monthly') {
                 type = 'year';
                 title = `Lượt xem theo tháng trong năm ${year}`;
@@ -428,4 +446,5 @@ function updateChart() {
         $('#chartContainer').show();
         renderChartist(labels, data, type, title);
     });
+
 }
