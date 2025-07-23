@@ -812,7 +812,6 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("get-user-menus")]
         public IHttpActionResult GetUserMenus()
         {
-            var user = SessionHelper.GetUser();
             try
             {
                 var user = SessionHelper.GetUser(); // Lấy user từ session

@@ -26,44 +26,57 @@ function formatTimestamp(unixTimestamp) {
         return formattedDate;
     }
 
-    function showLoading(selector, message = "Đang tải dữ liệu...") {
-        const container = $(selector);
-        if (!container.length) return;
+function showLoading(selector, message = "Đang tải dữ liệu...") {
+    const container = $(selector);
+    if (!container.length) return;
 
-        // Lưu nội dung gốc trước khi thay thế
-        container.data('original-content', container.html());
+    // Lưu nội dung gốc trước khi thay thế
+    container.data('original-content', container.html());
 
-        // Hiển thị chỉ báo loading
-        container.html(`
-            <div class="text-center my-4">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="sr-only">Loading...</span>
-                </div>
-                <p class="mt-2">${message}</p>
+    // Lưu thời điểm bắt đầu loading
+    container.data('loading-start', Date.now());
+
+    // Hiển thị chỉ báo loading
+    container.html(`
+        <div class="text-center my-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Loading...</span>
             </div>
-        `);
-    }
+            <p class="mt-2">${message}</p>
+        </div>
+    `);
+}
 
-    
-    function hideLoading(selector, newContent = null) {
-        const container = $(selector);
-        if (!container.length) return;
+// Hàm chờ tối thiểu 2s kể từ khi showLoading
+function waitMinLoading(selector, minMs = 2000) {
+    const container = $(selector);
+    const start = container.data('loading-start') || Date.now();
+    const elapsed = Date.now() - start;
+    return new Promise(resolve => {
+        if (elapsed >= minMs) resolve();
+        else setTimeout(resolve, minMs - elapsed);
+    });
+}
 
-        if (newContent !== null) {
-            // Nếu có nội dung mới, hiển thị nó
-            container.html(newContent);
-        } else {
-            // Khôi phục nội dung gốc nếu có
-            const originalContent = container.data('original-content');
-            if (originalContent) {
-                container.html(originalContent);
-            }
+function hideLoading(selector, newContent = null) {
+    const container = $(selector);
+    if (!container.length) return;
+
+    if (newContent !== null) {
+        // Nếu có nội dung mới, hiển thị nó
+        container.html(newContent);
+    } else {
+        // Khôi phục nội dung gốc nếu có
+        const originalContent = container.data('original-content');
+        if (originalContent) {
+            container.html(originalContent);
         }
-
-        // Xóa dữ liệu đã lưu
-        container.removeData('original-content');
     }
 
+    // Xóa dữ liệu đã lưu
+    container.removeData('original-content');
+    container.removeData('loading-start');
+}
 
     const dataTableDefaults = {
         pageLength: 5,

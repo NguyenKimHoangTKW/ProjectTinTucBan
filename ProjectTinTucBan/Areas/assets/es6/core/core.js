@@ -52,6 +52,7 @@ export default class Core {
 	pfScrollBar() {
 		$('.scrollable').perfectScrollbar();
 	}
+
 	*/
 	tooltipInit() {
 		$('[data-toggle="tooltip"]').tooltip()

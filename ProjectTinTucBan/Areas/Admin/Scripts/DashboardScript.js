@@ -136,25 +136,8 @@ $(document).ready(function () {
         if (fromTs) params.append('from', fromTs);
         if (toTs) params.append('to', toTs);
 
-        $.getJSON(`${BASE_URL}/dashboard-filter/chart?type=range&${params.toString()}`, function (res) {
-            const { labels, data } = res;
-
-            let type = 'year';
-            const diffDays = (toTs - fromTs) / (60 * 60 * 24);
-            if (year && month) {
-                type = 'month';
-            }
-            if (diffDays <= 1) {
-                type = 'day';
-            } else if (diffDays <= 31) {
-                type = 'month';
-            }
-
-            $('#chartContainer').show();
-            updateChart(labels, data, type);
-        }).fail(function () {
-            Sweet_Alert('error', 'Không thể áp dụng bộ lọc hoặc tải dữ liệu.');
-        });
+        $('#chartContainer').show();
+        updateChart();
     });
 
 
@@ -180,37 +163,19 @@ $(document).ready(function () {
     }
 
     $('#baiviet').on('click', function () {
+        const container = '#showtarget';
         $('#chartContainer').hide();
         $('#showtarget').empty();
 
         loadMucLucs(() => {
-            $('#showtarget').html(`
-                <div class="table-responsive p-3">
-                    <div class="card-body" id="baiviet-header" style="text-align: center;">
-                        <h5>Top 10 bài viết nhiều lượt xem trong tháng</h5>
-                    </div>
-                    <table id="table_load_baiviet" class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th class="d-none">ID</th>
-                                <th class="text-center">STT</th>
-                                <th class="text-center">Tiêu đề</th>
-                                <th class="text-center">Mục lục</th>
-                                <th class="text-center">Ngày đăng</th>
-                                <th class="text-center">Ngày cập nhật</th>
-                                <th class="text-center">Thumbnail</th>
-                                <th class="text-center">Lượt xem</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            `);
+            
 
             $.ajax({
                 url: `${BASE_URL}/top10-baiviet-thang`,
                 method: 'GET',
-                success: function (data) {
+                success: async function (data) {
+                    await waitMinLoading(container);
+                    hideLoading(container);
                     if (!data || data.length === 0) {
                         $('#table_load_baiviet tbody').html('<tr><td colspan="11" class="text-center text-muted">Không có bài viết nào.</td></tr>');
                         return;
@@ -240,11 +205,36 @@ $(document).ready(function () {
 
                     $('#table_load_baiviet tbody').html(html);
                 },
-                error: function () {
+                error: async function () {
+                    await waitMinLoading(container);
+                    hideLoading(container);
                     Sweet_Alert('error', 'Không thể tải dữ liệu bài viết.');
                     $('#table_load_baiviet tbody').html('<tr><td colspan="11" class="text-center text-danger">Lỗi khi tải dữ liệu</td></tr>');
                 }
+
             });
+            $('#showtarget').html(`
+                <div class="table-responsive p-3">
+                    <div class="card-body" id="baiviet-header" style="text-align: center;">
+                        <h5>Top 10 bài viết nhiều lượt xem trong tháng</h5>
+                    </div>
+                    <table id="table_load_baiviet" class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th class="d-none">ID</th>
+                                <th class="text-center">STT</th>
+                                <th class="text-center">Tiêu đề</th>
+                                <th class="text-center">Mục lục</th>
+                                <th class="text-center">Ngày đăng</th>
+                                <th class="text-center">Ngày cập nhật</th>
+                                <th class="text-center">Thumbnail</th>
+                                <th class="text-center">Lượt xem</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            `);
         });
     });
 });
@@ -374,11 +364,16 @@ function updateChart() {
     }
 
     // Gửi API
-    $.getJSON(`${apiUrl}&${params.toString()}`, function (res) {
-        let { labels, data, typeUsed } = res;
+    const chartSelector = "#chartContainer";
+    showLoading(chartSelector);
 
-        // Xác định title và type từ typeUsed
-        if (typeUsed) {
+    $.getJSON(`${BASE_URL}/dashboard-filter/chart?type=range&${params.toString()}`)
+        .done(async function (res) {
+            const { labels, data, typeUsed } = res;
+
+            let type = 'year';
+            let title = 'Thống kê lượt xem';
+
             if (typeUsed === 'hourly') {
                 type = 'day';
                 title = `Lượt xem theo giờ trong ngày ${fromDay}/${month}/${year}`;
@@ -389,10 +384,17 @@ function updateChart() {
                 type = 'year';
                 title = `Lượt xem theo tháng trong năm ${year}`;
             }
-        }
 
-        $('#chartContainer').show();
-        renderChartist(labels, data, type, title);
-    });
+            await waitMinLoading(chartSelector);
+            hideLoading(chartSelector);
+            renderChartist(labels, data, type, title);
+            $(chartSelector).show();
+        })
+        .fail(async function () {
+            await waitMinLoading(chartSelector);
+            hideLoading(chartSelector);
+            Sweet_Alert('error', 'Không thể áp dụng bộ lọc hoặc tải dữ liệu.');
+        });
+
 
 }
