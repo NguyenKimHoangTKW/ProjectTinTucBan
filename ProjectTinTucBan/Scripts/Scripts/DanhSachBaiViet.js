@@ -6,15 +6,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const mucIdFromView = dataEl?.dataset.mucid ?? "0";
     const mucTen = dataEl?.dataset.mucten ?? "";
-
-    console.log("Mục ID:", mucIdFromView);
-    console.log("Mục Tên:", mucTen);
-
-    // Tiếp tục xử lý với mucIdFromView và mucTen
+    window.mucIdFromView = mucIdFromView;
+    window.mucTen = mucTen;
 });
 
 $(document).ready(function () {
-    
     // 👉 Lấy danh sách slider banner
     $.ajax({
         url: "/api/v1/home/get-slider",
@@ -30,26 +26,30 @@ $(document).ready(function () {
             });
             $("#slider-container").html(html);
 
-            //  Khởi tạo slider sau khi thêm vào DOM
-            setTimeout(() => {
-                new Swiper(".mySwiper", {
-                    loop: true,
-                    autoplay: { delay: 3000, disableOnInteraction: false },
-                    navigation: { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" }
-                });
-            }, 0);
+            // Khởi tạo Swiper sau khi DOM cập nhật
+            new Swiper(".mySwiper", {
+                loop: true,
+                autoplay: { delay: 3000, disableOnInteraction: false },
+                navigation: {
+                    nextEl: ".swiper-button-next",
+                    prevEl: ".swiper-button-prev"
+                },
+                pagination: {
+                    el: ".swiper-pagination",
+                    clickable: true
+                }
+            });
         },
         error: function () {
             $("#slider-container").html(`
-            <div class="swiper-slide flex items-center justify-center text-center h-[400px]">
-                <p class="text-red-500 text-xl">Lỗi khi tải banner</p>
-            </div>
-        `);
+                <div class="swiper-slide flex items-center justify-center text-center h-[400px]">
+                    <p class="text-red-500 text-xl">Lỗi khi tải banner</p>
+                </div>
+            `);
         }
     });
 
-
-    //  Lấy dữ liệu mục lục và bài viết tương ứng theo ID
+    // 👉 Lấy dữ liệu mục lục và bài viết tương ứng theo mucIdFromView
     $.ajax({
         url: "/api/v1/home/get-mucluc-with-baiviet",
         type: "GET",
@@ -60,15 +60,16 @@ $(document).ready(function () {
                 return;
             }
 
-            const muc = res.data.find(m => m.ID === mucId);
+            const muc = res.data.find(m => m.ID === parseInt(window.mucIdFromView));
             if (!muc || !muc.BaiViets || muc.BaiViets.length === 0) {
                 $("#tinTucList").html("<p class='col-span-3 text-center text-gray-500'>Không có bài viết nào trong mục này.</p>");
+                $("#btnXemThem, #btnAnBot, #btnXemTatCa").hide();
                 return;
             }
 
             window.mucTen = muc.Ten;
             $("#tenMucLuc").text((muc.TenMucLuc || "Không rõ").toUpperCase());
-            renderBreadcrumb(muc.TenMucLuc); //  Tạo breadcrumb
+            renderBreadcrumb(muc.TenMucLuc);
 
             allPosts = muc.BaiViets;
 
@@ -79,10 +80,10 @@ $(document).ready(function () {
             if (isThongBao) {
                 renderThongBao();
             } else if (isDanhSachMuc && isSuKien) {
-                renderAllPosts(); // Nếu là trang danh sách sự kiện => hiện hết
+                renderAllPosts();
                 $("#btnXemThem, #btnAnBot, #btnXemTatCa").hide();
             } else {
-                renderPosts(); //  Ngược lại, render thường
+                renderPosts();
             }
         },
         error: function () {
@@ -90,26 +91,21 @@ $(document).ready(function () {
         }
     });
 
-    //  Sự kiện nút "XEM THÊM"
+    // 👉 Nút "XEM THÊM"
     $("#btnXemThem").on("click", function () {
         currentPage++;
         renderPosts();
     });
 
-    //  Sự kiện: Xem tất cả
+    // 👉 Nút "XEM TẤT CẢ"
     $("#btnXemTatCa").on("click", function (e) {
         e.preventDefault();
-
-        //  Xóa từ khóa tìm kiếm
         $("#searchInput").val("");
-
-        //  Reset danh sách về toàn bộ
         $("#tinTucList").html("");
         renderAllPosts();
 
-        //  Hiển thị lại các nút phù hợp
-        if (isDanhSachMuc && isSuKien) {
-            $("#btnXemThem, #btnAnBot, #btnXemTatCa").hide(); // ẩn hết nếu là trang danh sách sự kiện
+        if (isDanhSachMuc && window.isSuKien) {
+            $("#btnXemThem, #btnAnBot, #btnXemTatCa").hide();
         } else {
             $("#btnXemThem").hide();
             $("#btnAnBot").removeClass("hidden");
@@ -118,7 +114,7 @@ $(document).ready(function () {
         $("#btnXemTatCa").hide();
     });
 
-    //  Sự kiện nút "ẨN BỚT"
+    // 👉 Nút "ẨN BỚT"
     $("#btnAnBot").on("click", function () {
         currentPage = 1;
         $("#tinTucList").html("");
@@ -127,23 +123,18 @@ $(document).ready(function () {
         $("#btnXemThem").show();
     });
 
-    //  Tìm kiếm khi nhập chữ
-    //  Tìm kiếm khi nhập chữ có hiệu ứng loading
+    // 👉 Tìm kiếm bài viết
     $("#searchInput").on("input", function () {
         const keyword = $(this).val().trim().toLowerCase();
 
-        //  Show loading ngay trong khung danh sách bài viết
         $("#tinTucList").html(`
-        <div class="col-span-3 text-center py-6">
-            <div class="loader mx-auto mb-2"></div>
-            <p class="text-gray-500">Đang tìm kiếm bài viết...</p>
-        </div>
-    `);
-
-        // Ẩn nút "Xem tất cả" trong lúc tìm kiếm
+            <div class="col-span-3 text-center py-6">
+                <div class="loader mx-auto mb-2"></div>
+                <p class="text-gray-500">Đang tìm kiếm bài viết...</p>
+            </div>
+        `);
         $("#btnXemTatCa").hide();
 
-        //  Xử lý sau 300ms
         setTimeout(() => {
             if (keyword === "") {
                 currentPage = 1;
@@ -166,7 +157,7 @@ $(document).ready(function () {
             );
             if (filtered.length === 0) {
                 $("#tinTucList").html("<p class='text-center text-gray-500'>Không tìm thấy bài viết phù hợp.</p>");
-                $("#btnXemThem, #btnAnBot, #btnXemTatCa").hide(); //  Thêm #btnXemTatCa vào đây
+                $("#btnXemThem, #btnAnBot, #btnXemTatCa").hide();
             } else {
                 renderFilteredPosts(filtered);
                 $("#btnXemThem").hide();
@@ -174,10 +165,6 @@ $(document).ready(function () {
             }
         }, 300);
     });
-
-
-
-    //  Tìm kiếm khi nhấn Enter
 });
 
 //  Reload trang khi quay lại từ cache (tránh hiển thị dữ liệu cũ)
@@ -246,6 +233,13 @@ function formatDate(unixTimestamp) {
     const year = date.getFullYear();
     return `${day}/${month}/${year}`;
 }
+function isNewPost(ngayDang) {
+    if (!ngayDang) return false;
+    const now = Date.now();
+    const postTime = ngayDang * 1000;
+    const twoDays = 2 * 24 * 60 * 60 * 1000;
+    return now - postTime <= twoDays;
+}
 
 //Hiển thị tất cả bài viết
 function renderAllPosts() {
@@ -263,8 +257,11 @@ function renderAllPosts() {
     <div class="p-4 flex flex-col flex-1">
         <div class="mt-auto">
             <p class="text-sm text-gray-500"><i class="fa-regular fa-calendar-days mr-1"></i>${date}</p>
-            <a href="/noi-dung/${post.ID}" class="text-base font-semibold text-gray-800 hover:text-blue-600 leading-snug line-clamp-2 mt-1">${tieuDe}</a>
-        </div>
+           <a href="/noi-dung/${post.ID}" class="text-base font-semibold text-gray-800 hover:text-blue-600 leading-snug line-clamp-2 mt-1">
+    ${tieuDe}
+    ${isNewPost(post.NgayDang) ? '<span class="ml-2 text-red-500 text-xs font-medium">🆕 Mới cập nhật</span>' : ''}
+</a>
+</div>
     </div>
 </div>`;
     });
@@ -295,8 +292,11 @@ function renderPosts() {
     <div class="p-4 flex flex-col flex-1">
         <div class="mt-auto">
             <p class="text-sm text-gray-500"><i class="fa-regular fa-calendar-days mr-1"></i>${date}</p>
-            <a href="/noi-dung/${post.ID}" class="text-base font-semibold text-gray-800 hover:text-blue-600 leading-snug line-clamp-2 mt-1">${tieuDe}</a>
-        </div>
+            <a href="/noi-dung/${post.ID}" class="text-base font-semibold text-gray-800 hover:text-blue-600 leading-snug line-clamp-2 mt-1">
+    ${tieuDe}
+    ${isNewPost(post.NgayDang) ? '<span class="ml-2 text-red-500 text-xs font-medium">🆕 Mới cập nhật</span>' : ''}
+</a>
+</div>
     </div>
 </div>`;
         });
@@ -348,8 +348,11 @@ function renderFilteredPosts(posts, page = 1) {
     <div class="p-4 flex flex-col flex-1">
         <div class="mt-auto">
             <p class="text-sm text-gray-500"><i class="fa-regular fa-calendar-days mr-1"></i>${date}</p>
-            <a href="/noi-dung/${post.ID}" class="text-base font-semibold text-gray-800 hover:text-blue-600 leading-snug line-clamp-2 mt-1">${tieuDe}</a>
-        </div>
+            <a href="/noi-dung/${post.ID}" class="text-base font-semibold text-gray-800 hover:text-blue-600 leading-snug line-clamp-2 mt-1">
+    ${tieuDe}
+    ${isNewPost(post.NgayDang) ? '<span class="ml-2 text-red-500 text-xs font-medium">🆕 Mới cập nhật</span>' : ''}
+</a>
+</div>
     </div>
 </div>`;
     });

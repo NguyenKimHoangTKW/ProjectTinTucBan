@@ -37,8 +37,12 @@ $(document).ready(function () {
                 const moiNhat = [...allBaiViets]
                     .filter(b => b.NgayDang)
                     .sort((a, b) => (b.NgayDang ?? 0) - (a.NgayDang ?? 0))
-                    .slice(0, 5);
-                const xemNhieu = [...allBaiViets].sort((a, b) => (b.LuotXem ?? 0) - (a.LuotXem ?? 0)).slice(0, 5);
+                    .slice(0, 3); // chỉ lấy 3 bài
+
+                const xemNhieu = [...allBaiViets]
+                    .filter(b => (b.LuotXem ?? 0) > 0) // lọc bài có lượt xem > 0
+                    .sort((a, b) => (b.LuotXem ?? 0) - (a.LuotXem ?? 0))
+                    .slice(0, 3); // chỉ lấy 3 bài
 
                 html += `<div id="${mucId}">
 <div class="text-center ">
@@ -309,20 +313,21 @@ $(document).ready(function () {
             }
 
             data.forEach(item => {
-                html += `
-                <div class="swiper-slide relative w-full h-full">
-                    <img loading="lazy"
-                        src="${item.LinkHinh}"
-                        onerror="this.src='/images/fallback.jpg'"
-                        alt="Banner ${item.ID}"
-                        class="w-full h-full object-cover block" />
+                if (item.LinkHinh && item.LinkHinh.trim() !== "") {
+                    html += `
+        <div class="swiper-slide relative w-full h-full">
+            <img loading="lazy"
+                src="${item.LinkHinh}"
+                onerror="this.closest('.swiper-slide').remove()"
+                alt="Banner ${item.ID}"
+                class="w-full h-full object-cover block" />
 
-                    ${item.TieuDe ? `
-                    <div class="absolute bottom-4 left-4 bg-black bg-opacity-50 text-white p-3 rounded text-lg">
-                        ${item.TieuDe}
-                    </div>` : ""}
-                </div>
-            `;
+            ${item.TieuDe ? `
+            <div class="absolute bottom-4 left-4 bg-black bg-opacity-50 text-white p-3 rounded text-lg">
+                ${item.TieuDe}
+            </div>` : ""}
+        </div>`;
+                }
             });
 
             $("#slider-container").html(html);
@@ -411,22 +416,37 @@ $(document).ready(function () {
         const muc = window.mucLucData[mucId];
         if (!muc) return;
 
-        const start = (muc.page - 1) * muc.perPage;
-        const end = muc.page * muc.perPage;
-        const currentList = muc.data.slice(start, end);
         const isSuKien = mucId.includes("su-kien");
         const now = new Date();
+        let html = "";
 
-        // Xác định top 3 bài viết sự kiện có lượt xem cao nhất
-        let topHotIDs = [];
+        let allItems = [];
+
         if (isSuKien) {
-            topHotIDs = [...muc.data]
+            // 1. Lấy top 2 bài viết nhiều lượt xem nhất
+            const topViews = [...muc.data]
                 .sort((a, b) => (b.LuotXem ?? 0) - (a.LuotXem ?? 0))
-                .slice(0, 3)
-                .map(b => b.ID);
+                .slice(0, 2);
+
+            const topIDs = new Set(topViews.map(b => b.ID));
+
+            // 2. Lấy các bài viết mới nhất, loại bỏ 2 bài top
+            const newest = [...muc.data]
+                .filter(b => b.NgayDang && !topIDs.has(b.ID))
+                .sort((a, b) => (b.NgayDang ?? 0) - (a.NgayDang ?? 0));
+
+            // 3. Gộp danh sách: 2 bài hot + các bài mới
+            allItems = topViews.concat(newest);
+        } else {
+            // Không phải sự kiện: giữ nguyên thứ tự hiện tại
+            allItems = [...muc.data];
         }
 
-        let html = "";
+        // Phân trang
+        const start = (muc.page - 1) * muc.perPage;
+        const end = muc.page * muc.perPage;
+        const currentList = allItems.slice(start, end);
+
         currentList.forEach(bv => {
             const thumb = bv.LinkThumbnail?.trim() || "/images/default.jpg";
             const date = formatDate(bv.NgayDang);
@@ -438,53 +458,58 @@ $(document).ready(function () {
             const diffDays = Math.abs((now - postDate) / (1000 * 60 * 60 * 24));
             const isMoi = diffDays <= 2;
 
-            const isHot = isSuKien && topHotIDs.includes(bv.ID);
+            // Đánh dấu HOT nếu là sự kiện và bài này nằm trong top 2
+            let isHot = false;
+            if (isSuKien && start < 2) {
+                const topIDs = new Set(allItems.slice(0, 2).map(b => b.ID));
+                isHot = topIDs.has(bv.ID);
+            }
 
             if (isSuKien) {
                 html += `
-        <div class="bg-white rounded-lg overflow-hidden shadow hover:shadow-lg transition flex flex-col">
-            <img src="${thumb}" class="w-full h-[230px] object-cover" alt="Thumbnail" />
-            <div class="p-4 flex flex-col justify-between flex-grow">
-                <a href="/noi-dung/${bv.ID}" class="font-bold text-base text-gray-900 hover:text-red-600 line-clamp-2 leading-snug mb-2">
-                    ${tieuDe}
-                    ${isMoi ? '<span class="bg-red-600 text-white text-xs px-2 py-0.5 rounded ml-2 animate-pulse">HOT</span>' : ''}
-                    ${isHot ? '<span class="bg-yellow-500 text-white text-xs px-2 py-0.5 rounded ml-2 animate-bounce">HOT</span>' : ''}
-                </a>
-                <div class="text-sm text-gray-600 flex items-center justify-between mt-auto">
-                    <span><i class="far fa-calendar-alt mr-1"></i>${date}</span>
-                    <span><i class="far fa-eye mr-1"></i>${views} lượt xem</span>
-                </div>
+    <div class="bg-white rounded-lg overflow-hidden shadow hover:shadow-lg transition flex flex-col">
+        <img src="${thumb}" class="w-full h-[230px] object-cover" alt="Thumbnail" />
+        <div class="p-4 flex flex-col justify-between flex-grow">
+            <a href="/noi-dung/${bv.ID}" class="font-bold text-base text-gray-900 hover:text-red-600 line-clamp-2 leading-snug mb-2">
+                ${tieuDe}
+                ${isMoi ? '<span class="bg-red-600 text-white text-xs px-2 py-0.5 rounded ml-2 animate-pulse">MỚI</span>' : ''}
+                ${isHot ? '<span class="bg-yellow-500 text-white text-xs px-2 py-0.5 rounded ml-2 animate-bounce">HOT</span>' : ''}
+            </a>
+            <div class="text-sm text-gray-600 flex items-center justify-between mt-auto">
+                <span><i class="far fa-calendar-alt mr-1"></i>${date}</span>
+                <span><i class="far fa-eye mr-1"></i>${views} lượt xem</span>
             </div>
-        </div>`;
+        </div>
+    </div>`;
             } else {
                 html += `
-        <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition overflow-hidden flex flex-col h-auto p-3 text-sm space-y-2">
-            <img src="${thumb}" class="w-full h-auto" alt="Thumbnail" />
-            <div class="p-2 flex-1 flex flex-col space-y-1">
-                <a href="/noi-dung/${bv.ID}" class="font-bold text-base text-gray-900 hover:text-red-600 line-clamp-2 leading-snug mb-2">
-                    ${tieuDe}
-                    ${isMoi ? '<span class="bg-red-600 text-white text-xs px-2 py-0.5 rounded ml-2 animate-pulse">MỚI</span>' : ''}
-                    ${isHot ? '<span class="bg-yellow-500 text-white text-xs px-2 py-0.5 rounded ml-2 animate-bounce">HOT</span>' : ''}
-                </a>
-                <div class="text-sm text-gray-500 flex items-center gap-3">
-                    <span><i class="far fa-clock mr-1"></i>${date}</span>
-                    <span><i class="far fa-eye mr-1"></i>${views} lượt xem</span>
-                </div>
-                <p class="text-sm text-gray-700 line-clamp-2 break-words whitespace-normal">${moTa}</p>
+    <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition overflow-hidden flex flex-col h-auto p-3 text-sm space-y-2">
+        <img src="${thumb}" class="w-full h-auto" alt="Thumbnail" />
+        <div class="p-2 flex-1 flex flex-col space-y-1">
+            <a href="/noi-dung/${bv.ID}" class="font-bold text-base text-gray-900 hover:text-red-600 line-clamp-2 leading-snug mb-2">
+                ${tieuDe}
+                ${isMoi ? '<span class="bg-red-600 text-white text-xs px-2 py-0.5 rounded ml-2 animate-pulse">MỚI</span>' : ''}
+            </a>
+            <div class="text-sm text-gray-500 flex items-center gap-3">
+                <span><i class="far fa-clock mr-1"></i>${date}</span>
+                <span><i class="far fa-eye mr-1"></i>${views} lượt xem</span>
             </div>
-        </div>`;
+            <p class="text-sm text-gray-700 line-clamp-2 break-words whitespace-normal">${moTa}</p>
+        </div>
+    </div>`;
             }
         });
 
         container.append(html);
 
         const btnXemThem = $(`.btn-xem-them[data-id="${mucId}"]`);
-        if (isSuKien && end >= muc.data.length) {
-            btnXemThem.hide(); // Ẩn nếu là sự kiện và đã hiển thị hết
+        if (end >= allItems.length) {
+            btnXemThem.hide();
         } else {
-            btnXemThem.show(); // Hiện nếu vẫn còn
+            btnXemThem.show();
         }
     }
+
 
     });
 

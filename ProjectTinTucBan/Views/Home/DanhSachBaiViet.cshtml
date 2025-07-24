@@ -134,9 +134,10 @@
 
     <!-- Danh sách bài viết -->
     <div class="max-w-7xl mx-auto px-4">
-        <div id="tinTucList" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
+        <div id="tinTucList" class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-x-6 gap-y-10">
             <!-- Các bài viết sẽ được JavaScript render tại đây -->
         </div>
+
         <!-- Loading Indicator -->
         <div id="loadingIndicator" class="w-full text-center py-4 hidden">
             <div class="inline-flex items-center space-x-2 text-blue-600">
@@ -165,14 +166,6 @@
 <div id="js-data" data-mucid="@mucId" data-mucten="@mucTenCoDau" class="hidden"></div>
 
 @section Scripts {
-
-
-    <script>
-        // Truyền biến Razor -> JS
-        window.mucIdFromView = @Html.Raw(mucId ?? "0");
-        window.mucTen = "@mucTenCoDau";
-    </script>
-
     <!-- Script quản lý bài viết -->
     <script src="~/Scripts/Scripts/DanhSachBaiViet.js"></script>
 }
