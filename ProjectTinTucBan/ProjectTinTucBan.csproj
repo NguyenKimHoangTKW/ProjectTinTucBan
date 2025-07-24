@@ -463,6 +463,7 @@
     <Content Include="Areas\Admin\Scripts\EditFooter.js" />
     <Content Include="Areas\Admin\Scripts\EditTaiKhoan.js" />
     <Content Include="Areas\Admin\Scripts\Footer.js" />
+    <Content Include="Areas\Admin\Scripts\FooterActive.js" />
     <Content Include="Areas\Admin\Scripts\GroupMenuAdminScript.js" />
     <Content Include="Areas\Admin\Scripts\Khoi.js" />
     <Content Include="Areas\Admin\Scripts\MaHoaKTDB.js" />
@@ -470,7 +471,6 @@
     <Content Include="Areas\Admin\Scripts\Module_Chung.js" />
     <Content Include="Areas\Admin\Scripts\SliderAdminScript.js" />
     <Content Include="Areas\Admin\Scripts\SliderShowScript.js" />
-    <Content Include="Areas\Admin\Scripts\test.js" />
     <Content Include="Areas\Admin\Scripts\TopNavShowScript.js" />
     <Content Include="Areas\Admin\Scripts\BaiViet.js" />
     <Content Include="Areas\Admin\Scripts\DanhSachUser.js" />

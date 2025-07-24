@@ -4,14 +4,14 @@ using ProjectTinTucBan.Helper;
 
 namespace ProjectTinTucBan.Areas.Admin.Controllers
 {
-    [RoutePrefix("api/Admin/TaiKhoan")]
+    [RoutePrefix("api/v1/admin/tai-khoan")]
     public class EditTaiKhoanApiController : ApiController
     {
         WebTinTucTDMUEntities db = new WebTinTucTDMUEntities();
 
-        // PUT: api/Admin/TaiKhoan/Update/{id}
+        // PUT: api/v1/admin/tai-khoan/update/{id}
         [HttpPut]
-        [Route("Update/{id}")]
+        [Route("update/{id}")]
         public IHttpActionResult Update(int id, [FromBody] TaiKhoan model)
         {
             var currentUser = SessionHelper.GetUser(System.Web.HttpContext.Current);

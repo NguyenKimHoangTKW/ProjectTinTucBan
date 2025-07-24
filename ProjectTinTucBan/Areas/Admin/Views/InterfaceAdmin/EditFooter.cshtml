@@ -1,9 +1,8 @@
-﻿@model Newtonsoft.Json.Linq.JObject
-@{
+﻿@{
     ViewBag.Title = "Chỉnh sửa Footer";
 }
 
-<div class="container-fluid py-4" >
+<div class="container-fluid py-4">
     <div class="row justify-content-center">
         <div class="col-md-10">
             <div class="card shadow">
@@ -11,20 +10,6 @@
                     <h4 class="mb-0"><i class="fa fa-edit mr-2"></i>Chỉnh sửa Footer</h4>
                 </div>
                 <div class="card-body">
-                    @{
-                        object successMsg = null;
-                        try { successMsg = TempData != null ? TempData["Success"] : null; } catch { successMsg = null; }
-                    }
-                    @if (successMsg != null)
-                    {
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            <i class="fa fa-check-circle mr-2"></i>@successMsg
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                    }
-
                     <div id="alert-success" class="alert alert-success alert-dismissible fade show" style="display:none" role="alert">
                         <i class="fa fa-check-circle mr-2"></i><span class="alert-message"></span>
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -40,7 +25,7 @@
                     </div>
 
                     <form id="editFooterForm" autocomplete="off">
-                        <input type="hidden" id="footerId" value="@(Model != null && Model["id"] != null ? Model["id"] : "")" />
+                        <input type="hidden" id="footerId" />
 
                         <div class="form-row mb-4">
                             <div class="col-12">
@@ -48,11 +33,11 @@
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="fullName">Tiêu đề (VN)</label>
-                                <input type="text" id="fullName" name="fullName" class="form-control" value="@(Model != null && Model["fullName"] != null ? Model["fullName"] : "")" required />
+                                <input type="text" id="fullName" name="fullName" class="form-control" required />
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="englishName">Tiêu đề (EN)</label>
-                                <input type="text" id="englishName" name="englishName" class="form-control" value="@(Model != null && Model["englishName"] != null ? Model["englishName"] : "")" required />
+                                <input type="text" id="englishName" name="englishName" class="form-control" required />
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="established">Ngày thành lập</label>
@@ -60,7 +45,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-calendar"></i></span>
                                     </div>
-                                    <input type="text" id="established" name="established" class="form-control" value="@(Model != null && Model["established"] != null ? Model["established"] : "")" required placeholder="dd/MM/yyyy" />
+                                    <input type="text" id="established" name="established" class="form-control" required placeholder="dd/MM/yyyy" data-toggle="tooltip" data-placement="right" title="" />
                                 </div>
                             </div>
                         </div>
@@ -71,7 +56,12 @@
                             </div>
                             <div class="form-group col-md-12">
                                 <label for="address">Địa chỉ</label>
-                                <input type="text" id="address" name="address" class="form-control" value="@(Model != null && Model["address"] != null ? Model["address"] : "")" required />
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="anticon anticon-home"></i></span>
+                                    </div>
+                                    <input type="text" id="address" name="address" class="form-control" required />
+                                </div>
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="phone">Điện thoại</label>
@@ -79,7 +69,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-phone"></i></span>
                                     </div>
-                                    <input type="text" id="phone" name="phone" class="form-control" value="@(Model != null && Model["phone"] != null ? Model["phone"] : "")" required />
+                                    <input type="text" id="phone" name="phone" class="form-control" required />
                                 </div>
                             </div>
                             <div class="form-group col-md-6">
@@ -88,7 +78,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-envelope"></i></span>
                                     </div>
-                                    <input type="email" id="email" name="email" class="form-control" value="@(Model != null && Model["email"] != null ? Model["email"] : "")" required />
+                                    <input type="email" id="email" name="email" class="form-control" required />
                                 </div>
                             </div>
                         </div>
@@ -103,7 +93,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-video"></i></span>
                                     </div>
-                                    <input type="text" id="videoUrl" name="videoUrl" class="form-control" value="@(Model != null && Model["videoUrl"] != null ? Model["videoUrl"] : "")" />
+                                    <input type="text" id="videoUrl" name="videoUrl" class="form-control" />
                                 </div>
                             </div>
                             <div class="form-group col-md-6">
@@ -112,23 +102,14 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-copyright"></i></span>
                                     </div>
-                                    <input type="text" id="footerCopyright" name="footerCopyright" class="form-control" value="@(Model != null && Model["footerCopyright"] != null ? Model["footerCopyright"] : "")" />
+                                    <input type="text" id="footerCopyright" name="footerCopyright" class="form-control" />
                                 </div>
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="footerNote">Ghi chú</label>
-                                <input type="text" id="footerNote" name="footerNote" class="form-control" value="@(Model != null && Model["footerNote"] != null ? Model["footerNote"] : "")" />
+                                <input type="text" id="footerNote" name="footerNote" class="form-control" />
                             </div>
                         </div>
-                        @if (Model != null && Model["videoUrl"] != null && !string.IsNullOrEmpty((string)Model["videoUrl"]))
-                        {
-                            <div class="form-row mb-4">
-                                <div class="col-12">
-                                    <h5 class="border-bottom pb-2 text-primary">Xem trước video</h5>
-                                    <div id="videoPreview" class="embed-responsive embed-responsive-16by9 mt-2"></div>
-                                </div>
-                            </div>
-                        }
 
                         <div class="form-row">
                             <div class="col-12 text-right">
@@ -144,6 +125,12 @@
                             </div>
                         </div>
                     </form>
+                    <div class="form-row mb-4" id="videoPreviewContainer" style="display:none">
+                        <div class="col-12">
+                            <h5 class="border-bottom pb-2 text-primary">Xem trước video</h5>
+                            <div id="videoPreview" class="embed-responsive embed-responsive-16by9 mt-2"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -154,4 +141,18 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
     <script src="~/Areas/Admin/Scripts/EditFooter.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Lấy id từ query string (?id=...)
+            var urlParams = new URLSearchParams(window.location.search);
+            var footerId = urlParams.get('id');
+            if (footerId) {
+                $('#footerId').val(footerId);
+                // Gọi hàm loadFooterById đã có trong EditFooter.js
+                if (typeof loadFooterById === "function") {
+                    loadFooterById(footerId);
+                }
+            }
+        });
+    </script>
 }

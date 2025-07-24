@@ -28,7 +28,7 @@
         if (id) {
             // Cập nhật
             $.ajax({
-                url: '/api/Admin/DonViTrucThuoc/' + id,
+                url: '/api/v1/admin/donvi-truc-thuoc/' + id,
                 type: 'PUT',
                 data: JSON.stringify(donVi),
                 contentType: 'application/json',
@@ -46,7 +46,7 @@
         } else {
             // Thêm mới
             $.ajax({
-                url: '/api/Admin/DonViTrucThuoc/Create',
+                url: '/api/v1/admin/donvi-truc-thuoc/create',
                 type: 'POST',
                 data: JSON.stringify(donVi),
                 contentType: 'application/json',
@@ -78,7 +78,7 @@
         deleteDonVi(id);
     });
 
-    // Sửa đoạn này để cập nhật trạng thái vào DB khi bật/tắt switch
+    // Sửa trạng thái đơn vị
     $(document).on('change', '.toggle-trangthai-donvi', function () {
         var id = $(this).data('id');
         var isActive = $(this).is(':checked');
@@ -92,7 +92,7 @@
                     // Gửi API cập nhật trạng thái về false cho các đơn vị khác cùng thứ tự
                     var otherId = $(this).data('id');
                     $.ajax({
-                        url: '/api/Admin/DonViTrucThuoc/ToggleTrangThai/' + otherId,
+                        url: '/api/v1/admin/donvi-truc-thuoc/toggle-trang-thai/' + otherId,
                         type: 'PUT',
                         data: JSON.stringify({ IsActive: false }),
                         contentType: 'application/json'
@@ -103,7 +103,7 @@
 
         // Gửi API cập nhật trạng thái cho đơn vị này
         $.ajax({
-            url: '/api/Admin/DonViTrucThuoc/ToggleTrangThai/' + id,
+            url: '/api/v1/admin/donvi-truc-thuoc/toggle-trang-thai/' + id,
             type: 'PUT',
             data: JSON.stringify({ IsActive: isActive }),
             contentType: 'application/json',
@@ -162,7 +162,7 @@ var dataTable;
 // Load danh sách Khối
 function loadDanhSachKhoi() {
     return $.ajax({
-        url: '/api/Admin/Khoi/GetAll',
+        url: '/api/v1/admin/khoi/get-all',
         type: 'GET',
         success: function (data) {
 
@@ -181,6 +181,43 @@ function loadDanhSachKhoi() {
         }
     });
 }
+$(document).ready(function () {
+    // Ghi đè hoàn toàn cấu hình ngôn ngữ DataTables
+    $.fn.dataTable.ext.errMode = 'none';
+
+    // Thiết lập ngôn ngữ mặc định cho tất cả DataTable
+    $.extend(true, $.fn.dataTable.defaults, {
+        language: {
+            "decimal": "",
+            "emptyTable": "Không có dữ liệu trong bảng",
+            "info": "Hiển thị _START_ đến _END_ của _TOTAL_ mục",
+            "infoEmpty": "Hiển thị 0 đến 0 của 0 mục",
+            "infoFiltered": "(được lọc từ _MAX_ tổng số mục)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Hiển thị _MENU_ mục",
+            "loadingRecords": "Đang tải...",
+            "processing": "Đang xử lý...",
+            "search": "Tìm kiếm:",
+            "zeroRecords": "Không tìm thấy kết quả phù hợp",
+            "paginate": {
+                "first": "Đầu",
+                "last": "Cuối",
+                "next": "Tiếp",
+                "previous": "Trước"
+            },
+            "aria": {
+                "sortAscending": ": Kích hoạt để sắp xếp cột tăng dần",
+                "sortDescending": ": Kích hoạt để sắp xếp cột giảm dần"
+            }
+        }
+    });
+
+    // Khởi tạo lại DataTable nếu đã tồn tại
+    if ($.fn.DataTable.isDataTable('#table_load_donvi')) {
+        $('#table_load_donvi').DataTable().destroy();
+    }
+});
 
 // Khởi tạo DataTable
 function initDataTable() {
@@ -190,7 +227,7 @@ function initDataTable() {
         "searching": true,
         "ordering": true,
         "paging": true,
-        "lengthMenu": [10, 25, 50, 100],
+        "lengthMenu": [5, 10, 20, 50],
         "data": [],
         "columns": [
             { "data": "id", "visible": false },
@@ -216,7 +253,7 @@ function initDataTable() {
                 "render": function (data, type, row) {
                     return `
                         <label class="switch">
-                            <input type="checkbox" class="toggle-trangthai-donvi" data-id="${row.id}" data-thutu="${row.thuTuShow}" ${data ? 'checked' : ''}>
+                            <input type="checkbox" class="toggle-trangthai-donvi" data-id="${row.id}" data-thuTu="${row.thuTuShow}" ${data ? 'checked' : ''}>
                             <span class="slider"></span>
                         </label>
                     `;
@@ -280,8 +317,8 @@ function initDataTable() {
 // Load danh sách đơn vị trực thuộc
 function loadDonViTrucThuoc(idKhoi) {
     var url = idKhoi
-        ? '/api/Admin/DonViTrucThuoc/ByKhoi/' + idKhoi
-        : '/api/Admin/DonViTrucThuoc/GetAll';
+        ? '/api/v1/admin/donvi-truc-thuoc/by-khoi/' + idKhoi
+        : '/api/v1/admin/donvi-truc-thuoc/get-all';
     $.ajax({
         url: url,
         type: 'GET',
@@ -299,7 +336,7 @@ function loadDonViTrucThuoc(idKhoi) {
 // Hàm chỉnh sửa đơn vị
 function editDonVi(id) {
     $.ajax({
-        url: '/api/Admin/DonViTrucThuoc/' + id,
+        url: '/api/v1/admin/donvi-truc-thuoc/' + id,
         type: 'GET',
         success: function (item) {
             $('#ID').val(item.id);
@@ -329,7 +366,7 @@ function deleteDonVi(id) {
     }).then((result) => {
         if (result.isConfirmed) {
             $.ajax({
-                url: '/api/Admin/DonViTrucThuoc/' + id,
+                url: '/api/v1/admin/donvi-truc-thuoc/' + id,
                 type: 'DELETE',
                 success: function () {
                     loadDonViTrucThuoc($('#filterKhoi').val());

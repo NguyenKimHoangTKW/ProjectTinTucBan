@@ -526,45 +526,4 @@
 
     <!-- Custom Scripts -->
     <script src="~/Areas/Admin/Scripts/DonViTrucThuoc.js"></script>
-
-    <!-- Cấu hình DataTables hoàn toàn tiếng Việt -->
-    <script>
-        $(document).ready(function () {
-            // Ghi đè hoàn toàn cấu hình ngôn ngữ DataTables
-            $.fn.dataTable.ext.errMode = 'none';
-
-            // Thiết lập ngôn ngữ mặc định cho tất cả DataTable
-            $.extend(true, $.fn.dataTable.defaults, {
-                language: {
-                    "decimal": "",
-                    "emptyTable": "Không có dữ liệu trong bảng",
-                    "info": "Hiển thị _START_ đến _END_ của _TOTAL_ mục",
-                    "infoEmpty": "Hiển thị 0 đến 0 của 0 mục",
-                    "infoFiltered": "(được lọc từ _MAX_ tổng số mục)",
-                    "infoPostFix": "",
-                    "thousands": ",",
-                    "lengthMenu": "Hiển thị _MENU_ mục",
-                    "loadingRecords": "Đang tải...",
-                    "processing": "Đang xử lý...",
-                    "search": "Tìm kiếm:",
-                    "zeroRecords": "Không tìm thấy kết quả phù hợp",
-                    "paginate": {
-                        "first": "Đầu",
-                        "last": "Cuối",
-                        "next": "Tiếp",
-                        "previous": "Trước"
-                    },
-                    "aria": {
-                        "sortAscending": ": Kích hoạt để sắp xếp cột tăng dần",
-                        "sortDescending": ": Kích hoạt để sắp xếp cột giảm dần"
-                    }
-                }
-            });
-
-            // Khởi tạo lại DataTable nếu đã tồn tại
-            if ($.fn.DataTable.isDataTable('#table_load_donvi')) {
-                $('#table_load_donvi').DataTable().destroy();
-            }
-        });
-    </script>
 }

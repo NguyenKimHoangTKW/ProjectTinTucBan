@@ -11,54 +11,6 @@
         $('#khoiModal').modal('show');
     });
 
-    // Xử lý form submit
-    $('#khoiForm').submit(function (e) {
-        e.preventDefault();
-
-        var id = $('#ID').val();
-        var khoi = {
-            TenKhoi: $('#TenKhoi').val(),
-            ThuTuShow: $('#ThuTuShow').val()
-        };
-
-        if (id) {
-            // Cập nhật
-            $.ajax({
-                url: '/api/Admin/Khoi/Update/' + id,
-                type: 'PUT',
-                data: JSON.stringify(khoi),
-                contentType: 'application/json',
-                success: function () {
-                    $('#khoiForm')[0].reset();
-                    $('#ID').val('');
-                    $('#khoiModal').modal('hide');
-                    loadKhoi();
-                    Swal.fire('Thành công!', 'Đã cập nhật khối.', 'success');
-                },
-                error: function (xhr) {
-                    Swal.fire('Lỗi!', 'Không thể cập nhật khối.', 'error');
-                }
-            });
-        } else {
-            // Thêm mới
-            $.ajax({
-                url: '/api/Admin/Khoi/Create',
-                type: 'POST',
-                data: JSON.stringify(khoi),
-                contentType: 'application/json',
-                success: function () {
-                    $('#khoiForm')[0].reset();
-                    $('#khoiModal').modal('hide');
-                    loadKhoi();
-                    Swal.fire('Thành công!', 'Đã thêm khối mới.', 'success');
-                },
-                error: function (xhr) {
-                    Swal.fire('Lỗi!', 'Không thể thêm khối mới.', 'error');
-                }
-            });
-        }
-    });
-
     // Nút xóa form
     $('#btnClear').click(function () {
         $('#khoiForm')[0].reset();
@@ -76,20 +28,67 @@
         deleteKhoi(id);
     });
 
+    // Thêm mới và cập nhật khối
+    $('#khoiForm').submit(function (e) {
+        e.preventDefault();
+
+        var id = $('#ID').val();
+        var khoi = {
+            TenKhoi: $('#TenKhoi').val(),
+            ThuTuShow: $('#ThuTuShow').val()
+        };
+
+        if (id) {
+            // Cập nhật
+            $.ajax({
+                url: '/api/v1/admin/khoi/update/' + id,
+                type: 'PUT',
+                data: JSON.stringify(khoi),
+                contentType: 'application/json',
+                success: function () {
+                    $('#khoiForm')[0].reset();
+                    $('#ID').val('');
+                    $('#khoiModal').modal('hide');
+                    loadKhoi();
+                    Swal.fire('Thành công!', 'Đã cập nhật khối.', 'success');
+                },
+                error: function (xhr) {
+                    Swal.fire('Lỗi!', 'Không thể cập nhật khối.', 'error');
+                }
+            });
+        } else {
+            // Thêm mới
+            $.ajax({
+                url: '/api/v1/admin/khoi/create',
+                type: 'POST',
+                data: JSON.stringify(khoi),
+                contentType: 'application/json',
+                success: function () {
+                    $('#khoiForm')[0].reset();
+                    $('#khoiModal').modal('hide');
+                    loadKhoi();
+                    Swal.fire('Thành công!', 'Đã thêm khối mới.', 'success');
+                },
+                error: function (xhr) {
+                    Swal.fire('Lỗi!', 'Không thể thêm khối mới.', 'error');
+                }
+            });
+        }
+    });
+
     // Gán sự kiện cho toggle trạng thái
     $(document).on('change', '.toggle-trangthai-khoi', function () {
         var id = $(this).data('id');
         var isActive = $(this).is(':checked');
         var thuTu = $(this).data('thutu');
 
-        // Nếu bật 1 checkbox, tắt các checkbox khác cùng thứ tự và cập nhật trạng thái về false trên server
         if (isActive) {
             $('.toggle-trangthai-khoi[data-thutu="' + thuTu + '"]').not(this).each(function () {
                 if ($(this).is(':checked')) {
                     $(this).prop('checked', false);
                     var otherId = $(this).data('id');
                     $.ajax({
-                        url: '/api/Admin/Khoi/ToggleTrangThai/' + otherId,
+                        url: '/api/v1/admin/khoi/toggle-trang-thai/' + otherId,
                         type: 'PUT',
                         data: JSON.stringify({ IsActive: false }),
                         contentType: 'application/json'
@@ -98,20 +97,45 @@
             });
         }
 
-        // Gửi trạng thái mới lên server
         $.ajax({
-            url: '/api/Admin/Khoi/ToggleTrangThai/' + id,
+            url: '/api/v1/admin/khoi/toggle-trang-thai/' + id,
             type: 'PUT',
             data: JSON.stringify({ IsActive: isActive }),
             contentType: 'application/json',
             success: function () {
-                loadKhoi(); // Load lại bảng để cập nhật nút xóa
+                loadKhoi();
             },
             error: function () {
                 Swal.fire('Lỗi!', 'Không thể cập nhật trạng thái khối.', 'error');
             }
         });
     });
+});
+$.extend(true, $.fn.dataTable.defaults, {
+    language: {
+        "decimal": "",
+        "emptyTable": "Không có dữ liệu trong bảng",
+        "info": "Hiển thị _START_ đến _END_ của _TOTAL_ mục",
+        "infoEmpty": "Hiển thị 0 đến 0 của 0 mục",
+        "infoFiltered": "(được lọc từ _MAX_ tổng số mục)",
+        "infoPostFix": "",
+        "thousands": ",",
+        "lengthMenu": "Hiển thị _MENU_ mục",
+        "loadingRecords": "Đang tải...",
+        "processing": "Đang xử lý...",
+        "search": "Tìm kiếm:",
+        "zeroRecords": "Không tìm thấy kết quả phù hợp",
+        "paginate": {
+            "first": "Đầu",
+            "last": "Cuối",
+            "next": "Tiếp",
+            "previous": "Trước"
+        },
+        "aria": {
+            "sortAscending": ": Kích hoạt để sắp xếp cột tăng dần",
+            "sortDescending": ": Kích hoạt để sắp xếp cột giảm dần"
+        }
+    }
 });
 
 // Hàm chuyển Unix timestamp thành chuỗi ngày giờ
@@ -138,7 +162,7 @@ function initDataTable() {
         "searching": true,
         "ordering": true,
         "paging": true,
-        "lengthMenu": [10, 25, 50, 100],
+        "lengthMenu": [5, 10, 20, 50],
         "data": [],
         "columns": [
             { "data": "id", "visible": false }, // Cột ID ẩn
@@ -216,7 +240,7 @@ function initDataTable() {
 // Load danh sách khối
 function loadKhoi() {
     $.ajax({
-        url: '/api/Admin/Khoi/GetAll',
+        url: '/api/v1/admin/khoi/get-all',
         type: 'GET',
         success: function (data) {
             dataTable.clear().rows.add(data).draw();
@@ -230,7 +254,7 @@ function loadKhoi() {
 // Hàm chỉnh sửa khối
 function editKhoi(id) {
     $.ajax({
-        url: '/api/Admin/Khoi/Get/' + id,
+        url: '/api/v1/admin/khoi/get/' + id,
         type: 'GET',
         success: function (item) {
             $('#ID').val(item.id);
@@ -258,7 +282,7 @@ function deleteKhoi(id) {
     }).then((result) => {
         if (result.isConfirmed) {
             $.ajax({
-                url: '/api/Admin/Khoi/Delete/' + id,
+                url: '/api/v1/admin/khoi/delete/' + id,
                 type: 'DELETE',
                 success: function () {
                     loadKhoi();

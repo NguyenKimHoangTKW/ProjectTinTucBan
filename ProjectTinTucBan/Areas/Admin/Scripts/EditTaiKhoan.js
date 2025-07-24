@@ -33,7 +33,7 @@
         };
 
         $.ajax({
-            url: '/api/Admin/TaiKhoan/Update/' + id,
+            url: '/api/v1/admin/tai-khoan/update/' + id,
             type: 'PUT',
             contentType: 'application/json',
             data: JSON.stringify(data),

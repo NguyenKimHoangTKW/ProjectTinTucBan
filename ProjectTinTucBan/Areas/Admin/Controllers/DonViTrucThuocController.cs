@@ -4,14 +4,14 @@ using ProjectTinTucBan.Models;
 
 namespace ProjectTinTucBan.Areas.Admin.Controllers
 {
-    [RoutePrefix("api/Admin/DonViTrucThuoc")]
+    [RoutePrefix("api/v1/admin/donvi-truc-thuoc")]
     public class DonViTrucThuocController : ApiController
     {
         private WebTinTucTDMUEntities db = new WebTinTucTDMUEntities();
 
-        // GET: api/Admin/DonViTrucThuoc/GetAll
+        // GET: api/v1/admin/donvi-truc-thuoc/get-all
         [HttpGet]
-        [Route("GetAll")]
+        [Route("get-all")]
         public IHttpActionResult GetAll()
         {
             var list = db.DonViTrucThuocs
@@ -31,9 +31,9 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             return Ok(list);
         }
 
-        // GET: api/Admin/DonViTrucThuoc/ByKhoi/{idKhoi}
+        // GET: api/v1/admin/donvi-truc-thuoc/by-khoi/{idKhoi}
         [HttpGet]
-        [Route("ByKhoi/{idKhoi}")]
+        [Route("by-khoi/{idKhoi}")]
         public IHttpActionResult GetByKhoi(int idKhoi)
         {
             var list = db.DonViTrucThuocs
@@ -54,7 +54,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             return Ok(list);
         }
 
-        // GET: api/Admin/DonViTrucThuoc/{id}
+        // GET: api/v1/admin/donvi-truc-thuoc/{id}
         [HttpGet]
         [Route("{id}")]
         public IHttpActionResult Get(int id)
@@ -74,9 +74,9 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             });
         }
 
-        // POST: api/Admin/DonViTrucThuoc/Create
+        // POST: api/v1/admin/donvi-truc-thuoc/create
         [HttpPost]
-        [Route("Create")]
+        [Route("create")]
         public IHttpActionResult Post([FromBody] DonViTrucThuoc donvi)
         {
             if (!ModelState.IsValid)
@@ -98,7 +98,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             });
         }
 
-        // PUT: api/Admin/DonViTrucThuoc/{id}
+        // PUT: api/v1/admin/donvi-truc-thuoc/{id}
         [HttpPut]
         [Route("{id}")]
         public IHttpActionResult Put(int id, [FromBody] DonViTrucThuoc donvi)
@@ -130,7 +130,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             });
         }
 
-        // DELETE: api/Admin/DonViTrucThuoc/{id}
+        // DELETE: api/v1/admin/donvi-truc-thuoc/{id}
         [HttpDelete]
         [Route("{id}")]
         public IHttpActionResult Delete(int id)
@@ -144,9 +144,9 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             return Ok();
         }
 
-        // PUT: api/Admin/DonViTrucThuoc/ToggleTrangThai/{id}
+        // PUT: api/v1/admin/donvi-truc-thuoc/toggle-trang-thai/{id}
         [HttpPut]
-        [Route("ToggleTrangThai/{id:int}")]
+        [Route("toggle-trang-thai/{id:int}")]
         public IHttpActionResult ToggleTrangThai(int id, [FromBody] ToggleTrangThaiModel model)
         {
             var donvi = db.DonViTrucThuocs.Find(id);

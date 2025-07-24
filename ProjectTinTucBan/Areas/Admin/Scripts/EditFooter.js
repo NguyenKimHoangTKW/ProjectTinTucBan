@@ -1,12 +1,4 @@
-﻿// Swiper và các sự kiện giao diện
-new Swiper(".mySwiper", {
-    loop: true,
-    autoplay: { delay: 3000, disableOnInteraction: false },
-    pagination: { el: ".swiper-pagination", clickable: true },
-    navigation: { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" }
-});
-
-window.mucLucData = {};
+﻿window.mucLucData = {};
 
 $(document).ready(function () {
     // Nếu giá trị ngày thành lập là số (unix timestamp), chuyển sang chuỗi ngày
@@ -18,7 +10,54 @@ $(document).ready(function () {
         }
     }
 
+    // Validate định dạng ngày "dd/MM/yyyy" cho ô ngày thành lập
+    $('#established').on('blur change', function () {
+        validateEstablishedDate();
+    });
+
+    // Validate số điện thoại: chỉ cho nhập số, khoảng trắng, dấu ngoặc, dấu gạch ngang
+    $('#phone').on('input', function () {
+        this.value = this.value.replace(/[^0-9\s\-\(\)]/g, '');
+    });
+
+    // Hiển thị lỗi số điện thoại khi blur/change
+    $('#phone').on('blur change', function () {
+        $('.phone-validation-error').remove();
+        var value = $(this).val().trim();
+        var phoneRegex = /^[0-9\s\-\(\)]+$/;
+        var phoneRegex = /^[0-9\s\-\(\)]+$/;
+        if (value && !phoneRegex.test(value)) {
+            $(this).after('<span class="phone-validation-error text-danger">Số điện thoại phải bắt đầu bằng số 0, chỉ chứa số và có ít nhất 10 chữ số.</span>');
+            $(this).addClass('is-invalid');
+        } else {
+            $(this).removeClass('is-invalid');
+        }
+    });
+
+    // Validate khi submit form
     $('#editFooterForm').off('submit').on('submit', function (e) {
+        // Xóa thông báo lỗi cũ
+        $('.phone-validation-error').remove();
+
+        // Kiểm tra định dạng ngày trước khi submit
+        var isDateValid = validateEstablishedDate();
+
+        // Kiểm tra số điện thoại trước khi submit
+        var phoneValue = $('#phone').val().trim();
+        var phoneRegex = /^[0-9\s\-\(\)]+$/;
+        var isPhoneValid = true;
+        if (!phoneRegex.test(phoneValue)) {
+            $('#phone').after('<span class="phone-validation-error text-danger">Số điện thoại phải bắt đầu bằng số 0, chỉ chứa số và có ít nhất 10 chữ số.</span>');
+            $('#phone').addClass('is-invalid');
+            isPhoneValid = false;
+        } else {
+            $('#phone').removeClass('is-invalid');
+        }
+
+        if (!isDateValid || !isPhoneValid) {
+            e.preventDefault();
+            return false;
+        }
         e.preventDefault();
         var footerId = $('#footerId').val();
         if (footerId) {
@@ -27,163 +66,56 @@ $(document).ready(function () {
             createFooter();
         }
     });
+
+    // Handle delete button click
     $('#btnDelete').off('click').on('click', function () {
         var footerId = $('#footerId').val();
         if (!footerId) {
             Swal.fire({
-                icon: 'error',
-                title: 'Lỗi',
-                text: 'Không có dữ liệu để xóa!'
+                icon: 'warning',
+                title: 'Không có footer để xóa!',
+                text: 'Vui lòng chọn hoặc tải lại trang.',
             });
             return;
         }
         Swal.fire({
-            title: 'Bạn có chắc chắn muốn xóa footer này?',
+            title: 'Bạn có chắc muốn xóa footer này?',
+            text: "Hành động này không thể hoàn tác!",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonText: 'Xóa',
-            cancelButtonText: 'Hủy',
             confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6'
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Xóa',
+            cancelButtonText: 'Hủy'
         }).then((result) => {
             if (result.isConfirmed) {
-                $.ajax({
-                    url: '/api/FooterApi/' + footerId,
-                    type: 'DELETE',
-                    success: function () {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Đã xóa thành công!',
-                            showConfirmButton: false,
-                            timer: 1500
-                        }).then(() => {
-                            window.location.href = '/Admin/InterfaceAdmin/Index_Footer';
-                        });
-                    },
-                    error: function (xhr) {
-                        var errorMsg = "Lỗi: " + xhr.status + " - " + xhr.statusText;
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Lỗi',
-                            text: errorMsg
-                        });
-                    }
-                });
+                deleteFooterById(footerId);
             }
         });
     });
+});
 
-    // Render video preview bằng JS nếu có videoUrl
-    var videoUrl = $('#videoUrl').val();
-    if (videoUrl && videoUrl.trim() !== '') {
-        var embedUrl = getEmbedUrl(videoUrl);
-        $('#videoPreview').html(
-            '<iframe class="embed-responsive-item" src="' + embedUrl + '" frameborder="0" allowfullscreen></iframe>'
-        );
+function validateEstablishedDate() {
+    var $input = $('#established');
+    var value = $input.val().trim();
+    var dateRegex = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/;
+    if (value && !dateRegex.test(value)) {
+        $input.addClass('is-invalid');
+        Swal.fire({
+            icon: 'warning',
+            title: 'Sai định dạng ngày',
+            html: "Vui lòng nhập đúng định dạng <b>dd/MM/yyyy</b>.<br>Giá trị '" + value + "' không hợp lệ.",
+            showConfirmButton: false,
+            timer: 3000,
+            position: 'top-end',
+            toast: true
+        });
+        return false;
+    } else {
+        $input.removeClass('is-invalid');
+        return true;
     }
-});
-
-$(document).ready(function () {
-    $('#closeVideoModal').on('click', function () {
-        $('#videoModal').addClass('hidden');
-        $('#popupVideo').attr('src', '');
-    });
-
-    $('#videoModal').on('click', function (e) {
-        if (e.target === this) {
-            $(this).addClass('hidden');
-            $('#popupVideo').attr('src', '');
-        }
-    });
-
-    $('#btnChiTiet').on('click', function (e) {
-        e.preventDefault();
-        window.open('https://bdbcl.tdmu.edu.vn/danh-muc/Gioi-thieu/gioi-thieu-chung');
-    });
-
-    // Tự động load thông tin footer và giới thiệu lên trang Index (chỉ chạy 1 lần, không lặp)
-    if ($('#fullName').length && $('#footerCopyright').length) {
-        $.get('/api/FooterApi/active', function (footer) {
-            if (footer) {
-                $('#fullName').text(footer.FullName || '');
-                $('#englishName').text(footer.EnglishName || '');
-                if (footer.NgayThanhLap && !isNaN(footer.NgayThanhLap)) {
-                    var d = new Date(footer.NgayThanhLap * 1000);
-                    var day = ('0' + d.getUTCDate()).slice(-2);
-                    var month = ('0' + (d.getUTCMonth() + 1)).slice(-2);
-                    var year = d.getUTCFullYear();
-                    $('#established').text(day + '/' + month + '/' + year);
-                } else {
-                    $('#established').text('');
-                }
-                $('#address').text(footer.DiaChi || '');
-                $('#phone').text(footer.DienThoai || '');
-                $('#email').attr('href', 'mailto:' + (footer.Email || '')).text(footer.Email || '');
-                if (footer.VideoUrl) {
-                    var embedUrl = toEmbedYoutubeUrl(footer.VideoUrl);
-                    $('#video').attr('src', embedUrl);
-                    $('#popupVideo').attr('src', embedUrl);
-                }
-                $('#footerCopyright').text(footer.FooterCopyright || '');
-                $('#footerNote').text(footer.FooterNote || '');
-            }
-        });
-
-        // Nút xem video mở modal
-        $('#btnWatchVideo').on('click', function (e) {
-            e.preventDefault();
-            $('#videoModal').removeClass('hidden');
-        });
-        $('#closeVideoModal').on('click', function () {
-            $('#videoModal').addClass('hidden');
-            $('#popupVideo').attr('src', '');
-        });
-        $('#videoModal').on('click', function (e) {
-            if (e.target === this) {
-                $(this).addClass('hidden');
-                $('#popupVideo').attr('src', '');
-            }
-        });
-    }
-});
-$(document).ready(function () {
-    // 1. Copy email khi click
-    $('#email').on('click', function (e) {
-        e.preventDefault();
-        var email = $(this).text().trim();
-        if (email) {
-            navigator.clipboard.writeText(email).then(function () {
-                $('#emailCopiedMsg').text('Đã copy').show();
-                setTimeout(function () {
-                    $('#emailCopiedMsg').fadeOut();
-                }, 2000);
-            });
-        }
-    });
-
-    // 2. Xem video (reset src mỗi lần mở modal)
-    $('#btnWatchVideo').on('click', function (e) {
-        e.preventDefault();
-        var videoUrl = $('#video').attr('src');
-        $('#popupVideo').attr('src', videoUrl);
-        $('#videoModal').removeClass('hidden');
-    });
-
-    // Đóng modal video
-    $('#closeVideoModal').on('click', function () {
-        $('#videoModal').addClass('hidden');
-        $('#popupVideo').attr('src', ''); // Xóa src để tránh lỗi lần sau
-    });
-
-    // 3. Đóng modal khi nhấn ESC
-    $(document).on('keydown', function (e) {
-        if (e.key === "Escape" && !$('#videoModal').hasClass('hidden')) {
-            $('#videoModal').addClass('hidden');
-            $('#popupVideo').attr('src', '');
-        }
-    });
-});
-
+}
 // Chuyển "dd/MM/yyyy" sang Unix timestamp (UTC 00:00:00)
 function parseDateToUnix(dateStr) {
     if (!dateStr) return null;
@@ -206,24 +138,44 @@ function unixToDateStr(unix) {
 
 // Lấy dữ liệu footer theo ID và hiển thị lên form
 function loadFooterById(id) {
-    $.get('/api/FooterApi/' + id, function (data) {
-        $('#footerId').val(data.ID);
-        $('#fullName').val(data.FullName);
-        $('#englishName').val(data.EnglishName);
-        $('#established').val(unixToDateStr(data.NgayThanhLap));
-        $('#address').val(data.DiaChi);
-        $('#phone').val(data.DienThoai);
-        $('#email').val(data.Email);
-        $('#videoUrl').val(data.VideoUrl);
-        $('#footerCopyright').val(data.FooterCopyright);
-        $('#footerNote').val(data.FooterNote);
+    $.ajax({
+        url: '/api/v1/admin/footer/' + id,
+        type: 'GET',
+        success: function (data) {
+            $('#footerId').val(data.ID);
+            $('#fullName').val(data.FullName);
+            $('#englishName').val(data.EnglishName);
+            $('#established').val(unixToDateStr(data.NgayThanhLap));
+            $('#address').val(data.DiaChi);
+            $('#phone').val(data.DienThoai);
+            $('#email').val(data.Email);
+            $('#videoUrl').val(data.VideoUrl);
+            $('#footerCopyright').val(data.FooterCopyright);
+            $('#footerNote').val(data.FooterNote);
+
+            // Xử lý xem trước video
+            if (data.VideoUrl && data.VideoUrl.trim() !== '') {
+                var embedUrl = getEmbedUrl(data.VideoUrl);
+                $('#videoPreview').html(
+                    '<iframe class="embed-responsive-item" src="' + embedUrl + '" frameborder="0" allowfullscreen></iframe>'
+                );
+                $('#videoPreviewContainer').show();
+            } else {
+                $('#videoPreview').empty();
+                $('#videoPreviewContainer').hide();
+            }
+        }
     });
 }
 
 // Lấy danh sách tất cả footer
 function loadAllFooters() {
-    $.get('/api/FooterApi', function (list) {
-        // Xử lý hiển thị danh sách nếu cần
+    $.ajax({
+        url: '/api/v1/admin/footer',
+        type: 'GET',
+        success: function (list) {
+            // Xử lý hiển thị danh sách nếu cần
+        }
     });
 }
 
@@ -241,7 +193,7 @@ function createFooter() {
         FooterNote: $('#footerNote').val()
     };
     $.ajax({
-        url: '/api/FooterApi',
+        url: '/api/v1/admin/footer',
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(data),
@@ -271,7 +223,7 @@ function updateFooterById(id) {
         FooterNote: $('#footerNote').val()
     };
     $.ajax({
-        url: '/api/FooterApi/' + id,
+        url: '/api/v1/admin/footer/' + id,
         type: 'PUT',
         contentType: 'application/json',
         data: JSON.stringify(data),
@@ -300,11 +252,17 @@ function updateFooterById(id) {
 // Xóa footer theo ID
 function deleteFooterById(id) {
     $.ajax({
-        url: '/api/FooterApi/' + id,
+        url: '/api/v1/admin/footer/' + id,
         type: 'DELETE',
         success: function () {
-            $('#alert-success').text('Xóa thành công!').show();
-            $('#footerId').val('');
+            Swal.fire({
+                icon: 'success',
+                title: 'Xóa thành công!',
+                showConfirmButton: false,
+                timer: 1200
+            }).then(() => {
+                window.location.href = '/Admin/InterfaceAdmin/Index_Footer';
+            });
         },
         error: function (xhr) {
             var errorMsg = "Lỗi: " + xhr.status + " - " + xhr.statusText;
@@ -355,10 +313,4 @@ function getEmbedUrl(url) {
 // Các hàm tiện ích khác
 function toSlug(str) {
     return str.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-}
-
-function formatDate(yyyymmdd) {
-    if (!yyyymmdd || yyyymmdd.toString().length !== 8) return '';
-    const str = yyyymmdd.toString();
-    return `${str.substring(6, 8)}/${str.substring(4, 6)}/${str.substring(0, 4)}`;
 }

@@ -12,16 +12,39 @@
     // Sự kiện xóa
     $(document).on('click', '.btn-xoa-footer', function () {
         var id = $(this).data('id');
-        if (confirm('Bạn chắc chắn muốn xóa?')) {
-            $.ajax({
-                url: '/api/FooterApi/' + id,
-                type: 'DELETE',
-                success: function () {
-                    loadFooter();
-                    // Bỏ thông báo thành công
-                },
-                error: function () {
-                    // Bỏ thông báo lỗi
+        if (typeof Swal !== "undefined") {
+            Swal.fire({
+                title: 'Bạn có chắc muốn xóa footer này?',
+                text: "Hành động này không thể hoàn tác!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Xóa',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/api/v1/admin/footer/' + id,
+                        type: 'DELETE',
+                        success: function () {
+                            loadFooter();
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Đã xóa thành công!',
+                                showConfirmButton: false,
+                                timer: 2000
+                            });
+                        },
+                        error: function () {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Lỗi xóa footer!',
+                                showConfirmButton: false,
+                                timer: 2000
+                            });
+                        }
+                    });
                 }
             });
         }
@@ -49,7 +72,7 @@
         $checkbox.closest('td').append('<div class="toggle-loading"><i class="anticon anticon-loading anticon-spin"></i></div>');
 
         $.ajax({
-            url: '/api/FooterApi/' + id + '/active',
+            url: '/api/v1/admin/footer/' + id + '/active',
             type: 'PUT',
             contentType: 'application/json',
             data: JSON.stringify({ IsActive: isChecked ? 1 : 0 }),
@@ -73,7 +96,7 @@
         if (isChecked) {
             // Bước 1: Lấy danh sách tất cả footer
             $.ajax({
-                url: '/api/FooterApi',
+                url: '/api/v1/admin/footer',
                 type: 'GET',
                 success: function (allFooters) {
                     var updatePromises = [];
@@ -84,7 +107,7 @@
                             var updateData = Object.assign({}, footer, { IsActive: 0 });
 
                             var promise = $.ajax({
-                                url: '/api/FooterApi/' + footer.ID,
+                                url: '/api/v1/admin/footer/' + footer.ID,
                                 type: 'PUT',
                                 contentType: 'application/json',
                                 data: JSON.stringify(updateData)
@@ -112,13 +135,13 @@
 
     function updateCurrentFooter(id, isChecked) {
         $.ajax({
-            url: '/api/FooterApi/' + id,
+            url: '/api/v1/admin/footer/' + id,
             type: 'GET',
             success: function (currentFooter) {
                 var updateData = Object.assign({}, currentFooter, { IsActive: isChecked ? 1 : 0 });
 
                 $.ajax({
-                    url: '/api/FooterApi/' + id,
+                    url: '/api/v1/admin/footer/' + id,
                     type: 'PUT',
                     contentType: 'application/json',
                     data: JSON.stringify(updateData),
@@ -139,7 +162,7 @@
         var timestamp = new Date().getTime();
 
         $.ajax({
-            url: '/api/FooterApi?_=' + timestamp,
+            url: '/api/v1/admin/footer?_=' + timestamp,
             type: 'GET',
             cache: false,
             success: function (data) {
@@ -170,7 +193,7 @@
             "searching": true,
             "ordering": true,
             "paging": true,
-            "lengthMenu": [10, 25, 50, 100],
+            "lengthMenu": [5, 10, 20, 50],
             "data": [],
             "columns": [
                 { "data": "ID", "visible": false },
@@ -248,14 +271,39 @@
     // Sự kiện submit form (thêm/sửa)
     $('#footerForm').submit(function (e) {
         e.preventDefault();
+        // Xóa thông báo lỗi cũ
+        $('.field-validation-error').remove();
+
         var id = $('#ID').val();
+        var ngayThanhLapStr = $('#NgayThanhLap').val();
+        var dienThoai = $('#DienThoai').val();
+        var isValid = true;
+
+        // Validate ngày thành lập: phải đúng định dạng dd/MM/yyyy
+        var dateRegex = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/;
+        if (!dateRegex.test(ngayThanhLapStr)) {
+            $('#NgayThanhLap').after('<span class="field-validation-error text-danger">Ngày thành lập phải đúng định dạng dd/MM/yyyy.</span>');
+            isValid = false;
+        }
+
+        // Validate số điện thoại: cho phép ký tự đặc biệt, không bắt buộc bắt đầu bằng 0
+        var phoneRegex = /^[0-9\s\-\(\)]+$/;
+        if (dienThoai && !phoneRegex.test(dienThoai)) {
+            $('#DienThoai').after('<span class="field-validation-error text-danger">Số điện thoại chỉ được chứa số, khoảng trắng, dấu ngoặc và dấu gạch ngang.</span>');
+            isValid = false;
+        }
+
+        if (!isValid) {
+            return false;
+        }
+
         var data = {
             FullName: $('#FullName').val(),
             EnglishName: $('#EnglishName').val(),
             DiaChi: $('#DiaChi').val(),
-            DienThoai: $('#DienThoai').val(),
+            DienThoai: dienThoai,
             Email: $('#Email').val(),
-            NgayThanhLap: parseDateToUnix($('#NgayThanhLap').val()),
+            NgayThanhLap: parseDateToUnix(ngayThanhLapStr),
             VideoUrl: $('#VideoUrl').val(),
             FooterCopyright: $('#FooterCopyright').val(),
             FooterNote: $('#FooterNote').val()
@@ -263,7 +311,7 @@
         if (id) {
             // Sửa
             $.ajax({
-                url: '/api/FooterApi/' + id,
+                url: '/api/v1/admin/footer/' + id,
                 type: 'PUT',
                 contentType: 'application/json',
                 data: JSON.stringify(data),
@@ -281,7 +329,7 @@
         } else {
             // Thêm mới
             $.ajax({
-                url: '/api/FooterApi',
+                url: '/api/v1/admin/footer/',
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify(data),
@@ -364,4 +412,30 @@
     // Khởi tạo bảng và load dữ liệu
     initDataTable();
     loadFooter();
+}); // Thiết lập ngôn ngữ mặc định cho tất cả DataTable
+$.extend(true, $.fn.dataTable.defaults, {
+    language: {
+        "decimal": "",
+        "emptyTable": "Không có dữ liệu trong bảng",
+        "info": "Hiển thị _START_ đến _END_ của _TOTAL_ mục",
+        "infoEmpty": "Hiển thị 0 đến 0 của 0 mục",
+        "infoFiltered": "(được lọc từ _MAX_ tổng số mục)",
+        "infoPostFix": "",
+        "thousands": ",",
+        "lengthMenu": "Hiển thị _MENU_ mục",
+        "loadingRecords": "Đang tải...",
+        "processing": "Đang xử lý...",
+        "search": "Tìm kiếm:",
+        "zeroRecords": "Không tìm thấy kết quả phù hợp",
+        "paginate": {
+            "first": "Đầu",
+            "last": "Cuối",
+            "next": "Tiếp",
+            "previous": "Trước"
+        },
+        "aria": {
+            "sortAscending": ": Kích hoạt để sắp xếp cột tăng dần",
+            "sortDescending": ": Kích hoạt để sắp xếp cột giảm dần"
+        }
+    }
 });

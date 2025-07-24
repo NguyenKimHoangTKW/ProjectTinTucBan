@@ -6,23 +6,27 @@ using System.Web.Mvc;
 using Newtonsoft.Json.Linq;
 using System.Globalization;
 using RouteAttribute = System.Web.Http.RouteAttribute;
+using RoutePrefixAttribute = System.Web.Http.RoutePrefixAttribute;
 
 namespace ProjectTinTucBan.Areas.Admin.Controllers
 {
+    [RoutePrefix("api/v1/admin/footer")]
     public class FooterApiController : ApiController
     {
         private WebTinTucTDMUEntities db = new WebTinTucTDMUEntities();
 
-        // GET: api/admin/footerapi
+        // GET: api/v1/admin/footer
+        [System.Web.Http.HttpGet]
+        [Route("")]
         public IHttpActionResult GetAll()
         {
             var list = db.Footers.ToList();
             return Ok(list);
         }
 
-        // GET: api/admin/footerapi
+        // GET: api/v1/admin/footer/{id}
         [System.Web.Http.HttpGet]
-        [Route("api/FooterApi/{id}")]
+        [Route("{id}")]
         public IHttpActionResult Get(int id)
         {
             var footer = db.Footers.FirstOrDefault(f => f.ID == id);
@@ -31,8 +35,9 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             return Ok(footer);
         }
 
+        // GET: api/v1/admin/footer/active
         [System.Web.Http.HttpGet]
-        [Route("api/FooterApi/active")]
+        [Route("active")]
         public IHttpActionResult GetActiveFooter()
         {
             var activeFooter = db.Footers.FirstOrDefault(f => f.IsActive == 1);
@@ -41,8 +46,9 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             return Ok(activeFooter);
         }
 
-        // POST: api/admin/footerapi
+        // POST: api/v1/admin/footer
         [System.Web.Http.HttpPost]
+        [Route("")]
         public IHttpActionResult Create([FromBody] Footer model)
         {
             if (!ModelState.IsValid)
@@ -57,9 +63,9 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             return Ok(model);
         }
 
-        // PUT: api/FooterApi
+        // PUT: api/v1/admin/footer/{id}
         [System.Web.Http.HttpPut]
-        [Route("api/FooterApi/{id}")]
+        [Route("{id}")]
         public IHttpActionResult Update(int id, [FromBody] Footer model)
         {
             var footer = db.Footers.FirstOrDefault(f => f.ID == id);
@@ -83,9 +89,9 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             return Ok(footer);
         }
 
-        // PUT: api/FooterApi/{id}/active - Thêm endpoint mới để xử lý toggle active
+        // PUT: api/v1/admin/footer/{id}/active
         [System.Web.Http.HttpPut]
-        [Route("api/FooterApi/{id}/active")]
+        [Route("{id}/active")]
         public IHttpActionResult ToggleActive(int id, [FromBody] JObject data)
         {
             try
@@ -100,10 +106,8 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
                 int newActiveState = isActiveValue.Value<int>();
 
-                // Nếu đang bật footer này (newActiveState = 1)
                 if (newActiveState == 1)
                 {
-                    // Tắt tất cả footer khác trước
                     var allOtherFooters = db.Footers.Where(f => f.ID != id).ToList();
                     foreach (var otherFooter in allOtherFooters)
                     {
@@ -111,7 +115,6 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     }
                 }
 
-                // Cập nhật trạng thái footer hiện tại
                 footer.IsActive = newActiveState;
 
                 int unixTimestamp = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
@@ -119,7 +122,6 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
                 db.SaveChanges();
 
-                // Trả về thông báo chi tiết
                 string message;
                 if (newActiveState == 1)
                 {
@@ -144,9 +146,9 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             }
         }
 
-        // DELETE: api/FooterApi
+        // DELETE: api/v1/admin/footer/{id}
         [System.Web.Http.HttpDelete]
-        [Route("api/FooterApi/{id}")]
+        [Route("{id}")]
         public IHttpActionResult Delete(int id)
         {
             var footer = db.Footers.FirstOrDefault(f => f.ID == id);
@@ -165,7 +167,6 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
         public ActionResult EditFooter(int? id)
         {
-            // Lấy đúng footer theo id truyền vào, nếu không có thì lấy bản ghi đầu tiên
             var footer = id.HasValue
                 ? db.Footers.FirstOrDefault(f => f.ID == id.Value)
                 : db.Footers.FirstOrDefault();
