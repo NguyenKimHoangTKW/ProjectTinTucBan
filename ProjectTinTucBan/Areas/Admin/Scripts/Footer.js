@@ -5,7 +5,6 @@
     // Sự kiện sửa
     $(document).on('click', '.btn-sua-footer', function () {
         var id = $(this).data('id');
-        // Chuyển hướng sang đúng controller/action
         window.location.href = '/Admin/Footer/EditFooter?id=' + id;
     });
 
@@ -64,7 +63,6 @@
         performToggleAction(id, isChecked, $checkbox);
     });
 
-    // Hàm thực hiện toggle action
     function performToggleAction(id, isChecked, $checkbox) {
         isProcessingToggle = true;
         $('.toggle-active').prop('disabled', true);
@@ -77,11 +75,9 @@
             contentType: 'application/json',
             data: JSON.stringify({ IsActive: isChecked ? 1 : 0 }),
             success: function (response) {
-                // Luôn reload lại bảng để đồng bộ trạng thái
                 forceReloadFooterData();
             },
             error: function (xhr) {
-                // Fallback cũng phải reload lại bảng
                 performToggleActionFallback(id, isChecked, $checkbox);
             },
             complete: function () {
@@ -91,21 +87,16 @@
         });
     }
 
-    // Fallback method - Cập nhật từng footer riêng lẻ
     function performToggleActionFallback(id, isChecked, $checkbox) {
         if (isChecked) {
-            // Bước 1: Lấy danh sách tất cả footer
             $.ajax({
                 url: '/api/v1/admin/footer',
                 type: 'GET',
                 success: function (allFooters) {
                     var updatePromises = [];
-
-                    // Bước 2: Tắt tất cả footer khác
                     allFooters.forEach(function (footer) {
                         if (footer.ID != id && (footer.IsActive === 1 || footer.IsActive === true)) {
                             var updateData = Object.assign({}, footer, { IsActive: 0 });
-
                             var promise = $.ajax({
                                 url: '/api/v1/admin/footer/' + footer.ID,
                                 type: 'PUT',
@@ -115,8 +106,6 @@
                             updatePromises.push(promise);
                         }
                     });
-
-                    // Bước 3: Sau khi tắt hết, bật footer hiện tại
                     Promise.all(updatePromises).then(function () {
                         updateCurrentFooter(id, isChecked);
                     }).catch(function (error) {
@@ -128,7 +117,6 @@
                 }
             });
         } else {
-            // Chỉ tắt footer hiện tại
             updateCurrentFooter(id, isChecked);
         }
     }
@@ -139,14 +127,12 @@
             type: 'GET',
             success: function (currentFooter) {
                 var updateData = Object.assign({}, currentFooter, { IsActive: isChecked ? 1 : 0 });
-
                 $.ajax({
                     url: '/api/v1/admin/footer/' + id,
                     type: 'PUT',
                     contentType: 'application/json',
                     data: JSON.stringify(updateData),
                     success: function () {
-                        // Bỏ thông báo thành công
                         forceReloadFooterData();
                     },
                     error: function (xhr) {
@@ -157,28 +143,21 @@
         });
     }
 
-    // HÀM RELOAD DỮ LIỆU
     function forceReloadFooterData() {
         var timestamp = new Date().getTime();
-
         $.ajax({
             url: '/api/v1/admin/footer?_=' + timestamp,
             type: 'GET',
             cache: false,
             success: function (data) {
-                // Clear và reload DataTable
                 dataTable.clear();
                 dataTable.rows.add(data);
                 dataTable.draw();
-
-                // Enable lại tất cả checkbox
                 setTimeout(function () {
                     $('.toggle-active').prop('disabled', false);
                 }, 300);
             },
             error: function (xhr) {
-                // Bỏ thông báo lỗi
-                // Vẫn enable lại checkbox dù có lỗi
                 setTimeout(function () {
                     $('.toggle-active').prop('disabled', false);
                 }, 300);
@@ -186,14 +165,15 @@
         });
     }
 
+    // Khởi tạo DataTable với escapeHtml cho toàn bộ trường text
     function initDataTable() {
         dataTable = $('#table_load_footer').DataTable({
+            ...dataTableDefaults,
             "processing": true,
             "serverSide": false,
             "searching": true,
             "ordering": true,
             "paging": true,
-            "lengthMenu": [5, 10, 20, 50],
             "data": [],
             "columns": [
                 { "data": "ID", "visible": false },
@@ -205,11 +185,26 @@
                         return meta.row + meta.settings._iDisplayStart + 1;
                     }
                 },
-                { "data": "FullName" },
-                { "data": "EnglishName" },
-                { "data": "DiaChi" },
-                { "data": "DienThoai" },
-                { "data": "Email" },
+                {
+                    "data": "FullName",
+                    "render": function (data) { return escapeHtml(data); }
+                },
+                {
+                    "data": "EnglishName",
+                    "render": function (data) { return escapeHtml(data); }
+                },
+                {
+                    "data": "DiaChi",
+                    "render": function (data) { return escapeHtml(data); }
+                },
+                {
+                    "data": "DienThoai",
+                    "render": function (data) { return escapeHtml(data); }
+                },
+                {
+                    "data": "Email",
+                    "render": function (data) { return escapeHtml(data); }
+                },
                 {
                     "data": "NgayThanhLap",
                     "render": function (data) {
@@ -220,10 +215,8 @@
                     "data": "IsActive",
                     "orderable": false,
                     "render": function (data, type, row) {
-                        // CHỈ HIỂN THỊ TOGGLE SWITCH KHÔNG CÓ TEXT TRẠNG THÁI
                         var isActive = (data === 1 || data === true || data === "1");
                         var checked = isActive ? "checked" : "";
-
                         return `
                             <div class="text-center">
                                 <label class="switch">
@@ -237,13 +230,13 @@
                 {
                     "data": null,
                     "orderable": false,
-                    "render": function (data) {
+                    "render": function (data, type, row) {
                         return `
                             <div class="text-center d-flex flex-row justify-content-center">
-                                <button class="btn-action btn-edit btn-sua-footer" data-id="${data.ID}" title="Sửa">
+                                <button class="btn-action btn-edit btn-sua-footer" data-id="${row.ID}" title="Sửa">
                                     <i class="anticon anticon-edit"></i>
                                 </button>
-                                <button class="btn-action btn-delete btn-xoa-footer" data-id="${data.ID}" title="Xóa">
+                                <button class="btn-action btn-delete btn-xoa-footer" data-id="${row.ID}" title="Xóa">
                                     <i class="anticon anticon-delete"></i>
                                 </button>
                             </div>
@@ -271,7 +264,6 @@
     // Sự kiện submit form (thêm/sửa)
     $('#footerForm').submit(function (e) {
         e.preventDefault();
-        // Xóa thông báo lỗi cũ
         $('.field-validation-error').remove();
 
         var id = $('#ID').val();
@@ -279,14 +271,12 @@
         var dienThoai = $('#DienThoai').val();
         var isValid = true;
 
-        // Validate ngày thành lập: phải đúng định dạng dd/MM/yyyy
         var dateRegex = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/;
         if (!dateRegex.test(ngayThanhLapStr)) {
             $('#NgayThanhLap').after('<span class="field-validation-error text-danger">Ngày thành lập phải đúng định dạng dd/MM/yyyy.</span>');
             isValid = false;
         }
 
-        // Validate số điện thoại: cho phép ký tự đặc biệt, không bắt buộc bắt đầu bằng 0
         var phoneRegex = /^[0-9\s\-\(\)]+$/;
         if (dienThoai && !phoneRegex.test(dienThoai)) {
             $('#DienThoai').after('<span class="field-validation-error text-danger">Số điện thoại chỉ được chứa số, khoảng trắng, dấu ngoặc và dấu gạch ngang.</span>');
@@ -298,18 +288,17 @@
         }
 
         var data = {
-            FullName: $('#FullName').val(),
-            EnglishName: $('#EnglishName').val(),
-            DiaChi: $('#DiaChi').val(),
-            DienThoai: dienThoai,
-            Email: $('#Email').val(),
+            FullName: escapeHtml($('#FullName').val()),
+            EnglishName: escapeHtml($('#EnglishName').val()),
+            DiaChi: escapeHtml($('#DiaChi').val()),
+            DienThoai: escapeHtml(dienThoai),
+            Email: escapeHtml($('#Email').val()),
             NgayThanhLap: parseDateToUnix(ngayThanhLapStr),
-            VideoUrl: $('#VideoUrl').val(),
-            FooterCopyright: $('#FooterCopyright').val(),
-            FooterNote: $('#FooterNote').val()
+            VideoUrl: escapeHtml($('#VideoUrl').val()),
+            FooterCopyright: escapeHtml($('#FooterCopyright').val()),
+            FooterNote: escapeHtml($('#FooterNote').val())
         };
         if (id) {
-            // Sửa
             $.ajax({
                 url: '/api/v1/admin/footer/' + id,
                 type: 'PUT',
@@ -320,14 +309,12 @@
                     $('#ID').val('');
                     $('#footerModal').modal('hide');
                     loadFooter();
-                    // Bỏ thông báo thành công
                 },
                 error: function () {
                     // Bỏ thông báo lỗi
                 }
             });
         } else {
-            // Thêm mới
             $.ajax({
                 url: '/api/v1/admin/footer/',
                 type: 'POST',
@@ -337,7 +324,6 @@
                     $('#footerForm')[0].reset();
                     $('#footerModal').modal('hide');
                     loadFooter();
-                    // Bỏ thông báo thành công
                 },
                 error: function () {
                     // Bỏ thông báo lỗi
@@ -346,7 +332,6 @@
         }
     });
 
-    // Hàm chuyển "dd/MM/yyyy" sang Unix timestamp (UTC 00:00:00)
     function parseDateToUnix(dateStr) {
         if (!dateStr) return null;
         var parts = dateStr.split('/');
@@ -356,7 +341,6 @@
         return Math.floor(d.getTime() / 1000);
     }
 
-    // Hàm chuyển unix timestamp sang chuỗi ngày dd/MM/yyyy
     function unixToDateStr(unix) {
         if (!unix) return "";
         var d = new Date(unix * 1000);
@@ -404,15 +388,14 @@
 </style>
 `;
 
-    // Thêm CSS vào head
     if (!$('#toggle-loading-styles').length) {
         $('head').append('<div id="toggle-loading-styles">' + toggleLoadingCSS + '</div>');
     }
 
-    // Khởi tạo bảng và load dữ liệu
     initDataTable();
     loadFooter();
-}); // Thiết lập ngôn ngữ mặc định cho tất cả DataTable
+});
+
 $.extend(true, $.fn.dataTable.defaults, {
     language: {
         "decimal": "",

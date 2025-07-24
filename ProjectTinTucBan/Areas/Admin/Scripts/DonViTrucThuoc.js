@@ -222,12 +222,12 @@ $(document).ready(function () {
 // Khởi tạo DataTable
 function initDataTable() {
     dataTable = $('#table_load_donvi').DataTable({
+        ...dataTableDefaults,
         "processing": true,
         "serverSide": false,
         "searching": true,
         "ordering": true,
         "paging": true,
-        "lengthMenu": [5, 10, 20, 50],
         "data": [],
         "columns": [
             { "data": "id", "visible": false },
@@ -237,15 +237,21 @@ function initDataTable() {
                 "searchable": false,
                 "defaultContent": ""
             },
-            { "data": "tenDonVi" },
+            {
+                "data": "tenDonVi",
+                "render": function(data) { return escapeHtml(data); }
+            },
             {
                 "data": "idKhoi",
                 "render": function (data) {
                     var khoi = danhSachKhoi.find(k => k.id === data);
-                    return khoi ? khoi.tenKhoi : '';
+                    return khoi ? escapeHtml(khoi.tenKhoi) : '';
                 }
             },
-            { "data": "thuTuShow" },
+            {
+                "data": "thuTuShow",
+                "render": function(data) { return escapeHtml(data); }
+            },
             {
                 "data": "trangThai",
                 "orderable": false,
@@ -259,7 +265,10 @@ function initDataTable() {
                     `;
                 }
             },
-            { "data": "link" },
+            {
+                "data": "link",
+                "render": function(data) { return escapeHtml(data); }
+            },
             {
                 "data": "ngayDang",
                 "render": function (data) {
@@ -291,21 +300,21 @@ function initDataTable() {
         ],
         "columnDefs": [
             {
-                "targets": [1], // Cột STT
+                "targets": [1],
                 "width": "50px",
                 "className": "text-center"
             },
             {
-                "targets": [4], // Cột Thứ tự
+                "targets": [4],
                 "className": "text-center"
             },
             {
-                "targets": [5], // Cột Trạng thái
+                "targets": [5],
                 "width": "100px",
                 "className": "text-center"
             },
             {
-                "targets": [9], // Cột Hành động
+                "targets": [9],
                 "width": "120px",
                 "className": "text-center"
             }

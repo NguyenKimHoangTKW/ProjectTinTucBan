@@ -157,15 +157,15 @@ var dataTable;
 // Khởi tạo DataTable
 function initDataTable() {
     dataTable = $('#table_load_khoi').DataTable({
+        ...dataTableDefaults,
         "processing": true,
         "serverSide": false,
         "searching": true,
         "ordering": true,
         "paging": true,
-        "lengthMenu": [5, 10, 20, 50],
         "data": [],
         "columns": [
-            { "data": "id", "visible": false }, // Cột ID ẩn
+            { "data": "id", "visible": false },
             {
                 "data": null,
                 "orderable": false,
@@ -174,8 +174,14 @@ function initDataTable() {
                     return meta.row + meta.settings._iDisplayStart + 1;
                 }
             },
-            { "data": "tenKhoi" },
-            { "data": "thuTuShow" },
+            {
+                "data": "tenKhoi",
+                "render": function(data) { return escapeHtml(data); }
+            },
+            {
+                "data": "thuTuShow",
+                "render": function(data) { return escapeHtml(data); }
+            },
             {
                 "data": null,
                 "orderable": false,
@@ -225,11 +231,11 @@ function initDataTable() {
         ],
         "columnDefs": [
             {
-                "targets": [1, 3, 4, 5, 6, 7], // STT, Thứ tự, Trạng thái, Ngày tạo, Ngày cập nhật, Thao tác
+                "targets": [1, 3, 4, 5, 6, 7],
                 "className": "text-center"
             },
             {
-                "targets": [2], // Tên khối
+                "targets": [2],
                 "className": "text-left"
             }
         ],
