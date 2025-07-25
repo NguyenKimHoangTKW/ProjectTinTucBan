@@ -439,12 +439,6 @@ function renderSubMenus(subMenus, menuId, groupId) {
             <li class="list-group-item py-1 px-2">
                 <div class="d-flex justify-content-between align-items-center">
                     <span>${SubName} ${sub.SubMenuLink ? `<span class="text-muted ml-2">(${sub.SubMenuLink})</span>` : ''}</span>
-                    <button class="btn btn-sm btn-outline-danger delete-submenu-btn"
-                            data-submenuid="${sub.SubMenuId}" 
-                            data-menuid="${menuId}" 
-                            data-groupid="${groupId}">
-                        <i class="fas fa-times"></i>
-                    </button>
                 </div>
             </li>
         `;
