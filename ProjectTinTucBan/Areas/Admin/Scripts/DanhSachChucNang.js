@@ -112,27 +112,21 @@ $(document).on("click", "#btnEditFromDetail", function () {
     openEditFunctionModal(id);
 });
 // Tự động mở rộng textarea khi nhập
-document.addEventListener('DOMContentLoaded', function () {
-    var moTa = document.getElementById('moTa');
-    if (moTa) {
-        // Gọi khi load modal (edit/add)
-        moTa.addEventListener('input', function () {
-            autoResizeTextarea(this);
-        });
-        // Gọi khi show modal để khớp chiều cao với nội dung hiện tại
-        autoResizeTextarea(moTa);
-    }
-    // Nếu modal có thể load lại nội dung, nên gọi lại autoResizeTextarea sau khi set value
-    $('#FunctionModal').on('shown.bs.modal', function () {
-        var moTa = document.getElementById('moTa');
-        if (moTa) autoResizeTextarea(moTa);
+$(document).on('input', '#moTa', function () {
+    this.style.height = 'auto';
+    let newHeight = this.scrollHeight + 100;
+    if (newHeight > 1000) newHeight = 1000;
+    this.style.height = newHeight + 'px';
+});
+$(document).ready(function () {
+    // Áp dụng cho tất cả ô trong bảng, trừ cột thao tác
+    $('#data-table').on('mouseenter', 'td', function () {
+        // Nếu chưa có title hoặc title khác nội dung, thì cập nhật
+        if (!$(this).attr('title') || $(this).attr('title') !== $(this).text().trim()) {
+            $(this).attr('title', $(this).text().trim());
+        }
     });
 });
-function autoResizeTextarea(el) {
-    el.style.height = 'auto';
-    el.style.height = (el.scrollHeight) + 'px';
-}
-
 
 
     /**
@@ -683,6 +677,13 @@ async function loadFunctionMenus(functionId) {
  * Mở modal chỉnh sửa chức năng
  */
 async function openEditFunctionModal(functionId) {
+    // Đảm bảo modal được reset config mỗi lần mở
+    $("#FunctionModal").modal('hide');
+    $("#FunctionModal").modal('dispose');
+    $("#FunctionModal").modal({
+        backdrop: 'static',
+        keyboard: false
+    });
     $("#FunctionModal").modal("show");
     showLoading("#function-content", "Đang tải thông tin...");
 
@@ -726,7 +727,8 @@ async function openEditFunctionModal(functionId) {
 
             $(".is-invalid").removeClass("is-invalid");
             $(".invalid-feedback").remove();
-
+            $("#FunctionModal").data('bs.modal')._config.backdrop = true;
+            $("#FunctionModal").data('bs.modal')._config.keyboard = true;
         } else {
             hideLoading("#function-content");
             Sweet_Alert("error", response.message || "Không thể tải thông tin chức năng admin");
@@ -740,6 +742,13 @@ async function openEditFunctionModal(functionId) {
  * Mở modal xem chi tiết chức năng
  */
 async function openDetailFunctionModal(functionId) {
+    // Đảm bảo modal được reset config mỗi lần mở
+    $("#detailFunctionModal").modal('hide');
+    $("#detailFunctionModal").modal('dispose');
+    $("#detailFunctionModal").modal({
+        backdrop: 'static',
+        keyboard: false
+    });
     $("#detailFunctionModal").modal("show");
     showLoading("#FunctionDetailModal");
     try {
@@ -772,6 +781,8 @@ async function openDetailFunctionModal(functionId) {
 
             // Chỉ mở modal chi tiết
             $("#detailFunctionModal").modal("show");
+            $("#detailFunctionModal").data('bs.modal')._config.backdrop = true;
+            $("#detailFunctionModal").data('bs.modal')._config.keyboard = true;
         } else {
             Sweet_Alert("error", "Không thể tải thông tin chức năng admin");
         }

@@ -303,6 +303,9 @@
                 margin: 5px 0;
             }
     }
+    #moTa {
+        resize: none;
+    }
 </style>
 
 
@@ -381,7 +384,7 @@
 
                         <div class="form-group">
                             <label for="moTa">Mô tả <span class="text-danger">*</span></label>
-                            <textarea class="form-control" id="moTa" name="moTa" rows="3" placeholder="Nhập mô tả quyền admin" required></textarea>
+                            <textarea class="form-control" id="moTa" style="min-height: 100px;" name="moTa" rows="3" placeholder="Nhập mô tả quyền admin" required></textarea>
                             <small id="moTaError" class="form-text text-muted">Mô tả chi tiết về quyền này</small>
                         </div>
                         <div id="editOnlyFields" style="display:none">

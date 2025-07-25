@@ -35,8 +35,6 @@
                     <li><strong>Tên đăng nhập:</strong> ${user.username}</li>
                     <li><strong>Email:</strong> ${user.email}</li>
                     <li><strong>Vai trò:</strong> ${getRoleName(user.role)}</li>
-                    <li><strong>Vai trò ID:</strong> ${user.role}</li>
-                    <li><strong>Trạng thái:</strong> ${user.isbanner}</li>
                 </ul>
             </div>
         `;
@@ -83,7 +81,7 @@
             case 4:
                 return "Biên tập viên";
             default:
-                return "Không xác định";
+                return "Chưa phân quyền";
         }
     }
 });

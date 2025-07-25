@@ -54,7 +54,8 @@
         #data-table tbody tr:hover {
             background-color: #f8f8f8;
         }
-
+        #data-table tbody td:first-child,
+        #data-table tbody td:nth-child(3),
         #data-table tbody td:nth-child(4),
         #data-table tbody td:nth-child(5),
         #data-table tbody td:nth-child(6),
@@ -77,15 +78,6 @@
             text-align: left;
         }
 
-        /* Chống tràn cho cột Link */
-        #data-table th:nth-child(3),
-        #data-table td:nth-child(3) {
-            max-width: 150px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            text-align: left;
-        }
 
     /* Styling for status toggle switch */
     .switch {
@@ -363,7 +355,6 @@
                         <tr>
                             <th>STT</th>
                             <th>Tên mục lục</th>
-                            <th>Link</th>
                             <th>Vị trí hiển thị</th>
                             <th>Trạng thái</th>
                             <th>Ngày đăng</th>
@@ -406,18 +397,6 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="link">Link URL <i class="text-muted">(Tự động tạo)</i></label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control bg-light" id="link" name="link" placeholder="Đường dẫn URL sẽ được tự động tạo" readonly>
-                                    <div class="input-group-append">
-                                        <span class="input-group-text"><i class="anticon anticon-link"></i></span>
-                                    </div>
-                                </div>
-                                <small class="form-text text-muted">Đường dẫn URL được tự động tạo từ tên mục lục</small>
-                            </div>
-                        </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="thuTuShow">Vị trí hiển thị <span class="text-danger">*</span></label>

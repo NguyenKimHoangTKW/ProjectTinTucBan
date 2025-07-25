@@ -32,8 +32,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                    .Select(x => new
                    {
                        x.ID,
-                       x.TenMucLuc,
-                       x.Link,
+                       x.TenMucLuc,                    
                        x.ThuTuShow,
                        x.NgayCapNhat,
                        x.NgayDang,
@@ -72,7 +71,6 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     {
                         ID = mucLuc.ID,
                         TenMucLuc = mucLuc.TenMucLuc,
-                        Link = mucLuc.Link,
                         ThuTuShow = mucLuc.ThuTuShow,
                         NgayCapNhat = mucLuc.NgayCapNhat,
                         NgayDang = mucLuc.NgayDang,
@@ -137,7 +135,6 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 var newMucLuc = new MucLuc
                 {
                     TenMucLuc = Item.TenMucLuc,
-                    Link = Item.Link,
                     ThuTuShow = Item.ThuTuShow,
                     NgayDang = unixTimestamp,
                     NgayCapNhat = unixTimestamp,
@@ -195,7 +192,6 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
                 // Cập nhật thông tin mục lục
                 existingMucLuc.TenMucLuc = Item.TenMucLuc;
-                existingMucLuc.Link = Item.Link;
                 existingMucLuc.ThuTuShow = Item.ThuTuShow;
                 existingMucLuc.IsActive = Item.IsActive; // Đã được gửi lên như một số (1 hoặc 0)
                 unixTimestamp = (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds();

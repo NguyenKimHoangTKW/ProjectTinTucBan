@@ -69,6 +69,23 @@ $(document).ready(function () {
     });
 });
 
+$(document).on('input', '#moTa', function () {
+    this.style.height = 'auto';
+    let newHeight = this.scrollHeight + 50;
+    if (newHeight > 1000) newHeight = 1000;
+    this.style.height = newHeight + 'px';
+});
+
+$(document).ready(function () {
+    // Áp dụng cho tất cả ô trong bảng, trừ cột thao tác
+    $('#data-table').on('mouseenter', 'td', function () {
+        // Nếu chưa có title hoặc title khác nội dung, thì cập nhật
+        if (!$(this).attr('title') || $(this).attr('title') !== $(this).text().trim()) {
+            $(this).attr('title', $(this).text().trim());
+        }
+    });
+});
+
 // Thiết lập tìm kiếm nâng cao
 function setupAdvancedSearch() {
     // Sự kiện cho nút tìm kiếm
@@ -292,6 +309,13 @@ async function load_data() {
 
 // Open modal for editing an existing role
 async function openEditRoleModal(roleId) {
+    // Đảm bảo modal được reset config mỗi lần mở
+    $("#RolesModal").modal('hide');
+    $("#RolesModal").modal('dispose');
+    $("#RolesModal").modal({
+        backdrop: 'static',
+        keyboard: false
+    });
     $("#RolesModal").modal("show");
     // Bỏ readonly/disabled khi chuyển sang chế độ edit
     $(".form-fields input, .form-fields textarea").prop("readonly", false).prop("disabled", false);
@@ -303,7 +327,7 @@ async function openEditRoleModal(roleId) {
     $("#roleDetails").hide();
     $("#formButtons").show();
     $("#viewButtons").hide();
-
+    
     // Show loading overlay
     showLoading(".modal-body");
 
@@ -345,6 +369,8 @@ async function openEditRoleModal(roleId) {
 
             // Show the modal
             $("#RolesModal").modal("show");
+            $("#RolesModal").data('bs.modal')._config.backdrop = true;
+            $("#RolesModal").data('bs.modal')._config.keyboard = true;
         } else {
             Sweet_Alert("error", "Không tìm thấy thông tin quyền admin");
         }
@@ -509,6 +535,12 @@ async function deleteRole(roleId) {
 
 // Xử lý mở và show trang detail role
 async function openViewRoleModal(roleId) {
+    $("#RolesModal").modal('hide');
+    $("#RolesModal").modal('dispose');
+    $("#RolesModal").modal({
+        backdrop: 'static',
+        keyboard: false
+    });
     $("#RolesModal").modal("show");
     $("#RolesForm")[0].reset();
 
@@ -549,6 +581,9 @@ async function openViewRoleModal(roleId) {
 
             $("#RolesModalLabel").text("Xem chi tiết quyền Admin");
             $("#RolesModal").modal("show");
+            $("#RolesModal").data('bs.modal')._config.backdrop = true;
+            $("#RolesModal").data('bs.modal')._config.keyboard = true;
+
         } else {
             Sweet_Alert("error", "Không tìm thấy thông tin quyền admin");
         }

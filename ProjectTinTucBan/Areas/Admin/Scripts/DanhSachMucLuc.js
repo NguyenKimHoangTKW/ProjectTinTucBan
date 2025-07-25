@@ -25,17 +25,6 @@ $(document).ready(function () {
         saveMucLuc();
     });
 
-    // Gán sự kiện sinh slug khi nhập tên mục lục (static)
-    $("#tenMucLuc").on("input", function () {
-        const tenMucLuc = $(this).val();
-        if (tenMucLuc) {
-            const linkSuggest = convertToSlug(tenMucLuc);
-            $("#link").val('/' + linkSuggest);
-        } else {
-            $("#link").val('');
-        }
-    });
-
     // Gán sự kiện cho các nút sửa, xóa, chuyển trạng thái (dynamic - dùng event delegation)
     $('#data-table').on("click", ".btn-edit", function () {
         const id = $(this).data("id");
@@ -73,6 +62,16 @@ $(document).ready(function () {
         $("#formMode").val("add");
         $("#editOnlyFields").hide();
         // Reset các trường lỗi hoặc trạng thái UI khác nếu có
+    });
+});
+
+$(document).ready(function () {
+    // Áp dụng cho tất cả ô trong bảng, trừ cột thao tác
+    $('#data-table').on('mouseenter', 'td', function () {
+        // Nếu chưa có title hoặc title khác nội dung, thì cập nhật
+        if (!$(this).attr('title') || $(this).attr('title') !== $(this).text().trim()) {
+            $(this).attr('title', $(this).text().trim());
+        }
     });
 });
 
@@ -142,7 +141,13 @@ function openMucLucModalForEdit(id) {
 
     // Xóa loading indicator cũ nếu có
     $("#formLoading").remove();
-
+    // Đảm bảo modal được reset config mỗi lần mở
+    $("#mucLucModal").modal('hide');
+    $("#mucLucModal").modal('dispose');
+    $("#mucLucModal").modal({
+        backdrop: 'static',
+        keyboard: false
+    });
     // Mở modal
     $("#mucLucModal").modal("show");
 
@@ -182,9 +187,6 @@ function saveMucLuc() {
 
     if (hasError) return;
 
-    // Generate link từ tên
-    const link = '/' + convertToSlug(tenMucLuc);
-    $("#link").val(link);
 
     const isActive = $("#isActive").prop("checked");
 
@@ -222,7 +224,6 @@ async function delete_muc_luc(id) {
 // Thêm mục lục mới từ dữ liệu trong modal
 async function add_new_in_modal() {
     const tenMucLuc = $("#tenMucLuc").val();
-    const link = $("#link").val();
     const thuTuShow = $("#thuTuShow").val();
     const isActive = $("#isActive").prop("checked"); // Boolean value
 
@@ -233,7 +234,6 @@ async function add_new_in_modal() {
             contentType: 'application/json',
             data: JSON.stringify({
                 TenMucLuc: tenMucLuc,
-                Link: link,
                 ThuTuShow: parseInt(thuTuShow),
                 IsActive: isActive // Boolean value
             })
@@ -260,12 +260,10 @@ async function add_new_in_modal() {
 async function update_muc_luc_in_modal() {
     const id = $("#mucLucId").val();
     const tenMucLuc = $("#tenMucLuc").val().trim();
-    const link = $("#link").val();
     const thuTuShow = $("#thuTuShow").val().trim();
     const isActive = $("#isActive").prop("checked"); // Boolean value
 
     try {
-        // Hiển thị loading overlay toàn màn hình
         showLoading(null, "Đang cập nhật...");
 
         const res = await $.ajax({
@@ -275,14 +273,11 @@ async function update_muc_luc_in_modal() {
             data: JSON.stringify({
                 ID: parseInt(id),
                 TenMucLuc: tenMucLuc,
-                Link: link,
                 ThuTuShow: parseInt(thuTuShow),
-                IsActive: isActive // Boolean value
+                IsActive: isActive
             })
         });
 
-        await wait
-        // Ẩn loading
         hideLoading();
 
         if (res.success) {
@@ -293,7 +288,6 @@ async function update_muc_luc_in_modal() {
             Sweet_Alert("error", res.message);
         }
     } catch (error) {
-        // Hiển thị thông báo lỗi chi tiết từ máy chủ nếu có
         if (error.responseJSON) {
             Sweet_Alert("error", error.responseJSON.message || "Đã xảy ra lỗi khi cập nhật mục lục");
         } else {
@@ -326,7 +320,6 @@ async function load_data() {
                         <tr>
                             <th>STT</th>
                             <th>Tên mục lục</th>
-                            <th>Link</th>
                             <th>Vị trí hiển thị</th>
                             <th>Trạng thái</th>
                             <th>Ngày đăng</th>
@@ -371,7 +364,6 @@ async function load_data() {
                                 return type === 'display' ? escapeHtml(data) : data;
                             }
                         },
-                        { data: 'Link', defaultContent },
                         { data: 'ThuTuShow', defaultContent },
                         {
                             data: 'IsActive', defaultContent,
@@ -433,7 +425,6 @@ async function load_data() {
                         <tr>
                             <th>STT</th>
                             <th>Tên mục lục</th>
-                            <th>Link</th>
                             <th>Vị trí hiển thị</th>
                             <th>Trạng thái</th>
                             <th>Ngày đăng</th>
@@ -471,8 +462,6 @@ async function get_muc_luc_by_id(id) {
         if (res.success && res.data) {
             // Điền dữ liệu vào form
             $("#tenMucLuc").val(res.data.TenMucLuc);
-            $("#link").val(res.data.Link);
-            $("#link").prop('readonly', true); // Thiết lập link chỉ đọc
             $("#thuTuShow").val(res.data.ThuTuShow);
 
             // Thiết lập checkbox IsActive dựa trên giá trị từ server
@@ -501,6 +490,8 @@ async function get_muc_luc_by_id(id) {
             } else {
                 $("#ngayCapNhat").val(res.data.NgayCapNhat || "");
             }
+            $("#mucLucModal").data('bs.modal')._config.backdrop = true;
+            $("#mucLucModal").data('bs.modal')._config.keyboard = true;
         } else {
             Sweet_Alert("error", res.message || "Không tìm thấy thông tin mục lục");
         }

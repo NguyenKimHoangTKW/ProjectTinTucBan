@@ -138,6 +138,24 @@ $(document).ready(function () {
     });
 });
 
+$(document).on('input', '#SDT', function () {
+    this.value = this.value.replace(/[^0-9]/g, '');
+});
+
+$(document).ready(function () {
+    // Áp dụng cho tất cả ô trong bảng, trừ cột thao tác
+    $('#data-table').on('mouseenter', 'td', function () {
+        // Nếu chưa có title hoặc title khác nội dung, thì cập nhật
+        if (!$(this).attr('title') || $(this).attr('title') !== $(this).text().trim()) {
+            $(this).attr('title', $(this).text().trim());
+        }
+    });
+});
+
+
+//không cho drop model
+
+
 // ================== HÀM XỬ LÝ DỮ LIỆU, AJAX, TIỆN ÍCH ==================
 
 // Tải danh sách vai trò cho dropdown
@@ -419,7 +437,13 @@ async function openViewUserModal(userId) {
     $("#permissionButtons").hide();
     $('#userModalTabs a[href="#info-content"]').tab('show');
     $("#permissions-tab-item").hide();
-    $("#UserModalLabel").text("Chi tiết tài khoản");
+    // Đảm bảo modal được reset config mỗi lần mở
+    $("#UserModal").modal('hide');
+    $("#UserModal").modal('dispose');
+    $("#UserModal").modal({
+        backdrop: 'static',
+        keyboard: false
+    });
     $("#UserModal").modal("show");
 
     try {
@@ -511,6 +535,8 @@ async function openViewUserModal(userId) {
                     $("#viewPermissionsTableBody").html('');
                     $("#noPermissionsMessage").show();
                 }
+                $("#UserModal").data('bs.modal')._config.backdrop = true;
+                $("#UserModal").data('bs.modal')._config.keyboard = true;
             } else {
                 $("#viewPermissionsTableBody").html('');
                 $("#noPermissionsMessage").show();
@@ -527,6 +553,13 @@ async function openViewUserModal(userId) {
 
 // Mở modal chỉnh sửa người dùng
 async function openEditUserModal(userId) {
+    // Reset lại thông báo lỗi về mặc định
+    $("#TenDangNhapError").text("Tên đăng nhập của tài khoản").removeClass("text-danger").addClass("text-muted");
+    $("#TenHienThiError").text("Tên hiển thị của người dùng").removeClass("text-danger").addClass("text-muted");
+    $("#GmailError").text("Địa chỉ Gmail liên kết").removeClass("text-danger").addClass("text-muted");
+    $("#roleError").text("Quyền hạn của tài khoản").removeClass("text-danger").addClass("text-muted");
+    $("#SDTError").text("Số điện thoại liên hệ").removeClass("text-danger").addClass("text-muted");
+
     // Đặt lại form và thiết lập chế độ chỉnh sửa
     $("#UserForm")[0].reset();
 
@@ -540,10 +573,16 @@ async function openEditUserModal(userId) {
     // Reset và hiển thị tab thông tin
     $('#userModalTabs a[href="#info-content"]').tab('show');
     $("#permissions-tab-item").show(); // Hiển thị tab phân quyền khi ở chế độ chỉnh sửa
-
+    // Đảm bảo modal được reset config mỗi lần mở
+    $("#UserModal").modal('hide');
+    $("#UserModal").modal('dispose');
+    $("#UserModal").modal({
+        backdrop: 'static',
+        keyboard: false
+    });
     // Hiển thị modal trước với chỉ báo đang tải
-    $("#UserModalLabel").text("Đang tải thông tin...");
     $("#UserModal").modal("show");
+
 
     try {
         // Hiển thị lớp phủ loading
@@ -600,6 +639,9 @@ async function openEditUserModal(userId) {
 
             // Tải dữ liệu phân quyền trong tab phân quyền (nếu người dùng chuyển sang)
             loadUserPermissionsData(userId);
+            // Cho phép đóng modal lại sau khi load xong
+            $("#UserModal").data('bs.modal')._config.backdrop = true;
+            $("#UserModal").data('bs.modal')._config.keyboard = true;
         } else {
             Sweet_Alert("error", "Không tìm thấy thông tin tài khoản");
             $("#UserModal").modal("hide");
@@ -755,18 +797,18 @@ async function update_User_in_modal() {
         }
 
         // Xác thực số điện thoại (nếu nhập)
+        // Xác thực số điện thoại (nếu nhập)
         if (!sdt) {
             $("#SDTError").text("Vui lòng nhập số điện thoại").removeClass("text-muted").addClass("text-danger");
+            hasError = true;
+        } else if (!/^0[0-9]{9,19}$/.test(sdt)) {
+            $("#SDTError").text("Vui lòng nhập đúng định dạng điện thoại").removeClass("text-muted").addClass("text-danger");
             hasError = true;
         } else if (sdt.length > 20) {
             $("#SDTError").text("Số điện thoại không được vượt quá 20 ký tự").removeClass("text-muted").addClass("text-danger");
             hasError = true;
         } else {
-            const phoneRegex = /^[0-9]{8,20}$/;
-            if (!phoneRegex.test(sdt)) {
-                $("#SDTError").text("Số điện thoại chỉ gồm số và từ 8-20 ký tự").removeClass("text-muted").addClass("text-danger");
-                hasError = true;
-            }
+            $("#SDTError").text("Số điện thoại liên hệ").removeClass("text-danger").addClass("text-muted");
         }
 
         if (hasError) return;
