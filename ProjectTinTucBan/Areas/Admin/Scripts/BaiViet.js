@@ -883,7 +883,6 @@ function setupBaiVietTableEvents() {
         window.open(url, '_blank');
     });
     $(document).on('click', '#btnLuuBaiViet', async function () {
-        $('#savingSpinner').removeClass('d-none'); // 👉 Hiện spinner
 
         const tieuDe = $('#TieuDe').val().trim();
         const noiDung = CKEDITOR.instances.NoiDung.getData().trim();
@@ -926,8 +925,6 @@ function setupBaiVietTableEvents() {
             }
         } catch (err) {
             Swal.fire({ icon: 'error', title: 'Lỗi', text: 'Không thể lưu bài viết.' });
-        } finally {
-            $('#savingSpinner').addClass('d-none'); //
         }
     });
 }
