@@ -58,6 +58,7 @@ $(document).ready(function () {
 
     // Sự kiện đóng modal
     $("#UserModal").on("hidden.bs.modal", function () {
+        $(".modal-backdrop").remove();  
         $(".form-fields").show();
         $("#userDetails").hide();
         $("#formButtons").show();
@@ -82,6 +83,7 @@ $(document).ready(function () {
             Sweet_Alert("error", "Không tìm thấy ID tài khoản để chỉnh sửa");
             return;
         }
+        $(".modal-backdrop").remove();  // mới thêm cái này vào
         openEditUserModal(UserID);
     });
 
