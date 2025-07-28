@@ -1,4 +1,4 @@
-﻿﻿@{
+﻿@{
     ViewBag.Title = "Quản lý Đơn vị trực thuộc";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
@@ -16,12 +16,12 @@
         margin-bottom: 25px;
     }
 
-    .page-header .header-title {
-        font-size: 1.5rem;
-        font-weight: 600;
-        margin: 0;
-        color: #333;
-    }
+        .page-header .header-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+            color: #333;
+        }
 
     .breadcrumb {
         background: transparent;
@@ -33,14 +33,14 @@
         color: #666;
     }
 
-    .breadcrumb-item a {
-        color: #007bff;
-        text-decoration: none;
-    }
+        .breadcrumb-item a {
+            color: #007bff;
+            text-decoration: none;
+        }
 
-    .breadcrumb-item.active {
-        color: #333;
-    }
+        .breadcrumb-item.active {
+            color: #333;
+        }
 
     /* ===== CARD STYLES ===== */
     .card {
@@ -72,10 +72,10 @@
         font-weight: 500;
     }
 
-    .btn-primary:hover {
-        background-color: #4c7de7;
-        border-color: #4c7de7;
-    }
+        .btn-primary:hover {
+            background-color: #4c7de7;
+            border-color: #4c7de7;
+        }
 
     /* ===== DATA TABLE STYLES ===== */
     .dataTables_wrapper .dataTables_filter {
@@ -102,73 +102,71 @@
         margin-bottom: 20px;
     }
 
-    #table_load_donvi thead th {
-        padding: 15px 10px;
-        border-bottom: 1px solid #e8e8e8;
-        font-weight: 500;
-        color: #fff;
-        background-color: #5a8dee;
-        text-align: center !important;
-    }
+        #table_load_donvi th,
+        #table_load_donvi td {
+            text-align: center !important;
+        }
 
-    #table_load_donvi tbody td {
-        padding: 15px 10px;
-        border-bottom: 1px solid #e8e8e8;
-        color: #333;
-        text-align: left;
-        vertical-align: middle;
-    }
+            /* Căn trái cho cột Tên đơn vị (cột 2, vì cột 1 là ID ẩn) */
+            #table_load_donvi th:nth-child(2),
+            #table_load_donvi td:nth-child(2),
+            #table_load_donvi th:nth-child(3),
+            #table_load_donvi td:nth-child(3) {
+                text-align: left !important;
+            }
 
-    #table_load_donvi tbody tr:hover {
-        background-color: #f8f8f8;
-    }
+            /* Căn giữa cho cột STT */
+            #table_load_donvi th:nth-child(1),
+            #table_load_donvi td:nth-child(1) {
+                text-align: center !important;
+                width: 80px;
+            }
 
-    /* Căn giữa cho cột STT */
-    #table_load_donvi th:nth-child(2),
-    #table_load_donvi td:nth-child(2) {
-        text-align: center !important;
-        width: 80px;
-    }
+            /* Căn giữa cho cột Thứ tự (cột 5) */
+            #table_load_donvi th:nth-child(5),
+            #table_load_donvi td:nth-child(5) {
+                text-align: center !important;
+                width: 100px;
+            }
 
-    /* Căn giữa cột Thứ tự */
-    #table_load_donvi th:nth-child(5),
-    #table_load_donvi td:nth-child(5) {
-        text-align: center !important;
-        width: 100px;
-    }
+            /* Căn giữa cho các cột Ngày tạo, Ngày cập nhật, Hành động như cũ */
+            #table_load_donvi th:nth-child(8),
+            #table_load_donvi td:nth-child(8),
+            #table_load_donvi th:nth-child(9),
+            #table_load_donvi td:nth-child(9),
+            #table_load_donvi th:nth-child(10),
+            #table_load_donvi td:nth-child(10) {
+                text-align: center !important;
+            }
 
-    /* Căn giữa cột Ngày đăng và Ngày cập nhật */
-    #table_load_donvi th:nth-child(7),
-    #table_load_donvi td:nth-child(7),
-    #table_load_donvi th:nth-child(8),
-    #table_load_donvi td:nth-child(8) {
-        text-align: center !important;
-        width: 140px;
-        font-size: 0.9rem;
-    }
+        #table_load_donvi thead th {
+            padding: 15px 10px;
+            border-bottom: 1px solid #e8e8e8;
+            font-weight: 500;
+            color: #fff;
+            background-color: #5a8dee;
+        }
 
-    /* Căn giữa cột Hành động */
-    #table_load_donvi th:nth-child(9),
-    #table_load_donvi td:nth-child(9) {
-        text-align: center !important;
-        width: 120px;
-    }
+        #table_load_donvi tbody td {
+            padding: 15px 10px;
+            border-bottom: 1px solid #e8e8e8;
+            color: #333;
+            vertical-align: middle;
+        }
 
-    /* Cột đầu và cuối */
-    #table_load_donvi tbody td:first-child,
-    #table_load_donvi tbody td:last-child {
-        text-align: center;
-    }
+        #table_load_donvi tbody tr:hover {
+            background-color: #f8f8f8;
+        }
 
-    /* Chỉnh xuống dòng */
-    #table_load_donvi th,
-    #table_load_donvi td {
-        white-space: normal !important;
-        word-wrap: break-word;
-        max-width: 200px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
+        /* Chỉnh xuống dòng */
+        #table_load_donvi th,
+        #table_load_donvi td {
+            white-space: normal !important;
+            word-wrap: break-word;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
     /* ===== ACTION BUTTONS ===== */
     .btn-action {
@@ -189,20 +187,20 @@
         color: #212529;
     }
 
-    .btn-edit:hover {
-        background-color: #e0a800;
-        color: #212529;
-    }
+        .btn-edit:hover {
+            background-color: #e0a800;
+            color: #212529;
+        }
 
     .btn-delete {
         background-color: #dc3545;
         color: white;
     }
 
-    .btn-delete:hover {
-        background-color: #c82333;
-        color: white;
-    }
+        .btn-delete:hover {
+            background-color: #c82333;
+            color: white;
+        }
 
     /* ===== MODAL STYLES ===== */
     .modal-content {
@@ -236,39 +234,39 @@
         border-radius: 4px;
     }
 
-    .form-control:focus {
-        border-color: #5a8dee;
-        box-shadow: 0 0 0 0.1rem rgba(90, 141, 238, 0.25);
-    }
+        .form-control:focus {
+            border-color: #5a8dee;
+            box-shadow: 0 0 0 0.1rem rgba(90, 141, 238, 0.25);
+        }
 
-    .form-control[readonly] {
-        background-color: #f8f9fa;
-        cursor: not-allowed;
-    }
+        .form-control[readonly] {
+            background-color: #f8f9fa;
+            cursor: not-allowed;
+        }
 
     /* ===== PAGINATION ===== */
     .dataTables_paginate {
         margin-top: 10px;
     }
 
-    .dataTables_paginate .paginate_button {
-        padding: 5px 10px;
-        margin: 0 2px;
-        border: 1px solid #e8e8e8;
-        border-radius: 4px;
-        background: white;
-        cursor: pointer;
-    }
+        .dataTables_paginate .paginate_button {
+            padding: 5px 10px;
+            margin: 0 2px;
+            border: 1px solid #e8e8e8;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+        }
 
-    .dataTables_paginate .paginate_button.current {
-        background-color: #5a8dee;
-        color: white !important;
-        border-color: #5a8dee;
-    }
+            .dataTables_paginate .paginate_button.current {
+                background-color: #5a8dee;
+                color: white !important;
+                border-color: #5a8dee;
+            }
 
-    .dataTables_paginate .paginate_button:hover:not(.current) {
-        background-color: #f8f8f8;
-    }
+            .dataTables_paginate .paginate_button:hover:not(.current) {
+                background-color: #f8f8f8;
+            }
 
     /* Chỉnh mũi tên sắp xếp */
     table.dataTable thead .sorting:after,
@@ -307,11 +305,11 @@
             flex-direction: row;
         }
 
-        .modal-footer .btn {
-            flex: 1;
-            margin: 5px;
-            white-space: nowrap;
-        }
+            .modal-footer .btn {
+                flex: 1;
+                margin: 5px;
+                white-space: nowrap;
+            }
 
         .btn-action {
             width: 36px;
@@ -334,17 +332,19 @@
             flex-direction: column;
         }
 
-        .modal-footer .btn {
-            width: 100%;
-            margin: 5px 0;
-        }
+            .modal-footer .btn {
+                width: 100%;
+                margin: 5px 0;
+            }
     }
+
     #table_load_donvi,
     #table_load_donvi th,
     #table_load_donvi td {
         border: 1px solid #dee2e6 !important;
         border-collapse: collapse !important;
     }
+
     .switch {
         position: relative;
         display: inline-block;
@@ -525,46 +525,6 @@
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
 
     <!-- Custom Scripts -->
+    <script src="~/Areas/Admin/Scripts/MaHoaKTDB.js"></script>
     <script src="~/Areas/Admin/Scripts/DonViTrucThuoc.js"></script>
-
-    <!-- Cấu hình DataTables hoàn toàn tiếng Việt -->
-    <script>
-        $(document).ready(function () {
-            // Ghi đè hoàn toàn cấu hình ngôn ngữ DataTables
-            $.fn.dataTable.ext.errMode = 'none';
-
-            // Thiết lập ngôn ngữ mặc định cho tất cả DataTable
-            $.extend(true, $.fn.dataTable.defaults, {
-                language: {
-                    "decimal": "",
-                    "emptyTable": "Không có dữ liệu trong bảng",
-                    "info": "Hiển thị _START_ đến _END_ của _TOTAL_ mục",
-                    "infoEmpty": "Hiển thị 0 đến 0 của 0 mục",
-                    "infoFiltered": "(được lọc từ _MAX_ tổng số mục)",
-                    "infoPostFix": "",
-                    "thousands": ",",
-                    "lengthMenu": "Hiển thị _MENU_ mục",
-                    "loadingRecords": "Đang tải...",
-                    "processing": "Đang xử lý...",
-                    "search": "Tìm kiếm:",
-                    "zeroRecords": "Không tìm thấy kết quả phù hợp",
-                    "paginate": {
-                        "first": "Đầu",
-                        "last": "Cuối",
-                        "next": "Tiếp",
-                        "previous": "Trước"
-                    },
-                    "aria": {
-                        "sortAscending": ": Kích hoạt để sắp xếp cột tăng dần",
-                        "sortDescending": ": Kích hoạt để sắp xếp cột giảm dần"
-                    }
-                }
-            });
-
-            // Khởi tạo lại DataTable nếu đã tồn tại
-            if ($.fn.DataTable.isDataTable('#table_load_donvi')) {
-                $('#table_load_donvi').DataTable().destroy();
-            }
-        });
-    </script>
 }

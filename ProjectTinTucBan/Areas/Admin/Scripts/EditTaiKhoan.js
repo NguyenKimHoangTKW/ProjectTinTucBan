@@ -1,48 +1,49 @@
-﻿$(document).ready(function () {
-    // Khi nhấn icon edit
-    $('.edit-icon').on('click', function () {
+﻿$(function () {
+    // Hiển thị modal khi click icon chỉnh sửa
+    $('.edit-icon').click(function () {
         var field = $(this).data('field');
         var value = $('#' + field + 'Input').val();
-        $('#modalInput').val(value);
         $('#modalField').val(field);
+        $('#modalInput').val(value);
         $('#editModal').modal('show');
     });
 
-    // Khi nhấn Lưu trong modal
-    $('#saveModalBtn').on('click', function () {
+    // Lưu thay đổi từ modal vào input
+    $('#saveModalBtn').click(function () {
         var field = $('#modalField').val();
         var value = $('#modalInput').val();
         $('#' + field + 'Input').val(value);
         $('#editModal').modal('hide');
     });
 
-    // Khi nhấn Lưu thay đổi ở form chính
-    $('#mainSaveBtn').on('click', function (e) {
+    // Gửi dữ liệu lên API khi bấm Lưu thay đổi
+    $('#mainSaveBtn').click(function (e) {
         e.preventDefault();
-        submitEditTaiKhoanForm();
-    });
 
-    function submitEditTaiKhoanForm() {
-        var form = $('#editTaiKhoanForm');
-        var formData = form.serialize();
+        var id = $('.edit-container').data('id');
+        if (!id) {
+            Swal.fire('Lỗi', 'Không xác định được ID tài khoản!', 'error');
+            return;
+        }
+        var data = {
+            ID: id,
+            Name: $('#NameInput').val(),
+            SDT: $('#SDTInput').val(),
+            Gmail: $('#GmailInput').val()
+        };
+
         $.ajax({
-            url: form.attr('action'),
-            type: 'POST',
-            data: formData,
-            success: function (response) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Thành công',
-                    text: 'Đã thay đổi thành công!'
-                });
+            url: '/api/v1/admin/tai-khoan/update/' + id,
+            type: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            success: function (res) {
+                Swal.fire('Thành công', res.message, 'success');
             },
-            error: function () {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Lỗi',
-                    text: 'Có lỗi xảy ra, vui lòng thử lại.'
-                });
+            error: function (xhr) {
+                var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Có lỗi xảy ra!';
+                Swal.fire('Lỗi', msg, 'error');
             }
         });
-    }
+    });
 });

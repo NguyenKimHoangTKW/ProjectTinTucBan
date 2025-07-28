@@ -61,61 +61,48 @@
     }
 </style>
 
-<div class="edit-container">
-    <h2 class="edit-title">Chỉnh sửa tài khoản</h2>
+<div class="edit-container" data-id="@Model.ID">
+    <h2 class="edit-title">Thông tin tài khoản</h2>
 
-    @using (Html.BeginForm("EditTaiKhoan", "EditTaiKhoan", FormMethod.Post, new { id = "editTaiKhoanForm", autocomplete = "off" }))
-    {
-        @Html.AntiForgeryToken()
-
-        <div class="form-group row">
-            @Html.LabelFor(model => model.TenTaiKhoan, htmlAttributes: new { @class = "col-sm-4 col-form-label" })
-            <div class="col-sm-8">
-                @Html.EditorFor(model => model.TenTaiKhoan, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
-                @Html.ValidationMessageFor(model => model.TenTaiKhoan, "", new { @class = "text-danger" })
-            </div>
+    <div class="form-group row">
+        @Html.LabelFor(model => model.TenTaiKhoan, htmlAttributes: new { @class = "col-sm-4 col-form-label" })
+        <div class="col-sm-8">
+            <input type="text" class="form-control" id="TenTaiKhoanInput" value="@Model.TenTaiKhoan" readonly />
         </div>
+    </div>
 
-        <div class="form-group row">
-            @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "col-sm-4 col-form-label" })
-            <div class="col-sm-8 d-flex align-items-center">
-                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control", id = "NameInput", @readonly = "readonly", style = "flex:1;" } })
-                <span class="edit-icon" data-target="#editModal" data-field="Name" style="font-size:20px; cursor:pointer;">
-                    <i class="anticon anticon-edit"></i>
-                </span>
-            </div>
-            <div class="col-sm-8 offset-sm-4">
-                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger w-100" })
-            </div>
+    <div class="form-group row">
+        @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "col-sm-4 col-form-label" })
+        <div class="col-sm-8 d-flex align-items-center">
+            <input type="text" class="form-control" id="NameInput" value="@Model.Name" readonly style="flex:1;" />
+            <span class="edit-icon" data-target="#editModal" data-field="Name" style="font-size:20px; cursor:pointer;">
+                <i class="anticon anticon-edit"></i>
+            </span>
         </div>
+    </div>
 
-        <div class="form-group row">
-            @Html.LabelFor(model => model.Gmail, htmlAttributes: new { @class = "col-sm-4 col-form-label" })
-            <div class="col-sm-8">
-                @Html.EditorFor(model => model.Gmail, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
-                @Html.ValidationMessageFor(model => model.Gmail, "", new { @class = "text-danger" })
-            </div>
+    <div class="form-group row">
+        @Html.LabelFor(model => model.Gmail, htmlAttributes: new { @class = "col-sm-4 col-form-label" })
+        <div class="col-sm-8">
+            <input type="text" class="form-control" id="GmailInput" value="@Model.Gmail" readonly />
         </div>
+    </div>
 
-        <div class="form-group row">
-            @Html.LabelFor(model => model.SDT, htmlAttributes: new { @class = "col-sm-4 col-form-label" })
-            <div class="col-sm-8 d-flex align-items-center">
-                @Html.EditorFor(model => model.SDT, new { htmlAttributes = new { @class = "form-control", id = "SDTInput", @readonly = "readonly", style = "flex:1;" } })
-                <span class="edit-icon" data-target="#editModal" data-field="SDT" style="font-size:20px; cursor:pointer;">
-                    <i class="anticon anticon-edit"></i>
-                </span>
-            </div>
-            <div class="col-sm-8 offset-sm-4">
-                @Html.ValidationMessageFor(model => model.SDT, "", new { @class = "text-danger w-100" })
-            </div>
+    <div class="form-group row">
+        @Html.LabelFor(model => model.SDT, htmlAttributes: new { @class = "col-sm-4 col-form-label" })
+        <div class="col-sm-8 d-flex align-items-center">
+            <input type="text" class="form-control" id="SDTInput" value="@Model.SDT" readonly style="flex:1;" />
+            <span class="edit-icon" data-target="#editModal" data-field="SDT" style="font-size:20px; cursor:pointer;">
+                <i class="anticon anticon-edit"></i>
+            </span>
         </div>
+    </div>
 
-        <div class="form-group row mt-4">
-            <div class="col-sm-12 text-center">
-                <button type="submit" class="btn btn-primary" id="mainSaveBtn">Lưu thay đổi</button>
-            </div>
+    <div class="form-group row mt-4">
+        <div class="col-sm-12 text-center">
+            <button type="button" class="btn btn-primary" id="mainSaveBtn">Lưu thay đổi</button>
         </div>
-    }
+    </div>
 </div>
 
 <!-- Modal -->

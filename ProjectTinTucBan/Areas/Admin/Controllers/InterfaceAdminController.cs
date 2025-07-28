@@ -1,10 +1,8 @@
-
-﻿using ProjectTinTucBan.Models;
+using ProjectTinTucBan.Models;
 using System.Linq;
 using System.Web.Mvc;
 using Newtonsoft.Json.Linq;
 using ProjectTinTucBan.Helper;
-
 namespace ProjectTinTucBan.Areas.Admin.Controllers
 {
     public class InterfaceAdminController : Controller
@@ -36,27 +34,11 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         {
             return RedirectToAction("EditTaiKhoan", "EditTaiKhoan");
         }
+   
         [UserAuthorizeAttribute()]
-        public ActionResult EditFooter()
+        public ActionResult Index_Footer()
         {
-            // Lấy dữ liệu Footer từ DB
-            var footer = db.Footers.FirstOrDefault();
-            JObject model = new JObject();
-            if (footer != null)
-            {
-                model["id"] = footer.ID;
-                model["fullName"] = footer.FullName;
-                model["englishName"] = footer.EnglishName;
-                model["established"] = footer.NgayThanhLap;
-                model["address"] = footer.DiaChi;
-                model["phone"] = footer.DienThoai;
-                model["email"] = footer.Email;
-                model["videoUrl"] = footer.VideoUrl;
-                model["footerCopyright"] = footer.FooterCopyright;
-                model["footerNote"] = footer.FooterNote;
-            }
-            // Nếu không có dữ liệu, vẫn phải trả về model rỗng để tránh null
-            return View(model);
+            return View();
         }
 
         // Gọi hàm thiết kế giao diện Quản lý mục lục

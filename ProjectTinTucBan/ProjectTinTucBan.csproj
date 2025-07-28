@@ -374,15 +374,15 @@
     <Compile Include="Areas\Admin\Controllers\BaiVietAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\DashboardController.cs" />
     <Compile Include="Areas\Admin\Controllers\DonViTrucThuocController.cs" />
+    <Compile Include="Areas\Admin\Controllers\EditTaiKhoanApiController.cs" />
     <Compile Include="Areas\Admin\Controllers\FooterController.cs" />
     <Compile Include="Areas\Admin\Controllers\FunctionAdminAPIController.cs" />
-    <Compile Include="Areas\Admin\Controllers\EditTaiKhoanControllers.cs" />
+    <Compile Include="Areas\Admin\Controllers\EditTaiKhoanController.cs" />
     <Compile Include="Areas\Admin\Controllers\InterfaceAdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\KhoiController.cs" />
     <Compile Include="Areas\Admin\Controllers\TaiLieuController.cs" />
     <Compile Include="Controllers\LoginAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\MucLucAdminAPIController.cs" />
-    <Compile Include="Areas\Admin\Controllers\TestController.cs" />
     <Compile Include="Areas\Admin\Controllers\UserAdminAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\RolesAdminAPIController.cs" />
     <Compile Include="Areas\Admin\Controllers\MenuApiAdminController.cs" />
@@ -516,6 +516,8 @@
     <Content Include="Areas\Admin\Scripts\DonViTrucThuoc.js" />
     <Content Include="Areas\Admin\Scripts\EditFooter.js" />
     <Content Include="Areas\Admin\Scripts\EditTaiKhoan.js" />
+    <Content Include="Areas\Admin\Scripts\Footer.js" />
+    <Content Include="Areas\Admin\Scripts\FooterActive.js" />
     <Content Include="Areas\Admin\Scripts\GroupMenuAdminScript.js" />
     <Content Include="Areas\Admin\Scripts\HDSD_Admin.js" />
     <Content Include="Areas\Admin\Scripts\Khoi.js" />
@@ -528,6 +530,8 @@
     <Content Include="Areas\Admin\Scripts\BaiViet.js" />
     <Content Include="Areas\Admin\Scripts\DanhSachUser.js" />
     <Content Include="Areas\Admin\Uploads\Slider\6ed8e7cc-bb74-4005-92e6-282072ad1acf.jpg" />
+    <Content Include="Areas\Admin\Uploads\Slider\cd966841-59a2-4a06-bbd2-c4cd7d4052a7.png" />
+    <Content Include="Areas\Admin\Uploads\Slider\de758a6f-aa10-4a28-b49a-543023c10fd7.png" />
     <Content Include="Areas\Admin\Uploads\Slider\fd280219-2c9f-4fce-ac27-b525dd2c145f.png" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\XemNoiDung.cshtml" />
     <Content Include="favicon.ico" />
@@ -1630,6 +1634,7 @@
     <Content Include="Content\data.json" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\EditFooter.cshtml" />
     <Content Include="Areas\Admin\Views\InterfaceAdmin\HDSD_Admin.cshtml" />
+    <Content Include="Areas\Admin\Views\InterfaceAdmin\Index_Footer.cshtml" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\Scripts\DanhSachBaiViet.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
@@ -1675,7 +1680,6 @@
     <Content Include="Views\BaiViet\XemNoiDung.cshtml" />
     <Content Include="Views\Shared\TrangChuHeaderPartial.cshtml" />
     <Content Include="Views\Shared\TrangChuNavPartial.cshtml" />
-    <Content Include="Views\Shared\TrangChuFooterPartial.cshtml" />
     <Content Include="Views\Home\TinTuc.cshtml" />
     <Content Include="Views\Home\DanhSachBaiViet.cshtml" />
     <Content Include="Views\Shared\SliderShowPartial.cshtml" />
@@ -1814,13 +1818,13 @@
     <Content Include="Uploads\PDFs\TEST_HÌNH_VÀ_CHỮ %2813%29_20250707095109.pdf" />
     <Content Include="Uploads\PDFs\TEST_HÌNH_VÀ_CHỮ %2813%29_20250707095110.pdf" />
     <Content Include="Uploads\PDFs\TEST_HÌNH_VÀ_CHỮ_20250707095447.pdf" />
+    <Content Include="Views\Shared\TrangChuFooterPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Areas\Admin\Data\" />
     <Folder Include="Areas\Admin\Views\TinTuc\" />
     <Folder Include="Uploads\HDSD\" />
-    <Folder Include="Uploads\Slider\" />
     <Folder Include="Views\TinTuc\" />
   </ItemGroup>
   <ItemGroup>

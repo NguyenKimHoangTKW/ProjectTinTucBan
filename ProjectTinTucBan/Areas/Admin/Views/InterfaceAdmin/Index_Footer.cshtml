@@ -1,5 +1,5 @@
 ﻿@{
-    ViewBag.Title = "Quản lý Khối";
+    ViewBag.Title = "Quản lý Footer";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
@@ -82,31 +82,37 @@
         min-width: 220px;
     }
 
-    #table_load_khoi {
+    #table_load_footer {
         width: 100%;
         border-collapse: collapse;
         margin-bottom: 20px;
     }
 
-        /* Căn giữa mặc định cho tất cả các cột */
-        #table_load_khoi th,
-        #table_load_khoi td {
-            text-align: center !important;
+        #table_load_footer th, #table_load_footer td {
+            white-space: normal !important;
+            word-break: break-word;
+            word-wrap: break-word;
+            max-width: 250px;
+            overflow-wrap: break-word;
+            border: 1px solid #dee2e6 !important;
         }
 
-            /* Căn trái cho cột Tên khối (cột 2) */
-            #table_load_khoi th:nth-child(2),
-            #table_load_khoi td:nth-child(2) {
+            #table_load_footer th:nth-child(2), #table_load_footer td:nth-child(2),
+            #table_load_footer th:nth-child(3), #table_load_footer td:nth-child(3),
+            #table_load_footer th:nth-child(4), #table_load_footer td:nth-child(4),
+            #table_load_footer th:nth-child(6), #table_load_footer td:nth-child(6) {
                 text-align: left !important;
             }
 
-            /* Đảm bảo cột Thứ tự (cột 3) luôn căn giữa */
-            #table_load_khoi th:nth-child(3),
-            #table_load_khoi td:nth-child(3) {
+            #table_load_footer th:nth-child(1), #table_load_footer td:nth-child(1),
+            #table_load_footer th:nth-child(7), #table_load_footer td:nth-child(7),
+            #table_load_footer th:nth-child(8), #table_load_footer td:nth-child(8),
+            #table_load_footer th:nth-child(5), #table_load_footer td:nth-child(5) {
                 text-align: center !important;
+                vertical-align: middle !important;
             }
 
-        #table_load_khoi thead th {
+        #table_load_footer thead th {
             padding: 15px 10px;
             border-bottom: 1px solid #e8e8e8;
             font-weight: 500;
@@ -114,14 +120,13 @@
             background-color: #5a8dee;
         }
 
-        #table_load_khoi tbody td {
+        #table_load_footer tbody td {
             padding: 15px 10px;
             border-bottom: 1px solid #e8e8e8;
             color: #333;
-            vertical-align: middle;
         }
 
-        #table_load_khoi tbody tr:hover {
+        #table_load_footer tbody tr:hover {
             background-color: #f8f8f8;
         }
 
@@ -158,151 +163,18 @@
             color: white;
         }
 
-    .modal-content {
-        border-radius: 8px;
-        border: none;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .modal-header {
-        border-bottom: 1px solid #e8e8e8;
-        padding: 15px 20px;
-    }
-
-    .modal-footer {
-        border-top: 1px solid #e8e8e8;
-        padding: 15px 20px;
-    }
-
-    .modal-body {
-        padding: 20px;
-    }
-
-    .form-group label {
-        font-weight: 500;
-    }
-
-    .form-control {
-        padding: 10px 15px;
-        border: 1px solid #e8e8e8;
-        border-radius: 4px;
-    }
-
-        .form-control:focus {
-            border-color: #5a8dee;
-            box-shadow: 0 0 0 0.1rem rgba(90, 141, 238, 0.25);
-        }
-
-        .form-control[readonly] {
-            background-color: #f8f9fa;
-            cursor: not-allowed;
-        }
-
-    .dataTables_paginate {
-        margin-top: 10px;
-    }
-
-        .dataTables_paginate .paginate_button {
-            padding: 5px 10px;
-            margin: 0 2px;
-            border: 1px solid #e8e8e8;
-            border-radius: 4px;
-            background: white;
-            cursor: pointer;
-        }
-
-            .dataTables_paginate .paginate_button.current {
-                background-color: #5a8dee;
-                color: white !important;
-                border-color: #5a8dee;
-            }
-
-            .dataTables_paginate .paginate_button:hover:not(.current) {
-                background-color: #f8f8f8;
-            }
-
-    table.dataTable thead .sorting:after,
-    table.dataTable thead .sorting_asc:after,
-    table.dataTable thead .sorting_desc:after {
-        opacity: 0.4;
-        font-size: 0.8em;
-    }
-
-    @@media screen and (max-width: 767px) {
-        #table_load_khoi {
-            display: block;
-            overflow-x: auto;
-        }
-
-        .main-content {
-            padding: calc(70px + -25px) 15px 15px;
-        }
-
-        .col-lg-4.text-right {
-            text-align: center !important;
-            margin-top: 15px;
-        }
-
-        #btnShowKhoiModal {
-            width: 100%;
-        }
-
-        .modal-dialog {
-            margin: 10px auto;
-            max-width: 95%;
-        }
-
-        .modal-footer {
-            flex-direction: row;
-        }
-
-            .modal-footer .btn {
-                flex: 1;
-                margin: 5px;
-                white-space: nowrap;
-            }
-
-        .btn-action {
-            width: 36px;
-            height: 36px;
-            margin: 2px;
-        }
-
-        #table_load_khoi th,
-        #table_load_khoi td {
-            max-width: 150px;
-        }
-    }
-
-    @@media screen and (max-width: 480px) {
-        .page-header .header-title {
-            font-size: 1.5rem;
-        }
-
-        .modal-footer {
-            flex-direction: column;
-        }
-
-            .modal-footer .btn {
-                width: 100%;
-                margin: 5px 0;
-            }
-    }
-
-    #table_load_khoi,
-    #table_load_khoi th,
-    #table_load_khoi td {
-        border: 1px solid #dee2e6 !important;
-        border-collapse: collapse !important;
+    .switch {
         position: relative;
         display: inline-block;
         width: 40px;
         height: 22px;
     }
 
-    .switch input {
-        display: none;
-    }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
 
     .slider {
         position: absolute;
@@ -339,45 +211,42 @@
 
 <div class="main-content">
     <div class="container-fluid">
-        <!-- Header và breadcrumb -->
         <div class="page-header">
-            <h2 class="header-title">Quản lý Khối</h2>
+            <h2 class="header-title">Quản lý Footer</h2>
             <div class="header-sub-title">
                 <nav class="breadcrumb breadcrumb-dash">
                     <a href="/Admin/InterfaceAdmin/Index" class="breadcrumb-item">
                         <i class="anticon anticon-home m-r-5"></i>Trang chủ
                     </a>
-                    <span class="breadcrumb-item active">Quản lý khối</span>
+                    <span class="breadcrumb-item active">Quản lý Footer</span>
                 </nav>
             </div>
         </div>
-
-        <!-- Card chứa bảng dữ liệu -->
         <div class="card">
             <div class="card-body">
                 <div class="row m-b-30">
                     <div class="col-lg-8">
-                        <h4>Danh sách Khối</h4>
+                        <h4>Danh sách Footer</h4>
                     </div>
                     <div class="col-lg-4 text-right">
-                        <button class="btn btn-primary" id="btnShowKhoiModal">
+                        <button class="btn btn-primary" id="btnShowFooterModal">
                             <i class="anticon anticon-plus-circle m-r-5"></i>
-                            <span>Thêm khối mới</span>
+                            <span>Thêm Footer mới</span>
                         </button>
                     </div>
                 </div>
-
-                <!-- Bảng dữ liệu -->
-                <table id="table_load_khoi" class="display hover nowrap" style="width:100%">
+                <table id="table_load_footer" class="display hover nowrap" style="width:100%">
                     <thead>
                         <tr>
                             <th class="d-none">ID</th>
                             <th>STT</th>
-                            <th>Tên khối</th>
-                            <th>Thứ tự</th>
+                            <th>Tiêu đề (VN)</th>
+                            <th>Tiêu đề (EN)</th>
+                            <th>Địa chỉ</th>
+                            <th>Điện thoại</th>
+                            <th>Email</th>
+                            <th>Ngày thành lập</th>
                             <th>Trạng thái</th>
-                            <th>Ngày tạo</th>
-                            <th>Ngày cập nhật</th>
                             <th>Thao tác</th>
                         </tr>
                     </thead>
@@ -388,40 +257,60 @@
     </div>
 </div>
 
-<!-- Modal Thêm/Sửa Khối -->
-<div class="modal fade" id="khoiModal" tabindex="-1" role="dialog" aria-labelledby="khoiModalLabel" aria-hidden="true">
+<!-- Modal Thêm/Sửa Footer -->
+<div class="modal fade" id="footerModal" tabindex="-1" role="dialog" aria-labelledby="footerModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="khoiModalLabel">Quản lý khối</h5>
+                <h5 class="modal-title" id="footerModalLabel">Quản lý Footer</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Đóng">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-
             <div class="modal-body">
-                <form id="khoiForm">
+                <form id="footerForm" autocomplete="off">
                     <input type="hidden" id="ID" />
-
-                    <!-- Tên Khối -->
                     <div class="form-group">
-                        <label for="TenKhoi">Tên khối <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="TenKhoi" placeholder="Nhập tên khối" required>
-                        <small class="form-text text-muted">Tên khối trong hệ thống</small>
+                        <label for="FullName">Tiêu đề (VN)</label>
+                        <input type="text" class="form-control" id="FullName" required>
                     </div>
-
-                    <!-- Thứ tự -->
                     <div class="form-group">
-                        <label for="ThuTuShow">Thứ tự hiển thị</label>
-                        <input type="number" class="form-control" id="ThuTuShow" placeholder="Nhập thứ tự hiển thị" min="1">
-                        <small class="form-text text-muted">Thứ tự hiển thị của khối</small>
+                        <label for="EnglishName">Tiêu đề (EN)</label>
+                        <input type="text" class="form-control" id="EnglishName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="DiaChi">Địa chỉ</label>
+                        <input type="text" class="form-control" id="DiaChi" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="DienThoai">Điện thoại</label>
+                        <input type="text" class="form-control" id="DienThoai" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Email">Email</label>
+                        <input type="email" class="form-control" id="Email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="NgayThanhLap">Ngày thành lập (dd/MM/yyyy)</label>
+                        <input type="text" class="form-control" id="NgayThanhLap" placeholder="dd/MM/yyyy" data-toggle="tooltip" data-placement="right" title="" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="VideoUrl">Video URL</label>
+                        <input type="text" class="form-control" id="VideoUrl">
+                    </div>
+                    <div class="form-group">
+                        <label for="FooterCopyright">Bản quyền Footer</label>
+                        <input type="text" class="form-control" id="FooterCopyright">
+                    </div>
+                    <div class="form-group">
+                        <label for="FooterNote">Ghi chú Footer</label>
+                        <input type="text" class="form-control" id="FooterNote">
                     </div>
                 </form>
             </div>
-
             <div class="modal-footer flex-wrap justify-content-center">
                 <button type="button" class="btn btn-default m-1" data-dismiss="modal">Hủy</button>
-                <button type="submit" class="btn btn-primary m-1" form="khoiForm">
+                <button type="submit" class="btn btn-primary m-1" form="footerForm">
                     <i class="anticon anticon-save m-r-5"></i>
                     <span>Lưu</span>
                 </button>
@@ -431,18 +320,14 @@
 </div>
 
 @section scriptsAdmin {
-    <!-- Bootstrap & DataTables -->
     <link href="~/Areas/assets/css/app.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css" />
-    <!-- SweetAlert2 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-
-    <!-- jQuery, Bootstrap JS, SweetAlert2, DataTables -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
-
-    <!-- Custom Scripts -->
-    <script src="~/Areas/Admin/Scripts/Khoi.js"></script>
     <script src="~/Areas/Admin/Scripts/MaHoaKTDB.js"></script>
+    <script src="~/Areas/Admin/Scripts/Footer.js"></script>
 }

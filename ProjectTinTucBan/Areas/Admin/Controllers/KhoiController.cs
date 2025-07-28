@@ -8,14 +8,14 @@ using ProjectTinTucBan.Models;
 
 namespace ProjectTinTucBan.Controllers.Api
 {
-    [RoutePrefix("api/Khoi")]
+    [RoutePrefix("api/v1/admin/khoi")]
     public class KhoiController : ApiController
     {
         private WebTinTucTDMUEntities db = new WebTinTucTDMUEntities();
 
-        // GET: api/Khoi
+        // GET: api/v1/admin/khoi/get-all
         [HttpGet]
-        [Route("")]
+        [Route("get-all")]
         public IHttpActionResult Get()
         {
             var khois = db.Khois.Select(k => new
@@ -30,9 +30,9 @@ namespace ProjectTinTucBan.Controllers.Api
             return Ok(khois);
         }
 
-        // GET: api/Khoi/5
+        // GET: api/v1/admin/khoi/get/{id}
         [HttpGet]
-        [Route("{id:int}")]
+        [Route("get/{id}")]
         public IHttpActionResult Get(int id)
         {
             var khoi = db.Khois.Where(k => k.ID == id)
@@ -51,15 +51,14 @@ namespace ProjectTinTucBan.Controllers.Api
             return Ok(khoi);
         }
 
-        // Hàm tạo Unix Timestamp tương thích với .NET Framework 4.7.2
         private int GetUnixTimestamp()
         {
             return (int)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds;
         }
 
-        // POST: api/Khoi
+        // POST: api/v1/admin/khoi/create
         [HttpPost]
-        [Route("")]
+        [Route("create")]
         public IHttpActionResult Post([FromBody] Khoi khoi)
         {
             if (!ModelState.IsValid)
@@ -79,9 +78,9 @@ namespace ProjectTinTucBan.Controllers.Api
             });
         }
 
-        // PUT: api/Khoi/5
+        // PUT: api/v1/admin/khoi/update/{id}
         [HttpPut]
-        [Route("{id:int}")]
+        [Route("update/{id}")]
         public IHttpActionResult Put(int id, [FromBody] Khoi khoi)
         {
             if (!ModelState.IsValid)
@@ -106,9 +105,9 @@ namespace ProjectTinTucBan.Controllers.Api
             });
         }
 
-        // PUT: api/Khoi/ToggleTrangThai/5
+        // PUT: api/v1/admin/khoi/toggle-trang-thai/{id}
         [HttpPut]
-        [Route("ToggleTrangThai/{id:int}")]
+        [Route("toggle-trang-thai/{id}")]
         public IHttpActionResult ToggleTrangThai(int id, [FromBody] ToggleTrangThaiModel model)
         {
             var khoi = db.Khois.Find(id);
@@ -126,9 +125,9 @@ namespace ProjectTinTucBan.Controllers.Api
             public bool IsActive { get; set; }
         }
 
-        // DELETE: api/Khoi/5
+        // DELETE: api/v1/admin/khoi/delete/{id}
         [HttpDelete]
-        [Route("{id:int}")]
+        [Route("delete/{id}")]
         public IHttpActionResult Delete(int id)
         {
             var khoi = db.Khois.Find(id);
@@ -140,7 +139,6 @@ namespace ProjectTinTucBan.Controllers.Api
             return Ok();
         }
 
-        // Error handling function
         private void HandleError(Exception ex)
         {
             var errorMessage = ex.Message ?? "Không thể lưu dữ liệu.";
