@@ -11,27 +11,106 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
     <style>
+        /* Swiper điều hướng */
         .swiper-button-prev,
         .swiper-button-next {
             color: white;
-            filter: drop-shadow(0 0 4px black);
+            width: 40px;
+            height: 40px;
+            background-color: rgba(0, 0, 0, 0.4);
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: background-color 0.3s;
         }
+
+            .swiper-button-prev:hover,
+            .swiper-button-next:hover {
+                background-color: rgba(0, 0, 0, 0.6);
+            }
 
             .swiper-button-prev::after,
             .swiper-button-next::after {
-                font-size: 24px;
+                font-size: 20px;
+                font-weight: bold;
             }
+
+        .swiper-button-prev {
+            left: 16px;
+        }
+
+        .swiper-button-next {
+            right: 16px;
+        }
+
+        .swiper {
+            width: 100vw;
+            height: 600px; /* hoặc dùng h-[600px] nếu Tailwind */
+        }
+
+
+        .swiper-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .swiper-pagination-bullet {
+            width: 30px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 1;
+            margin: 0 4px !important;
+            border-radius: 0;
+            transition: background 0.3s;
+        }
+
+        .swiper-pagination-bullet-active {
+            background: white;
+        }
+
+        .loader {
+            border: 4px solid #e5e7eb;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @@keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .swiper-button-prev::after,
+        .swiper-button-next::after {
+            font-size: 24px;
+        }
     </style>
 </head>
 
 <!-- Banner -->
-<section class="w-full">
-    <div class="swiper mySwiper w-full h-[400px] overflow-hidden">
-        <div class="swiper-wrapper" id="slider-container"></div>
-        <div class="swiper-button-next"></div>
+<section class="w-full relative">
+    <div class="swiper mySwiper w-full h-[600px] overflow-hidden relative">
+        <div class="swiper-wrapper" id="slider-container">
+            <!-- Ảnh được load động từ JS -->
+        </div>
         <div class="swiper-button-prev"></div>
+        <div class="swiper-button-next"></div>
         <div class="swiper-pagination"></div>
     </div>
 </section>
@@ -51,16 +130,23 @@
     <div class="mb-6 flex flex-col sm:flex-row items-center gap-2">
         <input id="searchInput" type="text" placeholder="Nhập từ khóa tìm bài viết..."
                class="w-full sm:w-1/2 border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-        <button id="btnSearch"
-                class="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700 transition">
-            <i class="fas fa-search mr-2"></i>Tìm kiếm
-        </button>
     </div>
 
     <!-- Danh sách bài viết -->
     <div class="max-w-7xl mx-auto px-4">
-        <div id="tinTucList" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
+        <div id="tinTucList" class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-x-6 gap-y-10">
             <!-- Các bài viết sẽ được JavaScript render tại đây -->
+        </div>
+
+        <!-- Loading Indicator -->
+        <div id="loadingIndicator" class="w-full text-center py-4 hidden">
+            <div class="inline-flex items-center space-x-2 text-blue-600">
+                <svg class="animate-spin h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                </svg>
+                <span>Đang tải dữ liệu...</span>
+            </div>
         </div>
 
         <!-- Nút điều khiển -->
@@ -77,53 +163,9 @@
         </div>
     </div>
 </div>
+<div id="js-data" data-mucid="@mucId" data-mucten="@mucTenCoDau" class="hidden"></div>
 
 @section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
-
-    <script>
-        // Truyền biến Razor -> JS
-        window.mucIdFromView = @Html.Raw(mucId ?? "0");
-        window.mucTen = "@mucTenCoDau";
-
-        $(document).ready(function () {
-            // Load banner slider
-            $.get("/api/v1/home/get-slider", function (data) {
-                let html = "";
-                if (!data || data.length === 0) {
-                    html = `<div class="swiper-slide flex items-center justify-center text-center h-full">
-                                <p class="text-gray-500 text-xl">Không có banner hiển thị</p>
-                            </div>`;
-                } else {
-                    data.forEach(item => {
-                        html += `
-                            <div class="swiper-slide relative">
-                                <img loading="lazy"
-                                     src="${item.LinkHinh}"
-                                     onerror="this.src='/images/fallback.jpg'"
-                                     alt="${item.TieuDe || 'Banner'}"
-                                     class="w-full h-full object-cover rounded-md" />
-                                ${item.TieuDe ? `<div class="absolute bottom-4 left-4 bg-black bg-opacity-50 text-white p-3 rounded text-lg max-w-[90%]">${item.TieuDe}</div>` : ""}
-                            </div>`;
-                    });
-                }
-
-                $("#slider-container").html(html);
-
-                new Swiper(".mySwiper", {
-                    loop: true,
-                    autoplay: { delay: 3000, disableOnInteraction: false },
-                    pagination: { el: ".swiper-pagination", clickable: true },
-                    navigation: {
-                        nextEl: ".swiper-button-next",
-                        prevEl: ".swiper-button-prev"
-                    }
-                });
-            });
-        });
-    </script>
-
     <!-- Script quản lý bài viết -->
     <script src="~/Scripts/Scripts/DanhSachBaiViet.js"></script>
 }

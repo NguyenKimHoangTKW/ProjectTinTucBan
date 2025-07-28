@@ -1,81 +1,61 @@
-﻿function formatDate(unixTimestamp) {
-    if (!unixTimestamp) return "N/A";
-
-    const date = new Date(unixTimestamp * 1000);
-    const weekdays = ['Chủ Nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
-    const dayOfWeek = weekdays[date.getDay()];
-    const day = ("0" + date.getDate()).slice(-2);
-    const month = ("0" + (date.getMonth() + 1)).slice(-2);
-    const year = date.getFullYear();
-
-    return `${dayOfWeek}, ${day}-${month}-${year}`;
-}
-
-function convertImagePaths(content) {
-    const baseUrl = "https://bdbcl.tdmu.edu.vn";
-    return content.replace(/src="\/img/g, `src="${baseUrl}/img`);
-}
-
-function hasViewedToday(postId) {
-    const key = `viewed_${postId}`;
-    const lastView = localStorage.getItem(key);
-    const today = new Date().toISOString().slice(0, 10);
-    return lastView === today;
-}
-
-function markViewed(postId) {
-    const key = `viewed_${postId}`;
-    const today = new Date().toISOString().slice(0, 10);
-    localStorage.setItem(key, today);
-}
-
-function escapeHtml(text) {
-    return text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
-function toSlug(str) {
-    return str.toLowerCase()
-        .normalize("NFD")
-        .replace(/\p{Diacritic}/gu, '')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)+/g, '');
-}
-
+﻿// ==========================
+// Xử lý DOM, Ajax, và Sự kiện
+// ==========================
 $(document).on("click", "aside a", function (e) {
     e.preventDefault();
     const newUrl = $(this).attr("href");
     window.location.href = newUrl;
 });
 
-document.addEventListener("DOMContentLoaded", function () {
-    const postId = window.postId;
+$(document).on("click", ".scroll-to", function (e) {
+    const slug = $(this).data("target");
+    if (window.location.pathname !== "/") {
+        localStorage.setItem("scrollToSlug", slug);
+        return;
+    }
+    e.preventDefault();
+    const offset = $(`#${slug}`).offset()?.top;
+    if (offset) {
+        $("html, body").animate({ scrollTop: offset - 100 }, 500);
+    }
+});
 
-    setTimeout(function () {
-        fetch(`/api/v1/admin/increase-views/${postId}`, { method: 'POST' })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    // Đã tăng lượt xem
-                }
-            })
-            .catch(() => {
-                // Lỗi tăng lượt xem
-            });
-    }, 15000);
+window.addEventListener("pageshow", function (event) {
+    const navType = performance.getEntriesByType("navigation")[0]?.type;
+
+    if (event.persisted || navType === "back_forward") {
+        window.location.reload();
+    }
 });
 
 $(document).ready(function () {
+    const postId = $('body').data('post-id');
+    const savedSlug = localStorage.getItem("scrollToSlug");
+    if (savedSlug) {
+        setTimeout(() => {
+            const target = $(`#${savedSlug}`);
+            if (target.length) {
+                $("html, body").animate({
+                    scrollTop: target.offset().top - 100
+                }, 500);
+            }
+            localStorage.removeItem("scrollToSlug");
+        }, 400);
+    }
+
+    setTimeout(function () {
+        $.ajax({
+            url: `/api/v1/admin/increase-views/${postId}`,
+            type: "POST",
+        });
+    }, 15000); // chờ 15 giây
+
     const urlParts = window.location.pathname.split('/');
     const id = urlParts[urlParts.length - 1];
 
     $.ajax({
         url: `/api/v1/admin/get-baiviet-by-id/${id}`,
-        method: "GET",
+        type: "GET",
         success: function (res) {
             if (!res.success || !res.data) {
                 $("#baivietContainer").html("<p class='text-center text-gray-500'>Không tìm thấy bài viết.</p>");
@@ -95,92 +75,138 @@ $(document).ready(function () {
             const tenMucLucSlug = bv.MucLuc?.TenMucLuc ? toSlug(bv.MucLuc.TenMucLuc) : "";
 
             const breadcrumb = `
-        <nav class="flex flex-wrap gap-x-1">
-            <a href="/" class="text-blue-700 hover:underline">Trang chủ</a>
-            <span>›</span>
-            <a href="/" class="text-blue-700 hover:underline scroll-to" data-target="${tenMucLucSlug}">
-                ${tenMucLuc}
-            </a>
-            <span>›</span>
-            <span class="text-blue-700 font-medium break-words">${escapeHtml((bv.TieuDe ?? '').toUpperCase())}</span>
-        </nav>
-    `;
+                <nav class="flex flex-wrap gap-x-1">
+                    <a href="/" class="text-blue-700 hover:underline">Trang chủ</a>
+                    <span>›</span>
+                    <a href="/" class="text-blue-700 hover:underline scroll-to" data-target="${tenMucLucSlug}">
+                        ${tenMucLuc}
+                    </a>
+                    <span>›</span>
+                    <span class="text-blue-700 font-medium break-words">${escapeHtml((bv.TieuDe ?? '').toUpperCase())}</span>
+                </nav>`;
             $("#breadcrumbContainer").html(breadcrumb);
 
             let pdfBlock = "";
             if (bv.LinkPDF?.trim()) {
-                const pdfLinks = bv.LinkPDF.split(",").map(link => link.trim()).filter(link => link !== "");
+                const pdfLinks = bv.LinkPDF.split(";").map(link => link.trim()).filter(link => link !== "");
+
                 if (pdfLinks.length === 1) {
+                    const pdfUrl = encodeURI(pdfLinks[0]);
+                    const pdfId = "pdfContainerSingle";
                     pdfBlock = `
-            <div class="mt-6">
-                <embed src="${pdfLinks[0]}" type="application/pdf" class="rounded border shadow w-full h-[500px]" />
-                <div class="text-sm text-gray-500 mt-2">
-                    Nếu không hiển thị, <a href="${pdfLinks[0]}" class="text-blue-600 hover:underline" target="_blank">nhấn vào đây để tải về</a>.
-                </div>
-            </div>
-        `;
+        <div class="mt-6 flex justify-center hidden" id="${pdfId}">
+            <embed 
+                src="${pdfUrl}" 
+                type="application/pdf" 
+                style="width: 80%; height: 800px;" 
+                class="rounded border shadow"
+            />
+        </div>
+        <div class="text-sm text-gray-500 mt-2 text-center hidden" id="pdfFallback">
+            Nếu không hiển thị, <a href="${pdfUrl}" class="text-blue-600 hover:underline" target="_blank">nhấn vào đây để tải về</a>.
+        </div>
+        <script>
+            $.ajax({
+                url: "${pdfUrl}",
+                type: "HEAD",
+                success: function () {
+                    $("#${pdfId}").removeClass("hidden");
+                    $("#pdfFallback").removeClass("hidden");
+                },
+                
+            });
+        </script>
+    `;
                 } else {
                     pdfBlock = `
-            <div class="mt-6">
-                <p class="text-base font-semibold text-gray-700 mb-3">📎 File đính kèm:</p>
-                <ul class="space-y-2">
-                    ${pdfLinks.map((pdf, index) => {
-                        const fileName = pdf.split("/").pop();
-                        return `
-                            <li>
-                                <a href="${pdf}" target="_blank" class="flex items-center gap-2 text-blue-600 hover:underline">
-                                    <i class="fa-solid fa-file-pdf text-red-600"></i> Tài liệu ${index + 1} (${fileName})
-                                </a>
-                            </li>
-                        `;
-                    }).join("")}
-                </ul>
-            </div>
-        `;
+    <div class="mt-6 hidden" id="pdfListBlock">
+        <p class="text-base font-semibold text-gray-700 mb-3">📎 File đính kèm:</p>
+        <ul class="space-y-2" id="pdfListBlockUl"></ul>
+    </div>
+    <script>
+        const pdfList = ${JSON.stringify(pdfLinks)};
+        let validPdfCount = 0;
+
+        pdfList.forEach((pdf, index) => {
+            $.ajax({
+                url: pdf,
+                type: "HEAD",
+                success: function () {
+                    const fileName = pdf.split("/").pop();
+                    $("#pdfListBlockUl").append(\`
+                        <li>
+                            <a href="\${pdf}" target="_blank" class="flex items-center gap-2 text-blue-600 hover:underline">
+                                <i class="fa-solid fa-file-pdf text-red-600"></i> Tài liệu \${++validPdfCount} (\${fileName})
+                            </a>
+                        </li>
+                    \`);
+
+                    // Chỉ hiện khối nếu có ít nhất 1 file hợp lệ
+                    if (validPdfCount === 1) {
+                        $("#pdfListBlock").removeClass("hidden");
+                    }
+                },
+               
+            });
+        });
+    </script>`;
                 }
+
+
+
             }
 
             const html = `
-        <h1 class="text-2xl md:text-3xl font-bold text-center text-blue-800 mb-6 uppercase">
-            ${escapeHtml((bv.TieuDe ?? '').toUpperCase())}
-        </h1>
-        <p class="text-sm text-gray-500 mb-4">
-            <i class="fa-regular fa-calendar-days mr-1"></i>Ngày đăng: ${ngayDang}
-        </p>
-        <div class="mb-4">
-            <img src="${thumb}" alt="Thumbnail" class="w-full max-w-xl mx-auto h-auto rounded shadow mb-6" />
-        </div>
-        <div class="noi-dung-bai-viet text-justify leading-relaxed max-w-none">
-            ${noiDungChuan}
-            ${pdfBlock}
-            <div class="mt-8 pt-4 border-t border-gray-200">
-                <p class="text-sm font-semibold text-gray-600 mb-2">🔗 Chia sẻ bài viết:</p>
-                <div class="flex flex-wrap gap-3 text-sm">
-                    <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}"
-                       target="_blank"
-                       class="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-                        <i class="fab fa-facebook-f"></i> Facebook
-                    </a>
-                    <a href="https://www.instagram.com/"
-                       target="_blank"
-                       class="flex items-center gap-2 px-3 py-2 bg-pink-500 text-white rounded hover:bg-pink-600 transition">
-                        <i class="fab fa-instagram"></i> Instagram
-                    </a>
-                    <button onclick="navigator.clipboard.writeText(window.location.href)"
-                       class="flex items-center gap-2 px-3 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition">
-                        <i class="fas fa-copy"></i> Sao chép liên kết
-                    </button>
+                <h1 class="text-2xl md:text-3xl font-bold text-center text-blue-800 mb-6 uppercase">
+                    ${escapeHtml((bv.TieuDe ?? '').toUpperCase())}
+                </h1>
+                <p class="text-sm text-gray-500 mb-4">
+                    <i class="fa-regular fa-calendar-days mr-1"></i>Ngày đăng: ${ngayDang}
+                </p>
+                <div class="mb-4">
+                    <img src="${thumb}" alt="Thumbnail" class="w-full max-w-xl mx-auto h-auto rounded shadow mb-6" />
                 </div>
-            </div>
-        </div>
-    `;
-            $("#baivietContainer").html(html);
+                <div class="noi-dung-bai-viet text-justify leading-relaxed max-w-none">
+                    ${noiDungChuan}
+                    ${pdfBlock}
+                    <div class="mt-8 pt-4 border-t border-gray-200">
+                    <p class="text-sm font-semibold text-gray-600 mb-2">🔗 Chia sẻ bài viết:</p>
+                    <div class="flex flex-wrap gap-3 text-sm">
+                        <!-- Nút chia sẻ Facebook -->
+                        <button
+                            class="btn-share-facebook flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                            data-url="${window.location.origin + '/noi-dung/' + bv.ID}">
+                            <i class="fab fa-facebook-f"></i> Facebook
+                        </button>
 
+                        <!-- Nút sao chép liên kết -->
+                        <button
+                    onclick="navigator.clipboard.writeText('${window.location.origin + '/noi-dung/' + bv.ID}')
+                        .then(() => {
+                            const toast = document.createElement('div');
+                            toast.id = 'copied-toast';
+                            toast.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-blue-600 text-white px-4 py-2 rounded shadow-lg z-50';
+                            toast.textContent = 'Đã sao chép liên kết!';
+                            document.body.appendChild(toast);
+                            setTimeout(() => {
+                                toast.remove();
+                            }, 2000);
+                        });"
+                    class="flex items-center gap-2 px-3 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition">
+                    <i class="fas fa-copy"></i> Sao chép liên kết
+                </button>
+
+    </div>
+</div>
+
+
+                </div>`;
+
+            $("#baivietContainer").html(html);
             $("#tenMucLuc").replaceWith(`
-        <p id="tenMucLuc" class="text-red-700 font-bold text-xl uppercase mb-2">
-            ${tenMucLuc}
-        </p>
-    `);
+                <p id="tenMucLuc" class="text-red-700 font-bold text-xl uppercase mb-2">
+                    ${tenMucLuc}
+                </p>`);
 
             if (Array.isArray(bv.BaiVietsCungMuc) && bv.BaiVietsCungMuc.length > 0) {
                 const baiVietKhac = bv.BaiVietsCungMuc
@@ -189,21 +215,19 @@ $(document).ready(function () {
                     .slice(0, 5);
 
                 let htmlList = `<h2 class="text-xl font-bold text-gray-800 mb-4"></h2><div class="space-y-4">`;
-
                 baiVietKhac.forEach(item => {
                     const tieuDe = escapeHtml((item.TieuDe || "Không có tiêu đề"));
                     const thumb = item.LinkThumbnail?.trim() || "https://navigates.vn/wp-content/uploads/2023/06/logo-dai-hoc-thu-dau-mot.jpg";
                     const ngayDang = formatDate(item.NgayDang);
 
                     htmlList += `
-            <a href="/bai-viet/${item.ID}" class="flex gap-4 hover:bg-gray-100 p-2 rounded transition">
-                <img src="${thumb}" class="w-28 h-20 object-cover rounded" alt="Ảnh liên quan">
-                <div class="flex-1">
-                    <p class="font-semibold text-gray-800 line-clamp-2">${tieuDe}</p>
-                    <p class="text-sm text-gray-500 mt-1">📅 ${ngayDang}</p>
-                </div>
-            </a>
-        `;
+                        <a href="/bai-viet/${item.ID}" class="flex gap-4 hover:bg-gray-100 p-2 rounded transition">
+                            <img src="${thumb}" class="w-28 h-20 object-cover rounded" alt="Ảnh liên quan">
+                            <div class="flex-1">
+                                <p class="font-semibold text-gray-800 line-clamp-2">${tieuDe}</p>
+                                <p class="text-sm text-gray-500 mt-1">📅 ${ngayDang}</p>
+                            </div>
+                        </a>`;
                 });
 
                 htmlList += `</div>`;
@@ -220,7 +244,38 @@ $(document).ready(function () {
     });
 });
 
-// Xử lý scroll khi click vào các thẻ có class scroll-to
+$(document).on("click", ".btn-share-facebook", function (e) {
+    e.preventDefault();
+    const url = $(this).data("url");
+
+    // Dùng Facebook Share Dialog
+    const fbShareUrl = `https://www.facebook.com/dialog/share?app_id=87741124305&display=popup&href=${encodeURIComponent(url)}&redirect_uri=${encodeURIComponent(url)}`;
+
+    window.open(fbShareUrl, "_blank", "width=600,height=500");
+});
+
+function hasViewedToday(postId) {
+    const key = `viewed_${postId}`;
+    const viewedData = localStorage.getItem(key);
+    if (!viewedData) return false;
+
+    const today = new Date().toDateString();
+    return viewedData === today;
+}
+
+function markViewed(postId) {
+    const key = `viewed_${postId}`;
+    const today = new Date().toDateString();
+    localStorage.setItem(key, today);
+}
+
+
+$(document).on("click", "aside a", function (e) {
+    e.preventDefault();
+    const newUrl = $(this).attr("href");
+    window.location.href = newUrl;
+});
+
 $(document).on("click", ".scroll-to", function (e) {
     const slug = $(this).data("target");
     if (window.location.pathname !== "/") {
@@ -240,17 +295,45 @@ window.addEventListener("pageshow", function (event) {
     }
 });
 
-$(document).ready(function () {
-    const savedSlug = localStorage.getItem("scrollToSlug");
-    if (savedSlug) {
-        setTimeout(() => {
-            const target = $(`#${savedSlug}`);
-            if (target.length) {
-                $("html, body").animate({
-                    scrollTop: target.offset().top - 100
-                }, 500);
-            }
-            localStorage.removeItem("scrollToSlug");
-        }, 400);
-    }
-});
+// ==========================
+// Các hàm tiện ích (Helper Functions)
+// ==========================
+
+function formatDate(unixTimestamp) {
+    if (!unixTimestamp) return "N/A";
+
+    var date = new Date(unixTimestamp * 1000);
+    var weekdays = ['Chủ Nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+    var dayOfWeek = weekdays[date.getDay()];
+    var month = ("0" + (date.getMonth() + 1)).slice(-2);
+    var day = ("0" + date.getDate()).slice(-2);
+    var year = date.getFullYear();
+    var hours = ("0" + date.getHours()).slice(-2);
+    var minutes = ("0" + date.getMinutes()).slice(-2);
+    var seconds = ("0" + date.getSeconds()).slice(-2);
+    var formattedDate = dayOfWeek + ', ' + day + "-" + month + "-" + year + " " + hours + ":" + minutes + ":" + seconds;
+    return formattedDate;
+}
+
+function convertImagePaths(content) {
+    const baseUrl = "https://bdbcl.tdmu.edu.vn";
+    return content.replace(/src="\/img/g, `src="${baseUrl}/img`);
+}
+
+
+function escapeHtml(text) {
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function toSlug(str) {
+    return str.toLowerCase()
+        .normalize("NFD")
+        .replace(/\p{Diacritic}/gu, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)+/g, '');
+}

@@ -26,15 +26,27 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        [Route("increase-views/{id:int}")]
-
+        [Route("increase-views/{id}")]
         public IHttpActionResult IncreaseViews(int id)
         {
+            if (id <= 0)
+                return BadRequest("ID không hợp lệ.");
+
             var bv = db.BaiViets.Find(id);
-            if (bv == null) return NotFound();
+            if (bv == null)
+                return NotFound();
 
             bv.ViewCount = (bv.ViewCount ?? 0) + 1;
-            db.SaveChanges();
+            bv.ViewUpdate = GetUnixTimestamp();
+
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
 
             return Ok(new { success = true, viewCount = bv.ViewCount });
         }

@@ -1,7 +1,15 @@
 ﻿<!-- TrangChuFooterPartial.cshtml -->
-<footer class="bg-[#29A3E0] text-white text-sm py-6">
-    <div class="max-w-7xl mx-auto px-4 space-y-2 text-center sm:text-left">
-        <p>&copy; 2021 Bản quyền thuộc Ban Khảo thí, kiểm định và đảm bảo chất lượng – Trường đại học Thủ Dầu Một</p>
-        <p>Ghi rõ nguồn "Trường đại học Thủ Dầu Một" khi sử dụng lại nội dung trên cổng thông tin.</p>
+
+<footer class="bg-[#29A3E0] text-black text-sm py-6">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="flex justify-end space-x-4">
+            <div class="text-white">
+                Tổng lượt truy cập: <span id="visitorTotal" class="font-semibold"></span>
+            </div>
+            <div class="text-white">
+                Đang online: <span id="visitorOnline" class="font-semibold"></span>
+            </div>
+        </div>
     </div>
 </footer>
+<script src="~/Scripts/Scripts/TrangChuFooter.js"></script>

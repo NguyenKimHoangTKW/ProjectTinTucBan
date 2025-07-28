@@ -22,7 +22,7 @@ namespace ProjectTinTucBan.Controllers
         }
 
         // GET: Bài viết theo mục lục
-        [Route("muc-luc/{id:int}")]
+        [Route("muc-luc/{id}")]
         public ActionResult BaiVietTheoMuc(int id)
         {
             var mucLuc = db.MucLucs.Find(id);

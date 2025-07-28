@@ -42,5 +42,7 @@ namespace ProjectTinTucBan.Models
         public virtual DbSet<Sub_Menu> Sub_Menu { get; set; }
         public virtual DbSet<sysdiagram> sysdiagrams { get; set; }
         public virtual DbSet<TaiKhoan> TaiKhoans { get; set; }
+        public virtual DbSet<TaiLieu> TaiLieux { get; set; }
+        public virtual DbSet<VisitorLog> VisitorLogs { get; set; }
     }
 }
