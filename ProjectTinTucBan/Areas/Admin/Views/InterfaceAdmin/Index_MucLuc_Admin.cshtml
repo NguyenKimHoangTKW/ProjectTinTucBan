@@ -200,9 +200,8 @@
         #data-table tbody tr:hover {
             background-color: #f8f8f8;
         }
-
         #data-table tbody td:first-child,
-        #data-table tbody td:last-child,
+        #data-table tbody td:nth-child(3),
         #data-table tbody td:nth-child(4),
         #data-table tbody td:nth-child(5),
         #data-table tbody td:nth-child(6),
@@ -210,7 +209,20 @@
             text-align: center;
         }
 
+        #data-table td:last-child,
+        #data-table th:last-child {
+            justify-content: center !important;
+        }
 
+        /* Chống tràn cho cột Tên mục lục */
+        #data-table th:nth-child(2),
+        #data-table td:nth-child(2) {
+            max-width: 150px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: left;
+        }
 
 
     /* Styling for status toggle switch */
@@ -345,24 +357,7 @@
         margin-top: 10px;
     }
 
-        .dataTables_paginate .paginate_button {
-            padding: 5px 10px;
-            margin: 0 2px;
-            border: 1px solid #e8e8e8;
-            border-radius: 4px;
-            background: white;
-            cursor: pointer;
-        }
-
-            .dataTables_paginate .paginate_button.current {
-                background-color: #5a8dee;
-                color: white !important;
-                border-color: #5a8dee;
-            }
-
-            .dataTables_paginate .paginate_button:hover:not(.current) {
-                background-color: #f8f8f8;
-            }
+        
 
     /* Chỉnh mũi tên sắp xếp */
     table.dataTable thead .sorting:after,
@@ -377,16 +372,6 @@
         padding: 5px 10px;
         border: 1px solid #e8e8e8;
         border-radius: 4px;
-    }
-
-    /*Chỉnh xuống dòng*/
-    #data-table th,
-    #data-table td {
-        white-space: normal !important; /* This allows text to wrap */
-        word-wrap: break-word; /* Break long words if necessary */
-        max-width: 200px; /* Maximum width for each column */
-        overflow: hidden;
-        text-overflow: ellipsis;
     }
 
         #data-table th:nth-child(6),
@@ -477,6 +462,140 @@
             color: white;
         }
 </style>
+
+<div class="main-content">
+    <div class="container-fluid">
+
+        <h2 class="header-title">Quản lý mục lục</h2>
+        <hr />
+
+        <!-- Header và breadcrumb -->
+        <div class="page-header">
+            <h2 class="header-title">Quản lý mục lục</h2>
+            <div class="header-sub-title">
+                <nav class="breadcrumb breadcrumb-dash">
+                    <a href="/Admin/InterfaceAdmin/Index" class="breadcrumb-item"><i class="anticon anticon-home m-r-5"></i>Trang chủ</a>
+                    <span class="breadcrumb-item active">Quản lý mục lục</span>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Card chứa bảng dữ liệu -->
+        <div class="card">
+            <div class="card-body">
+                <div class="row m-b-30">
+                    <div class="col-lg-8">
+                        <h4>Danh sách mục lục</h4>
+                    </div>
+                    <div class="col-lg-4 text-right">
+                        <button class="btn btn-primary" id="btnAddMucLuc">
+                            <i class="anticon anticon-plus-circle m-r-5"></i>
+                            <span>Thêm mục lục mới</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Bảng dữ liệu -->
+                <table id="data-table" class="display hover nowrap" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Tên mục lục</th>
+                            <th>Vị trí hiển thị</th>
+                            <th>Trạng thái</th>
+                            <th>Ngày đăng</th>
+                            <th>Ngày cập nhật</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Quản lý Mục Lục (dùng chung cho cả thêm và sửa) -->
+<div class="modal fade" id="mucLucModal" tabindex="-1" role="dialog" aria-labelledby="mucLucModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mucLucModalLabel">Quản lý mục lục</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="mucLucForm">
+                    <input type="hidden" id="mucLucId" value="" />
+                    <input type="hidden" id="formMode" value="add" /> <!-- 'add' hoặc 'edit' -->
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="tenMucLuc">Tên mục lục <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="tenMucLuc" name="tenMucLuc" placeholder="Nhập tên mục lục" required>
+                                <small id="tenMucLucError" class="form-text text-muted">Tên hiển thị của mục lục trên website</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="thuTuShow">Vị trí hiển thị <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="thuTuShow" name="thuTuShow" min="1" value="1" placeholder="Nhập số thứ tự hiển thị" required>
+                                <small id="thuTuShowError" class="form-text text-muted">Số thứ tự hiển thị của mục lục (số nhỏ hiển thị trước)</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="checkbox">
+                                    <input id="isActive" name="isActive" type="checkbox">
+                                    <label for="isActive">Kích hoạt</label>
+                                    <small class="form-text text-muted">Mục lục sẽ hiển thị trên website nếu được kích hoạt</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chỉ hiển thị khi ở chế độ sửa -->
+                    <div id="editOnlyFields" class="row" style="display:none">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Thông tin thời gian</label>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <input type="text" class="form-control" id="ngayDang" name="ngayDang" readonly placeholder="Ngày đăng">
+                                        <small class="form-text text-muted">Ngày tạo</small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input type="text" class="form-control" id="ngayCapNhat" name="ngayCapNhat" readonly placeholder="Ngày cập nhật">
+                                        <small class="form-text text-muted">Cập nhật gần nhất</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="btnSaveMucLuc">
+                    <i class="anticon anticon-save m-r-5"></i>
+                    <span id="btnSaveText">Lưu</span>
+                </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Hủy</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 
 @section scriptsAdmin {
     <script src="~/Areas/Admin/Scripts/DanhSachMucLuc.js"></script>

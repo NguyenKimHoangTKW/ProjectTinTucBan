@@ -90,7 +90,7 @@ async function Session_Login(email, fullname, given_name, family_name) {
             // Xử lý các trường hợp đăng nhập thất bại
             if (res.isLocked) {
                 if (res.isPermanent) {
-                    Sweet_Alert("error", "Tài khoản của bạn đã bị khóa vĩnh viễn");
+                    Sweet_Alert("error", "Tài khoản của bạn đã bị khóa");
                 } else if (res.remainingSeconds) {
                     // Hiển thị thời gian còn lại
                     showLockCountdown(res.unlockTime || (Math.floor(Date.now() / 1000) + res.remainingSeconds),
@@ -162,7 +162,7 @@ function checkAccountLockStatus() {
                         $(".password-container").after(`
                             <div id="lockCountdownContainer" class="alert alert-danger mt-2">
                                 <i class="fas fa-lock mr-2"></i>
-                                <span>Tài khoản bị khóa vĩnh viễn. Vui lòng liên hệ quản trị viên.</span>
+                                <span>Tài khoản bị khóa. Vui lòng liên hệ quản trị viên.</span>
                             </div>
                         `);
                     } else if (response.unlockTime) {
@@ -372,7 +372,7 @@ $(document).ready(function () {
                     // Xử lý thông báo đăng nhập thất bại
                     if (response.isLocked) {
                         if (response.isPermanent) {
-                            Sweet_Alert("error", "Tài khoản của bạn đã bị khóa vĩnh viễn");
+                            Sweet_Alert("error", "Tài khoản của bạn đã bị khóa");
                         } else if (response.remainingSeconds) {
                             // Hiển thị thời gian còn lại
                             showLockCountdown(response.unlockTime || (Math.floor(Date.now() / 1000) + response.remainingSeconds),
@@ -646,5 +646,14 @@ $(document).ready(function () {
     function validateEmail(email) {
         const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         return re.test(String(email).toLowerCase());
+    }
+
+});
+
+//Thong bao sweetalert từ UserAuthorizeAttribute.cs
+$(function () {
+    // Chỉ gọi Sweet_Alert nếu cả hai giá trị đều tồn tại và không rỗng/null/undefined
+    if (window.sweetAlertType && window.sweetAlertMessage) {
+        Sweet_Alert(window.sweetAlertType, window.sweetAlertMessage);
     }
 });

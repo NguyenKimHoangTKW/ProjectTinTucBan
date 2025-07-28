@@ -713,6 +713,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                         username = currentUser.TenTaiKhoan,
                         name = currentUser.Name,
                         email = currentUser.Gmail,
+                        isbanner = currentUser.IsBanned,
                         role = currentUser.ID_role
                     },
                     success = true

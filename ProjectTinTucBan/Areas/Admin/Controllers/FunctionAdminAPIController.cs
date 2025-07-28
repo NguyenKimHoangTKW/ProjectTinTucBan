@@ -46,29 +46,56 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             }
         }
 
+        // GET: api/v1/admin/Get-Function-By-Id/{id}
+        [HttpGet]
+        [Route("Get-Function-By-Id/{id}")]
+        public async Task<IHttpActionResult> GetFunctionById(int id)
+        {
+            var function = await db.ChucNangQuyenUsers
+                .Where(x => x.ID == id)
+                .Select(x => new
+                {
+                    x.ID,
+                    x.TenChucNang,
+                    x.MaChucNang,
+                    x.MoTa,
+                    x.NgayCapNhat,
+                    x.NgayTao
+                })
+                .FirstOrDefaultAsync();
+
+            if (function != null)
+            {
+                return Ok(new { data = function, success = true });
+            }
+            else
+            {
+                return Ok(new { message = "Không tìm thấy chức năng", success = false });
+            }
+        }
+
         // POST: api/v1/admin/Create-Function
         [HttpPost]
         [Route("Create-Function")]
-        public async Task<IHttpActionResult> CreateFunction(ChucNangQuyenUser Item)
+        public async Task<IHttpActionResult> CreateFunction([FromBody] UpdateFunctionRequest request)
         {
             try
             {
-                // Kiểm tra dữ liệu đầu vào có hợp lệ không
-                if (Item == null)
+                if (request == null || request.Function == null)
                 {
                     return Ok(new { message = "Dữ liệu không hợp lệ", success = false });
                 }
 
                 // Kiểm tra xem tên chức năng đã tồn tại chưa
-                var existingFunction = await db.ChucNangQuyenUsers.FirstOrDefaultAsync(x => x.TenChucNang == Item.TenChucNang);
+                var existingFunction = await db.ChucNangQuyenUsers.FirstOrDefaultAsync(x => x.TenChucNang == request.Function.TenChucNang);
                 if (existingFunction != null)
                 {
                     return Ok(new { message = "Chức năng đã tồn tại", success = false });
                 }
 
                 // Kiểm tra xem mã chức năng đã tồn tại chưa
-                var existingIdFunction = await db.ChucNangQuyenUsers.FirstOrDefaultAsync(x => x.MaChucNang == Item.MaChucNang);
-                if (existingIdFunction != null) 
+                var existingIdFunction = await db.ChucNangQuyenUsers.FirstOrDefaultAsync(x => x.MaChucNang == request.Function.MaChucNang);
+                if (existingIdFunction != null)
                 {
                     return Ok(new { message = "Mã chức năng đã tồn tại", success = false });
                 }
@@ -77,22 +104,34 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 unixTimestamp = (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
                 var newFunction = new ChucNangQuyenUser
                 {
-                    MaChucNang = Item.MaChucNang,
-                    TenChucNang = Item.TenChucNang,
-                    MoTa = Item.MoTa,
-                    NgayTao = unixTimestamp,     
-                    NgayCapNhat = unixTimestamp  
+                    MaChucNang = request.Function.MaChucNang,
+                    TenChucNang = request.Function.TenChucNang,
+                    MoTa = request.Function.MoTa,
+                    NgayTao = unixTimestamp,
+                    NgayCapNhat = unixTimestamp
                 };
 
                 db.ChucNangQuyenUsers.Add(newFunction);
                 await db.SaveChangesAsync();
 
-                // Trả về kết quả thành công 
+                // Thêm liên kết menu nếu có
+                if (request.MenuIds != null && request.MenuIds.Count > 0)
+                {
+                    foreach (var menuId in request.MenuIds)
+                    {
+                        db.Function_By_Menu.Add(new Function_By_Menu
+                        {
+                            ID_FUNCTION = newFunction.ID,
+                            ID_MENU = menuId
+                        });
+                    }
+                    await db.SaveChangesAsync();
+                }
+
                 return Ok(new { message = "Thêm chức năng thành công", success = true });
             }
             catch (Exception ex)
             {
-                // Xử lý ngoại lệ và trả về thông báo lỗi dễ hiểu
                 return Ok(new
                 {
                     message = "Lỗi hệ thống: " + ex.Message,
@@ -168,7 +207,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
         // DELETE: api/v1/admin/Delete-Function/{id}
         [HttpDelete]
-        [Route("Delete-Function/{id:int}")]
+        [Route("Delete-Function/{id}")]
         public async Task<IHttpActionResult> DeleteFunction(int id)
         {
             try
@@ -216,7 +255,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         }
 
         [HttpGet]
-        [Route("function-menus/{id:int}")]
+        [Route("function-menus/{id}")]
         public async Task<IHttpActionResult> GetFunctionMenus(int id)
         {
             try
@@ -225,7 +264,8 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     .Where(f => f.ID_FUNCTION == id)
                     .Select(f => new {
                         MenuId = f.ID_MENU,
-                        MenuName = f.Menu.Ten
+                        MenuName = f.Menu.Ten,
+                        MenuLink = f.Menu.Link
                     })
                     .ToListAsync();
 
@@ -236,6 +276,5 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 return InternalServerError(ex);
             }
         }
-
     }
 }

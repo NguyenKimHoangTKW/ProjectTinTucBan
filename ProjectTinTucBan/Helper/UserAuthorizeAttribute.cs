@@ -18,37 +18,53 @@ namespace ProjectTinTucBan.Helper
 
         protected override bool AuthorizeCore(HttpContextBase httpContext)
         {
-            // Get current user from session
+            // Luôn cập nhật lại session user từ database
+            SessionHelper.UpdateUserSession();
+
             var user = SessionHelper.GetUser();
 
-            // Check if user exists and has a role assigned
             if (user == null || !user.ID_role.HasValue)
             {
                 return false;
             }
 
-            // If specific roles are specified, check if user has one of them
+            // Kiểm tra bị khóa tài khoản
+            if (user.IsBanned == 1)
+            {
+                return false;
+            }
+
             if (_allowedRoles.Length > 0 && !_allowedRoles.Contains(user.ID_role.Value))
             {
                 return false;
             }
 
-            // User is authorized
             return true;
         }
 
+
         protected override void HandleUnauthorizedRequest(AuthorizationContext filterContext)
         {
-            // Check if the request is from an authenticated user (who doesn't have the right role)
             var user = SessionHelper.GetUser();
             if (user != null)
             {
-                // User is logged in but doesn't have permission
-                filterContext.Result = new RedirectResult("~/Admin/dashboard");
+                if (user.IsBanned == 1)
+                {
+                    // Xóa session khi bị khóa
+                    SessionHelper.ClearUser();
+                    filterContext.Controller.TempData["AlertType"] = "warning";
+                    filterContext.Controller.TempData["AlertMessage"] = "Tài khoản của bạn đã bị khóa!";
+                    filterContext.Result = new RedirectResult("~/Home/Login");
+                }
+                else
+                {
+                    filterContext.Controller.TempData["AlertType"] = "warning";
+                    filterContext.Controller.TempData["AlertMessage"] = "Bạn không có quyền vào trang này!";
+                    filterContext.Result = new RedirectResult("~/Admin/dashboard");
+                }
             }
             else
             {
-                // User is not logged in, redirect to login page
                 filterContext.Result = new RedirectResult("~/Home/Login");
             }
         }

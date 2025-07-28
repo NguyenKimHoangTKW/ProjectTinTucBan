@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Web.Http;
 using ProjectTinTucBan.Models;
 using System.Threading.Tasks;
+using ProjectTinTucBan.Helper;
 namespace ProjectTinTucBan.Areas.Admin.Controllers
 {
     [RoutePrefix("api/v1/admin")]
@@ -30,8 +31,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                    .Select(x => new
                    {
                        x.ID,
-                       x.TenMucLuc,
-                       x.Link,
+                       x.TenMucLuc,                    
                        x.ThuTuShow,
                        x.NgayCapNhat,
                        x.NgayDang,
@@ -57,6 +57,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("Get-Muc-Luc-By-Id/{id}")]
         public async Task<IHttpActionResult> GetMucLucById(int id)
         {
+            var user = SessionHelper.GetUser();
             try
             {
                 // Sử dụng FindAsync thay vì truy vấn LINQ phức tạp
@@ -69,7 +70,6 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     {
                         ID = mucLuc.ID,
                         TenMucLuc = mucLuc.TenMucLuc,
-                        Link = mucLuc.Link,
                         ThuTuShow = mucLuc.ThuTuShow,
                         NgayCapNhat = mucLuc.NgayCapNhat,
                         NgayDang = mucLuc.NgayDang,
@@ -93,6 +93,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("Create-Muc-Luc")]
         public async Task<IHttpActionResult> CreateMucLuc(MucLuc Item)
         {
+            var user = SessionHelper.GetUser();
             try
             {
                 if (Item == null)
@@ -100,10 +101,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                     return Ok(new { message = "Dữ liệu không hợp lệ", data = new object[0], success = false });
                 }
 
-                if (string.IsNullOrWhiteSpace(Item.TenMucLuc))
-                {
-                    return Ok(new { message = "Tên mục lục không được để trống", data = new object[0], success = false });
-                }
+     
 
                 if (Item.ThuTuShow <= 0)
                 {
@@ -136,7 +134,6 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 var newMucLuc = new MucLuc
                 {
                     TenMucLuc = Item.TenMucLuc,
-                    Link = Item.Link,
                     ThuTuShow = Item.ThuTuShow,
                     NgayDang = unixTimestamp,
                     NgayCapNhat = unixTimestamp,
@@ -157,6 +154,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("Update-Muc-Luc")]
         public async Task<IHttpActionResult> UpdateMucLuc(MucLuc Item)
         {
+            var user = SessionHelper.GetUser();
             try
             {
                 if (Item == null || Item.ID <= 0)
@@ -193,7 +191,6 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
                 // Cập nhật thông tin mục lục
                 existingMucLuc.TenMucLuc = Item.TenMucLuc;
-                existingMucLuc.Link = Item.Link;
                 existingMucLuc.ThuTuShow = Item.ThuTuShow;
                 existingMucLuc.IsActive = Item.IsActive; // Đã được gửi lên như một số (1 hoặc 0)
                 unixTimestamp = (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
@@ -212,6 +209,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("Update-Muc-Luc-Status")]
         public async Task<IHttpActionResult> UpdateMucLucStatus(MucLuc item)
         {
+            var user = SessionHelper.GetUser();
             try
             {
                 if (item == null || item.ID <= 0)
@@ -255,6 +253,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("Delete-Muc-Luc")]
         public async Task<IHttpActionResult> DeleteMucLuc(MucLuc Item)
         {
+            var user = SessionHelper.GetUser();
             try
             {
                 if (Item == null || Item.ID <= 0)

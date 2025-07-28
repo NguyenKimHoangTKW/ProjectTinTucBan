@@ -884,6 +884,7 @@ function setupBaiVietTableEvents() {
     });
     $(document).on('click', '#btnLuuBaiViet', async function () {
 
+        $('#savingSpinner').removeClass('d-none'); // 👉 Hiện spinner
         const tieuDe = $('#TieuDe').val().trim();
         const noiDung = CKEDITOR.instances.NoiDung.getData().trim();
         const idNguoiDang = sessionStorage.getItem('loginInfo') ? JSON.parse(sessionStorage.getItem('loginInfo')).id : null;
@@ -925,6 +926,9 @@ function setupBaiVietTableEvents() {
             }
         } catch (err) {
             Swal.fire({ icon: 'error', title: 'Lỗi', text: 'Không thể lưu bài viết.' });
+
+        } finally {
+            $('#savingSpinner').addClass('d-none'); //
         }
     });
 }

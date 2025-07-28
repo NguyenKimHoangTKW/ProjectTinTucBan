@@ -1,77 +1,175 @@
-const BASE_URL = '/api/v1/admin/';
+// ================== BIẾN TOÀN CỤC ==================
+let dataTableInstance = null;
+const defaultContent = "Không có dữ liệu";
+
+// ================== XỬ LÝ SỰ KIỆN & KHỞI TẠO ==================
 $(document).ready(function () {
-    // Initialize Select2 components if available
-    if ($.fn.select2) {
+    // Khởi tạo thành phần Select2 nếu có sẵn
+    if ($.select2) {
         $(".select2").select2();
     }
 
-    // Thiết lập tìm kiếm nâng cao và mặc định tải dữ liệu
-    setupAdvancedSearch();
     load_data();
-    loadRoles();  // Load roles for dropdown
+    loadRoles();
 
-    // Event handlers for the "Add User" button
-    $("#btnAddUser").on("click", function () {
-        openAddUserModal();
+    // Sự kiện chuyển tab trong modal
+    $('#userModalTabs a').on('click', function (e) {
+        e.preventDefault();
+        $(this).tab('show');
+        const tabId = $(this).attr('href');
+        if (tabId === '#permissions-content') {
+            $("#formButtons").hide();
+            $("#viewButtons").hide();
+            $("#permissionButtons").show();
+        } else if (tabId === '#info-content') {
+            if ($("#userDetails").is(":visible")) {
+                $("#formButtons").hide();
+                $("#viewButtons").show();
+                $("#permissionButtons").hide();
+            } else {
+                $("#formButtons").show();
+                $("#viewButtons").hide();
+                $("#permissionButtons").hide();
+            }
+        }
     });
 
-    // Event handler for the "Save" button in the modal
+    // Sự kiện cho nút "Lưu" trong modal
     $("#btnSaveUser").on("click", function () {
         const formMode = $("#formMode").val();
-        if (formMode === "add") {
-            add_new_User_in_modal();
-        } else {
+        if (formMode === "edit") {
             update_User_in_modal();
         }
     });
 
-    // Add this event handler for permissions button
-    $(document).on("click", ".btn-permissions", function () {
-        const id = $(this).data("id");
-        const username = $(this).data("username");
-        openPermissionsModal(id, username);
-    });
-
-    // Add event handler for saving permissions
+    // Sự kiện lưu phân quyền
     $("#btnSavePermissions").on("click", function () {
         saveUserPermissions();
     });
 
-    // Edit button click event
-    $(document).on("click", ".btn-edit", function () {
+    // Sự kiện đổi trạng thái đổi mật khẩu
+    $("#changePasswordCheck").on("change", function () {
+        if ($(this).is(":checked")) {
+            $("#newPasswordFields").slideDown(300);
+        } else {
+            $("#newPasswordFields").slideUp(300);
+        }
+    });
+
+    // Sự kiện đóng modal
+    $("#UserModal").on("hidden.bs.modal", function () {
+        $(".form-fields").show();
+        $("#userDetails").hide();
+        $("#formButtons").show();
+        $("#viewButtons").hide();
+        $("#permissionButtons").hide();
+        $("#editOnlyFields").hide();
+        $('#userModalTabs a[href="#info-content"]').tab('show');
+        $("#UserForm")[0].reset();
+        $("#userId").val("");
+        $("#permissionUserId").val("");
+        $("#permissionUserName").text("");
+        $("#formMode").val("edit");
+        $("#functionsTableBody").html("");
+        $("#noFunctionsMessage").hide();
+    });
+
+    // Sự kiện nút chỉnh sửa trong modal chi tiết (dùng event delegation)
+    $("#UserModal").on("click", "#btnEditFromView", function (e) {
+        e.preventDefault();
+        const UserID = $(this).data("id");
+        if (!UserID || UserID === "") {
+            Sweet_Alert("error", "Không tìm thấy ID tài khoản để chỉnh sửa");
+            return;
+        }
+        openEditUserModal(UserID);
+    });
+
+
+    // Thiết lập tìm kiếm nâng cao
+    $("#btnApplySearch").on("click", function () {
+        applyAdvancedSearch();
+    });
+    $("#btnResetSearch").on("click", function () {
+        resetAdvancedSearch();
+    });
+    $('#searchTenTaiKhoan, #searchTenNguoiDung, #searchRole, #searchIsBanned').on('keypress', function (e) {
+        if (e.which === 13) {
+            applyAdvancedSearch();
+        }
+    });
+
+    // Các nút động trong bảng (chi tiết, phân quyền, sửa, xóa)
+    $("#data-table").on("click", ".btn-detail", function () {
+        const id = $(this).data("id");
+        openViewUserModal(id);
+    });
+    $("#data-table").on("click", ".btn-permissions", function () {
+        const id = $(this).data("id");
+        const username = $(this).data("username");
+        openPermissionsModal(id, username);
+    });
+    $("#data-table").on("click", ".btn-edit", function () {
         const id = $(this).data("id");
         openEditUserModal(id);
     });
-
-    // Delete button click event
-    $(document).on("click", ".btn-delete", function () {
+    $("#data-table").on("click", ".btn-delete", function () {
         const id = $(this).data("id");
         deleteUser(id);
     });
 
-    // Change password checkbox event
-    $("#changePasswordCheck").change(function () {
-        if ($(this).is(":checked")) {
-            $("#newPasswordFields").show();
-        } else {
-            $("#newPasswordFields").hide();
+    // Checkbox động trong bảng phân quyền
+    $("#functionsTableBody").on("change", ".function-checkbox", function () {
+        updateCheckAllState();
+    });
+    $("#checkAllFunctions").on("change", function () {
+        const isChecked = $(this).prop("checked");
+        $(".function-checkbox").prop("checked", isChecked);
+    });
+
+    // Sự kiện copy-on-click
+    $("#UserModal").on('click', '.copy-on-click', function () {
+        const value = $(this).text().trim();
+        if (value && value !== "N/A") {
+            navigator.clipboard.writeText(value).then(() => {
+                Sweet_Alert("success", "Đã copy: " + value, "top-end");
+            });
         }
     });
 });
 
-let dataTableInstance = null;
+$(document).on('input', '#SDT', function () {
+    this.value = this.value.replace(/[^0-9]/g, '');
+});
 
-// Load roles for dropdown
+$(document).ready(function () {
+    // Áp dụng cho tất cả ô trong bảng, trừ cột thao tác
+    $('#data-table').on('mouseenter', 'td', function () {
+        // Nếu chưa có title hoặc title khác nội dung, thì cập nhật
+        if (!$(this).attr('title') || $(this).attr('title') !== $(this).text().trim()) {
+            $(this).attr('title', $(this).text().trim());
+        }
+    });
+});
+
+
+//không cho drop model
+
+
+// ================== HÀM XỬ LÝ DỮ LIỆU, AJAX, TIỆN ÍCH ==================
+
+// Tải danh sách vai trò cho dropdown
 function loadRoles() {
     $.ajax({
-        url: `${BASE_URL}/Get-All-Roles`,
+        url: '/api/v1/admin/Get-All-Roles',
         type: 'GET',
         dataType: 'json',
         success: function (response) {
             if (response.success && response.data) {
+                rolesData = response.data;
                 let options = '<option value="">-- Chọn vai trò --</option>';
                 response.data.forEach(role => {
-                    options += `<option value="${role.ID}">${role.TenRole}</option>`;
+                    options += `<option value="${role.ID}">${escapeHtml(role.TenRole)}</option>`;
                 });
                 $("#ID_role").html(options);
                 $("#searchRole").html('<option value="">-- Tất cả vai trò --</option>' + options);
@@ -80,573 +178,19 @@ function loadRoles() {
     });
 }
 
-// Thiết lập tìm kiếm nâng cao
-function setupAdvancedSearch() {
-    // Sự kiện cho nút tìm kiếm
-    $(document).on('click', '#btnApplySearch', function () {
-        applyAdvancedSearch();
-    });
+// Lấy ID người dùng từ đối tượng dữ liệu
+function getUserId(userData) {
+    // Thử các tên thuộc tính ID có thể có
+    const id = userData.ID || userData.Id || userData.id;
 
-    // Sự kiện cho nút đặt lại
-    $(document).on('click', '#btnResetSearch', function () {
-        resetAdvancedSearch();
-    });
-
-    // Sự kiện nhấn Enter trong các trường tìm kiếm
-    $('#searchTenTaiKhoan, #searchGmail, #searchRole, #searchIsBanned').on('keypress', function (e) {
-        if (e.which === 13) {
-            applyAdvancedSearch();
-        }
-    });
-}
-
-// Áp dụng tìm kiếm nâng cao
-function applyAdvancedSearch() {
-    const searchTenTaiKhoan = $('#searchTenTaiKhoan').val().trim().toLowerCase();
-    const searchGmail = $('#searchGmail').val().trim().toLowerCase();
-    const searchRole = $('#searchRole').val();
-    const searchIsBanned = $('#searchIsBanned').val();
-
-    if (dataTableInstance) {
-        // Định nghĩa hàm tìm kiếm tùy chỉnh
-        $.fn.dataTable.ext.search.push(function (settings, data, dataIndex, rowData) {
-            // Data[1] = Tên tài khoản, Data[2] = Gmail, Data[4] = Vai trò ID, Data[5] = Trạng thái
-            const tenTaiKhoan = data[1].toLowerCase();
-            const gmail = data[2].toLowerCase();
-            const role = rowData.ID_role ? rowData.ID_role.toString() : "";
-            const isBanned = rowData.IsBanned ? rowData.IsBanned.toString() : "";
-
-            // Kiểm tra điều kiện tìm kiếm
-            const matchTen = searchTenTaiKhoan === '' || tenTaiKhoan.includes(searchTenTaiKhoan);
-            const matchGmail = searchGmail === '' || gmail.includes(searchGmail);
-            const matchRole = searchRole === '' || role === searchRole;
-            const matchIsBanned = searchIsBanned === '' || isBanned === searchIsBanned;
-
-            return matchTen && matchGmail && matchRole && matchIsBanned;
-        });
-
-        // Áp dụng tìm kiếm và vẽ lại bảng
-        dataTableInstance.draw();
-
-        // Xóa bộ lọc tìm kiếm sau khi đã áp dụng
-        $.fn.dataTable.ext.search.pop();
-
-        // Thông báo kết quả tìm kiếm
-        const visibleRows = dataTableInstance.rows({ search: 'applied' }).count();
-        if (visibleRows === 0) {
-            Sweet_Alert("info", "Không tìm thấy kết quả phù hợp");
-        }
+    if (!id) {
+        return null;
     }
+
+    return id;
 }
 
-// Đặt lại tìm kiếm nâng cao
-function resetAdvancedSearch() {
-    $('#searchTenTaiKhoan').val('');
-    $('#searchGmail').val('');
-    $('#searchRole').val('');
-    $('#searchIsBanned').val('');
-
-    if (dataTableInstance) {
-        dataTableInstance.search('').columns().search('').draw();
-    }
-}
-
-// Lấy tên vai trò từ ID
-function getRoleName(roleId, rolesData) {
-    const role = rolesData.find(r => r.ID === roleId);
-    return role ? role.TenRole : "Không xác định";
-}
-
-defaultContent = "Không có dữ liệu";
-
-// Load data from API
-async function load_data() {
-    try {
-        // Hiển thị loading
-        $('#data-table').empty().html('<div class="text-center my-4"><p>Đang tải dữ liệu...</p></div>');
-
-        // Tải dữ liệu vai trò
-        let rolesData = [];
-        try {
-            const rolesResponse = await $.ajax({
-                url: `${BASE_URL}/Get-All-Roles`,
-                type: 'GET',
-                dataType: 'json'
-            });
-
-            if (rolesResponse.success && Array.isArray(rolesResponse.data)) {
-                rolesData = rolesResponse.data;
-            }
-        } catch (error) {
-            Sweet_Alert("error", "Loading data: " + error.message);
-        }
-
-        // Gọi API tải danh sách người dùng
-        $.ajax({
-            url: `${BASE_URL}/Get-All-Users`,
-            type: 'GET',
-            dataType: 'json',
-            cache: false,
-            success: function (response) {
-                // Xóa DataTable cũ nếu đã tồn tại
-                if ($.fn.DataTable.isDataTable('#data-table')) {
-                    $('#data-table').DataTable().destroy();
-                }
-
-                // Xóa nội dung loading và tạo lại cấu trúc table
-                $('#data-table').html(`
-                    <thead>
-                        <tr>
-                            <th>STT</th>
-                            <th>Tên tài khoản</th>
-                            <th>Gmail</th>
-                            <th>Số điện thoại</th>
-                            <th>Vai trò</th>
-                            <th>Trạng thái</th>
-                            <th>Ngày tạo</th>
-                            <th>Ngày cập nhật</th>
-                            <th>Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                `);
-
-                // Xử lý dữ liệu cho hiển thị
-                let processedData = [];
-                if (response.data && Array.isArray(response.data)) {
-                    processedData = response.data.map(item => {
-                        // Tạo một object mới với các thuộc tính của item
-                        const newItem = { ...item };
-
-                        // Xử lý cả hai trường hợp viết hoa và viết thường
-                        if (item.NgayTao && !isNaN(parseInt(item.NgayTao))) {
-                            newItem.NgayTao = unixTimestampToDate(parseInt(item.NgayTao));
-                        } else if (item.ngayTao && !isNaN(parseInt(item.ngayTao))) {
-                            newItem.NgayTao = unixTimestampToDate(parseInt(item.ngayTao));
-                        }
-
-                        if (item.NgayCapNhat && !isNaN(parseInt(item.NgayCapNhat))) {
-                            newItem.NgayCapNhat = unixTimestampToDate(parseInt(item.NgayCapNhat));
-                        } else if (item.ngayCapNhat && !isNaN(parseInt(item.ngayCapNhat))) {
-                            newItem.NgayCapNhat = unixTimestampToDate(parseInt(item.ngayCapNhat));
-                        }
-
-                        return newItem;
-                    });
-                }
-
-                // Khởi tạo DataTable với dữ liệu
-                dataTableInstance = $('#data-table').DataTable({
-                    data: processedData || [],
-                    columns: [
-                        {
-                            data: null,
-                            render: function (data, type, row, meta) {
-                                return meta.row + 1;
-                            }
-                        },
-                        {
-                            data: 'TenTaiKhoan',
-                            defaultContent,
-                            className: 'text-left'
-                        },
-                        {
-                            data: 'Gmail',
-                            defaultContent,
-                            className: 'text-left'
-                        },
-                        {
-                            data: 'SDT',
-                            defaultContent,
-                            className: 'text-left'
-                        },
-                        {
-                            data: 'ID_role',
-                            render: function (data, type, row) {
-                                const roleName = getRoleName(data, rolesData);
-                                return `<span class="badge badge-primary">${roleName}</span>`;
-                            }
-                        },
-                        {
-                            data: 'IsBanned',
-                            render: function (data) {
-                                return data === 1 ?
-                                    '<span class="badge badge-danger">Khóa</span>' :
-                                    '<span class="badge badge-success">Hoạt động</span>';
-                            }
-                        },
-                        {
-                            data: 'NgayTao',
-                            defaultContent,
-                            className: 'text-left'
-                        },
-                        {
-                            data: 'NgayCapNhat',
-                            defaultContent,
-                            className: 'text-left'
-                        },
-                        {
-                            data: null,
-                            orderable: false,
-                            render: function (data) {
-                                return `
-                                    <div class="d-flex justify-content-center">
-                                        <button class="btn-action btn-permissions mr-1" data-id="${data.ID}" data-username="${data.TenTaiKhoan}" title="Phân quyền">
-                                            <i class="anticon anticon-unordered-list"></i>
-                                        </button>
-                                        <button class="btn-action btn-edit mr-1" data-id="${data.ID}" title="Sửa">
-                                            <i class="anticon anticon-edit"></i>
-                                        </button>
-                                        <button class="btn-action btn-delete" data-id="${data.ID}" title="Xóa">
-                                            <i class="anticon anticon-delete"></i>
-                                        </button>
-                                    </div>
-                                `;
-                            }
-                        }
-                    ],
-                    pageLength: 5,
-                    lengthMenu: [5, 10, 15, 25, 50],
-                    language: {
-                        paginate: {
-                            next: "Tiếp",
-                            previous: "Trước"
-                        },
-                        search: "Tìm nhanh:",
-                        lengthMenu: "Hiển thị _MENU_ mục",
-                        emptyTable: "Không có dữ liệu",
-                        zeroRecords: "Không tìm thấy kết quả phù hợp",
-                        info: "Hiển thị _START_ đến _END_ của _TOTAL_ mục",
-                        infoEmpty: "Hiển thị 0 đến 0 của 0 mục",
-                        infoFiltered: "(lọc từ _MAX_ mục)"
-                    }
-                });
-
-                // Hiển thị thông báo nếu không có dữ liệu
-                if (!response.success) {
-                    Sweet_Alert("info", response.message || "Không có dữ liệu");
-                }
-            },
-            error: function (xhr, status, error) {
-                // Hiển thị thông báo lỗi
-                $('#data-table').empty().html(`
-                    <thead>
-                        <tr>
-                            <th>STT</th>
-                            <th>Tên tài khoản</th>
-                            <th>Gmail</th>
-                            <th>Số điện thoại</th>
-                            <th>Vai trò</th>
-                            <th>Trạng thái</th>
-                            <th>Ngày tạo</th>
-                            <th>Ngày cập nhật</th>
-                            <th>Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td colspan="9" class="text-center">Đã xảy ra lỗi: ${xhr.status} - ${xhr.statusText}</td>
-                        </tr>
-                    </tbody>
-                `);
-
-
-                Sweet_Alert("error", "Không thể tải danh sách: " + xhr.statusText);
-            }
-        });
-    } catch (error) {
-        Sweet_Alert("error", "Lỗi JavaScript: " + error.message);
-    }
-}
-
-// Format Unix timestamp to readable date
-function unixTimestampToDate(unixTimestamp) {
-    if (!unixTimestamp) return "N/A";
-
-    var date = new Date(unixTimestamp * 1000);
-    var weekdays = ['Chủ Nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
-    var dayOfWeek = weekdays[date.getDay()];
-    var month = ("0" + (date.getMonth() + 1)).slice(-2);
-    var day = ("0" + date.getDate()).slice(-2);
-    var year = date.getFullYear();
-    var hours = ("0" + date.getHours()).slice(-2);
-    var minutes = ("0" + date.getMinutes()).slice(-2);
-    var seconds = ("0" + date.getSeconds()).slice(-2);
-    var formattedDate = dayOfWeek + ', ' + day + "-" + month + "-" + year + " " + hours + ":" + minutes + ":" + seconds;
-    return formattedDate;
-}
-
-
-// Open modal for editing an existing user
-async function openEditUserModal(userId) {
-    try {
-        // Chỉ sử dụng API Get-All-Users và tìm người dùng cụ thể
-        const allUsersResponse = await $.ajax({
-            url: `${BASE_URL}/Get-All-Users`,
-            type: 'GET',
-            dataType: 'json'
-        });
-
-        if (allUsersResponse.success && allUsersResponse.data) {
-            // Tìm người dùng theo ID trong danh sách
-            const user = allUsersResponse.data.find(u => u.ID === userId);
-
-            if (user) {
-                // Set form mode and ID
-                $("#formMode").val("edit");
-                $("#userId").val(user.ID);
-
-                // Fill in form fields
-                $("#tenTaiKhoan").val(user.TenTaiKhoan);
-                $("#ID_role").val(user.ID_role);
-                $("#Gmail").val(user.Gmail);
-                $("#SDT").val(user.SDT || '');
-                $("#IsBanned").val(user.IsBanned);
-
-                // Format and display timestamps
-                let ngayTao = user.NgayTao || user.ngayTao;
-                let ngayCapNhat = user.NgayCapNhat || user.ngayCapNhat;
-                $("#NgayTao").val(ngayTao ? unixTimestampToDate(parseInt(ngayTao)) : "Không có dữ liệu");
-                $("#NgayCapNhat").val(ngayCapNhat ? unixTimestampToDate(parseInt(ngayCapNhat)) : "NKhông có dữ liệuA");
-
-                // Update modal title and button text
-                $("#UserModalLabel").text("Cập nhật tài khoản");
-                $("#btnSaveText").text("Cập nhật");
-
-
-                $("#editOnlyFields").show();
-
-
-                // Show the modal
-                $("#UserModal").modal("show");
-            } else {
-                Sweet_Alert("error", "Không tìm thấy thông tin tài khoản");
-            }
-        } else {
-            Sweet_Alert("error", "Không thể tải thông tin tài khoản");
-        }
-    } catch (error) {
-        Sweet_Alert("error", "Không thể tải thông tin tài khoản");
-    }
-}
-
-// Function to update user information
-async function update_User_in_modal() {
-    try {
-        // Get values from form
-        const userId = $("#userId").val();
-        const tenTaiKhoan = $("#tenTaiKhoan").val().trim();
-        const email = $("#Gmail").val().trim();
-        const sdt = $("#SDT").val().trim();
-        const roleId = $("#ID_role").val();
-        const isBanned = $("#IsBanned").val();
-
-        // Basic validation
-        if (!tenTaiKhoan) {
-            Sweet_Alert("error", "Vui lòng nhập tên tài khoản");
-            return;
-        }
-
-        if (!email) {
-            Sweet_Alert("error", "Vui lòng nhập địa chỉ Gmail");
-            return;
-        }
-
-        if (!roleId) {
-            Sweet_Alert("error", "Vui lòng chọn vai trò");
-            return;
-        }
-
-        // Email validation using regex
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            Sweet_Alert("error", "Định dạng Gmail không hợp lệ");
-            return;
-        }
-
-        // Disable button during API call
-        $("#btnSaveUser").prop('disabled', true);
-        $("#btnSaveText").html('<i class="anticon anticon-loading"></i> Đang xử lý...');
-
-        // Create update data
-        const updateData = {
-            ID: parseInt(userId),
-            TenTaiKhoan: tenTaiKhoan,
-            Gmail: email,
-            SDT: sdt || null,
-            ID_role: parseInt(roleId),
-            IsBanned: parseInt(isBanned)
-        };
-
-        // Call API to update user
-        const response = await $.ajax({
-            url: `${BASE_URL}/Update-User`,
-            type: 'PUT',
-            contentType: 'application/json',
-            data: JSON.stringify(updateData)
-        });
-
-        // Re-enable button
-        $("#btnSaveUser").prop('disabled', false);
-        $("#btnSaveText").html('Cập nhật');
-
-        if (response.success) {
-            // Close modal and refresh data
-            $("#UserModal").modal("hide");
-            Sweet_Alert("success", response.message || "Cập nhật tài khoản thành công");
-            load_data();
-        } else {
-            Sweet_Alert("error", response.message || "Có lỗi xảy ra khi cập nhật tài khoản");
-        }
-    } catch (error) {
-        $("#btnSaveUser").prop('disabled', false);
-        $("#btnSaveText").html('Cập nhật');
-
-        if (error.responseJSON && error.responseJSON.message) {
-            Sweet_Alert("error", error.responseJSON.message);
-        } else {
-            Sweet_Alert("error", "Có lỗi xảy ra khi cập nhật tài khoản");
-        }
-
-    }
-}
-
-// Delete a user
-function deleteUser(userId) {
-    Swal.fire({
-        title: 'Xác nhận xóa?',
-        text: "Bạn có chắc chắn muốn xóa tài khoản này?",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Xác nhận xóa',
-        cancelButtonText: 'Hủy'
-    }).then(async (result) => {
-        if (result.isConfirmed) {
-            try {
-                const res = await $.ajax({
-                    url: `${BASE_URL}/Delete-User`,
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-                        ID: parseInt(userId)
-                    })
-                });
-
-                if (res.success) {
-                    Sweet_Alert("success", res.message || "Xóa tài khoản thành công");
-                    load_data(); // Reload the data table
-                } else {
-                    Sweet_Alert("error", res.message || "Không thể xóa tài khoản");
-                }
-            } catch (error) {
-                // Show detailed error from server if available
-                if (error.responseJSON && error.responseJSON.message) {
-                    Sweet_Alert("error", error.responseJSON.message);
-                } else if (error.statusText) {
-                    Sweet_Alert("error", `Lỗi: ${error.status} - ${error.statusText}`);
-                } else {
-                    Sweet_Alert("error", "Đã xảy ra lỗi khi xóa tài khoản");
-                }
-            }
-        }
-    });
-}
-
-// Display SweetAlert notifications
-function Sweet_Alert(icon, title) {
-    Swal.fire({
-        position: "center",
-        icon: icon,
-        title: title,
-        showConfirmButton: false,
-        timer: 2500
-    });
-}
-
-
-// Open the permissions modal
-async function openPermissionsModal(userId, username) {
-    try {
-        $("#permissionUserId").val(userId);
-        $("#permissionUserName").text(username);
-
-        // Show loading indicator
-        $("#functionsTableBody").html(`
-            <tr>
-                <td colspan="4" class="text-center">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="sr-only">Đang tải...</span>
-                    </div>
-                </td>
-            </tr>
-        `);
-
-        // Get all functions and user permissions
-        const [functionsResponse, userPermissionsResponse] = await Promise.all([
-            $.ajax({
-                url: `${BASE_URL}/Get-All-Functions`,
-                type: 'GET',
-                dataType: 'json'
-            }),
-            $.ajax({
-                url: `/api/v1/admin/Get-User-Permissions/${userId}`,
-                type: 'GET',
-                dataType: 'json'
-            })
-        ]);
-
-        // Check if we have functions data
-        if (!functionsResponse.success || !functionsResponse.data || functionsResponse.data.length === 0) {
-            $("#functionsTableBody").html(`
-                <tr>
-                    <td colspan="4" class="text-center">Không có dữ liệu chức năng</td>
-                </tr>
-            `);
-            $("#UserPermissionModal").modal("show");
-            return;
-        }
-
-        // Get user permissions (might be empty if user has no permissions)
-        const userPermissions = userPermissionsResponse.success && userPermissionsResponse.data ?
-            userPermissionsResponse.data.map(p => p.ID_Function) :
-            [];
-
-        // Populate the functions table
-        let tableHtml = '';
-        functionsResponse.data.forEach(func => {
-            const isChecked = userPermissions.includes(func.ID) ? 'checked' : '';
-
-            tableHtml += `
-                <tr>
-                    <td>
-                        <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="custom-control-input function-checkbox" 
-                                   id="func_${func.ID}" data-function-id="${func.ID}" ${isChecked}>
-                            <label class="custom-control-label" for="func_${func.ID}"></label>
-                        </div>
-                    </td>
-                    <td>${func.TenChucNang}</td>
-                    <td>${func.MaChucNang}</td>
-                    <td>${func.MoTa}</td>
-                </tr>
-            `;
-        });
-
-        $("#functionsTableBody").html(tableHtml);
-
-        // Update "check all" checkbox state
-        updateCheckAllState();
-
-        // Show the modal
-        $("#UserPermissionModal").modal("show");
-    } catch (error) {
-        Sweet_Alert("error", "Không thể tải dữ liệu phân quyền");
-    }
-}
-
-// Function to update the state of "check all" checkbox
+// Cập nhật trạng thái checkbox "chọn tất cả"
 function updateCheckAllState() {
     const totalCheckboxes = $("#functionsTableBody .function-checkbox").length;
     const checkedCheckboxes = $("#functionsTableBody .function-checkbox:checked").length;
@@ -662,24 +206,748 @@ function updateCheckAllState() {
     });
 }
 
-// Handle individual checkbox changes
-$(document).on("change", ".function-checkbox", function () {
-    updateCheckAllState();
-});
+// Áp dụng tìm kiếm nâng cao
+function applyAdvancedSearch() {
+    const searchTenTaiKhoan = $('#searchTenTaiKhoan').val().trim().toLowerCase();
+    const searchTenNguoiDung = $('#searchTenNguoiDung').val().trim().toLowerCase();
+    const searchRole = $('#searchRole').val();
+    const searchIsBanned = $('#searchIsBanned').val();
 
-// Save user permissions
+    if (dataTableInstance) {
+        $.fn.dataTable.ext.search.push(function (settings, data, dataIndex, rowData) {
+            const tenTaiKhoan = data[1].toLowerCase();
+            const tenNguoiDung = data[2].toLowerCase();
+            const role = rowData.ID_role ? rowData.ID_role.toString() : "";
+            const isBanned = rowData.IsBanned ? rowData.IsBanned.toString() : "";
+            const matchTen = searchTenTaiKhoan === '' || tenTaiKhoan.includes(searchTenTaiKhoan);
+            const matchHoTen = searchTenNguoiDung === '' || tenNguoiDung.includes(searchTenNguoiDung);
+            const matchRole = searchRole === '' || role === searchRole;
+            const matchIsBanned = searchIsBanned === '' || isBanned === searchIsBanned;
+            return matchTen && matchHoTen && matchRole && matchIsBanned;
+        });
+        dataTableInstance.draw();
+        $.fn.dataTable.ext.search.pop();
+        const visibleRows = dataTableInstance.rows({ search: 'applied' }).count();
+        if (visibleRows === 0) {
+            Sweet_Alert("info", "Không tìm thấy kết quả phù hợp");
+        }
+    }
+}
+
+// Đặt lại tìm kiếm nâng cao (async version)
+async function resetAdvancedSearch() {
+    $('#searchTenTaiKhoan').val('');
+    $('#searchTenNguoiDung').val('');
+    $('#searchRole').val('');
+    $('#searchIsBanned').val('');
+    if (dataTableInstance) {
+        dataTableInstance.search('').columns().search('').draw();
+    }
+}
+
+// Tải dữ liệu từ API
+async function load_data() {
+    try {
+        // Hiển thị loading
+        showLoading('#data-table', 'Đang tải dữ liệu...');
+
+        // Gọi API lấy danh sách vai trò (nếu cần cho hiển thị)
+        let rolesData = [];
+        try {
+            const rolesResponse = await $.ajax({
+                url: '/api/v1/admin/Get-All-Roles',
+                type: 'GET',
+                dataType: 'json'
+            });
+            if (rolesResponse.success && Array.isArray(rolesResponse.data)) {
+                rolesData = rolesResponse.data;
+            }
+        } catch (error) {
+            Sweet_Alert("error", "Không thể tải danh sách vai trò");
+        }
+
+        // Gọi API lấy danh sách user
+        $.ajax({
+            url: '/api/v1/admin/Get-All-Users',
+            type: 'GET',
+            dataType: 'json',
+            cache: false,
+            success: function (response) {
+                // Xóa DataTable cũ nếu đã tồn tại
+                if ($.fn.DataTable.isDataTable('#data-table')) {
+                    $('#data-table').DataTable().destroy();
+                }
+
+                // Xóa nội dung loading và tạo lại cấu trúc table
+                $('#data-table').html(`
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Tên tài khoản</th>
+                            <th>Tên người dùng</th>
+                            <th>Vai trò</th>
+                            <th>Trạng thái</th>
+                            <th>Ngày tạo</th>
+                            <th>Ngày cập nhật</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                `);
+
+                // Xử lý dữ liệu cho hiển thị
+                let processedData = [];
+                if (response.data && Array.isArray(response.data)) {
+                    processedData = response.data.map(item => {
+                        const newItem = { ...item };
+                        // Escape các trường text nếu cần
+                        newItem.TenTaiKhoan = escapeHtml(item.TenTaiKhoan);
+                        newItem.Name = escapeHtml(item.Name);
+                        newItem.TenNguoiDung = escapeHtml(item.TenNguoiDung);
+
+                        // Xử lý timestamp
+                        if (item.NgayTao && !isNaN(parseInt(item.NgayTao))) {
+                            newItem.NgayTao = formatTimestamp(parseInt(item.NgayTao));
+                        } else if (item.ngayTao && !isNaN(parseInt(item.ngayTao))) {
+                            newItem.NgayTao = formatTimestamp(parseInt(item.ngayTao));
+                        }
+                        if (item.NgayCapNhat && !isNaN(parseInt(item.NgayCapNhat))) {
+                            newItem.NgayCapNhat = formatTimestamp(parseInt(item.NgayCapNhat));
+                        } else if (item.ngayCapNhat && !isNaN(parseInt(item.ngayCapNhat))) {
+                            newItem.NgayCapNhat = formatTimestamp(parseInt(item.ngayCapNhat));
+                        }
+                        return newItem;
+                    });
+                }
+
+                // Khởi tạo DataTable với dữ liệu
+                $('#data-table').DataTable({
+                    data: processedData || [],
+                    columns: [
+                        {
+                            data: null,
+                            render: function (data, type, row, meta) {
+                                return meta.row + 1;
+                            }
+                        },
+                        {
+                            data: 'TenTaiKhoan',
+                            defaultContent,
+                        },
+                        {
+                            data: 'Name',
+                            defaultContent,
+                        },
+                        {
+                            data: 'ID_role',
+                            render: function (data, type, row) {
+                                const role = rolesData.find(r => r.ID === data);
+                                const roleName = role ? escapeHtml(role.TenRole) : "Không xác định";
+                                return `<span class="badge badge-primary">${roleName}</span>`;
+                            }
+                        },
+                        {
+                            data: 'IsBanned',
+                            render: function (data) {
+                                return data === 1 ?
+                                    '<span class="badge badge-danger">Khóa</span>' :
+                                    '<span class="badge badge-success">Hoạt động</span>';
+                            }
+                        },
+                        { data: 'NgayTao', defaultContent },
+                        { data: 'NgayCapNhat', defaultContent },
+                        {
+                            data: null,
+                            orderable: false,
+                            render: function (data) {
+                                const userId = getUserId(data);
+                                return `
+                                    <div class="d-flex justify-content-center">
+                                        <button class="btn-action btn-detail mr-1" data-id="${userId}" title="Xem chi tiết">
+                                            <i class="anticon anticon-eye"></i>
+                                        </button>
+                                        <button class="btn-action btn-edit mr-1" data-id="${userId}" title="Chỉnh sửa">
+                                            <i class="anticon anticon-edit"></i>
+                                        </button>
+                                        <button class="btn-action btn-delete" data-id="${userId}" title="Xóa">
+                                            <i class="anticon anticon-delete"></i>
+                                        </button>
+                                    </div>
+                                `;
+                            }
+                        }
+                    ],
+                    pageLength: 5,
+                    lengthMenu: [5, 10, 15, 25, 50],
+                    language: {
+                        paginate: {
+                            next: "Tiếp",
+                            previous: "Trước"
+                        },
+                        search: "Tìm nhanh:",
+                        lengthMenu: "Hiển thị _MENU_ tài khoản",
+                        emptyTable: "Không có dữ liệu",
+                        zeroRecords: "Không tìm thấy kết quả phù hợp",
+                        info: "Hiển thị _START_ đến _END_ của _TOTAL_ tài khoản",
+                        infoEmpty: "Hiển thị 0 đến 0 của 0 tài khoản",
+                        infoFiltered: "(lọc từ _MAX_ tài khoản)"
+                    }
+                });
+
+                // Hiển thị thông báo nếu không có dữ liệu
+                if (!response.success) {
+                    Sweet_Alert("info", response.message || "Không có dữ liệu");
+                }
+            },
+            error: function (xhr, status, error) {
+                $('#data-table').empty().html(`
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Tên tài khoản</th>
+                            <th>Tên người dùng</th>
+                            <th>Vai trò</th>
+                            <th>Trạng thái</th>
+                            <th>Ngày tạo</th>
+                            <th>Ngày cập nhật</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="8" class="text-center">Đã xảy ra lỗi: ${xhr.status} - ${xhr.statusText}</td>
+                        </tr>
+                    </tbody>
+                `);
+                Sweet_Alert("error", "Không thể tải danh sách: " + xhr.statusText);
+            }
+        });
+    } catch (error) {
+        Sweet_Alert("error", "Lỗi JavaScript: " + error.message);
+    }
+}
+
+// Mở modal xem chi tiết người dùng
+async function openViewUserModal(userId) {
+    $("#UserForm")[0].reset();
+    $(".form-fields").hide();
+    $("#userDetails").show();
+    $("#formButtons").hide();
+    $("#viewButtons").show();
+    $("#permissionButtons").hide();
+    $('#userModalTabs a[href="#info-content"]').tab('show');
+    $("#permissions-tab-item").hide();
+    // Đảm bảo modal được reset config mỗi lần mở
+    $("#UserModal").modal('hide');
+    $("#UserModal").modal('dispose');
+    $("#UserModal").modal({
+        backdrop: 'static',
+        keyboard: false
+    });
+    $("#UserModal").modal("show");
+
+    try {
+        showLoading("#info-content");
+        const [userResponse, permissionsResponse, functionsResponse] = await Promise.all([
+            $.ajax({ url: `/api/v1/admin/Get-User-By-Id/${userId}`, type: 'GET' }),
+            $.ajax({ url: `/api/v1/admin/Get-User-Permissions/${userId}`, type: 'GET' }),
+            $.ajax({ url: '/api/v1/admin/Get-All-Functions', type: 'GET' })
+        ]);
+
+        if (userResponse.success && userResponse.data) {
+            const user = userResponse.data;
+            const userIdValue = user.ID || user.Id || user.id;
+            $("#userId").val(userIdValue);
+
+            // Lấy tên vai trò từ biến rolesData đã có
+            let roleName = "Không xác định";
+            const role = rolesData.find(r => r.ID === user.ID_role);
+            roleName = role ? escapeHtml(role.TenRole) : "Không xác định";
+            $("#detailVaiTro").html(roleName);
+
+            await waitMinLoading("#info-content");
+            hideLoading("#info-content");
+
+            // Gán dữ liệu vào các thẻ đã có sẵn trong .cshtml
+            $("#detailTenTaiKhoan").text(user.TenTaiKhoan || "N/A");
+            $("#detailTenNguoiDung").text(user.TenNguoiDung || user.Name || "N/A");
+            $("#detailTrangThai").html(
+                user.IsBanned === 1
+                    ? '<span class="badge badge-pill badge-danger px-3 py-2"><i class="anticon anticon-lock mr-1"></i>Tài khoản bị khóa</span>'
+                    : '<span class="badge badge-pill badge-success px-3 py-2"><i class="anticon anticon-unlock mr-1"></i>Đang hoạt động</span>'
+            );
+            $("#detailID").text(userIdValue || "N/A");
+            $("#detailTenTaiKhoan2").text(user.TenTaiKhoan || "N/A");
+            $("#detailTenNguoiDung2").text(user.TenNguoiDung || user.Name || "N/A");
+            $("#detailVaiTro").text(roleName);
+            $("#detailGmail").text(user.Gmail || "N/A");
+            $("#detailSDT").text(user.SDT || "N/A");
+            let ngayTao = user.NgayTao || user.ngayTao;
+            let ngayCapNhat = user.NgayCapNhat || user.ngayCapNhat;
+            $("#detailNgayTao").text(ngayTao ? formatTimestamp(parseInt(ngayTao)) : "N/A");
+            $("#detailNgayCapNhat").text(ngayCapNhat ? formatTimestamp(parseInt(ngayCapNhat)) : "N/A");
+
+            // Nút chức năng
+            $("#viewButtons").html(`
+                <button type="button" class="btn btn-primary m-1" id="btnEditFromView" data-id="${userIdValue}">
+                    <i class="anticon anticon-edit m-r-5"></i>
+                    <span>Chỉnh sửa</span>
+                </button>
+                <button type="button" class="btn btn-secondary m-1" data-dismiss="modal">
+                    <i class="anticon anticon-close m-r-5"></i>
+                    <span>Đóng</span>
+                </button>
+            `);
+
+            // Phân quyền
+            if (permissionsResponse.success && functionsResponse.success) {
+                const userPermissions = permissionsResponse.data || [];
+                const allFunctions = functionsResponse.data || [];
+                $("#viewPermissionsTable").hide();
+                $("#noPermissionsMessage").hide();
+
+                if (userPermissions.length > 0 && allFunctions.length > 0) {
+                    const userFunctionIds = [];
+                    userPermissions.forEach(p => {
+                        if (p.ID_Function) userFunctionIds.push(parseInt(p.ID_Function));
+                    });
+                    const userFunctions = allFunctions.filter(func =>
+                        userFunctionIds.includes(parseInt(func.ID))
+                    );
+                    if (userFunctions.length > 0) {
+                        let permissionsHtml = '';
+                        userFunctions.forEach(func => {
+                            permissionsHtml += `
+                                <tr>
+                                    <td>${func.TenChucNang || ''}</td>
+                                    <td>${func.MaChucNang || ''}</td>
+                                    <td>${func.MoTa || ''}</td>
+                                </tr>
+                            `;
+                        });
+                        $("#viewPermissionsTableBody").html(permissionsHtml);
+                        $("#viewPermissionsTable").show();
+                    } else {
+                        $("#viewPermissionsTableBody").html('');
+                        $("#noPermissionsMessage").show();
+                    }
+                } else {
+                    $("#viewPermissionsTableBody").html('');
+                    $("#noPermissionsMessage").show();
+                }
+                $("#UserModal").data('bs.modal')._config.backdrop = true;
+                $("#UserModal").data('bs.modal')._config.keyboard = true;
+            } else {
+                $("#viewPermissionsTableBody").html('');
+                $("#noPermissionsMessage").show();
+            }
+        } else {
+            Sweet_Alert("error", "Không tìm thấy thông tin tài khoản");
+            hideLoading("#info-content");
+        }
+    } catch (error) {
+        hideLoading("#info-content");
+        Sweet_Alert("error", "Không thể tải thông tin tài khoản");
+    }
+}
+
+// Mở modal chỉnh sửa người dùng
+async function openEditUserModal(userId) {
+    // Reset lại thông báo lỗi về mặc định
+    $("#TenDangNhapError").text("Tên đăng nhập của tài khoản").removeClass("text-danger").addClass("text-muted");
+    $("#TenHienThiError").text("Tên hiển thị của người dùng").removeClass("text-danger").addClass("text-muted");
+    $("#GmailError").text("Địa chỉ Gmail liên kết").removeClass("text-danger").addClass("text-muted");
+    $("#roleError").text("Quyền hạn của tài khoản").removeClass("text-danger").addClass("text-muted");
+    $("#SDTError").text("Số điện thoại liên hệ").removeClass("text-danger").addClass("text-muted");
+
+    // Đặt lại form và thiết lập chế độ chỉnh sửa
+    $("#UserForm")[0].reset();
+
+    // Thiết lập giao diện cho chế độ chỉnh sửa
+    $(".form-fields").show();
+    $("#userDetails").hide();
+    $("#formButtons").show();
+    $("#viewButtons").hide();
+    $("#permissionButtons").hide();
+
+    // Reset và hiển thị tab thông tin
+    $('#userModalTabs a[href="#info-content"]').tab('show');
+    $("#permissions-tab-item").show(); // Hiển thị tab phân quyền khi ở chế độ chỉnh sửa
+    // Đảm bảo modal được reset config mỗi lần mở
+    $("#UserModal").modal('hide');
+    $("#UserModal").modal('dispose');
+    $("#UserModal").modal({
+        backdrop: 'static',
+        keyboard: false
+    });
+    // Hiển thị modal trước với chỉ báo đang tải
+    $("#UserModal").modal("show");
+
+
+    try {
+        // Hiển thị lớp phủ loading
+        showLoading("#info-content");
+
+        // Lấy dữ liệu người dùng
+        const response = await $.ajax({
+            url: `/api/v1/admin/Get-User-By-Id/${userId}`,
+            type: 'GET'
+        });
+
+        // Ẩn loading
+        await waitMinLoading("#info-content");
+        hideLoading("#info-content");
+
+        if (response.success && response.data) {
+            const user = response.data;
+
+            // Xử lý ID một cách nhất quán 
+            if (!user.ID && !user.Id && !user.id) {
+                Sweet_Alert("error", "Không tìm thấy ID người dùng");
+                return;
+            }
+
+            // Thiết lập chế độ form và ID
+            $("#formMode").val("edit");
+            $("#userId").val(getUserId(user));
+            $("#permissionUserId").val(getUserId(user)); // Đồng bộ ID cho tab phân quyền
+            $("#permissionUserName").text(user.TenTaiKhoan || ""); // Đồng bộ tên người dùng cho tab phân quyền
+
+            // Điền thông tin vào các trường form với giá trị dự phòng
+            $("#tenTaiKhoan").val(user.TenTaiKhoan || "");
+            $("#tenNguoiDung").val(user.TenNguoiDung || user.Name || "");
+            $("#ID_role").val(user.ID_role || "");
+            $("#Gmail").val(user.Gmail || "");
+            $("#SDT").val(user.SDT || "");
+            $("#IsBanned").val(user.IsBanned || 0);
+
+            // Định dạng và hiển thị thời gian
+            let ngayTao = user.NgayTao || user.ngayTao;
+            let ngayCapNhat = user.NgayCapNhat || user.ngayCapNhat;
+            $("#NgayTao").val(ngayTao ? formatTimestamp(parseInt(ngayTao)) : "N/A");
+            $("#NgayCapNhat").val(ngayCapNhat ? formatTimestamp(parseInt(ngayCapNhat)) : "N/A");
+
+            // Cập nhật tiêu đề modal và nội dung nút
+            $("#UserModalLabel").text("Cập nhật tài khoản");
+            $("#btnSaveText").text("Cập nhật");
+
+            // Hiển thị các phần chỉ dành cho chỉnh sửa nếu chúng tồn tại
+            if ($("#editOnlyFields").length) $("#editOnlyFields").show();
+            if ($("#changePasswordSection").length) $("#changePasswordSection").show();
+            if ($("#newPasswordFields").length) $("#newPasswordFields").hide();
+            $("#changePasswordCheck").prop("checked", false);
+
+            // Tải dữ liệu phân quyền trong tab phân quyền (nếu người dùng chuyển sang)
+            loadUserPermissionsData(userId);
+            // Cho phép đóng modal lại sau khi load xong
+            $("#UserModal").data('bs.modal')._config.backdrop = true;
+            $("#UserModal").data('bs.modal')._config.keyboard = true;
+        } else {
+            Sweet_Alert("error", "Không tìm thấy thông tin tài khoản");
+            $("#UserModal").modal("hide");
+        }
+    } catch (error) {
+        hideLoading("#info-content");
+        Sweet_Alert("error", "Không thể tải thông tin tài khoản: " + (error.message || "Lỗi không xác định"));
+        $("#UserModal").modal("hide");
+    }
+}
+
+// Tải dữ liệu phân quyền (được tách ra để tái sử dụng)
+async function loadUserPermissionsData(userId) {
+    try {
+        // Hiển thị loading
+        showLoading("#permissions-content");
+
+        // Tải dữ liệu chức năng và quyền của người dùng
+        const [functionsResponse, userPermissionsResponse] = await Promise.all([
+            $.ajax({
+                url: '/api/v1/admin/Get-All-Functions',
+                type: 'GET',
+                dataType: 'json'
+            }),
+            $.ajax({
+                url: `/api/v1/admin/Get-User-Permissions/${userId}`,
+                type: 'GET',
+                dataType: 'json'
+            })
+        ]);
+
+        // Ẩn loading
+        hideLoading("#permissions-content");
+
+        // Xử lý dữ liệu
+        if (!functionsResponse.success || !functionsResponse.data || functionsResponse.data.length === 0) {
+            $("#functionsTableBody").html(`
+                <tr>
+                    <td colspan="4" class="text-center">
+                        <div class="alert alert-info mb-0">
+                            <i class="anticon anticon-info-circle mr-2"></i>Không có dữ liệu chức năng
+                        </div>
+                    </td>
+                </tr>
+            `);
+            $("#noFunctionsMessage").show();
+            return;
+        }
+
+        // Ẩn thông báo "không có chức năng" nếu có dữ liệu
+        $("#noFunctionsMessage").hide();
+
+        // Lấy quyền của người dùng
+        const userPermissions = userPermissionsResponse.success && userPermissionsResponse.data ?
+            userPermissionsResponse.data.map(p => p.ID_Function) : [];
+
+        // Tạo HTML cho bảng
+        let tableHtml = '';
+        functionsResponse.data.forEach(func => {
+            const isChecked = userPermissions.includes(func.ID) ? 'checked' : '';
+            tableHtml += `
+                <tr>
+                    <td>
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input function-checkbox" 
+                                   id="func_${func.ID}" data-function-id="${func.ID}" ${isChecked}>
+                            <label class="custom-control-label" for="func_${func.ID}"></label>
+                        </div>
+                    </td>
+                    <td>${func.TenChucNang || ''}</td>
+                    <td>${func.MaChucNang || ''}</td>
+                    <td>${func.MoTa || ''}</td>
+                </tr>
+            `;
+        });
+
+        // Cập nhật bảng với dữ liệu
+        $("#functionsTableBody").html(tableHtml);
+
+        // Cập nhật trạng thái của checkbox "chọn tất cả"
+        updateCheckAllState();
+    } catch (error) {
+        hideLoading("#permissions-content");
+        $("#functionsTableBody").html(`
+            <tr>
+                <td colspan="4" class="text-center">
+                    <div class="alert alert-danger mb-0">
+                        <i class="anticon anticon-warning mr-2"></i>Không thể tải dữ liệu phân quyền
+                    </div>
+                </td>
+            </tr>
+        `);
+    }
+}
+
+
+// Cập nhật thông tin người dùng
+async function update_User_in_modal() {
+    try {
+
+        // Lấy giá trị từ form
+        const userId = $("#userId").val();
+        const tenTaiKhoan = $("#tenTaiKhoan").val().trim();
+        const tenNguoiDung = $("#tenNguoiDung").val().trim();
+        const email = $("#Gmail").val().trim();
+        const sdt = $("#SDT").val().trim();
+        const roleId = $("#ID_role").val();
+        const isBanned = $("#IsBanned").val();
+        // Reset lỗi trước khi validate
+        $("#TenDangNhapError").text("Tên đăng nhập của tài khoản").removeClass("text-danger").addClass("text-muted");
+        $("#TenHienThiError").text("Tên hiển thị của người dùng").removeClass("text-danger").addClass("text-muted");
+        $("#GmailError").text("Địa chỉ Gmail liên kết").removeClass("text-danger").addClass("text-muted");
+        $("#roleError").text("Quyền hạn của tài khoản").removeClass("text-danger").addClass("text-muted");
+        $("#SDTError").text("Số điện thoại liên hệ").removeClass("text-danger").addClass("text-muted");
+
+        let hasError = false;
+
+        // Xác thực các trường bắt buộc
+        if (!tenTaiKhoan) {
+            $("#TenDangNhapError").text("Vui lòng nhập tên tài khoản").removeClass("text-muted").addClass("text-danger");
+            hasError = true;
+        } else if (tenTaiKhoan.length > 200) {
+            $("#TenDangNhapError").text("Tên tài khoản không được vượt quá 200 ký tự").removeClass("text-muted").addClass("text-danger");
+            hasError = true;
+        }
+
+        if (!tenNguoiDung) {
+            $("#TenHienThiError").text("Vui lòng nhập tên người dùng").removeClass("text-muted").addClass("text-danger");
+            hasError = true;
+        } else if (tenNguoiDung.length > 255) {
+            $("#TenHienThiError").text("Tên người dùng không được vượt quá 255 ký tự").removeClass("text-muted").addClass("text-danger");
+            hasError = true;
+        }
+
+        if (!email) {
+            $("#GmailError").text("Vui lòng nhập địa chỉ Gmail").removeClass("text-muted").addClass("text-danger");
+            hasError = true;
+        } else if (email.length > 255) {
+            $("#GmailError").text("Gmail không được vượt quá 255 ký tự").removeClass("text-muted").addClass("text-danger");
+            hasError = true;
+        }
+
+        if (!roleId || roleId === "") {
+            $("#roleError").text("Vui lòng chọn vai trò").removeClass("text-muted").addClass("text-danger");
+            hasError = true;
+        }
+
+        // Xác thực email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (email && !emailRegex.test(email)) {
+            $("#GmailError").text("Định dạng Gmail không hợp lệ").removeClass("text-muted").addClass("text-danger");
+            hasError = true;
+        }
+
+        // Xác thực số điện thoại (nếu nhập)
+        // Xác thực số điện thoại (nếu nhập)
+        if (!sdt) {
+            $("#SDTError").text("Vui lòng nhập số điện thoại").removeClass("text-muted").addClass("text-danger");
+            hasError = true;
+        } else if (!/^0[0-9]{9,19}$/.test(sdt)) {
+            $("#SDTError").text("Vui lòng nhập đúng định dạng điện thoại").removeClass("text-muted").addClass("text-danger");
+            hasError = true;
+        } else if (sdt.length > 20) {
+            $("#SDTError").text("Số điện thoại không được vượt quá 20 ký tự").removeClass("text-muted").addClass("text-danger");
+            hasError = true;
+        } else {
+            $("#SDTError").text("Số điện thoại liên hệ").removeClass("text-danger").addClass("text-muted");
+        }
+
+        if (hasError) return;
+
+        // Vô hiệu hóa nút trong quá trình gọi API
+        $("#btnSaveUser").prop('disabled', true);
+        $("#btnSaveText").html('<i class="anticon anticon-loading"></i> Đang xử lý...');
+
+        // Tạo dữ liệu cập nhật - Bao gồm cả hai tên trường để tương thích
+        const updateData = {
+            ID: parseInt(userId),
+            TenTaiKhoan: tenTaiKhoan,
+            TenNguoiDung: tenNguoiDung,
+            Name: tenNguoiDung,
+            Gmail: email,
+            SDT: sdt || null,
+            ID_role: parseInt(roleId),
+            IsBanned: parseInt(isBanned)
+        };
+        // Gọi API để cập nhật người dùng với timeout dài hơn
+        const response = await $.ajax({
+            url: '/api/v1/admin/Update-User',
+            type: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify(updateData),
+            timeout: 30000 // 30 giây timeout
+        });
+        // Kích hoạt lại nút
+        $("#btnSaveUser").prop('disabled', false);
+        $("#btnSaveText").html('Cập nhật');
+
+        if (response.success) {
+            // Đóng modal và làm mới dữ liệu
+            $("#UserModal").modal("hide");
+            Sweet_Alert("success", response.message || "Cập nhật tài khoản thành công");
+            load_data();
+        } else {
+            Sweet_Alert("error", response.message || "Có lỗi xảy ra khi cập nhật tài khoản");
+        }
+    } catch (error) {
+        $("#btnSaveUser").prop('disabled', false);
+        $("#btnSaveText").html('Cập nhật');
+
+        if (error.responseJSON && error.responseJSON.message) {
+            Sweet_Alert("error", error.responseJSON.message);
+        } else {
+            Sweet_Alert("error", "Có lỗi xảy ra khi cập nhật tài khoản: " +
+                (error.statusText || error.message || "Lỗi không xác định"));
+        }
+    }
+}
+
+// Xóa người dùng
+function deleteUser(userId) {
+    Swal.fire({
+        title: 'Xác nhận xóa?',
+        text: "Bạn có chắc chắn muốn xóa tài khoản này?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Xác nhận xóa',
+        cancelButtonText: 'Hủy'
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            try {
+                const res = await $.ajax({
+                    url: '/api/v1/admin/Delete-User',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        ID: parseInt(userId)
+                    })
+                });
+
+                if (res.success) {
+                    Sweet_Alert("success", res.message || "Xóa tài khoản thành công");
+                    load_data();
+                } else {
+                    Sweet_Alert("error", res.message || "Không thể xóa tài khoản");
+                }
+            } catch (error) {
+                if (error.responseJSON && error.responseJSON.message) {
+                    Sweet_Alert("error", error.responseJSON.message);
+                } else {
+                    Sweet_Alert("error", "Đã xảy ra lỗi khi xóa tài khoản");
+                }
+            }
+        }
+    });
+}
+
+// Mở modal phân quyền - Đã cập nhật để sử dụng modal chung với tab
+async function openPermissionsModal(userId, username) {
+    // Thiết lập thông tin người dùng
+    $("#userId").val(userId);
+    $("#permissionUserId").val(userId);
+    $("#permissionUserName").text(username);
+
+    // Hiển thị modal và cập nhật tiêu đề
+    $("#UserModalLabel").text("Phân quyền tài khoản: " + username);
+    $("#UserModal").modal("show");
+
+    // Hiển thị tab phân quyền
+    $("#permissions-tab-item").show();
+    $('#userModalTabs a[href="#permissions-content"]').tab('show');
+
+    // Hiển thị nút phân quyền
+    $("#formButtons").hide();
+    $("#viewButtons").hide();
+    $("#permissionButtons").show();
+
+    // Tải dữ liệu phân quyền
+    await loadUserPermissionsData(userId);
+}
+
+
+// Lưu phân quyền người dùng - Cập nhật để sử dụng modal chung
 async function saveUserPermissions() {
     try {
         const userId = $("#permissionUserId").val();
 
-        // Get all checked function IDs
+        if (!userId) {
+            Sweet_Alert("error", "Không tìm thấy thông tin người dùng");
+            return;
+        }
+
+        // Lấy tất cả ID chức năng đã chọn
         const selectedFunctionIds = [];
         $("#functionsTableBody .function-checkbox:checked").each(function () {
             selectedFunctionIds.push($(this).data("function-id"));
         });
 
+        // Vô hiệu hóa nút trong quá trình gọi API
+        $("#btnSavePermissions").prop('disabled', true);
+        $("#btnSavePermissions").html('<i class="anticon anticon-loading"></i> Đang xử lý...');
+
         const response = await $.ajax({
-            url: `${BASE_URL}/Update-User-Permissions`,
+            url: '/api/v1/admin/Update-User-Permissions',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({
@@ -688,13 +956,21 @@ async function saveUserPermissions() {
             })
         });
 
+        // Kích hoạt lại nút
+        $("#btnSavePermissions").prop('disabled', false);
+        $("#btnSavePermissions").html('<i class="anticon anticon-save m-r-5"></i><span>Lưu phân quyền</span>');
+
         if (response.success) {
-            $("#UserPermissionModal").modal("hide");
+            $("#UserModal").modal("hide");
             Sweet_Alert("success", response.message || "Phân quyền đã được cập nhật thành công");
         } else {
             Sweet_Alert("error", response.message || "Có lỗi xảy ra khi cập nhật phân quyền");
         }
     } catch (error) {
+        // Kích hoạt lại nút
+        $("#btnSavePermissions").prop('disabled', false);
+        $("#btnSavePermissions").html('<i class="anticon anticon-save m-r-5"></i><span>Lưu phân quyền</span>');
+
         Sweet_Alert("error", "Có lỗi xảy ra khi cập nhật phân quyền");
     }
 }

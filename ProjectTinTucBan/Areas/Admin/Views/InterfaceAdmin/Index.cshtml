@@ -267,8 +267,32 @@
     </div>
 </div>
 
+
+<style>
+    .avatar-lg {
+        width: 50px;
+        height: 50px;
+    }
+
+    #chartContainer {
+        width: 100%;
+        max-width: 1000px;
+        height: 500px;
+        margin: 40px auto;
+    }
+
+    #viewsChart {
+        height: 100%;
+    }
+</style>
+
+
 @section scriptsAdmin {
     <script src="~/Areas/Admin/Scripts/CheckSession.js"></script>
+    <script>
+        window.sweetAlertType = '@TempData["AlertType"]';
+        window.sweetAlertMessage = '@TempData["AlertMessage"]';
+    </script>
     <script src="~/Scripts/jquery-3.7.0.min.js"></script>
     <link href="~/Areas/assets/vendors/chartist/chartist.min.css" rel="stylesheet" />
     <script src="~/Areas/assets/vendors/chartist/chartist.min.js"></script>

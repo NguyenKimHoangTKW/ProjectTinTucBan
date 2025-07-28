@@ -1,4 +1,6 @@
-﻿const BASE_URL = '/api/v1/admin';
+
+﻿let dataTableInstance = null;
+const defaultContent = "Không có dữ liệu";
 $(document).ready(function () {
     // Initialize Select2 components if available
     if ($.fn.select2) {
@@ -24,44 +26,32 @@ $(document).ready(function () {
         openAddRoleModal();
     });
 
-    // Detail button click event
-    $(document).on("click", ".btn-detail", function () {
-        const id = $(this).data("id");
+    // Use event delegation for dynamically generated buttons
+    $('#data-table').on('click', '.btn-detail', function () {
+        const id = $(this).data('id');
         openViewRoleModal(id);
     });
 
-    // Edit button click event
-    $(document).on("click", ".btn-edit", function () {
-        const id = $(this).data("id");
+    $('#data-table').on('click', '.btn-edit', function () {
+        const id = $(this).data('id');
         openEditRoleModal(id);
     });
 
-    // Delete button click event
-    $(document).on("click", ".btn-delete", function () {
-        const id = $(this).data("id");
+    $('#data-table').on('click', '.btn-delete', function () {
+        const id = $(this).data('id');
         deleteRole(id);
     });
 
     // Mở edit từ trong detail
-    $(document).on("click", "#btnEditFromView", function (e) {
+    $("#btnEditFromView").on("click", function (e) {
         e.preventDefault();
         const roleId = $("#roleId").val();
-
         if (!roleId) {
             Sweet_Alert("error", "Không tìm thấy ID quyền để chỉnh sửa");
             return;
         }
 
-        // Store ID for later use
-        const storedId = roleId;
-
-        // Close the current modal
-        $("#RolesModal").modal("hide");
-
-        // Use setTimeout to ensure the modal is closed before opening edit modal
-        setTimeout(function () {
-            openEditRoleModal(storedId);
-        }, 500);
+        openEditRoleModal(roleId);
     });
 
     // Add modal close handler to reset state completely
@@ -78,7 +68,22 @@ $(document).ready(function () {
     });
 });
 
-let dataTableInstance = null;
+$(document).on('input', '#moTa', function () {
+    this.style.height = 'auto';
+    let newHeight = this.scrollHeight + 50;
+    if (newHeight > 1000) newHeight = 1000;
+    this.style.height = newHeight + 'px';
+});
+
+$(document).ready(function () {
+    // Áp dụng cho tất cả ô trong bảng, trừ cột thao tác
+    $('#data-table').on('mouseenter', 'td', function () {
+        // Nếu chưa có title hoặc title khác nội dung, thì cập nhật
+        if (!$(this).attr('title') || $(this).attr('title') !== $(this).text().trim()) {
+            $(this).attr('title', $(this).text().trim());
+        }
+    });
+});
 
 // Thiết lập tìm kiếm nâng cao
 function setupAdvancedSearch() {
@@ -143,7 +148,27 @@ function resetAdvancedSearch() {
     }
 }
 
-defaultContent = "Không có dữ liệu";
+// Open modal for adding a new role
+function openAddRoleModal() {
+    // Reset form and modal state completely
+    $("#RolesForm")[0].reset();
+    $("#roleId").val("");
+    $("#formMode").val("add");
+
+    // Explicitly set what to show/hide
+    $(".form-fields").show();
+    $("#roleDetails").hide();
+    $("#formButtons").show();
+    $("#viewButtons").hide();
+    $("#editOnlyFields").hide();
+
+    // Set modal title and button text
+    $("#RolesModalLabel").text("Thêm quyền admin mới");
+    $("#btnSaveText").text("Thêm mới");
+
+    // Show the modal
+    $("#RolesModal").modal("show");
+}
 
 // Load data from API
 async function load_data() {
@@ -184,6 +209,9 @@ async function load_data() {
                     processedData = response.data.map(item => {
                         // Tạo một object mới với các thuộc tính của item
                         const newItem = { ...item };
+                        //Xử lý Escape
+                        newItem.TenRole = escapeHtml(item.TenRole);
+                        newItem.MoTa = escapeHtml(item.MoTa);
 
                         // Xử lý cả hai trường hợp viết hoa và viết thường
                         if (item.NgayTao && !isNaN(parseInt(item.NgayTao))) {
@@ -278,30 +306,18 @@ async function load_data() {
     }
 }
 
-// Open modal for adding a new role
-function openAddRoleModal() {
-    // Reset form and modal state completely
-    $("#RolesForm")[0].reset();
-    $("#roleId").val("");
-    $("#formMode").val("add");
-
-    // Explicitly set what to show/hide
-    $(".form-fields").show();
-    $("#roleDetails").hide();
-    $("#formButtons").show();
-    $("#viewButtons").hide();
-    $("#editOnlyFields").hide();
-
-    // Set modal title and button text
-    $("#RolesModalLabel").text("Thêm quyền admin mới");
-    $("#btnSaveText").text("Thêm mới");
-
-    // Show the modal
-    $("#RolesModal").modal("show");
-}
-
 // Open modal for editing an existing role
 async function openEditRoleModal(roleId) {
+    // Đảm bảo modal được reset config mỗi lần mở
+    $("#RolesModal").modal('hide');
+    $("#RolesModal").modal('dispose');
+    $("#RolesModal").modal({
+        backdrop: 'static',
+        keyboard: false
+    });
+    $("#RolesModal").modal("show");
+    // Bỏ readonly/disabled khi chuyển sang chế độ edit
+    $(".form-fields input, .form-fields textarea").prop("readonly", false).prop("disabled", false);
     // Reset modal state first
     $("#RolesForm")[0].reset();
 
@@ -310,7 +326,7 @@ async function openEditRoleModal(roleId) {
     $("#roleDetails").hide();
     $("#formButtons").show();
     $("#viewButtons").hide();
-
+    
     // Show loading overlay
     showLoading(".modal-body");
 
@@ -321,6 +337,7 @@ async function openEditRoleModal(roleId) {
         });
 
         // Hide loading after data is loaded
+        await waitMinLoading(".modal-body");
         hideLoading(".modal-body");
 
         if (response.success && response.data) {
@@ -351,6 +368,8 @@ async function openEditRoleModal(roleId) {
 
             // Show the modal
             $("#RolesModal").modal("show");
+            $("#RolesModal").data('bs.modal')._config.backdrop = true;
+            $("#RolesModal").data('bs.modal')._config.keyboard = true;
         } else {
             Sweet_Alert("error", "Không tìm thấy thông tin quyền admin");
         }
@@ -367,16 +386,28 @@ async function add_new_Role_in_modal() {
     const tenRole = $("#tenRole").val().trim();
     const moTa = $("#moTa").val().trim();
 
-    // Validate inputs
+    $("#tenRoleError").text("Tên quyền trong hệ thống").removeClass("text-danger").addClass("text-muted");
+    $("#moTaError").text("Mô tả chi tiết về quyền này").removeClass("text-danger").addClass("text-muted");
+
+    let hasError = false;
+
+    // Validate tên quyền
     if (!tenRole) {
-        Sweet_Alert("warning", "Vui lòng nhập tên quyền admin");
-        return;
+        $("#tenRoleError").text("Vui lòng nhập tên quyền admin").removeClass("text-muted").addClass("text-danger");
+        hasError = true;
+    } else if (tenRole.length > 255) {
+        $("#tenRoleError").text("Tên quyền admin không được vượt quá 255 ký tự").removeClass("text-muted").addClass("text-danger");
+        hasError = true;
     }
 
+    // Validate mô tả
     if (!moTa) {
-        Sweet_Alert("warning", "Vui lòng nhập mô tả cho quyền admin");
-        return;
+        $("#moTaError").text("Vui lòng nhập mô tả cho quyền admin").removeClass("text-muted").addClass("text-danger");
+        hasError = true;
     }
+
+    // Nếu có lỗi thì không gửi API
+    if (hasError) return;
 
     try {
         const res = await $.ajax({
@@ -412,16 +443,28 @@ async function update_Role_in_modal() {
     const tenRole = $("#tenRole").val().trim();
     const moTa = $("#moTa").val().trim();
 
-    // Validate inputs
+    $("#tenRoleError").text("Tên quyền trong hệ thống").removeClass("text-danger").addClass("text-muted");
+    $("#moTaError").text("Mô tả chi tiết về quyền này").removeClass("text-danger").addClass("text-muted");
+
+    let hasError = false;
+
+    // Validate tên quyền
     if (!tenRole) {
-        Sweet_Alert("warning", "Vui lòng nhập tên quyền admin");
-        return;
+        $("#tenRoleError").text("Vui lòng nhập tên quyền admin").removeClass("text-muted").addClass("text-danger");
+        hasError = true;
+    } else if (tenRole.length > 255) {
+        $("#tenRoleError").text("Tên quyền admin không được vượt quá 255 ký tự").removeClass("text-muted").addClass("text-danger");
+        hasError = true;
     }
 
+    // Validate mô tả
     if (!moTa) {
-        Sweet_Alert("warning", "Vui lòng nhập mô tả cho quyền admin");
-        return;
+        $("#moTaError").text("Vui lòng nhập mô tả cho quyền admin").removeClass("text-muted").addClass("text-danger");
+        hasError = true;
     }
+
+    // Nếu có lỗi thì không gửi API
+    if (hasError) return;
 
     try {
         const res = await $.ajax({
@@ -452,8 +495,8 @@ async function update_Role_in_modal() {
 }
 
 // Delete a role
-function deleteRole(roleId) {
-    Swal.fire({
+async function deleteRole(roleId) {
+    await Swal.fire({
         title: 'Xác nhận xóa?',
         text: "Bạn có chắc chắn muốn xóa quyền admin này?",
         icon: 'warning',
@@ -480,7 +523,7 @@ function deleteRole(roleId) {
                 }
             } catch (error) {
                 if (error.responseJSON) {
-                    Sweet_Alert("error", error.responseJSON.message || "Đã xảy ra lỗi khi xóa quyền admin");
+                    Sweet_Alert("error", error.responseJSON.message);
                 } else {
                     Sweet_Alert("error", "Đã xảy ra lỗi khi xóa quyền admin");
                 }
@@ -491,17 +534,26 @@ function deleteRole(roleId) {
 
 // Xử lý mở và show trang detail role
 async function openViewRoleModal(roleId) {
-    // Reset form and explicitly set what to show/hide for view mode
+    $("#RolesModal").modal('hide');
+    $("#RolesModal").modal('dispose');
+    $("#RolesModal").modal({
+        backdrop: 'static',
+        keyboard: false
+    });
+    $("#RolesModal").modal("show");
     $("#RolesForm")[0].reset();
 
-    // Pre-set the view mode settings BEFORE loading data
-    $(".form-fields").hide();
-    $("#roleDetails").show();
+
+    // Hiện form nhập liệu, ẩn các phần không cần thiết
+    $(".form-fields").show();
+    $("#roleDetails").hide();
     $("#formButtons").hide();
     $("#viewButtons").show();
-    $("#editOnlyFields").hide();
+    $("#editOnlyFields").show();
 
-    // Show loading overlay
+    // Đặt tất cả input, textarea readonly/disabled
+    $(".form-fields input, .form-fields textarea").prop("readonly", true).prop("disabled", true);
+
     showLoading(".modal-body");
 
     try {
@@ -510,40 +562,32 @@ async function openViewRoleModal(roleId) {
             type: 'GET'
         });
 
-        // Hide loading after data is loaded
+        await waitMinLoading(".modal-body")
         hideLoading(".modal-body");
 
         if (response.success && response.data) {
             const role = response.data;
 
-            // Set role ID in hidden field
             $("#roleId").val(role.ID);
+            $("#tenRole").val(role.TenRole);
+            $("#moTa").val(role.MoTa);
 
-            // Fill the view-only fields
-            $("#viewRoleId").text(role.ID);
-            $("#viewTenRole").text(role.TenRole);
-            $("#viewMoTa").text(role.MoTa);
-
-            // Handle both case variations for timestamps
             let ngayTao = role.NgayTao || role.ngayTao;
             let ngayCapNhat = role.NgayCapNhat || role.ngayCapNhat;
 
-            // Format and display timestamps using our shared function
-            $("#viewNgayTao").text(ngayTao ? formatTimestamp(parseInt(ngayTao)) : "N/A");
-            $("#viewNgayCapNhat").text(ngayCapNhat ? formatTimestamp(parseInt(ngayCapNhat)) : "N/A");
+            $("#ngayTao").val(ngayTao ? formatTimestamp(parseInt(ngayTao)) : "N/A");
+            $("#ngayCapNhat").val(ngayCapNhat ? formatTimestamp(parseInt(ngayCapNhat)) : "N/A");
 
-            // Update modal title
-            $("#RolesModalLabel").text("Chi tiết quyền Admin");
-
-            // Show the modal
+            $("#RolesModalLabel").text("Xem chi tiết quyền Admin");
             $("#RolesModal").modal("show");
+            $("#RolesModal").data('bs.modal')._config.backdrop = true;
+            $("#RolesModal").data('bs.modal')._config.keyboard = true;
+
         } else {
             Sweet_Alert("error", "Không tìm thấy thông tin quyền admin");
         }
     } catch (error) {
-        // Hide loading on error
         hideLoading(".modal-body");
-
         Sweet_Alert("error", "Không thể tải thông tin quyền admin");
     }
 }

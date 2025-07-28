@@ -1,13 +1,29 @@
+
 ﻿using ProjectTinTucBan.Models;
 using System.Linq;
 using System.Web.Mvc;
 using Newtonsoft.Json.Linq;
 using ProjectTinTucBan.Helper;
+
 namespace ProjectTinTucBan.Areas.Admin.Controllers
 {
     public class InterfaceAdminController : Controller
     {
         WebTinTucTDMUEntities db = new WebTinTucTDMUEntities();
+        // Gắn logic cập nhật session ở đây
+        protected override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            var sessionUser = SessionHelper.GetUser();
+            if (sessionUser != null)
+            {
+                var dbUser = db.TaiKhoans.Find(sessionUser.ID);
+                if (dbUser != null)
+                {
+                    SessionHelper.SetUser(dbUser);
+                }
+            }
+            base.OnActionExecuting(filterContext);
+        }
         // Gọi hàm thiết kế giao diện tại đây
         [UserAuthorizeAttribute()]
         public ActionResult Index()

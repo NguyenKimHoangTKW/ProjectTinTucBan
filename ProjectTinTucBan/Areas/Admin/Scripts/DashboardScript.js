@@ -62,7 +62,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 $(document).ready(function () {
-    
+
     $.ajax({
         url: `${BASE_URL}/dashboard`,
         method: 'GET',
@@ -80,7 +80,7 @@ $(document).ready(function () {
             Sweet_Alert('error', 'Không thể tải dữ liệu tổng quan.');
         }
     });
-    
+
 
     let mucLucMap = new Map();
 
@@ -141,7 +141,7 @@ $(document).ready(function () {
     });
 
 
-    
+
 
     function loadMucLucs(callback) {
         $.ajax({
@@ -168,7 +168,7 @@ $(document).ready(function () {
         $('#showtarget').empty();
 
         loadMucLucs(() => {
-            
+
 
             $.ajax({
                 url: `${BASE_URL}/top10-baiviet-thang`,
@@ -241,7 +241,7 @@ $(document).ready(function () {
 
 // Chartist rendering function
 
-function renderChartist(labels, data, type,title) {
+function renderChartist(labels, data, type, title) {
     var defaultLabels = [], defaultData = [];
 
     if (!labels || labels.length === 0) {
@@ -342,7 +342,7 @@ function updateChart() {
         const fromTs = parseDatePartsToUnix(year, month, fromDay);
         const toTs = parseDatePartsToUnix(year, month, toDay);
 
-        
+
 
         params.append('year', year);
         params.append('month', month);

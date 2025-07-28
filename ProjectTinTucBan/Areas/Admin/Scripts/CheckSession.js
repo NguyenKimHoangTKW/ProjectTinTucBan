@@ -78,14 +78,10 @@
         switch (roleId) {
             case 1:
                 return "Quản trị viên";
-            case 2:
-                return "Biên tập viên";
-            case 3:
-                return "Người kiểm duyệt";
             case 4:
-                return "Người dùng";
+                return "Biên tập viên";
             default:
-                return "Không xác định";
+                return "Chưa phân quyền";
         }
     }
 });
