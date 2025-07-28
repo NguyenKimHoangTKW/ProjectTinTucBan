@@ -1,14 +1,15 @@
-﻿using System;
+﻿using ProjectTinTucBan.Helper;
+using ProjectTinTucBan.Models;
+using System;
 using System.Collections.Generic;
+using System.Data.Entity;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Web.Http;
-using System.Data.Entity;
 using System.Threading.Tasks;
-using ProjectTinTucBan.Models;
-using System.IO;
 using System.Web;
+using System.Web.Http;
 
 namespace ProjectTinTucBan.Areas.Admin.Controllers
 {
@@ -19,18 +20,31 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         private int unixTimestamp;
         public SliderApiAdminController()
         {
-            DateTime now = DateTime.UtcNow;
+            DateTime now = DateTime.UtcNow.AddHours(7);
             unixTimestamp = (int)(now.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
         }
+        #region Dto truyền dữ liệu
 
-        
+        public class ChangeOrderRequest
+        {
+            public int id { get; set; }
+            public string direction { get; set; }
+        }
 
+        public class SetSlideActiveRequest
+        {
+            public int id { get; set; }
+            public bool isActive { get; set; }
+        }
+        #endregion
 
+        #region Lấy dữ liệu
         // Upload hình ảnh cho slide
         [HttpPost]
         [Route("upload-slide-image")]
         public async Task<IHttpActionResult> UploadSlideImage()
         {
+            var user = SessionHelper.GetUser();
             if (!Request.Content.IsMimeMultipartContent())
                 return BadRequest("Unsupported media type.");
 
@@ -43,14 +57,14 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 var ext = Path.GetExtension(filename);
                 var newFileName = Guid.NewGuid() + ext;
                 // Update the folder path to Areas/Admin/Uploads/Slider
-                var folderPath = HttpContext.Current.Server.MapPath("~/Areas/Admin/Uploads/Slider/");
+                var folderPath = HttpContext.Current.Server.MapPath("~/Uploads/Slider/");
                 if (!Directory.Exists(folderPath))
                     Directory.CreateDirectory(folderPath);
                 var filePath = Path.Combine(folderPath, newFileName);
                 var buffer = await file.ReadAsByteArrayAsync();
                 File.WriteAllBytes(filePath, buffer);
                 // Update the link to match the new path
-                var link = "/Areas/Admin/Uploads/Slider/" + newFileName;
+                var link = "/Uploads/Slider/" + newFileName;
                 return Ok(new { success = true, link });
             }
             return BadRequest("No file uploaded.");
@@ -61,6 +75,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("get-slides")]
         public async Task<IHttpActionResult> GetSlides()
         {
+            var user = SessionHelper.GetUser();
             var slides = await db.Sliders
                 .OrderBy(s => s.ThuTuShow)
                 .Select(s => new
@@ -79,6 +94,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("get-slides-show")]
         public async Task<IHttpActionResult> GetSlidesShow()
         {
+            var user = SessionHelper.GetUser();
             var slides = await db.Sliders
                 .OrderBy(s => s.ThuTuShow)
                 .Select(s => new
@@ -93,12 +109,15 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
             return Ok(slides);
         }
+        #endregion
 
+        #region Các api quản lý
         // Thêm slide mới
         [HttpPost]
         [Route("add-slide")]
         public async Task<IHttpActionResult> AddSlide([FromBody] Slider slide)
         {
+            var user = SessionHelper.GetUser();
             if (slide == null || string.IsNullOrWhiteSpace(slide.LinkHinh))
                 return BadRequest("Dữ liệu không hợp lệ hoặc thiếu LinkHinh.");
 
@@ -118,6 +137,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
         private async Task ReindexSlideOrderAsync()
         {
+            var user = SessionHelper.GetUser();
             var slides = await db.Sliders.OrderBy(s => s.ThuTuShow).ToListAsync();
             int order = 1;
             foreach (var slide in slides)
@@ -133,6 +153,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("edit-slide")]
         public async Task<IHttpActionResult> EditSlide([FromBody] Slider slide)
         {
+            var user = SessionHelper.GetUser();
             if (slide == null || slide.ID <= 0)
                 return BadRequest("Dữ liệu không hợp lệ.");
 
@@ -157,6 +178,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         [Route("delete-slide")]
         public async Task<IHttpActionResult> DeleteSlide([FromBody] int id)
         {
+            var user = SessionHelper.GetUser();
             var slide = await db.Sliders.FindAsync(id);
             if (slide == null)
                 return Ok(new { success = false, message = "Không tìm thấy slide." });
@@ -188,19 +210,14 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
 
             return Ok(new { success = true, message = "Xóa slide thành công." });
         }
-
-
+        #endregion
+        #region các api quản lý chức năng thao tác trên giao diện hiển thị slide
         // Thay đổi thứ tự hiển thị của slide
-        public class ChangeOrderRequest
-        {
-            public int id { get; set; }
-            public string direction { get; set; }
-        }
-
         [HttpPost]
         [Route("change-slide-order")]
         public async Task<IHttpActionResult> ChangeSlideOrder([FromBody] ChangeOrderRequest req)
         {
+            var user = SessionHelper.GetUser();
             if (req == null || req.id <= 0 || string.IsNullOrEmpty(req.direction))
                 return BadRequest("Dữ liệu không hợp lệ.");
 
@@ -238,16 +255,13 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
         }
 
         // Đặt trạng thái hoạt động của slide
-        public class SetSlideActiveRequest
-        {
-            public int id { get; set; }
-            public bool isActive { get; set; }
-        }
+        
 
         [HttpPost]
         [Route("set-slide-active")]
         public async Task<IHttpActionResult> SetSlideActive(SetSlideActiveRequest req)
         {
+            var user = SessionHelper.GetUser();
             if (req == null || req.id <= 0)
                 return BadRequest("Dữ liệu không hợp lệ.");
 
@@ -261,7 +275,7 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             await ReindexSlideOrderAsync();
             return Ok(new { success = true, message = "Cập nhật trạng thái thành công." });
         }
-
+        #endregion
 
     }
 }

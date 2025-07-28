@@ -48,6 +48,8 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 return InternalServerError(ex);
             }
 
+            db.SaveChanges();
+
             return Ok(new { success = true, viewCount = bv.ViewCount });
         }
         // GET: Lấy tất cả bài viết

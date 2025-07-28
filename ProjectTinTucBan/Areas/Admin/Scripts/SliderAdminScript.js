@@ -11,46 +11,49 @@
             }
             const maxOrder = Math.max(...data.map(slide => slide.ThuTuShow));
             data.forEach((slide, idx) => {
-                // Nếu là slide đầu, thay nút tăng bằng div rỗng
                 const increaseBtn = (slide.ThuTuShow === 1)
                     ? '<div class="empty-order-btn"></div>'
-                    : `<button class="btn btn-sm btn-light btn-increase-order" data-id="${slide.ID}" title="Tăng">
-                        <i class="fa fa-arrow-up"></i>
-                   </button>`;
-                // Nếu là slide cuối, thay nút giảm bằng div rỗng
+                    : `<button class="btn-order up btn btn-light btn-sm btn-increase-order" data-id="${slide.ID}" title="Tăng">&#8593;</button>`;
+
                 const decreaseBtn = (slide.ThuTuShow === maxOrder)
                     ? '<div class="empty-order-btn"></div>'
-                    : `<button class="btn btn-sm btn-light btn-decrease-order" data-id="${slide.ID}" title="Giảm">
-                        <i class="fa fa-arrow-down"></i>
-                   </button>`;
+                    : `<button class="btn-order down btn btn-light btn-sm btn-decrease-order" data-id="${slide.ID}" title="Giảm">&#8595;</button>`;
+
                 $list.append(`
-                <tr>
-                    <td class="text-center">${idx + 1}</td>
-                    <td class="text-center"><img src="${slide.LinkHinh}" alt="slide" style="max-width:120px;max-height:60px"></td>
-                    <td class="text-center">
+            <tr>
+                <td class="text-center">${idx + 1}</td>
+                <td class="text-center">
+                    <img src="${slide.LinkHinh}" alt="slide" style="max-width:120px;max-height:60px">
+                </td>
+                <td class="text-center">
+                    <div class="order-controls">
                         ${increaseBtn}
-                        <span class="mx-2">${slide.ThuTuShow ?? ''}</span>
+                        <div class="order-number">${slide.ThuTuShow ?? ''}</div>
                         ${decreaseBtn}
-                    </td>
-                    <td class="text-center ">
-                        <label class="switch">
-                            <input type="checkbox" class="toggle-active" data-id="${slide.ID}" ${slide.isActive ? 'checked' : ''} />
-                            <span class="slider"></span>
-                        </label>
-                    </td>
-                    <td class="text-center">
-                        <button class="btn btn-warning btn-sm edit-slide-btn" 
-                            data-id="${slide.ID}" 
-                            data-linkhinh="${slide.LinkHinh}" 
-                            data-isactive="${slide.isActive}"
-                            data-target="editSlideModal">
-                            Sửa
-                        </button>
-                        <button class="btn btn-danger btn-sm delete-slide-btn" data-id="${slide.ID}">Xóa</button>
-                    </td>
-                </tr>
-            `);
+                    </div>
+                </td>
+                <td class="text-center">
+                    <label class="switch">
+                        <input type="checkbox" class="toggle-active" data-id="${slide.ID}" ${slide.isActive ? 'checked' : ''} />
+                        <span class="slider"></span>
+                    </label>
+                </td>
+                <td class="text-center">
+                    <button class="btn btn-warning btn-sm edit-slide-btn" 
+                        data-id="${slide.ID}" 
+                        data-linkhinh="${slide.LinkHinh}" 
+                        data-isactive="${slide.isActive}"
+                        data-target="editSlideModal">
+                        Sửa
+                    </button>
+                    <button class="btn btn-danger btn-sm delete-slide-btn" data-id="${slide.ID}">Xóa</button>
+                </td>
+            </tr>
+        `);
             });
+
+            // Gọi cập nhật layout sau khi render xong
+            updateOrderLayout();
         });
     }
 
@@ -71,15 +74,23 @@
             const reader = new FileReader();
             reader.onload = function (e) {
                 const imgWrapper = $(`
-                <div class="position-relative" style="width: 120px; height: 80px;">
-                    <img src="${e.target.result}" alt="preview-${index}" class="img-thumbnail w-100 h-100 object-fit-cover">
-                </div>
-            `);
+            <div class="preview-img-wrapper">
+                <img src="${e.target.result}" alt="preview-${index}" />
+            </div>
+        `);
                 $previewContainer.append(imgWrapper);
             };
             reader.readAsDataURL(file);
         });
+
     });
+
+    $('#btn-range-chart').on('click', function () {
+        $('#showtarget').empty();
+        $('#chartContainer').show();
+        showChart('range');
+    });
+
 
 
     // Xem trước ảnh khi chọn file (sửa)
@@ -371,4 +382,58 @@
     $('#openAddSlideModal').click(() => $('#addSlideModal').modal('show'));
     $('#closeAddSlideModal, #closeAddSlideModalFooter').click(() => $('#addSlideModal').modal('hide'));
     $('#closeEditSlideModal, #closeEditSlideModalFooter').click(() => $('#editSlideModal').modal('hide'));
+
+    function updateOrderLayout() {
+        const controls = document.querySelectorAll('.order-controls');
+
+        controls.forEach(control => {
+            control.classList.remove('horizontal', 'vertical');
+
+            // Tổng chiều rộng của các phần tử con
+            const totalWidth = Array.from(control.children).reduce((sum, child) => {
+                return sum + child.offsetWidth + 4;
+            }, 0);
+
+            if (totalWidth <= control.offsetWidth) {
+                control.classList.add('horizontal');
+            } else {
+                control.classList.add('vertical');
+            }
+        });
+    }
+
+    function showChart(type, filters = {}) {
+        let url = `${BASE_URL}/dashboard/chart?type=${type}`;
+
+        if (type === 'month' && filters.year && filters.month) {
+            url += `&year=${filters.year}&month=${filters.month}`;
+        } else if (type === 'year' && filters.year) {
+            url += `&year=${filters.year}`;
+        } else if (type === 'range' && filters.from && filters.to) {
+            url += `&from=${filters.from}&to=${filters.to}`;
+        }
+
+        $.ajax({
+            url: url,
+            method: 'GET',
+            success: function (result) {
+                renderChartist(result.labels, result.data, type);
+                $('#chartContainer').show();
+            },
+            error: function () {
+                alert('Không thể tải dữ liệu biểu đồ.');
+            }
+        });
+    }
+
+    function filterChart(type, filters) {
+        $('#showtarget').empty();
+        $('#chartContainer').show();
+        showChart(type, filters);
+    }
+
+
+    // Gọi khi resize màn hình
+    window.addEventListener('resize', updateOrderLayout);
+
 });

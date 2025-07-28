@@ -40,12 +40,24 @@
                     const hasSub = Array.isArray(menu.SubMenus) && menu.SubMenus.length > 0;
                     const $li = $('<li>').addClass('nav-item');
 
-                    const menuLink = menu.Link ? menu.Link.replace(/^\/+/, '') : '';
-                    const fullMenuLink = menuLink ? baseUrl + menuLink : 'javascript:void(0);';
+                    let fullMenuLink = 'javascript:void(0);';
+                    let isExternalMenu = false;
+
+                    if (menu.Link) {
+                        if (/^https?:\/\//i.test(menu.Link)) {
+                            fullMenuLink = menu.Link;
+                            isExternalMenu = true;
+                        } else {
+                            fullMenuLink = baseUrl + menu.Link.replace(/^\/+/, '');
+                        }
+                    }
 
                     const $a = $('<a>')
                         .attr('href', fullMenuLink)
                         .addClass(hasSub ? 'dropdown-toggle' : '');
+
+                    if (isExternalMenu) $a.attr('target', '_blank');
+
 
                     const $iconHolder = $('<span>').addClass('icon-holder');
                     if (menu.IconName) {
@@ -70,10 +82,21 @@
 
                         menu.SubMenus.forEach(sub => {
                             const $subLi = $('<li>');
-                            const subLink = sub.Link ? sub.Link.replace(/^\/+/, '') : '';
-                            const fullSubLink = subLink ? baseUrl + subLink : '#';
+                            let fullSubLink = '#';
+                            let isExternalSub = false;
+
+                            if (sub.Link) {
+                                if (/^https?:\/\//i.test(sub.Link)) {
+                                    fullSubLink = sub.Link;
+                                    isExternalSub = true;
+                                } else {
+                                    fullSubLink = baseUrl + sub.Link.replace(/^\/+/, '');
+                                }
+                            }
 
                             const $subA = $('<a>').attr('href', fullSubLink);
+                            if (isExternalSub) $subA.attr('target', '_blank');
+
 
                             if (sub.IconName) {
                                 $subA.append($('<i>').addClass(sub.IconName).addClass('mr-2'));

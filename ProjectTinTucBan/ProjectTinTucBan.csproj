@@ -539,6 +539,7 @@
     <Content Include="Uploads\Thumbnails\grumpycat_20250709103748.jpg" />
     <Content Include="Uploads\Thumbnails\tagged_20250709102906.jpg" />
     <Content Include="Scripts\Scripts\TrangChuFooter.js" />
+    <Content Include="Uploads\Slider\943e81a8-4243-4a93-a6e3-2fffb1b49302.png" />
     <Content Include="Views\Home\Login.cshtml" />
     <Content Include="Areas\Admin\Uploads\Slider\750dc5f4-cbcf-4811-8d9e-fd84eea809f5.png" />
     <Content Include="Areas\Admin\Uploads\Slider\80a320ff-3dcf-450f-a53d-30db654ffcae.jpg" />
@@ -1820,6 +1821,7 @@
     <Folder Include="Areas\Admin\Views\TinTuc\" />
     <Folder Include="Uploads\HDSD\" />
     <Folder Include="Uploads\Slider\" />
+    <Folder Include="Views\TinTuc\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Scripts\bootstrap.min.js.map" />

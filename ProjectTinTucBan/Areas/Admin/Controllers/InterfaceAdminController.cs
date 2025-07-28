@@ -1,14 +1,8 @@
 ﻿using ProjectTinTucBan.Models;
-
 using System.Linq;
 using System.Web.Mvc;
-
 using Newtonsoft.Json.Linq;
-
-
 using ProjectTinTucBan.Helper;
-
-
 namespace ProjectTinTucBan.Areas.Admin.Controllers
 {
     public class InterfaceAdminController : Controller

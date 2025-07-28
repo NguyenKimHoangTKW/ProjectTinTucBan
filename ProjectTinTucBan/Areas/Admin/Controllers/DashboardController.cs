@@ -1,10 +1,9 @@
-﻿using ProjectTinTucBan.Models;
+﻿using ProjectTinTucBan.Helper;
+using ProjectTinTucBan.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Routing;
@@ -14,61 +13,106 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
     [RoutePrefix("api/v1/admin")]
     public class DashboardController : ApiController
     {
-        
+
         WebTinTucTDMUEntities db = new WebTinTucTDMUEntities();
-        private int unixTimestamp;
-        public DashboardController()
+        #region lấy thời gian theo Unix
+        private static readonly TimeZoneInfo GmtPlus7 = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+        private int GetUnixTimestamp(DateTime dt)
         {
-            DateTime now = DateTime.UtcNow;
-            unixTimestamp = (int)(now.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+            // Đảm bảo dt.Kind == Unspecified trước khi chuyển
+            if (dt.Kind != DateTimeKind.Unspecified)
+            {
+                dt = DateTime.SpecifyKind(dt, DateTimeKind.Unspecified);
+            }
+
+            DateTime gmt7Time = TimeZoneInfo.ConvertTimeToUtc(dt, GmtPlus7);
+            return (int)(gmt7Time.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
         }
 
+        // Lấy đầu ngày theo GMT+7
+        private DateTime GetStartOfDay(DateTime now)
+        {
+            DateTime local = TimeZoneInfo.ConvertTimeFromUtc(now.ToUniversalTime(), GmtPlus7);
+            DateTime startOfDayLocal = new DateTime(local.Year, local.Month, local.Day, 0, 0, 0);
+            return TimeZoneInfo.ConvertTimeToUtc(startOfDayLocal, GmtPlus7);
+        }
+
+        // Lấy đầu tháng theo GMT+7
+        private DateTime GetStartOfMonth(DateTime now)
+        {
+            DateTime local = TimeZoneInfo.ConvertTimeFromUtc(now.ToUniversalTime(), GmtPlus7);
+            DateTime startOfMonthLocal = new DateTime(local.Year, local.Month, 1, 0, 0, 0);
+            return TimeZoneInfo.ConvertTimeToUtc(startOfMonthLocal, GmtPlus7);
+        }
+
+        // Lấy cuối tháng theo GMT+7
+        private DateTime GetEndOfMonth(DateTime now)
+        {
+            return GetStartOfMonth(now).AddMonths(1);
+        }
+
+        // Lấy đầu năm theo GMT+7
+        private DateTime GetStartOfYear(DateTime now)
+        {
+            DateTime local = TimeZoneInfo.ConvertTimeFromUtc(now.ToUniversalTime(), GmtPlus7);
+            DateTime startOfYearLocal = new DateTime(local.Year, 1, 1, 0, 0, 0);
+            return TimeZoneInfo.ConvertTimeToUtc(startOfYearLocal, GmtPlus7);
+        }
+
+        // Lấy cuối năm theo GMT+7
+        private DateTime GetEndOfYear(DateTime now)
+        {
+            return GetStartOfYear(now).AddYears(1);
+        }
+
+        /**/
+        #endregion
+
+
+        #region lấy dữ liệu cho dashboard
         [Route("dashboard"), HttpGet]
         public async Task<IHttpActionResult> GetDashboardData()
         {
+            var user = SessionHelper.GetUser();
             try
             {
-                // Lấy thời điểm hiện tại (UTC)
+                #region Lấy số liệu từ bảng VisitorLogs
                 DateTime now = DateTime.UtcNow;
-                int unixTimestamp = (int)(now.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
 
-                // Đầu ngày hiện tại (UTC)
-                DateTime startOfDay = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0, DateTimeKind.Utc);
-                int unixStartOfDay = (int)(startOfDay.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+                int unixNow = GetUnixTimestamp(now);
+                int unixStartOfDay = GetUnixTimestamp(GetStartOfDay(now));
+                int unixStartOfMonth = GetUnixTimestamp(GetStartOfMonth(now));
+                int unixStartOfYear = GetUnixTimestamp(GetStartOfYear(now));
 
-                // Đầu tháng hiện tại (UTC)
-                DateTime startOfMonth = new DateTime(now.Year, now.Month, 1, 0, 0, 0, DateTimeKind.Utc);
-                int unixStartOfMonth = (int)(startOfMonth.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+                // Tổng lượt xem trong ngày
+                int dayViews = await db.VisitorLogs
+                    .Where(v => v.NgayTao >= unixStartOfDay && v.NgayTao < unixNow)
+                    .SumAsync(v => (int?)v.TotalAmount) ?? 0;
 
-                // Đầu năm hiện tại (UTC)
-                DateTime startOfYear = new DateTime(now.Year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-                int unixStartOfYear = (int)(startOfYear.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+                // Tổng lượt xem trong tháng
+                int monthViews = await db.VisitorLogs
+                    .Where(v => v.NgayTao >= unixStartOfMonth && v.NgayTao < unixNow)
+                    .SumAsync(v => (int?)v.TotalAmount) ?? 0;
 
-                // Lượt xem theo ngày
-                var dayViews = db.BaiViets
-                    .Where(bv => bv.NgayDang >= unixStartOfDay && bv.NgayDang <= unixTimestamp)
-                    .Sum(bv => (int?)bv.ViewCount) ?? 0;
+                // Tổng lượt xem trong năm
+                int yearViews = await db.VisitorLogs
+                    .Where(v => v.NgayTao >= unixStartOfYear && v.NgayTao < unixNow)
+                    .SumAsync(v => (int?)v.TotalAmount) ?? 0;
 
-                // Lượt xem theo tháng
-                var monthViews = db.BaiViets
-                    .Where(bv => bv.NgayDang >= unixStartOfMonth && bv.NgayDang <= unixTimestamp)
-                    .Sum(bv => (int?)bv.ViewCount) ?? 0;
+                // Tổng số bản ghi Bài viết
+                int TotalArticles = db.BaiViets.Count();
 
-                // Lượt xem theo năm
-                var yearViews = db.BaiViets
-                    .Where(bv => bv.NgayDang >= unixStartOfYear && bv.NgayDang <= unixTimestamp)
-                    .Sum(bv => (int?)bv.ViewCount) ?? 0;
-
-                var totalArticles = db.BaiViets.Count();
-
-                var dashboardData = new
+                var result = new
                 {
                     DayViews = dayViews,
                     MonthViews = monthViews,
                     YearViews = yearViews,
-                    TotalArticles = totalArticles
+                    TotalArticles = TotalArticles
                 };
-                return Ok(dashboardData);
+                #endregion
+
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -76,117 +120,32 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
             }
         }
 
-        [Route("dashboard/chart"), HttpGet]
-        public IHttpActionResult GetChartData(string type)
-        {
-            try
-            {
-                DateTime now = DateTime.UtcNow;
-                var labels = new List<string>();
-                var data = new List<int>();
-
-                if (type == "day")
-                {
-                    // Theo giờ trong ngày hiện tại
-                    DateTime startOfDay = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0, DateTimeKind.Utc);
-                    for (int h = 0; h < 24; h++)
-                    {
-                        DateTime hourStart = startOfDay.AddHours(h);
-                        DateTime hourEnd = hourStart.AddHours(1);
-                        int unixStart = (int)(hourStart.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
-                        int unixEnd = (int)(hourEnd.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
-
-                        int viewCount = db.BaiViets
-                            .Where(bv => bv.NgayDang >= unixStart && bv.NgayDang < unixEnd)
-                            .Sum(bv => (int?)bv.ViewCount) ?? 0;
-
-                        labels.Add(h.ToString());
-                        data.Add(viewCount);
-                    }
-                }
-                else if (type == "month")
-                {
-                    // Theo ngày trong tháng hiện tại
-                    DateTime startOfMonth = new DateTime(now.Year, now.Month, 1, 0, 0, 0, DateTimeKind.Utc);
-                    int daysInMonth = DateTime.DaysInMonth(now.Year, now.Month);
-                    for (int d = 1; d <= daysInMonth; d++)
-                    {
-                        DateTime dayStart = new DateTime(now.Year, now.Month, d, 0, 0, 0, DateTimeKind.Utc);
-                        DateTime dayEnd = dayStart.AddDays(1);
-                        int unixStart = (int)(dayStart.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
-                        int unixEnd = (int)(dayEnd.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
-
-                        int viewCount = db.BaiViets
-                            .Where(bv => bv.NgayDang >= unixStart && bv.NgayDang < unixEnd)
-                            .Sum(bv => (int?)bv.ViewCount) ?? 0;
-
-                        labels.Add(d.ToString());
-                        data.Add(viewCount);
-                    }
-                }
-                else if (type == "year")
-                {
-                    // Theo tháng trong năm hiện tại
-                    for (int m = 1; m <= 12; m++)
-                    {
-                        DateTime monthStart = new DateTime(now.Year, m, 1, 0, 0, 0, DateTimeKind.Utc);
-                        DateTime monthEnd = (m < 12)
-                            ? new DateTime(now.Year, m + 1, 1, 0, 0, 0, DateTimeKind.Utc)
-                            : new DateTime(now.Year + 1, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-
-                        int unixStart = (int)(monthStart.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
-                        int unixEnd = (int)(monthEnd.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
-
-                        int viewCount = db.BaiViets
-                            .Where(bv => bv.NgayDang >= unixStart && bv.NgayDang < unixEnd)
-                            .Sum(bv => (int?)bv.ViewCount) ?? 0;
-
-                        labels.Add(m.ToString());
-                        data.Add(viewCount);
-                    }
-                }
-                else
-                {
-                    // Trả về rỗng nếu type không hợp lệ
-                    return Ok(new { labels = new List<string>(), data = new List<int>() });
-                }
-
-                return Ok(new { labels, data });
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
-        }
-
+        #endregion
+        #region lấy dữ liệu cho nút bài viết
         [Route("top10-baiviet-thang"), HttpGet]
         public async Task<IHttpActionResult> GetTop10BaiVietTrongThang()
         {
+            var user = SessionHelper.GetUser();
             try
             {
-                // Lấy thời điểm hiện tại (UTC)
                 DateTime now = DateTime.UtcNow;
-                int unixNow = (int)(now.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+                DateTime startOfMonth = GetStartOfMonth(now);
+                DateTime endOfMonth = GetEndOfMonth(now);
+                int unixStart = GetUnixTimestamp(startOfMonth);
+                int unixEnd = GetUnixTimestamp(endOfMonth);
 
-                // Đầu tháng hiện tại (UTC)
-                DateTime startOfMonth = new DateTime(now.Year, now.Month, 1, 0, 0, 0, DateTimeKind.Utc);
-                int unixStartOfMonth = (int)(startOfMonth.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
-
-                // Truy vấn lấy 10 bài viết có lượt xem cao nhất trong tháng
                 var top10BaiViet = await db.BaiViets
-                    .Where(bv => bv.NgayDang >= unixStartOfMonth && bv.NgayDang <= unixNow)
+                    .Where(bv => bv.ViewUpdate >= unixStart && bv.ViewUpdate < unixEnd)
                     .OrderByDescending(bv => bv.ViewCount)
                     .Take(10)
                     .Select(bv => new
                     {
                         bv.ID,
                         bv.TieuDe,
-                        
                         bv.ID_MucLuc,
                         bv.NgayDang,
                         bv.NgayCapNhat,
                         bv.LinkThumbnail,
-                        
                         bv.ViewCount
                     })
                     .ToListAsync();
@@ -198,5 +157,153 @@ namespace ProjectTinTucBan.Areas.Admin.Controllers
                 return InternalServerError(ex);
             }
         }
+        #endregion
+        #region lấy dữ liệu cho biểu đồ theo bộ lọc
+
+        [Route("dashboard-filter/chart"), HttpGet]
+        public IHttpActionResult GetChartDataWithFilter(string type = "range", int? year = null, int? month = null, int? from = null, int? to = null)
+        {
+            var user = SessionHelper.GetUser();
+            try
+            {
+                var labels = new List<string>();
+                var data = new List<int>();
+                string typeUsed = "";
+
+                // Xác định múi giờ chuẩn (GMT+7)
+                var timeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+                if (from.HasValue && to.HasValue)
+                {
+                    // Chuyển timestamp sang local time, rồi lấy Date
+                    var fromDateLocal = TimeZoneInfo.ConvertTimeFromUtc(
+                        DateTimeOffset.FromUnixTimeSeconds(from.Value).UtcDateTime, timeZone
+                    ).Date;
+
+                    var toDateLocal = TimeZoneInfo.ConvertTimeFromUtc(
+                        DateTimeOffset.FromUnixTimeSeconds(to.Value).UtcDateTime, timeZone
+                    ).Date;
+
+                    var totalDays = (toDateLocal - fromDateLocal).TotalDays;
+
+                    if (totalDays <= 1)
+                    {
+                        typeUsed = "hourly";
+                        for (int h = 0; h < 24; h++)
+                        {
+                            var hourStartLocal = fromDateLocal.AddHours(h);
+                            var hourStartUtc = TimeZoneInfo.ConvertTimeToUtc(hourStartLocal, timeZone);
+                            var hourEndUtc = hourStartUtc.AddHours(1);
+
+                            int unixStart = (int)((DateTimeOffset)hourStartUtc).ToUnixTimeSeconds();
+                            int unixEnd = (int)((DateTimeOffset)hourEndUtc).ToUnixTimeSeconds();
+
+                            int viewCount = db.VisitorLogs
+                                .Where(v => v.NgayTao >= unixStart && v.NgayTao < unixEnd)
+                                .Sum(v => (int?)v.TotalAmount) ?? 0;
+
+                            labels.Add(h.ToString("D2"));
+                            data.Add(viewCount);
+                        }
+                    }
+                    else if (totalDays <= 31)
+                    {
+                        typeUsed = "daily";
+                        for (var d = fromDateLocal; d <= toDateLocal; d = d.AddDays(1))
+                        {
+                            var dayStartUtc = TimeZoneInfo.ConvertTimeToUtc(d, timeZone);
+                            var dayEndUtc = dayStartUtc.AddDays(1);
+
+                            int unixStart = (int)((DateTimeOffset)dayStartUtc).ToUnixTimeSeconds();
+                            int unixEnd = (int)((DateTimeOffset)dayEndUtc).ToUnixTimeSeconds();
+
+                            int viewCount = db.VisitorLogs
+                                .Where(v => v.NgayTao >= unixStart && v.NgayTao < unixEnd)
+                                .Sum(v => (int?)v.TotalAmount) ?? 0;
+
+                            labels.Add(d.Day.ToString());
+                            data.Add(viewCount);
+                        }
+                    }
+                    else
+                    {
+                        typeUsed = "monthly";
+                        var current = new DateTime(fromDateLocal.Year, fromDateLocal.Month, 1);
+                        var end = new DateTime(toDateLocal.Year, toDateLocal.Month, 1);
+
+                        while (current <= end)
+                        {
+                            var monthStartUtc = TimeZoneInfo.ConvertTimeToUtc(current, timeZone);
+                            var monthEndUtc = monthStartUtc.AddMonths(1);
+
+                            int unixStart = (int)((DateTimeOffset)monthStartUtc).ToUnixTimeSeconds();
+                            int unixEnd = (int)((DateTimeOffset)monthEndUtc).ToUnixTimeSeconds();
+
+                            int viewCount = db.VisitorLogs
+                                .Where(v => v.NgayTao >= unixStart && v.NgayTao < unixEnd)
+                                .Sum(v => (int?)v.TotalAmount) ?? 0;
+
+                            labels.Add(current.Month.ToString("D2"));
+                            data.Add(viewCount);
+
+                            current = current.AddMonths(1);
+                        }
+                    }
+                }
+                else if (year.HasValue && month.HasValue)
+                {
+                    typeUsed = "daily-in-month";
+                    int daysInMonth = DateTime.DaysInMonth(year.Value, month.Value);
+                    for (int d = 1; d <= daysInMonth; d++)
+                    {
+                        var localDate = new DateTime(year.Value, month.Value, d, 0, 0, 0);
+                        var dayStartUtc = TimeZoneInfo.ConvertTimeToUtc(localDate, timeZone);
+                        var dayEndUtc = dayStartUtc.AddDays(1);
+
+                        int unixStart = (int)((DateTimeOffset)dayStartUtc).ToUnixTimeSeconds();
+                        int unixEnd = (int)((DateTimeOffset)dayEndUtc).ToUnixTimeSeconds();
+
+                        int viewCount = db.VisitorLogs
+                            .Where(v => v.NgayTao >= unixStart && v.NgayTao < unixEnd)
+                            .Sum(v => (int?)v.TotalAmount) ?? 0;
+
+                        labels.Add(d.ToString());
+                        data.Add(viewCount);
+                    }
+                }
+                else if (year.HasValue)
+                {
+                    typeUsed = "monthly-in-year";
+                    for (int m = 1; m <= 12; m++)
+                    {
+                        var localDate = new DateTime(year.Value, m, 1, 0, 0, 0);
+                        var monthStartUtc = TimeZoneInfo.ConvertTimeToUtc(localDate, timeZone);
+                        var monthEndUtc = monthStartUtc.AddMonths(1);
+
+                        int unixStart = (int)((DateTimeOffset)monthStartUtc).ToUnixTimeSeconds();
+                        int unixEnd = (int)((DateTimeOffset)monthEndUtc).ToUnixTimeSeconds();
+
+                        int viewCount = db.VisitorLogs
+                            .Where(v => v.NgayTao >= unixStart && v.NgayTao < unixEnd)
+                            .Sum(v => (int?)v.TotalAmount) ?? 0;
+
+                        labels.Add(m.ToString("D2"));
+                        data.Add(viewCount);
+                    }
+                }
+                else
+                {
+                    return Ok(new { labels = new List<string>(), data = new List<int>(), typeUsed = "none" });
+                }
+
+                return Ok(new { labels, data, typeUsed });
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        #endregion
     }
 }

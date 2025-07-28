@@ -4,6 +4,21 @@
 }
 
 <style>
+    .avatar-lg {
+        width: 50px;
+        height: 50px;
+    }
+
+    #chartContainer {
+        width: 100%;
+        max-width: 1000px;
+        height: 500px;
+        margin: 40px auto;
+    }
+
+    #viewsChart {
+        height: 100%;
+    }
     /* Style cho phần hiển thị thông tin session */
     .session-info, .session-warning, .session-error {
         margin-bottom: 20px;
@@ -85,13 +100,14 @@
             }
 
             #table_load_baiviet td {
-                text-align: center;
+                text-align: left;
             }
 
                 /* STT */
                 #table_load_baiviet th:nth-child(2),
                 #table_load_baiviet td:nth-child(2) {
                     width: 50px;
+                    text-align: center;
                 }
             /* Ngày đăng & cập nhật */
             #table_load_baiviet th:nth-child(5),
@@ -102,7 +118,7 @@
 
             #table_load_baiviet td:nth-child(5),
             #table_load_baiviet td:nth-child(6) {
-                text-align: left;
+                text-align: center;
                 width: 120px;
             }
             /* Thumbnail */
@@ -110,16 +126,71 @@
                 max-width: 80px;
                 height: auto;
                 border-radius: 4px;
+                text-align: center;
             }
+
+            #table_load_baiviet td:nth-child(8) {
+                text-align: center;
+                width: 120px;
+            }
+
+    .chart-filter {
+        background: #f9f9f9;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+    }
+
+    .chart-filter label {
+        font-weight: 600;
+    }
+
+    .chart-filter .form-control {
+        font-size: 14px;
+    }
+
+    .chart-filter button {
+        font-size: 14px;
+    }
 </style>
 <div class="main-content">
-
-
+    <h2>Trang chủ</h2>
+    <hr/>
     <div class="container-fluid">
         <!-- Session info will be displayed here by JavaScript -->
         <!-- Thống kê -->
+        <div class="row-cols-1">
+            <div class="chart-filter row align-items-end mb-4">
+                <div class="col-md-2">
+                    <label for="filter-year">Năm</label>
+                    <input type="number" min="2000" max="2100" class="form-control" id="filter-year" placeholder="VD: 2025">
+                </div>
+                <div class="col-md-2">
+                    <label for="filter-month">Tháng</label>
+                    <select class="form-control" id="filter-month" disabled>
+                        <option value="">-- Chọn --</option>
+                        <!-- Option 1-12 sẽ được thêm bằng JS -->
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="filter-from">Từ ngày</label>
+                    <input type="number" min="1" max="31" class="form-control" id="filter-from" placeholder="VD: 1" disabled>
+                </div>
+                <div class="col-md-2">
+                    <label for="filter-to">Đến ngày</label>
+                    <input type="number" min="1" max="31" class="form-control" id="filter-to" placeholder="VD: 15" disabled>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-primary w-100 mb-2" id="btn-apply-filter">Lọc</button>
+                    <button class="btn btn-secondary w-100" id="btn-reset-filter">Đặt lại</button>
+                </div>
+            </div>
 
+
+
+        </div>
         <div class="row">
+
             <div class="col-md-3">
                 <div class="card">
                     <div class="card-body" id="day">
@@ -137,7 +208,7 @@
             </div>
             <div class="col-md-3">
                 <div class="card">
-                    <div class="card-body" id="month">
+                    <div class="card-body" id="month" >
                         <div class="media align-items-center">
                             <div class="avatar avatar-icon avatar-lg avatar-cyan">
                                 <i class="anticon anticon-calendar"></i>
@@ -167,7 +238,7 @@
             </div>
             <div class="col-md-3">
                 <div class="card">
-                    <div class="card-body" id="baiviet">
+                    <div class="card-body" id="baiviet" style="cursor:pointer">
                         <div class="media align-items-center">
                             <div class="avatar avatar-icon avatar-lg avatar-purple">
                                 <i class="anticon anticon-file-text"></i>
@@ -188,7 +259,9 @@
                 <div id="viewsChart" style="height:100%;"></div>
             </div>
             <!-- Bảng bài viết -->
-            <div id="showtarget" class="col-12"></div>
+            <div id="showtarget" class="col-12">
+
+            </div>
         </div>
 
     </div>
@@ -196,20 +269,9 @@
 
 @section scriptsAdmin {
     <script src="~/Areas/Admin/Scripts/CheckSession.js"></script>
-
-
     <script src="~/Scripts/jquery-3.7.0.min.js"></script>
-
-    <!-- Chartist CSS (local) -->
     <link href="~/Areas/assets/vendors/chartist/chartist.min.css" rel="stylesheet" />
-
-    <!-- Chartist Tooltip CSS (CDN hoặc local nếu có) -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chartist-plugin-tooltips@0.0.17/dist/chartist-plugin-tooltip.css" />
-
-    <!-- Chartist JS (local) -->
     <script src="~/Areas/assets/vendors/chartist/chartist.min.js"></script>
-    <!-- Chartist Tooltip JS (CDN hoặc local nếu có) -->
-    <script src="https://cdn.jsdelivr.net/npm/chartist-plugin-tooltips@0.0.17/dist/chartist-plugin-tooltip.min.js"></script>
     <script src="~/Areas/Admin/Scripts/DashboardScript.js"></script>
 }
 
