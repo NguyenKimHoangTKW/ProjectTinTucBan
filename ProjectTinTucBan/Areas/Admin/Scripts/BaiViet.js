@@ -615,7 +615,8 @@ function loadMucLucOptions() {
             if (response.success) {
                 var options = '<option value="">-- Chọn mục lục --</option>';
                 $.each(response.data, function (i, item) {
-                    options += '<option value="' + item.ID + '">' + item.TenMucLuc + '</option>';
+                    const safeMucLuc = escapeHtml(item.TenMucLuc);
+                    options += '<option value="' + item.ID + '">' + safeMucLuc + '</option>';
                 });
                 $('#ID_MucLuc').html(options);
             } else {
@@ -882,7 +883,6 @@ function setupBaiVietTableEvents() {
         window.open(url, '_blank');
     });
     $(document).on('click', '#btnLuuBaiViet', async function () {
-        $('#savingSpinner').removeClass('d-none'); // 👉 Hiện spinner
 
         const tieuDe = $('#TieuDe').val().trim();
         const noiDung = CKEDITOR.instances.NoiDung.getData().trim();
@@ -925,8 +925,6 @@ function setupBaiVietTableEvents() {
             }
         } catch (err) {
             Swal.fire({ icon: 'error', title: 'Lỗi', text: 'Không thể lưu bài viết.' });
-        } finally {
-            $('#savingSpinner').addClass('d-none'); //
         }
     });
 }
@@ -984,7 +982,7 @@ function renderPage(page) {
             : escapeHtml(item.TieuDe);
 
         let mucLucInfo = item.MucLuc?.TenMucLuc ? escapeHtml(item.MucLuc.TenMucLuc) : 'Khác';
-
+        const safeInfo = escapeHtml(mucLucInfo);
         let actionButtons = '';
         const isOwner = currentUser.userId === item.NguoiDang?.ID;
         if (isAdmin || isOwner) {
@@ -1022,7 +1020,7 @@ function renderPage(page) {
                 <td class="text-center">
                     <button class="btn btn-sm btn-outline-info btn-xem" data-id="${item.ID}">Xem</button>
                 </td>
-                <td class="text-center">${mucLucInfo}</td>
+                <td class="text-center">${safeInfo}</td>
                 <td>${formatDateFromInt(item.NgayDang)}</td>
                 <td>${formatDateFromInt(item.NgayCapNhat)}</td>
                 <td>${linkThumb}</td>

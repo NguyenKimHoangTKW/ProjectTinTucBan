@@ -77,6 +77,11 @@ namespace ProjectTinTucBan.Areas.Admin
                 new { controller = "InterfaceAdmin", action = "BaiViet" }
             );
             context.MapRoute(
+                "hdsd",
+                "Admin/HDSD",
+                new { controller = "InterfaceAdmin", action = "HDSD_Admin" }
+            );
+            context.MapRoute(
                 "xem-noi-dung",
                 "Admin/xem-noi-dung/{id}",
                 new { controller = "InterfaceAdmin", action = "XemNoiDung", id = UrlParameter.Optional }

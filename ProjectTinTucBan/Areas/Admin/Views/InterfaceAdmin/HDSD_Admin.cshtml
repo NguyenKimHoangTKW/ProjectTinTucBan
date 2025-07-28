@@ -1,0 +1,79 @@
+﻿@{
+    ViewBag.Title = "HDSD_Admin";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+    /* Căn giữa nội dung bảng */
+    .table > tbody > tr > td {
+        background-color: white !important;
+    }
+
+    #tableHDSD {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+
+        #tableHDSD tbody td:last-child {
+            text-align: center;
+        }
+        #tableHDSD th:nth-child(1) {
+            width: 50px !important;
+        }
+        #tableHDSD td:nth-child(1),
+        #tableHDSD td:nth-child(3),
+        #tableHDSD td:nth-child(4) {
+            text-align: center;
+        }
+</style>
+
+<div class="container-fluid main-content py-3">
+    <h2 class="header-title">HƯỚNG DẪN SỬ DỤNG</h2>
+    <hr />
+    <div class="mb-3 text-end">
+        <button id="btnThemTaiLieu" class="btn btn-primary">
+            <i class="fa fa-plus"></i> Thêm tài liệu
+        </button>
+    </div>
+    <table id="tableHDSD" class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th class="text-center">STT</th>
+                <th class="text-center">Tên tài liệu</th>
+                <th class="text-center">Ngày tải lên</th>
+                <th class="text-center">Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Nội dung sẽ được đổ bằng JavaScript -->
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal thêm tài liệu -->
+<div class="modal fade" id="modalThemTaiLieu" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form id="formTaiLieu" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <h5 class="modal-title">Thêm tài liệu</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group mt-3">
+                        <label>Chọn file PDF</label>
+                        <input type="file" id="fileTaiLieu" class="form-control" name="FileTaiLieu" accept=".pdf" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Lưu</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scriptsAdmin{
+    <script src="~/Areas/Admin/Scripts/HDSD_Admin.js"></script>
+}

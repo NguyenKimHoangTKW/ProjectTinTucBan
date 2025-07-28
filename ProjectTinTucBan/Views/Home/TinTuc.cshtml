@@ -53,13 +53,13 @@
                     const tieuDe = bv.TieuDe || "Không có tiêu đề";
 
                     html += `
-                        <div class="bg-white rounded shadow hover:shadow-md transition overflow-hidden flex flex-col h-full">
-                            <img src="${thumb}" class="w-full h-[180px] object-cover" alt="Ảnh">
-                            <div class="p-4 flex flex-col flex-1">
-                                <a href="/noi-dung/${bv.ID}" class="text-base font-semibold text-gray-800 hover:text-orange-600 leading-snug line-clamp-2">${tieuDe}</a>
-                                <p class="text-sm text-gray-500 mt-2"><i class="fa-regular fa-calendar-days mr-1"></i>${date}</p>
-                            </div>
-                        </div>`;
+                            <div class="bg-white rounded shadow hover:shadow-md transition overflow-hidden flex flex-col h-full">
+                                <img src="${thumb}" class="w-full h-[180px] object-cover" alt="Ảnh">
+                                <div class="p-4 flex flex-col flex-1">
+                                    <a href="/noi-dung/${bv.ID}" class="text-base font-semibold text-gray-800 hover:text-orange-600 leading-snug line-clamp-2">${tieuDe}</a>
+                                    <p class="text-sm text-gray-500 mt-2"><i class="fa-regular fa-calendar-days mr-1"></i>${date}</p>
+                                </div>
+                            </div>`;
                 });
 
                 $("#tinTucList").html(html);
